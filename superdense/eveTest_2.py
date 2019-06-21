@@ -1,12 +1,6 @@
-
-
 from cqc.pythonLib import CQCConnection, qubit
 
 
-#####################################################################################################
-#
-# main
-#
 def main():
 
     # Initialize the connection
