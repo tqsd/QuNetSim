@@ -17,11 +17,9 @@ def encode(message, qubit):
 		qubit.X()
 	elif message == '10':
 		qubit.Z()
-		pass
 	elif message == '11':
 		qubit.X()
 		qubit.Z()
-		pass
 	else:
 		throw("Not possible to encode this message")
 
