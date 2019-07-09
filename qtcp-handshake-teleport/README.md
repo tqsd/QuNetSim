@@ -1,1 +1,1 @@
-This folder contains a sample of Alice sending information to Bob via superdense coding. A third party, Eve, generates entanglement and sends one half to Alice and one half to Bob. Once they both receive their halves, Alice encodes two bits of information into her half of the qubit and sends it to Bob such that Bob can decode it.
+This folder contains the three way handshake protocol between Alice and Bob via a third party entanglement distributer Eve. 
