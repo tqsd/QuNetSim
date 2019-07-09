@@ -1,0 +1,1 @@
+This folder contains the three way handshake protocol between Alice and Bob via a third party entanglement distributer Eve. 
