@@ -1,20 +1,17 @@
 from cqc.pythonLib import CQCConnection, qubit
 
 
-
 def main():
     # Initialize the connection
 	with CQCConnection("Alice") as Alice:
 
 		#Alice receives the entangled qubits from Eve that are going to be used in teleportation.
-
 		q_teleport_1A = Alice.recvQubit()
 		q_teleport_2A = Alice.recvQubit()
 		q_teleport_3A = Alice.recvQubit()
 		q_teleport_4A = Alice.recvQubit()
 
 		#Alice creates an EPR pair qA_1 and qA_2
-
 		qA_1 = qubit(Alice)
 		qA_2 = qubit(Alice)
 
@@ -31,7 +28,6 @@ def main():
 		#Alice sends SYN message along with the teleportation bits.
 		syn_send=1
 		ack_send=0
-
 		Alice.sendClassical("Bob", [syn_send, ack_send, a, b],False)
 
 		#Receives the SYN-ACK message and the teleportation bits for qA_2 and qB_2, then decodes it.
@@ -55,7 +51,6 @@ def main():
 			q_teleport_3A.X()
 		if pauli_correct_2 == 1:
 			q_teleport_3A.Z()
-
 
 		#Alice makes a Bell state measurement on qA_1 and qA_2(restored in q_teleport_2A)
 		qA_1.cnot(q_teleport_2A)
@@ -82,10 +77,6 @@ def main():
 
 		#Alice sends ACK message along with the teleportation bits.
 		Alice.sendClassical("Bob", [syn_send, ack_send, e, f],False)
-
-
-
-
 
 
 ##################################################################################################

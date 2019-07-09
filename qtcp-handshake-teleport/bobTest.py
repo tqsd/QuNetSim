@@ -1,11 +1,9 @@
 from cqc.pythonLib import CQCConnection, qubit
 
 
-
 def main():
 
     with CQCConnection("Bob") as Bob:
-
         #Bob receives the entangled qubits from Eve that are going to be used in teleportation.
         q_teleport_1B = Bob.recvQubit()
         q_teleport_2B = Bob.recvQubit()
@@ -65,7 +63,6 @@ def main():
         pauli_correct_0 = message_recv[2]
         pauli_correct_1 = message_recv[3]
 
-
         if syn_recv == 0 and ack_recv == 1:
             print("ACK is received by Bob.")
 
@@ -85,8 +82,6 @@ def main():
         #If the measurement results are expected she confirms the TCP connection. If not she raises an error.
         if measure_1 == 0 and measure_2 == 0:
             print("TCP connection is established.")
-
-
 
 
 ##################################################################################################

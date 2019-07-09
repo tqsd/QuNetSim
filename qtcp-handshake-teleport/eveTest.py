@@ -20,7 +20,6 @@ def main():
         q_teleport_A4 = qubit(Eve)
         q_teleport_B4 = qubit (Eve)
 
-
         # Create entanglement between the qubits
         q_teleport_A1.H()
         q_teleport_A1.cnot(q_teleport_B1)
