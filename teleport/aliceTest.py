@@ -6,10 +6,8 @@ from cqc.pythonLib import CQCConnection, qubit
 # main
 #
 def main():
-
     # Initialize the connection
     with CQCConnection("Alice") as Alice:
-
         # Make an EPR pair with Bob
         qA = Alice.createEPR("Bob")
 
@@ -18,7 +16,6 @@ def main():
 
         # Prepare the qubit to teleport in |+>
         q.H()
-
 
         # Apply the local teleportation operations
         q.cnot(qA)

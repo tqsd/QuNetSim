@@ -2,23 +2,23 @@ from cqc.pythonLib import CQCConnection, qubit
 
 
 def main():
-	# Here Eve acts acts and the entanglement distributor.
-	# To start the protocol, Eve sends  halves of the 4 entangled pairs to Alice
-	# and and Bob.
+    # Here Eve acts acts and the entanglement distributor.
+    # To start the protocol, Eve sends  halves of the 4 entangled pairs to Alice
+    # and and Bob.
 
     # Initialize the connection
     with CQCConnection("Eve") as Eve:
         q_teleport_A1 = qubit(Eve)
-        q_teleport_B1 = qubit (Eve)
+        q_teleport_B1 = qubit(Eve)
 
         q_teleport_A2 = qubit(Eve)
-        q_teleport_B2 = qubit (Eve)
+        q_teleport_B2 = qubit(Eve)
 
         q_teleport_A3 = qubit(Eve)
-        q_teleport_B3 = qubit (Eve)
+        q_teleport_B3 = qubit(Eve)
 
         q_teleport_A4 = qubit(Eve)
-        q_teleport_B4 = qubit (Eve)
+        q_teleport_B4 = qubit(Eve)
 
         # Create entanglement between the qubits
         q_teleport_A1.H()
@@ -40,10 +40,10 @@ def main():
         Eve.sendQubit(q_teleport_A4, "Alice")
 
         # Send second halves to Bob
-        Eve.sendQubit(q_teleport_B1,"Bob")
-        Eve.sendQubit(q_teleport_B2,"Bob")
-        Eve.sendQubit(q_teleport_B3,"Bob")
-        Eve.sendQubit(q_teleport_B4,"Bob")
+        Eve.sendQubit(q_teleport_B1, "Bob")
+        Eve.sendQubit(q_teleport_B2, "Bob")
+        Eve.sendQubit(q_teleport_B3, "Bob")
+        Eve.sendQubit(q_teleport_B4, "Bob")
 
 
 ##################################################################################################

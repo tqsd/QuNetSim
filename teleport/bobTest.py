@@ -6,7 +6,6 @@ from cqc.pythonLib import CQCConnection
 # main
 #
 def main():
-
     # Initialize the connection
     with CQCConnection("Bob") as Bob:
 
