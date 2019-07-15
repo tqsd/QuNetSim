@@ -1,5 +1,5 @@
 from cqc.pythonLib import CQCConnection
-from functions import receive_teleport
+from protcols import receive_teleport
 
 
 #####################################################################################################

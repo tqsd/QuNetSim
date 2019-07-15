@@ -22,7 +22,7 @@ def encode(message, qubit):
         qubit.X()
         qubit.Z()
     else:
-        throw("Not possible to encode this message")
+        raise Exception("Not possible to encode this message")
 
     return qubit
 

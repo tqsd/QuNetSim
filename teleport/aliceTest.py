@@ -1,5 +1,5 @@
 from cqc.pythonLib import CQCConnection, qubit
-from functions import teleport
+from protcols import teleport
 
 
 #####################################################################################################
