@@ -1,5 +1,10 @@
 from cqc.pythonLib import CQCConnection
-from protocol.protocols import receive_superdense
+
+import sys
+
+sys.path.append("..")
+
+from protocol import protocols
 
 
 def main():
@@ -7,7 +12,7 @@ def main():
     with CQCConnection("Bob") as Bob:
         # Receive qubit from Eve
 
-        message = receive_superdense(Bob)
+        message = protocols.receive_superdense(Bob)
 
         to_print = "Receiver {}: The message Alice sent was: {}".format(Bob.name, message)
         print("|" + "-" * (len(to_print) + 2) + "|")
