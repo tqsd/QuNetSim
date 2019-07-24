@@ -23,6 +23,8 @@ def main():
             # if ACK
             if m == 1:
                 print('Alice: Bob received the qubit')
+                # Remove err_1 from simulqron
+                err_1.release()
                 k = False
             else:
                 print('Alice: Bob did not receive the qubit')
