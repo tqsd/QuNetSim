@@ -2,12 +2,8 @@ import time
 
 from cqc.pythonLib import CQCConnection, qubit
 
-import sys
 import threading
 import queue
-
-sys.path.append("..")
-from protocol import protocols
 
 
 class DaemonThread(threading.Thread):
@@ -42,6 +38,7 @@ def process_queue():
 
 def listen_for_messages():
     global gBob, stop_thread
+    t = 0
     while True:
         if stop_thread:
             return
@@ -50,8 +47,10 @@ def listen_for_messages():
             m = list(gBob.recvClassical(timout=1))[0]
             print('bob received classical')
             message_queue.put(m)
+
         except RuntimeError:
             print('no incoming messages at time interval ', t)
+        t += 1
 
 
 message_queue = queue.Queue()
