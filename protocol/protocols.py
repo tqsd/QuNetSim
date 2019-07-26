@@ -1,7 +1,7 @@
 from cqc.pythonLib import qubit
 
 
-def teleport(Sender, receiver, q):
+def teleport(Sender, receiver, q) -> None:
     qA = Sender.createEPR(receiver)
     q.cnot(qA)
     q.H()
@@ -85,12 +85,16 @@ def receive_superdense(Receiver, should_decode=True):
         return [qA, qB]
 
 
-class Qutrit:
-    def __init__(self, owner):
-        self.q1 = qubit(owner)
-        self.q2 = qubit(owner)
-        self.owner = owner
+def add_checksum(Sender, qubits, size=2):
+    i = 0
+    check_qubits = []
+    while i < len(qubits):
+        check = qubit(Sender)
+        j = 0
+        while j < size:
+            qubits[i + j].cnot(check)
+            j += 1
 
-    def send(self, receiver):
-        self.owner.sendQubit(self.q1, receiver)
-        self.owner.sendQubit(self.q2, receiver)
+        check_qubits.append(check)
+        i += size
+    return check_qubits
