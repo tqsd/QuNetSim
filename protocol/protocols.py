@@ -1,13 +1,21 @@
 from cqc.pythonLib import qubit
 
+TELEPORT = 2
+SUPERDENSE = 3
+SEND_UDP_PACKET = 4
+TERMINATE_UDP_PACKET = 5
 
-def teleport(Sender, receiver, q) -> None:
+
+
+def teleport(Sender, receiver, q):
+    Sender.sendClassical(receiver, [1])
     qA = Sender.createEPR(receiver)
     q.cnot(qA)
     q.H()
     a = q.measure()
     b = qA.measure()
-    Sender.sendClassical(receiver, [a, b])
+    m=2
+    Sender.sendClassical(receiver, [m, a, b])
 
 
 def receive_teleport(Receiver):
