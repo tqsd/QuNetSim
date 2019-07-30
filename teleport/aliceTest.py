@@ -14,7 +14,14 @@ def main():
     with CQCConnection("Alice") as Alice:
         q = qubit(Alice)
         q.H()
+
+        Alice.sendClassical('Bob', [2])
+
         protocols.teleport(Alice, 'Bob', q)
+
+
+
+        print('Alice: done teleport')
 
 
 ##################################################################################################
