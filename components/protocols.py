@@ -116,8 +116,8 @@ def _receive_teleport(sender, receiver):
     return qB
 
 
-# def _send_ack(host, destination):
-#     pass
+def _send_ack(host, destination):
+    pass
 
 
 def _encode_superdense(message, q):
