@@ -1,17 +1,21 @@
 import time
 
-from cqc.pythonLib import CQCConnection, qubit
+from cqc.pythonLib import CQCConnection
 
 import sys
 import threading
 import queue
 
 sys.path.append("..")
-from protocol import protocols
+from components import protocols
 
 measurements_arr = []
 teleported_qubits = []
 data_arr = []
+message_queue = queue.Queue()
+qubits = []
+stop_thread = False
+gBob = None
 
 
 class DaemonThread(threading.Thread):
@@ -33,7 +37,7 @@ def process_message(incoming):
     elif m == 1:
         qubits.append(gBob.recvEPR())
 
-    elif m == protocols.TELEPORT:
+    elif m == protocols.RECEIVE_TELEPORT:
         a = incoming[1]
         b = incoming[2]
         qB = qubits.pop()
@@ -113,12 +117,6 @@ def listen_for_messages():
             message_queue.put(incoming)
         except RuntimeError:
             print('no incoming messages at time interval ')
-
-
-message_queue = queue.Queue()
-qubits = []
-stop_thread = False
-gBob = None
 
 
 def main():

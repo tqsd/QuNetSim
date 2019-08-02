@@ -1,8 +1,8 @@
-from cqc.pythonLib import CQCConnection
+from cqc.pythonLib import CQCConnection, qubit
 import sys
 
 sys.path.append("..")
-from protocol import protocols
+from components import protocols
 
 
 #####################################################################################################
@@ -11,10 +11,17 @@ from protocol import protocols
 #
 def main():
     # Initialize the connection
-    with CQCConnection("Bob") as Bob:
-        qB = protocols.receive_teleport(Bob)
-        m = qB.measure()
-        print("Measurement outcome: ", m)
+    with CQCConnection("Alice") as Alice:
+        q = qubit(Alice)
+        q.H()
+
+        Alice.sendClassical('Bob', [2])
+
+        protocols.teleport(Alice, 'Bob', q)
+
+
+
+        print('Alice: done teleport')
 
 
 ##################################################################################################

@@ -1,11 +1,9 @@
-import time
-
 from cqc.pythonLib import CQCConnection, qubit
 import sys
 import random
 
 sys.path.append("..")
-from protocol import protocols
+from components import protocols
 
 
 def main():

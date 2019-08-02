@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 sys.path.append("..")
-from protocol import protocols
+from components import protocols
 
 
 #####################################################################################################
@@ -16,15 +16,15 @@ def main():
     with CQCConnection("Alice") as Alice:
 
 
-        what_to_do = protocols.SEND_UDP_PACKET
+        what_to_do = protocols.SEND_UDP
 
-        if what_to_do == protocols.TELEPORT:
+        if what_to_do == protocols.RECEIVE_TELEPORT:
             q = qubit(Alice)
             q.X()
             time.sleep(0.5)
             protocols.teleport(Alice, 'Bob', q)
 
-        if what_to_do == protocols.SUPERDENSE:
+        if what_to_do == protocols.RECEIVE_SUPERDENSE:
             Alice.sendClassical("Bob", [what_to_do])
             message = '10'
             to_print = "The message Alice sent was: {}".format(message)
@@ -35,7 +35,7 @@ def main():
 
             protocols.send_superdense(Alice, message, 'Bob')
 
-        if what_to_do == protocols.SEND_UDP_PACKET:
+        if what_to_do == protocols.SEND_UDP:
 
             # Generate a random bit array(information) and encode them into qubits
             packet_checksum_ratio = 2
@@ -63,10 +63,10 @@ def main():
                 # print("here")
                 time.sleep(0.2)
 
-            what_to_do = protocols.TERMINATE_UDP_PACKET
+            what_to_do = protocols.TERMINATE_UDP
             time.sleep(0.2)
 
-        if what_to_do == protocols.TERMINATE_UDP_PACKET:
+        if what_to_do == protocols.TERMINATE_UDP:
             Alice.sendClassical("Bob", [what_to_do, packet_size, checksum_size])
             return
 

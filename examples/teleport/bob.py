@@ -1,9 +1,13 @@
 import time
 
-from cqc.pythonLib import CQCConnection, qubit
+from cqc.pythonLib import CQCConnection
 
 import threading
 import queue
+import sys
+
+sys.path.append("..")
+from components import protocols
 
 
 class DaemonThread(threading.Thread):
@@ -23,6 +27,12 @@ def process_message(m):
         q = gBob.recvEPR()
         meas = q.measure()
         print('Measured EPR', meas)
+
+    elif m == 2:
+        q = protocols.receive_teleport(gBob)
+        print('got teleport')
+        meas = q.measure()
+        print('Measured', meas)
 
 
 def process_queue():
@@ -44,7 +54,8 @@ def listen_for_messages():
             return
         print('bob listening')
         try:
-            m = list(gBob.recvClassical(timout=1))[0]
+            incoming = list(gBob.recvClassical(timout=1))
+            m = incoming[0]
             print('bob received classical')
             message_queue.put(m)
 
