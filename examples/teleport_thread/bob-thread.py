@@ -37,7 +37,7 @@ def process_message(incoming):
     elif m == 1:
         qubits.append(gBob.recvEPR())
 
-    elif m == protocols.RECEIVE_TELEPORT:
+    elif m == protocols.REC_TELEPORT:
         a = incoming[1]
         b = incoming[2]
         qB = qubits.pop()

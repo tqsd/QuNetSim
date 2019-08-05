@@ -1,6 +1,7 @@
 # Network singleton
 class Network:
     ARP = {}
+    links = {}
     instance = None
 
     class __Network:
@@ -15,9 +16,14 @@ class Network:
         self.ARP[host.host_id] = host
 
     def get_host(self, host_id):
-        if not self.ARP[host_id]:
+        if host_id not in self.ARP:
             return None
         return self.ARP[host_id]
+
+    def get_host_name(self, host_id):
+        if host_id not in self.ARP:
+            return None
+        return self.ARP[host_id].cqc.name
 
     def send(self, packet, host_id):
         self.ARP[host_id].rec_packet(packet)

@@ -18,13 +18,13 @@ def main():
 
         what_to_do = protocols.SEND_UDP
 
-        if what_to_do == protocols.RECEIVE_TELEPORT:
+        if what_to_do == protocols.REC_TELEPORT:
             q = qubit(Alice)
             q.X()
             time.sleep(0.5)
             protocols.teleport(Alice, 'Bob', q)
 
-        if what_to_do == protocols.RECEIVE_SUPERDENSE:
+        if what_to_do == protocols.REC_SUPERDENSE:
             Alice.sendClassical("Bob", [what_to_do])
             message = '10'
             to_print = "The message Alice sent was: {}".format(message)

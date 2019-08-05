@@ -11,10 +11,11 @@ ACK = '1111'
 NACK = '0000'
 
 # PROTOCOL IDs
-RECEIVE_EPR = '00000000'
-RECEIVE_TELEPORT = '00000001'
+REC_EPR = '00000000'
+SEND_EPR = '00001011'
+REC_TELEPORT = '00000001'
 SEND_TELEPORT = '00000010'
-RECEIVE_SUPERDENSE = '00000011'
+REC_SUPERDENSE = '00000011'
 SEND_UDP = '00000100'
 TERMINATE_UDP = '00000101'
 SEND_ACK = '00000110'
@@ -26,19 +27,36 @@ network = Network()
 
 
 def process(header):
-    print('incoming: ', header)
     sender, receiver, protocol, payload, payload_type = _parse_message(header)
 
     if protocol == SEND_TELEPORT:
         return _send_teleport(sender, receiver, payload)
-    elif protocol == RECEIVE_TELEPORT:
-        return _receive_teleport(sender, receiver)
+    elif protocol == REC_TELEPORT:
+        return _rec_teleport(sender, receiver)
     elif protocol == SEND_CLASSICAL:
         return _send_classical(sender, receiver, payload)
     elif protocol == REC_CLASSICAL:
-        return _rec_classical(payload)
+        return _rec_classical(sender, receiver, payload)
+    elif protocol == REC_EPR:
+        return _rec_epr(sender, receiver)
+    elif protocol == SEND_EPR:
+        return _send_epr(sender, receiver)
     else:
         print('protocol not defined')
+
+
+def encode(sender, receiver, protocol, payload='', payload_type=''):
+    packet = []
+    if payload_type == CLASSICAL:
+        header = sender + receiver + protocol + payload_type
+        packet = [header, payload]
+    # elif payload_type == QUANTUM:
+    else:
+        # TODO: Think about the differences between classical and quantum
+        header = sender + receiver + protocol + payload_type
+        packet = [header, payload]
+
+    return packet
 
 
 def _parse_message(message):
@@ -67,56 +85,61 @@ def _send_classical(sender, receiver, message):
     # host_sender.cqc.sendClassical(host_receiver.cqc.name, packet)
 
 
-def _rec_classical(payload):
+def _rec_classical(sender, receiver, payload):
     # Assume the payload is the classical message
+    _send_ack(sender, receiver)
     return payload
 
 
-def encode(sender, receiver, protocol, payload, payload_type):
-    packet = []
-    if payload_type == CLASSICAL:
-        header = sender + receiver + protocol + payload_type
-        packet = [header, payload]
-    elif payload_type == QUANTUM:
-        # TODO: Think about the differences between classical and quantum
-        header = sender + receiver + protocol + payload_type
-        packet = [header, payload]
-
-    return packet
-
-
 def _send_teleport(sender, receiver, q):
-    sender = network.get_host(sender)
+    host_sender = network.get_host(sender)
 
-    sender.sendClassical(receiver, [RECEIVE_EPR])
-    qA = sender.createEPR(receiver)
-    q.cnot(qA)
-    q.H()
-    data = [q.measure(), qA.measure()]
-    packet = encode(sender, receiver, RECEIVE_TELEPORT, data, CLASSICAL)
-    sender.sendClassical(receiver, packet)
+    # ask network if there is an EPR pair between sender / receiver
+    # if not, generate it
+    # else teleport
+    pass
 
 
-def _receive_teleport(sender, receiver):
-    receiver = network.get_host(receiver)
-    qB = receiver.recvEPR()
-    data = receiver.recvClassical()
-    message = list(data)
-    a = message[0]
-    b = message[1]
+def _rec_teleport(sender, receiver):
+    # receiver = network.get_host(receiver)
+    # qB = receiver.recvEPR()
+    # data = receiver.recvClassical()
+    # message = list(data)
+    # a = message[0]
+    # b = message[1]
+    #
+    # # Apply corrections
+    # if b == 1:
+    #     qB.X()
+    # if a == 1:
+    #     qB.Z()
+    #
+    # _send_ack(sender, receiver)
+    #
+    # return qB
+    pass
 
-    # Apply corrections
-    if b == 1:
-        qB.X()
-    if a == 1:
-        qB.Z()
 
+def _send_epr(sender, receiver):
+    host_sender = network.get_host(sender)
+    receiver_name = network.get_host_name(receiver)
+
+    packet = encode(sender, receiver, REC_EPR)
+    network.send(packet, receiver)
+
+    q = host_sender.cqc.createEPR(receiver_name)
+    # TODO: wait for ACK before adding epr
+    host_sender.add_epr(receiver, q)
+
+
+def _rec_epr(sender, receiver):
+    host_receiver = network.get_host(receiver)
+    q = host_receiver.cqc.recvEPR()
+    host_receiver.add_epr(sender, q)
     _send_ack(sender, receiver)
 
-    return qB
 
-
-def _send_ack(host, destination):
+def _send_ack(sender, receiver):
     pass
 
 
@@ -165,18 +188,11 @@ def _decode_superdense(qA, qB):
 
 
 def _send_superdense(sender, message, receiver):
-    qA = sender.createEPR(receiver)
-    _encode_superdense(message, qA)
-    sender.sendQubit(qA, receiver)
+    pass
 
 
 def _receive_superdense(receiver, should_decode=True):
-    qB = receiver.recvEPR()
-    qA = receiver.recvQubit()
-    if should_decode:
-        return _decode_superdense(qA, qB)
-    else:
-        return [qA, qB]
+    pass
 
 
 def _add_checksum(sender, qubits, size=2):
