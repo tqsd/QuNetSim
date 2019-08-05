@@ -1,16 +1,19 @@
 # Network singleton
 class Network:
-    ARP = {}
-    links = {}
-    instance = None
+    __instance = None
 
-    class __Network:
-        def __init__(self):
-            pass
+    @staticmethod
+    def get_instance():
+        if Network.__instance is None:
+            Network()
+        return Network.__instance
 
     def __init__(self):
-        if not Network.instance:
-            Network.instance = Network.__Network()
+        if Network.__instance is None:
+            self.ARP = {}
+            Network.__instance = self
+        else:
+            raise Exception('this is a singleton class')
 
     def add_host(self, host):
         self.ARP[host.host_id] = host

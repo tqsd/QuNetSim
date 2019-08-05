@@ -1,7 +1,6 @@
 from queue import Queue
 import threading
 from components import protocols
-from cqc.pythonLib import CQCConnection
 
 
 class DaemonThread(threading.Thread):

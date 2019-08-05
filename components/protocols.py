@@ -23,7 +23,7 @@ REC_ACK = '00000111'
 SEND_CLASSICAL = '00001000'
 REC_CLASSICAL = '00001001'
 
-network = Network()
+network = Network.get_instance()
 
 
 def process(header):
