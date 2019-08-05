@@ -9,6 +9,7 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+
     print('')
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob:
