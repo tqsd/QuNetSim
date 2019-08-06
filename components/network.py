@@ -18,6 +18,12 @@ class Network:
     def add_host(self, host):
         self.ARP[host.host_id] = host
 
+    def shares_epr(self, sender, receiver):
+        host_sender = self.get_host(sender)
+        host_receiver = self.get_host(receiver)
+
+        return host_sender.shares_epr(receiver) and host_receiver.shares_epr(sender)
+
     def get_host(self, host_id):
         if host_id not in self.ARP:
             return None

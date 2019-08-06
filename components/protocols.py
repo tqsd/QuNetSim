@@ -26,13 +26,13 @@ REC_CLASSICAL = '00001001'
 network = Network.get_instance()
 
 
-def process(header):
-    sender, receiver, protocol, payload, payload_type = _parse_message(header)
+def process(packet):
+    sender, receiver, protocol, payload, payload_type = _parse_message(packet)
 
     if protocol == SEND_TELEPORT:
         return _send_teleport(sender, receiver, payload)
     elif protocol == REC_TELEPORT:
-        return _rec_teleport(sender, receiver)
+        return _rec_teleport(sender, receiver, payload)
     elif protocol == SEND_CLASSICAL:
         return _send_classical(sender, receiver, payload)
     elif protocol == REC_CLASSICAL:
@@ -41,12 +41,16 @@ def process(header):
         return _rec_epr(sender, receiver)
     elif protocol == SEND_EPR:
         return _send_epr(sender, receiver)
+    elif protocol == SEND_TELEPORT:
+        return _send_teleport(sender, receiver, payload)
     else:
         print('protocol not defined')
 
 
-def encode(sender, receiver, protocol, payload='', payload_type=''):
+def encode(sender, receiver, protocol, payload=None, payload_type=''):
     packet = []
+    if payload is None:
+        payload = ''
     if payload_type == CLASSICAL:
         header = sender + receiver + protocol + payload_type
         packet = [header, payload]
@@ -93,6 +97,20 @@ def _rec_classical(sender, receiver, payload):
 
 def _send_teleport(sender, receiver, q):
     host_sender = network.get_host(sender)
+    receiver_name = network.get_host_name(receiver)
+
+    if not network.shares_epr(sender, receiver):
+        print('Sent epr')
+        _send_epr(sender, receiver)
+
+    epr_teleport = host_sender.get_epr(receiver)
+    q.cnot(epr_teleport)
+    q.H()
+
+    m1 = q.measure()
+    m2 = epr_teleport.measure()
+    packet = encode(sender, receiver, REC_TELEPORT, [m1, m2])
+    network.send(packet, receiver)
 
     # ask network if there is an EPR pair between sender / receiver
     # if not, generate it
@@ -100,24 +118,24 @@ def _send_teleport(sender, receiver, q):
     pass
 
 
-def _rec_teleport(sender, receiver):
-    # receiver = network.get_host(receiver)
-    # qB = receiver.recvEPR()
-    # data = receiver.recvClassical()
-    # message = list(data)
-    # a = message[0]
-    # b = message[1]
-    #
-    # # Apply corrections
-    # if b == 1:
-    #     qB.X()
-    # if a == 1:
-    #     qB.Z()
-    #
-    # _send_ack(sender, receiver)
-    #
-    # return qB
-    pass
+def _rec_teleport(sender, receiver, payload):
+    host_receiver = network.get_host(receiver)
+
+    q1 = host_receiver.get_epr(sender)
+
+    a = payload[0]
+    b = payload[1]
+
+    # Apply corrections
+    if b == 1:
+        q1.X()
+    if a == 1:
+        q1.Z()
+
+    print('Teleported qubit is :')
+    print(q1.measure())
+
+    _send_ack(sender, receiver)
 
 
 def _send_epr(sender, receiver):
@@ -136,11 +154,12 @@ def _rec_epr(sender, receiver):
     host_receiver = network.get_host(receiver)
     q = host_receiver.cqc.recvEPR()
     host_receiver.add_epr(sender, q)
-    _send_ack(sender, receiver)
+    # print('did this 12')
+    return _send_ack(sender, receiver)
 
 
 def _send_ack(sender, receiver):
-    pass
+    return
 
 
 def _encode_superdense(message, q):

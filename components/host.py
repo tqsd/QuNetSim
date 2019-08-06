@@ -51,6 +51,15 @@ class Host:
             print(self.host_id + " sends EPR to " + receiver)
         self._message_queue.put(packet)
 
+    def send_teleport(self, receiver, q):
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, q, protocols.QUANTUM)
+        if self._logging:
+            print(self.host_id + " sends TELEPORT to " + receiver)
+        self._message_queue.put(packet)
+
+    def shares_epr(self, receiver):
+        return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
+
     def process_queue(self):
         if self._logging:
             print('-- Host ' + self.host_id + ' started processing')
