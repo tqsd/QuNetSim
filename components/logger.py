@@ -1,7 +1,7 @@
 import logging
 
 FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.debug())
+logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
 
 class Logger:
@@ -15,18 +15,19 @@ class Logger:
 
     def __init__(self):
         if Logger.__instance is None:
+            self.logger = logging.getLogger('log')
             Logger.__instance = self
         else:
             raise Exception('this is a singleton class')
 
     def warn(self, message):
-        logging.warning(message)
+        self.logger.warning(message)
 
     def error(self, message):
-        logging.error(message)
+        self.logger.error(message)
 
     def log(self, message):
-        logging.info(message)
+        self.logger.info(message)
 
     def debug(self, message):
-        logging.debug(message)
+        self.logger.debug(message)

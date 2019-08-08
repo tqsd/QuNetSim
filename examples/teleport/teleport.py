@@ -27,11 +27,25 @@ def main():
         host_sender = network.get_host('00000001')
         host_receiver = network.get_host('00000000')
 
-        q = qubit(Alice)
-        q.X()
+        q1 = qubit(Alice)
+        q1.X()
+
+        q2 = qubit(Alice)
+        q3 = qubit(Alice)
+        q2.H()
+        q2.cnot(q3)
 
         logger.log(network.get_host_name('00000001') + ' sends epr')
-        host_sender.send_teleport('00000000', q)
+
+        host_sender.send_epr('00000000')
+        host_sender.send_epr('00000000')
+        host_sender.send_epr('00000000')
+
+        time.sleep(0.5)
+
+        host_sender.send_teleport('00000000', q1)
+        host_sender.send_teleport('00000000', q2)
+        host_sender.send_teleport('00000000', q3)
 
         start_time = time.time()
         while time.time() - start_time < 10:

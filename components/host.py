@@ -57,7 +57,7 @@ class Host:
 
     def send_superdense(self, receiver, message):
         packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL)
-        self.logger(self.host_id + " sends SUPERDENSE to " + receiver)
+        self.logger.debug(self.host_id + " sends SUPERDENSE to " + receiver)
         self._message_queue.put(packet)
 
     def shares_epr(self, receiver):
@@ -72,6 +72,8 @@ class Host:
 
             if not self._message_queue.empty():
                 message = self._message_queue.get()
+                if len(message) == 0:
+                    raise Exception('empty message')
                 sender = str(message[0][0:8])
 
                 if sender not in self._data_qubit_store and sender != self.host_id:

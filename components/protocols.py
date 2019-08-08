@@ -2,6 +2,7 @@ from cqc.pythonLib import qubit
 import time
 
 # DATA TYPES
+from components.logger import Logger
 from components.network import Network
 
 CLASSICAL = '00'
@@ -49,7 +50,7 @@ def process(packet):
     elif protocol == SEND_SUPERDENSE:
         return _send_superdense(sender, receiver, payload)
     elif protocol == REC_SUPERDENSE:
-        return _rec_superdense(sender, receiver, payload, True)
+        return _rec_superdense(sender, receiver)
     else:
 
         print('protocol not defined')
@@ -60,7 +61,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type=''):
     if payload_type == CLASSICAL or payload_type == SIGNAL:
         header = sender + receiver + protocol + payload_type
         packet = [header, payload]
-    elif payload_type == QUANTUM :
+    elif payload_type == QUANTUM:
         for q in payload:
             host_sender = network.get_host(sender)
             host_sender.cqc.sendQubit(q, network.get_host_name(receiver))
@@ -68,20 +69,14 @@ def encode(sender, receiver, protocol, payload=None, payload_type=''):
             qr = host_receiver.cqc.recvQubit()
             host_receiver.add_data_qubit(sender, qr)
 
-
         # TODO: Think about the differences between classical and quantum
         header = sender + receiver + protocol + payload_type
         packet = [header, payload]
-
-
-
 
     return packet
 
 
 def _parse_message(message):
-    print('msg', message)
-
     message_data = str(message[0])
     sender = str(message_data[0:8])
     receiver = str(message_data[8:16])
@@ -101,11 +96,7 @@ def _send_classical(sender, receiver, message):
         # TODO: create meaningful exception
         raise Exception
 
-    print('sending')
-
-    # We avoid using CQCs classical input
     network.send(packet, receiver)
-    # host_sender.cqc.sendClassical(host_receiver.cqc.name, packet)
 
 
 def _rec_classical(sender, receiver, payload):
@@ -116,8 +107,6 @@ def _rec_classical(sender, receiver, payload):
 
 def _send_teleport(sender, receiver, q):
     host_sender = network.get_host(sender)
-    receiver_name = network.get_host_name(receiver)
-
     if not network.shares_epr(sender, receiver):
         print('Sent epr')
         _send_epr(sender, receiver)
@@ -128,13 +117,8 @@ def _send_teleport(sender, receiver, q):
 
     m1 = q.measure()
     m2 = epr_teleport.measure()
-    packet = encode(sender, receiver, REC_TELEPORT, [m1, m2])
+    packet = encode(sender, receiver, REC_TELEPORT, [m1, m2], CLASSICAL)
     network.send(packet, receiver)
-
-    # ask network if there is an EPR pair between sender / receiver
-    # if not, generate it
-    # else teleport
-    pass
 
 
 def _rec_teleport(sender, receiver, payload):
@@ -151,8 +135,8 @@ def _rec_teleport(sender, receiver, payload):
     if a == 1:
         q1.Z()
 
-    print('Teleported qubit is :')
-    print(q1.measure())
+    m = q1.measure()
+    Logger.get_instance().debug('Teleported qubit is: ' + str(m))
 
     _send_ack(sender, receiver)
 
@@ -227,7 +211,6 @@ def _decode_superdense(qA, qB):
 
 def _send_superdense(sender, receiver, message):
     host_sender = network.get_host(sender)
-    receiver_name = network.get_host_name(receiver)
 
     if not network.shares_epr(sender, receiver):
         print('Sent epr')
@@ -239,18 +222,14 @@ def _send_superdense(sender, receiver, message):
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
     network.send(packet, receiver)
 
-    pass
 
-
-def _rec_superdense(sender, receiver, payload, should_decode=True):
+def _rec_superdense(sender, receiver):
     host_receiver = network.get_host(receiver)
     qA = host_receiver.get_data_qubit(sender)
     qB = host_receiver.get_epr(sender)
-    m = _decode_superdense(qA, qB)
-
-    print(" Received message is " + m)
-
-    pass
+    m = _decode_superdense(qA, qB, )
+    Logger.get_instance().debug("Received message is " + m)
+    return m
 
 
 def _add_checksum(sender, qubits, size=2):
