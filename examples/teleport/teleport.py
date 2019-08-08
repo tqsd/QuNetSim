@@ -1,16 +1,16 @@
 from cqc.pythonLib import CQCConnection, qubit
 import sys
 import time
-import logging
 
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
+from components.logger import Logger
 
 
 def main():
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
     network = Network.get_instance()
+    logger = Logger.get_instance()
     print('')
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob:
@@ -30,14 +30,14 @@ def main():
         q = qubit(Alice)
         q.X()
 
-        logging.info(network.get_host_name('00000001') + ' sends epr')
+        logger.log(network.get_host_name('00000001') + ' sends epr')
         host_sender.send_teleport('00000000', q)
 
         start_time = time.time()
         while time.time() - start_time < 10:
             pass
 
-        logging.info('stopping hosts')
+        logger.log('stopping hosts')
         host_sender.stop()
         host_receiver.stop()
 
