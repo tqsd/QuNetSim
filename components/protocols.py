@@ -1,10 +1,12 @@
 from cqc.pythonLib import qubit
+import time
 
 # DATA TYPES
 from components.network import Network
 
 CLASSICAL = '00'
 QUANTUM = '11'
+SIGNAL = '10'
 
 # SIGNALS
 ACK = '1111'
@@ -22,6 +24,7 @@ SEND_ACK = '00000110'
 REC_ACK = '00000111'
 SEND_CLASSICAL = '00001000'
 REC_CLASSICAL = '00001001'
+SEND_SUPERDENSE = '00001010'
 
 network = Network.get_instance()
 
@@ -43,33 +46,49 @@ def process(packet):
         return _send_epr(sender, receiver)
     elif protocol == SEND_TELEPORT:
         return _send_teleport(sender, receiver, payload)
+    elif protocol == SEND_SUPERDENSE:
+        return _send_superdense(sender, receiver, payload)
+    elif protocol == REC_SUPERDENSE:
+        return _rec_superdense(sender, receiver, payload, True)
     else:
+
         print('protocol not defined')
 
 
 def encode(sender, receiver, protocol, payload=None, payload_type=''):
     packet = []
-    if payload is None:
-        payload = ''
-    if payload_type == CLASSICAL:
+    if payload_type == CLASSICAL or payload_type == SIGNAL:
         header = sender + receiver + protocol + payload_type
         packet = [header, payload]
-    # elif payload_type == QUANTUM:
-    else:
+    elif payload_type == QUANTUM :
+        for q in payload:
+            host_sender = network.get_host(sender)
+            host_sender.cqc.sendQubit(q, network.get_host_name(receiver))
+            host_receiver = network.get_host(receiver)
+            qr = host_receiver.cqc.recvQubit()
+            host_receiver.add_data_qubit(sender, qr)
+
+
         # TODO: Think about the differences between classical and quantum
         header = sender + receiver + protocol + payload_type
         packet = [header, payload]
+
+
+
 
     return packet
 
 
 def _parse_message(message):
+    print('msg', message)
+
     message_data = str(message[0])
     sender = str(message_data[0:8])
     receiver = str(message_data[8:16])
     protocol = str(message_data[16:24])
     payload_type = str(message_data[24:26])
     payload = message[1]
+
     return sender, receiver, protocol, payload, payload_type
 
 
@@ -142,7 +161,7 @@ def _send_epr(sender, receiver):
     host_sender = network.get_host(sender)
     receiver_name = network.get_host_name(receiver)
 
-    packet = encode(sender, receiver, REC_EPR)
+    packet = encode(sender, receiver, REC_EPR, payload_type=CLASSICAL)
     network.send(packet, receiver)
 
     q = host_sender.cqc.createEPR(receiver_name)
@@ -206,11 +225,31 @@ def _decode_superdense(qA, qB):
     return str(a) + str(b)
 
 
-def _send_superdense(sender, message, receiver):
+def _send_superdense(sender, receiver, message):
+    host_sender = network.get_host(sender)
+    receiver_name = network.get_host_name(receiver)
+
+    if not network.shares_epr(sender, receiver):
+        print('Sent epr')
+        _send_epr(sender, receiver)
+
+    q_superdense = host_sender.get_epr(receiver)
+    _encode_superdense(message, q_superdense)
+    time.sleep(0.2)
+    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
+    network.send(packet, receiver)
+
     pass
 
 
-def _receive_superdense(receiver, should_decode=True):
+def _rec_superdense(sender, receiver, payload, should_decode=True):
+    host_receiver = network.get_host(receiver)
+    qA = host_receiver.get_data_qubit(sender)
+    qB = host_receiver.get_epr(sender)
+    m = _decode_superdense(qA, qB)
+
+    print(" Received message is " + m)
+
     pass
 
 

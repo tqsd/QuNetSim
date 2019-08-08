@@ -46,16 +46,23 @@ class Host:
         self._message_queue.put(packet)
 
     def send_epr(self, receiver):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR, payload_type=protocols.SIGNAL)
         if self._logging:
             print(self.host_id + " sends EPR to " + receiver)
         self._message_queue.put(packet)
 
     def send_teleport(self, receiver, q):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, q, protocols.QUANTUM)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, q, protocols.SIGNAL)
         if self._logging:
             print(self.host_id + " sends TELEPORT to " + receiver)
         self._message_queue.put(packet)
+
+    def send_superdense(self, receiver, message):
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL)
+        if self._logging:
+            print(self.host_id + " sends SUPERDENSE to " + receiver)
+        self._message_queue.put(packet)
+
 
     def shares_epr(self, receiver):
         return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
@@ -70,6 +77,8 @@ class Host:
 
             if not self._message_queue.empty():
                 message = self._message_queue.get()
+
+
                 sender = str(message[0][0:8])
 
                 if sender not in self._data_qubit_store and sender != self.host_id:
@@ -91,10 +100,27 @@ class Host:
 
         self._EPR_store[partner_id].append(qubit)
 
+    def add_data_qubit(self, partner_id, qubit):
+        if partner_id not in self._data_qubit_store and partner_id != self.host_id:
+            self._data_qubit_store[partner_id] = []
+
+        if self._logging:
+            print(self.host_id + ' added data qubit with partner ' + partner_id)
+
+        self._data_qubit_store[partner_id].append(qubit)
+
     def get_epr(self, partner_id):
         if partner_id not in self._EPR_store:
             return False
         return self._EPR_store[partner_id].pop()
+
+    def get_data_qubit(self, partner_id):
+        if partner_id not in self._data_qubit_store:
+            return False
+
+        return self._data_qubit_store[partner_id].pop()
+
+
 
     def stop(self):
         if self._logging:
