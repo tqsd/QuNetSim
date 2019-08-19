@@ -11,7 +11,7 @@ class DaemonThread(threading.Thread):
 
 
 class Host:
-    def __init__(self, host_id, cqc):
+    def __init__(self, host_id, cqc, role='host'):
         """
         Init a Host
         :param host_id: a 4 bit ID string e.g. 0110
@@ -23,13 +23,11 @@ class Host:
         self._stop_thread = False
         self._data_qubit_store = {}
         self._EPR_store = {}
-        self._classical_listener_thread = None
         self._queue_processor_thread = None
-        self._time = 0
         self.connections = []
-        self.paths = []
         self.cqc = cqc
         self.logger = Logger.get_instance()
+        self.role = role
 
     def rec_packet(self, packet):
         self._message_queue.put(packet)

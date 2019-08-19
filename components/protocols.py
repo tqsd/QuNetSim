@@ -26,6 +26,7 @@ REC_ACK = '00000111'
 SEND_CLASSICAL = '00001000'
 REC_CLASSICAL = '00001001'
 SEND_SUPERDENSE = '00001010'
+RELAY = '00001011'
 
 network = Network.get_instance()
 
@@ -51,6 +52,8 @@ def process(packet):
         return _send_superdense(sender, receiver, payload)
     elif protocol == REC_SUPERDENSE:
         return _rec_superdense(sender, receiver)
+    elif protocol == RELAY:
+        _relay_packet(payload)
     else:
 
         print('protocol not defined')
@@ -87,6 +90,13 @@ def _parse_message(message):
     return sender, receiver, protocol, payload, payload_type
 
 
+def _relay_packet(payload):
+    # payload is a transport_layer_packet
+    network.send()
+
+    pass
+
+
 def _send_classical(sender, receiver, message):
     host_sender = network.get_host(sender)
     packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, message, CLASSICAL)
@@ -96,7 +106,7 @@ def _send_classical(sender, receiver, message):
         # TODO: create meaningful exception
         raise Exception
 
-    network.send(packet, receiver)
+    network.send(packet)
 
 
 def _rec_classical(sender, receiver, payload):
@@ -118,7 +128,7 @@ def _send_teleport(sender, receiver, q):
     m1 = q.measure()
     m2 = epr_teleport.measure()
     packet = encode(sender, receiver, REC_TELEPORT, [m1, m2], CLASSICAL)
-    network.send(packet, receiver)
+    network.send(packet)
 
 
 def _rec_teleport(sender, receiver, payload):
@@ -146,7 +156,7 @@ def _send_epr(sender, receiver):
     receiver_name = network.get_host_name(receiver)
 
     packet = encode(sender, receiver, REC_EPR, payload_type=CLASSICAL)
-    network.send(packet, receiver)
+    network.send(packet)
 
     q = host_sender.cqc.createEPR(receiver_name)
     # TODO: wait for ACK before adding epr
@@ -220,7 +230,7 @@ def _send_superdense(sender, receiver, message):
     _encode_superdense(message, q_superdense)
     time.sleep(0.2)
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
-    network.send(packet, receiver)
+    network.send(packet)
 
 
 def _rec_superdense(sender, receiver):
