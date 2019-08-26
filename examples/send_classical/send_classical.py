@@ -23,6 +23,7 @@ def main():
         host_bob.start()
 
         host_eve = Host('00000011', Eve)
+        host_eve.start()
 
         network.add_host(host_alice)
         network.add_host(host_bob)
@@ -30,19 +31,15 @@ def main():
 
         print('alice sends message')
 
-        host_alice.send_classical('00000000', 'hello')
+        host_alice.send_classical('00000011', 'hello')
 
         nodes = [host_alice, host_bob, host_eve]
 
-        print(network.get_route(host_alice.host_id, host_eve.host_id))
-
         start_time = time.time()
-        while time.time() - start_time < 3:
+        while time.time() - start_time < 10:
             pass
 
-        print('stopping hosts')
         for h in nodes:
-            print(h.host_id + 'stopped')
             h.stop()
 
 

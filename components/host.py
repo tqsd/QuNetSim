@@ -70,9 +70,10 @@ class Host:
 
             if not self._message_queue.empty():
                 message = self._message_queue.get()
-                if len(message) == 0:
+                if not message:
                     raise Exception('empty message')
-                sender = str(message[0][0:8])
+
+                sender = message['sender']
 
                 if sender not in self._data_qubit_store and sender != self.host_id:
                     self._data_qubit_store[sender] = []
@@ -82,7 +83,7 @@ class Host:
 
                 result = protocols.process(message)
                 if result:
-                    print('msg', result)
+                    print(self.cqc.name, 'received', result)
 
     def add_epr(self, partner_id, qubit):
         self.logger.log(self.host_id + ' added EPR pair with partner ' + partner_id)

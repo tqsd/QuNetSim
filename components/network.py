@@ -2,6 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from components import protocols
 
+from components.logger import Logger
+
 
 # Network singleton
 class Network:
@@ -22,6 +24,7 @@ class Network:
             raise Exception('this is a singleton class')
 
     def add_host(self, host):
+        Logger.get_instance().log('host added: ' + host.host_id)
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
@@ -56,21 +59,48 @@ class Network:
     def get_route(self, source, dest):
         return nx.shortest_path(self.network, source=source, target=dest)
 
-    def _decode_packet(self, packet):
-        return packet[0][0:8], packet[0][8:16]
-
     def _send_network_packet(self, src, dest, link_layer_packet):
         network_packet = protocols.encode(src, dest, protocols.RELAY, link_layer_packet, protocols.SIGNAL)
         self.ARP[dest].rec_packet(network_packet)
 
         return None
 
+    def encode(self, sender, receiver, payload, ttl=10):
+        packet = {
+            'sender': sender,
+            'receiver': receiver,
+            'payload': payload,
+            'protocol': protocols.RELAY,
+            'payload_type': payload['payload_type'],
+            'TTL': ttl
+        }
+        return packet
+
+    def transfer_qubits(self, qubits, sender, receiver):
+        for q in qubits:
+            self.ARP[sender].cqc.sendQubit(q, self.get_host_name(receiver))
+            qr = self.ARP[receiver].cqc.recvQubit()
+            self.ARP[receiver].add_data_qubit(sender, qr)
+
     def send(self, packet):
-        sender, receiver = self._decode_packet(packet)
+        sender, receiver = packet['sender'], packet['receiver']
         route = self.get_route(sender, receiver)
 
+        # TODO: what to do if route doesn't exist?
 
-        self.ARP[receiver].rec_packet(packet)
+        if len(route) == 2:
+            print('sending packet from ' + sender + ' to ' + receiver)
+            if packet['protocol'] != protocols.RELAY:
+                self.ARP[receiver].rec_packet(packet)
+            else:
+                self.ARP[route[1]].rec_packet(packet['payload'])
+        else:
+            print('sending relay packet from ' + route[0] + ' to ' + route[1])
+            if packet['protocol'] != protocols.RELAY:
+                network_packet = self.encode(route[0], route[1], packet)
+            else:
+                network_packet = packet
+            self.ARP[route[1]].rec_packet(network_packet)
 
     def draw_network(self):
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
