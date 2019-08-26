@@ -84,23 +84,31 @@ class Network:
 
     def send(self, packet):
         sender, receiver = packet['sender'], packet['receiver']
-        route = self.get_route(sender, receiver)
-
-        # TODO: what to do if route doesn't exist?
-
-        if len(route) == 2:
-            print('sending packet from ' + sender + ' to ' + receiver)
-            if packet['protocol'] != protocols.RELAY:
-                self.ARP[receiver].rec_packet(packet)
+        try:
+            # TODO: what to do if route doesn't exist?
+            route = self.get_route(sender, receiver)
+            if len(route) == 2:
+                print('sending packet from ' + sender + ' to ' + receiver)
+                if packet['protocol'] != protocols.RELAY:
+                    self.ARP[receiver].rec_packet(packet)
+                else:
+                    self.ARP[route[1]].rec_packet(packet['payload'])
             else:
-                self.ARP[route[1]].rec_packet(packet['payload'])
-        else:
-            print('sending relay packet from ' + route[0] + ' to ' + route[1])
-            if packet['protocol'] != protocols.RELAY:
-                network_packet = self.encode(route[0], route[1], packet)
-            else:
-                network_packet = packet
-            self.ARP[route[1]].rec_packet(network_packet)
+                # Here we're using hop by hop approach
+                print('sending relay packet from ' + route[0] + ' to ' + route[1])
+                if packet['protocol'] != protocols.RELAY:
+                    network_packet = self.encode(route[0], route[1], packet)
+                else:
+                    packet['receiver'] = route[1]
+                    network_packet = packet
+
+                self.ARP[route[1]].rec_packet(network_packet)
+        except nx.NodeNotFound:
+            Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
+            return
+        except ValueError:
+            Logger.get_instance().error("route couldn't be calculated, value error")
+            return
 
     def draw_network(self):
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
