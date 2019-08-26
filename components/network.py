@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import time
 from components import protocols
-
 from components.logger import Logger
 
 
@@ -71,38 +71,64 @@ class Network:
             'receiver': receiver,
             'payload': payload,
             'protocol': protocols.RELAY,
-            'payload_type': payload['payload_type'],
+            'payload_type': protocols.SIGNAL,
             'TTL': ttl
         }
         return packet
 
-    def transfer_qubits(self, qubits, sender, receiver):
-        for q in qubits:
-            self.ARP[sender].cqc.sendQubit(q, self.get_host_name(receiver))
-            qr = self.ARP[receiver].cqc.recvQubit()
-            self.ARP[receiver].add_data_qubit(sender, qr)
+    def route_quantum_info(self, sender, receiver, qubits):
+        def transfer_qubits(s, r, store=False, original_sender=None):
+            for index, q in enumerate(qubits):
+                self.ARP[s].cqc.sendQubit(q, self.get_host_name(r))
+                q = self.ARP[r].cqc.recvQubit()
+                # update the set of qubits so that they aren't pointing at inactive qubits
+                qubits[index] = q
+
+                if store and original_sender is not None:
+                    self.ARP[r].add_data_qubit(original_sender, q)
+
+        route = self.get_route(sender, receiver)
+        i = 0
+        while i < len(route) - 1:
+            print('sending qubits from ' + route[i] + ' to ' + route[i + 1])
+
+            if len(route[i:]) != 2:
+                transfer_qubits(route[i], route[i + 1])
+            else:
+                transfer_qubits(route[i], route[i + 1], True, route[0])
+
+            i += 1
 
     def send(self, packet):
         sender, receiver = packet['sender'], packet['receiver']
+
+        if packet['payload_type'] == protocols.QUANTUM:
+            self.route_quantum_info(sender, receiver, packet['payload'])
+
         try:
             # TODO: what to do if route doesn't exist?
             route = self.get_route(sender, receiver)
-            if len(route) == 2:
+
+            if len(route) < 2:
+                raise Exception
+
+            elif len(route) == 2:
                 print('sending packet from ' + sender + ' to ' + receiver)
                 if packet['protocol'] != protocols.RELAY:
                     self.ARP[receiver].rec_packet(packet)
                 else:
-                    self.ARP[route[1]].rec_packet(packet['payload'])
+                    self.ARP[receiver].rec_packet(packet['payload'])
+
             else:
+                print('sending packet from ' + route[0] + ' to ' + route[1])
                 # Here we're using hop by hop approach
-                print('sending relay packet from ' + route[0] + ' to ' + route[1])
                 if packet['protocol'] != protocols.RELAY:
                     network_packet = self.encode(route[0], route[1], packet)
                 else:
                     packet['receiver'] = route[1]
                     network_packet = packet
-
                 self.ARP[route[1]].rec_packet(network_packet)
+
         except nx.NodeNotFound:
             Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
             return

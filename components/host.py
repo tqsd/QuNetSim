@@ -55,7 +55,7 @@ class Host:
 
     def send_superdense(self, receiver, message):
         packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL)
-        self.logger.debug(self.host_id + " sends SUPERDENSE to " + receiver)
+        self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver)
         self._message_queue.put(packet)
 
     def shares_epr(self, receiver):
@@ -103,7 +103,7 @@ class Host:
         return self._EPR_store[partner_id].pop()
 
     def get_data_qubit(self, partner_id):
-        if partner_id not in self._data_qubit_store:
+        if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
             return False
         return self._data_qubit_store[partner_id].pop()
 

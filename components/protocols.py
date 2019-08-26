@@ -80,9 +80,6 @@ def _parse_message(message):
 
 
 def _relay_message(sender, receiver, packet):
-    if packet['payload_type'] == 'QUANTUM':
-        network.transfer_qubits(packet['payload']['payload'], sender, receiver)
-
     packet['TTL'] -= 1
     packet['sender'] = receiver
     packet['receiver'] = packet['payload']['receiver']
@@ -147,12 +144,12 @@ def _rec_teleport(sender, receiver, payload):
 def _send_epr(sender, receiver):
     host_sender = network.get_host(sender)
     receiver_name = network.get_host_name(receiver)
-
     packet = encode(sender, receiver, REC_EPR, payload_type=CLASSICAL)
-    network.send(packet)
 
     q = host_sender.cqc.createEPR(receiver_name)
     host_sender.add_epr(receiver, q)
+
+    network.send(packet)
 
 
 def _rec_epr(sender, receiver):
@@ -168,7 +165,7 @@ def _send_ack(sender, receiver):
 
 def _encode_superdense(message, q):
     """
-    Return a qubit encoded with the message message.
+    Encode qubit q with the 2 bit message message.
 
     Params:
     message -- the message to encode
@@ -187,8 +184,6 @@ def _encode_superdense(message, q):
         q.Z()
     else:
         raise Exception("Not possible to encode this message")
-
-    return q
 
 
 def _decode_superdense(qA, qB):
@@ -218,17 +213,22 @@ def _send_superdense(sender, receiver, message):
 
     q_superdense = host_sender.get_epr(receiver)
     _encode_superdense(message, q_superdense)
-    time.sleep(0.2)
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
     network.send(packet)
 
 
 def _rec_superdense(sender, receiver):
+    time.sleep(0.5)
     host_receiver = network.get_host(receiver)
     qA = host_receiver.get_data_qubit(sender)
+
+    if not qA:
+        Logger.get_instance().log("no data qubits")
+        return
+
     qB = host_receiver.get_epr(sender)
-    m = _decode_superdense(qA, qB, )
-    Logger.get_instance().debug("Received message is " + m)
+    m = _decode_superdense(qA, qB)
+    Logger.get_instance().log("Received message is " + m)
     return m
 
 
