@@ -63,7 +63,7 @@ class Host:
         return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
 
     def process_queue(self):
-        self.logger.log('-- Host ' + self.host_id + ' started processing')
+        self.logger.log('Host ' + self.host_id + ' started processing')
 
         while True:
             if self._stop_thread:
