@@ -27,7 +27,6 @@ SEND_CLASSICAL = '00001011'
 REC_CLASSICAL = '00001100'
 SEND_SUPERDENSE = '00001101'
 RELAY = '00001111'
-SEND_EPR_W_QUBIT = '00010000'
 REC_TELEPORT_EPR = '00010001'
 SEND_TELEPORT_EPR = '0001010'
 
@@ -55,8 +54,6 @@ def process(packet):
         return _rec_superdense(sender, receiver, payload)
     elif protocol == RELAY:
         return _relay_message(receiver, packet)
-    elif protocol == SEND_EPR_W_QUBIT:
-        return _send_epr_w_qubit(sender, receiver, qubit)
     elif protocol == REC_TELEPORT_EPR:
         return _rec_teleport_epr(sender, receiver, payload)
     else:
@@ -156,18 +153,18 @@ def _send_teleport_epr(sender, receiver, node, q):
         _send_epr(sender, receiver)
 
     epr_teleport = host_sender.get_epr(receiver)
-    q.cnot(epr_teleport)
+    q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
-    m2 = epr_teleport.measure()
+    m2 = epr_teleport['q'].measure()
     packet = encode(sender, receiver, REC_TELEPORT_EPR, [m1, m2, node], CLASSICAL)
     network.send(packet)
 
 
 def _rec_teleport_epr(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
-    q1 = host_receiver.get_epr(sender)
+    q1 = host_receiver.get_epr(sender)['q']
     a = payload[0]
     b = payload[1]
     epr_host = payload[2]
@@ -186,36 +183,31 @@ def _rec_teleport_epr(sender, receiver, payload):
 
 
 def _send_epr(sender, receiver):
-    i = 0
     route = network.get_route(sender, receiver)
     host_sender = network.get_host(sender)
     receiver_name = network.get_host_name(receiver)
     if len(route) == 2:
-
-
         q = host_sender.cqc.createEPR(receiver_name)
         q_id = host_sender.add_epr(receiver, q)
         packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id}, payload_type=CLASSICAL)
-        
-
         network.send(packet)
     else:
         for i in range(len(route) - 1):
             _send_epr(route[i], route[i + 1])
-            time.sleep(1)
-
-        time.sleep(2)
 
         for i in range(len(route) - 2):
-            q = (network.get_host(route[i + 1])).get_epr(route[0])
-            _send_teleport_epr(route[i + 1], route[i + 2], sender, q)
-            time.sleep(2)
+            q = None
+
+            while q is None:
+                q = (network.get_host(route[i + 1])).get_epr(route[0])
+
+            _send_teleport_epr(route[i + 1], route[i + 2], sender, q['q'])
 
         q2 = host_sender.get_epr(route[1])
-        host_sender.add_epr(receiver, q2)
+        host_sender.add_epr(receiver, q2['q'], q2['q_id'])
 
 
-def _rec_epr(sender, receiver):
+def _rec_epr(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
     q = host_receiver.cqc.recvEPR()
     host_receiver.add_epr(sender, q, q_id=payload['q_id'])
