@@ -1,8 +1,16 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from queue import Queue
 import time
 from components import protocols
 from components.logger import Logger
+import threading
+
+
+class DaemonThread(threading.Thread):
+    def __init__(self, target):
+        super().__init__(target=target, daemon=True)
+        self.start()
 
 
 # Network singleton
@@ -20,6 +28,9 @@ class Network:
             self.ARP = {}
             self.network = nx.DiGraph()
             self.routing_algo = routing_algo
+            self._packet_queue = Queue()
+            self._stop_thread = False
+            self._queue_processor_thread = None
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -88,6 +99,7 @@ class Network:
 
                 # Update the set of qubits so that they aren't pointing at inactive qubits
                 qubits[index]['q'] = q
+
                 # Unblock qubits incase they were blocked
                 qubits[index]['blocked'] = False
 
@@ -107,41 +119,60 @@ class Network:
             i += 1
 
     def send(self, packet):
-        sender, receiver = packet['sender'], packet['receiver']
+        self._packet_queue.put(packet)
 
-        if packet['payload_type'] == protocols.QUANTUM:
-            self.route_quantum_info(sender, receiver, packet['payload'])
+    def _process_queue(self):
+        while True:
+            if self._stop_thread:
+                break
 
-        try:
-            # TODO: what to do if route doesn't exist?
-            route = self.get_route(sender, receiver)
+            if not self._packet_queue.empty():
+                time.sleep(0.5)
 
-            if len(route) < 2:
-                raise Exception
+                packet = self._packet_queue.get()
+                sender, receiver = packet['sender'], packet['receiver']
 
-            elif len(route) == 2:
-                Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
-                if packet['protocol'] != protocols.RELAY:
-                    self.ARP[receiver].rec_packet(packet)
-                else:
-                    self.ARP[receiver].rec_packet(packet['payload'])
+                if packet['payload_type'] == protocols.QUANTUM:
+                    self.route_quantum_info(sender, receiver, packet['payload'])
 
-            else:
-                Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
-                # Here we're using hop by hop approach
-                if packet['protocol'] != protocols.RELAY:
-                    network_packet = self.encode(route[0], route[1], packet)
-                else:
-                    packet['receiver'] = route[1]
-                    network_packet = packet
-                self.ARP[route[1]].rec_packet(network_packet)
+                try:
+                    # TODO: what to do if route doesn't exist?
+                    route = self.get_route(sender, receiver)
 
-        except nx.NodeNotFound:
-            Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
-            return
-        except ValueError:
-            Logger.get_instance().error("route couldn't be calculated, value error")
-            return
+                    if len(route) < 2:
+                        raise Exception
+
+                    elif len(route) == 2:
+                        Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
+                        if packet['protocol'] != protocols.RELAY:
+                            self.ARP[receiver].rec_packet(packet)
+                        else:
+                            self.ARP[receiver].rec_packet(packet['payload'])
+
+                    else:
+                        Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
+                        # Here we're using hop by hop approach
+                        if packet['protocol'] != protocols.RELAY:
+                            network_packet = self.encode(route[0], route[1], packet)
+                        else:
+                            packet['receiver'] = route[1]
+                            network_packet = packet
+                        self.ARP[route[1]].rec_packet(network_packet)
+
+                except nx.NodeNotFound:
+                    Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
+                    return
+
+                except ValueError:
+                    Logger.get_instance().error("route couldn't be calculated, value error")
+                    return
+
+    def stop(self):
+        Logger.get_instance().log("Network stopped")
+        self._stop_thread = True
+
+    def start(self):
+        self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
     def draw_network(self):
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),

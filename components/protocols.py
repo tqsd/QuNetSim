@@ -105,6 +105,7 @@ def _rec_classical(sender, receiver, payload):
 def _send_teleport(sender, receiver, q):
     host_sender = network.get_host(sender)
     if not network.shares_epr(sender, receiver):
+        Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         _send_epr(sender, receiver)
 
     epr_teleport = host_sender.get_epr(receiver)
@@ -164,10 +165,8 @@ def _send_superdense(sender, receiver, payload):
     host_sender = network.get_host(sender)
 
     if not network.shares_epr(sender, receiver):
+        Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         _send_epr(sender, receiver)
-        # TODO: this is a hack to prevent data qubits from being sent
-        # between EPR qubits
-        time.sleep(0.2)
 
     q_superdense = host_sender.get_epr(receiver)
 

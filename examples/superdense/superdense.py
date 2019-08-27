@@ -9,6 +9,7 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    network.start()
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \
             CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
@@ -34,13 +35,20 @@ def main():
         network.add_host(dean)
 
         alice.send_superdense('00000001', '00')
+        alice.send_epr('00000001')
+        alice.send_epr('00000001')
+        alice.send_epr('00000001')
         alice.send_superdense('00000001', '11')
         alice.send_superdense('00000001', '10')
-
         alice.send_superdense('00000011', '00')
+        alice.send_epr('00000111')
+        alice.send_epr('00000011')
+        alice.send_epr('00000001')
         alice.send_superdense('00000011', '10')
         alice.send_superdense('00000011', '01')
-
+        alice.send_epr('00000111')
+        alice.send_epr('00000011')
+        alice.send_epr('00000001')
         alice.send_superdense('00000111', '00')
         alice.send_superdense('00000111', '11')
         alice.send_superdense('00000111', '10')
@@ -48,11 +56,12 @@ def main():
         nodes = [alice, bob, eve, dean]
 
         start_time = time.time()
-        while time.time() - start_time < 10:
+        while time.time() - start_time < 60:
             pass
 
         for h in nodes:
             h.stop()
 
+        network.stop()
 
 main()
