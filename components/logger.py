@@ -1,7 +1,7 @@
 import logging
 
 FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.WARN)
+logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 
 class Logger:

@@ -25,7 +25,7 @@ class Network:
             raise Exception('this is a singleton class')
 
     def add_host(self, host):
-        Logger.get_instance().log('host added: ' + host.host_id)
+        Logger.get_instance().debug('host added: ' + host.host_id)
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
@@ -80,18 +80,24 @@ class Network:
     def route_quantum_info(self, sender, receiver, qubits):
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
-                self.ARP[s].cqc.sendQubit(q, self.get_host_name(r))
+                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
+                self.ARP[s].cqc.sendQubit(q['q'], self.get_host_name(r))
+                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
                 q = self.ARP[r].cqc.recvQubit()
+                Logger.get_instance().log('transfer qubits - received ' + qubits[index]['q_id'])
+
                 # Update the set of qubits so that they aren't pointing at inactive qubits
-                qubits[index] = q
+                qubits[index]['q'] = q
+                # Unblock qubits incase they were blocked
+                qubits[index]['blocked'] = False
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, q)
+                    self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
 
         route = self.get_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
-            print('sending qubits from ' + route[i] + ' to ' + route[i + 1])
+            Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
 
             if len(route[i:]) != 2:
                 transfer_qubits(route[i], route[i + 1])
@@ -114,14 +120,14 @@ class Network:
                 raise Exception
 
             elif len(route) == 2:
-                print('sending packet from ' + sender + ' to ' + receiver)
+                Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                 if packet['protocol'] != protocols.RELAY:
                     self.ARP[receiver].rec_packet(packet)
                 else:
                     self.ARP[receiver].rec_packet(packet['payload'])
 
             else:
-                print('sending packet from ' + route[0] + ' to ' + route[1])
+                Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
                 # Here we're using hop by hop approach
                 if packet['protocol'] != protocols.RELAY:
                     network_packet = self.encode(route[0], route[1], packet)

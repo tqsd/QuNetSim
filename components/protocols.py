@@ -43,15 +43,13 @@ def process(packet):
     elif protocol == REC_CLASSICAL:
         return _rec_classical(sender, receiver, payload)
     elif protocol == REC_EPR:
-        return _rec_epr(sender, receiver)
+        return _rec_epr(sender, receiver, payload)
     elif protocol == SEND_EPR:
         return _send_epr(sender, receiver)
-    elif protocol == SEND_TELEPORT:
-        return _send_teleport(sender, receiver, payload)
     elif protocol == SEND_SUPERDENSE:
         return _send_superdense(sender, receiver, payload)
     elif protocol == REC_SUPERDENSE:
-        return _rec_superdense(sender, receiver)
+        return _rec_superdense(sender, receiver, payload)
     elif protocol == RELAY:
         return _relay_message(receiver, packet)
     else:
@@ -64,7 +62,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type=''):
         'receiver': receiver,
         'protocol': protocol,
         'payload_type': payload_type,
-        'payload': payload
+        'payload': payload,
     }
     return packet
 
@@ -107,34 +105,36 @@ def _rec_classical(sender, receiver, payload):
 def _send_teleport(sender, receiver, q):
     host_sender = network.get_host(sender)
     if not network.shares_epr(sender, receiver):
-        print('Sent epr')
         _send_epr(sender, receiver)
 
     epr_teleport = host_sender.get_epr(receiver)
-    q.cnot(epr_teleport)
+
+    q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
-    m2 = epr_teleport.measure()
-    packet = encode(sender, receiver, REC_TELEPORT, [m1, m2], CLASSICAL)
+    m2 = epr_teleport['q'].measure()
+
+    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id']}
+    packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
     network.send(packet)
 
 
 def _rec_teleport(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_epr(sender)
+    q = host_receiver.get_epr(sender, q_id=payload['q_id'])
 
-    a = payload[0]
-    b = payload[1]
+    a = payload['measurements'][0]
+    b = payload['measurements'][1]
 
     # Apply corrections
     if b == 1:
-        q1.X()
+        q.X()
     if a == 1:
-        q1.Z()
+        q.Z()
 
-    m = q1.measure()
+    m = q.measure()
     Logger.get_instance().log('Teleported qubit is: ' + str(m))
 
     _send_ack(sender, receiver)
@@ -143,23 +143,65 @@ def _rec_teleport(sender, receiver, payload):
 def _send_epr(sender, receiver):
     host_sender = network.get_host(sender)
     receiver_name = network.get_host_name(receiver)
-    packet = encode(sender, receiver, REC_EPR, payload_type=CLASSICAL)
-
     q = host_sender.cqc.createEPR(receiver_name)
-    host_sender.add_epr(receiver, q)
-
+    q_id = host_sender.add_epr(receiver, q)
+    packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id}, payload_type=CLASSICAL)
     network.send(packet)
 
 
-def _rec_epr(sender, receiver):
+def _rec_epr(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
     q = host_receiver.cqc.recvEPR()
-    host_receiver.add_epr(sender, q)
+    host_receiver.add_epr(sender, q, q_id=payload['q_id'])
     return _send_ack(sender, receiver)
 
 
 def _send_ack(sender, receiver):
     return
+
+
+def _send_superdense(sender, receiver, payload):
+    host_sender = network.get_host(sender)
+
+    if not network.shares_epr(sender, receiver):
+        _send_epr(sender, receiver)
+        # TODO: this is a hack to prevent data qubits from being sent
+        # between EPR qubits
+        time.sleep(0.2)
+
+    q_superdense = host_sender.get_epr(receiver)
+
+    _encode_superdense(payload, q_superdense['q'])
+    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
+    network.send(packet)
+
+
+def _rec_superdense(sender, receiver, payload):
+    host_receiver = network.get_host(receiver)
+    qA = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
+
+    if not qA:
+        Logger.get_instance().log("no data qubits")
+        return
+
+    qB = host_receiver.get_epr(sender, payload[0]['q_id'])
+    m = _decode_superdense(qA, qB)
+    return m
+
+
+def _add_checksum(sender, qubits, size=2):
+    i = 0
+    check_qubits = []
+    while i < len(qubits):
+        check = qubit(sender)
+        j = 0
+        while j < size:
+            qubits[i + j].cnot(check)
+            j += 1
+
+        check_qubits.append(check)
+        i += size
+    return check_qubits
 
 
 def _encode_superdense(message, q):
@@ -202,45 +244,3 @@ def _decode_superdense(qA, qB):
     b = qB.measure()
 
     return str(a) + str(b)
-
-
-def _send_superdense(sender, receiver, message):
-    host_sender = network.get_host(sender)
-
-    if not network.shares_epr(sender, receiver):
-        _send_epr(sender, receiver)
-
-    q_superdense = host_sender.get_epr(receiver)
-    _encode_superdense(message, q_superdense)
-    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
-    network.send(packet)
-
-
-def _rec_superdense(sender, receiver):
-    time.sleep(0.5)
-    host_receiver = network.get_host(receiver)
-    qA = host_receiver.get_data_qubit(sender)
-
-    if not qA:
-        Logger.get_instance().log("no data qubits")
-        return
-
-    qB = host_receiver.get_epr(sender)
-    m = _decode_superdense(qA, qB)
-    Logger.get_instance().log("Received message is " + m)
-    return m
-
-
-def _add_checksum(sender, qubits, size=2):
-    i = 0
-    check_qubits = []
-    while i < len(qubits):
-        check = qubit(sender)
-        j = 0
-        while j < size:
-            qubits[i + j].cnot(check)
-            j += 1
-
-        check_qubits.append(check)
-        i += size
-    return check_qubits
