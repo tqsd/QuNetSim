@@ -5,12 +5,11 @@ import time
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
 
 
 def main():
     network = Network.get_instance()
-    logger = Logger.get_instance()
+    network.start()
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
@@ -58,6 +57,7 @@ def main():
 
         for h in nodes:
             h.stop()
+        network.stop()
 
 
 main()

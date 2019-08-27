@@ -9,54 +9,60 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    network.start()
 
-    with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, CQCConnection('Eve') as Eve:
+    with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \
+            CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
 
-        # q = qubit(Alice)
-        # print(q)
-        #
-        # Alice.sendQubit(q, 'Bob');
-        # q = Bob.recvQubit()
-        # print(q)
-        #
-        # Bob.sendQubit(q, 'Eve')
-        # q = Eve.recvQubit()
-        # print(q)
+        alice = Host('00000000', Alice)
+        alice.add_connection('00000001')
+        alice.start()
 
-        host_alice = Host('00000000', Alice)
-        host_alice.add_connection('00000001')
-        host_alice.start()
+        bob = Host('00000001', Bob)
+        bob.add_connection('00000011')
+        bob.start()
 
-        host_bob = Host('00000001', Bob)
-        host_bob.add_connection('00000011')
-        host_bob.start()
+        eve = Host('00000011', Eve)
+        eve.add_connection('00000111')
+        eve.start()
 
-        host_eve = Host('00000011', Eve)
-        # host_eve.add_connection('00000111')
-        host_eve.start()
+        dean = Host('00000111', Dean)
+        dean.start()
 
-        network.add_host(host_alice)
-        network.add_host(host_bob)
-        network.add_host(host_eve)
+        network.add_host(alice)
+        network.add_host(bob)
+        network.add_host(eve)
+        network.add_host(dean)
 
-        host_alice.send_superdense('00000011', '11')
+        alice.send_superdense('00000001', '00')
+        alice.send_epr('00000001')
+        alice.send_epr('00000001')
+        alice.send_epr('00000001')
+        alice.send_superdense('00000001', '11')
+        alice.send_superdense('00000001', '10')
+        alice.send_superdense('00000011', '00')
+        alice.send_epr('00000111')
+        alice.send_epr('00000011')
+        alice.send_epr('00000001')
+        alice.send_superdense('00000011', '10')
+        alice.send_superdense('00000011', '01')
+        alice.send_epr('00000111')
+        alice.send_epr('00000011')
+        alice.send_epr('00000001')
+        alice.send_superdense('00000111', '00')
+        alice.send_superdense('00000111', '11')
+        alice.send_superdense('00000111', '10')
 
-        time.sleep(1)
-
-        host_alice.send_superdense('00000011', '10')
-
-        time.sleep(1)
-
-        host_alice.send_superdense('00000001', '01')
-
-        nodes = [host_alice, host_bob, host_eve]
+        nodes = [alice, bob, eve, dean]
 
         start_time = time.time()
-        while time.time() - start_time < 5:
+        while time.time() - start_time < 60:
             pass
 
         for h in nodes:
             h.stop()
+
+        network.stop()
 
 
 main()

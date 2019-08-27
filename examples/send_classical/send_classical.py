@@ -9,6 +9,8 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    network.set_delay(0.2)
+    network.start()
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
@@ -47,6 +49,7 @@ def main():
 
         for h in nodes:
             h.stop()
+        network.stop()
 
 
 main()
