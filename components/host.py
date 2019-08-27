@@ -2,6 +2,7 @@ from queue import Queue
 import threading
 from components import protocols
 from components.logger import Logger
+import time
 
 
 class DaemonThread(threading.Thread):
@@ -89,23 +90,28 @@ class Host:
         self.logger.log(self.host_id + ' added EPR pair with partner ' + partner_id)
         if partner_id not in self._EPR_store and partner_id != self.host_id:
             self._EPR_store[partner_id] = []
-        self._EPR_store[partner_id].append(qubit)
+        to_add = {'q': qubit, 'time_stamp': int(time.time() * 1000)}
+        self._EPR_store[partner_id].append(to_add)
+        self._EPR_store[partner_id].sort(key=lambda qu: qu['time_stamp'])
 
     def add_data_qubit(self, partner_id, qubit):
         self.logger.log(self.host_id + ' added data qubit with partner ' + partner_id)
         if partner_id not in self._data_qubit_store and partner_id != self.host_id:
             self._data_qubit_store[partner_id] = []
-        self._data_qubit_store[partner_id].append(qubit)
+
+        to_add = {'q': qubit, 'time_stamp': int(time.time() * 1000)}
+        self._data_qubit_store[partner_id].append(to_add)
+        self._data_qubit_store[partner_id].sort(key=lambda qu: qu['time_stamp'])
 
     def get_epr(self, partner_id):
         if partner_id not in self._EPR_store:
             return False
-        return self._EPR_store[partner_id].pop()
+        return (self._EPR_store[partner_id].pop())['q']
 
     def get_data_qubit(self, partner_id):
         if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
             return False
-        return self._data_qubit_store[partner_id].pop()
+        return (self._data_qubit_store[partner_id].pop())['q']
 
     def stop(self):
         self.logger.log('-- Host ' + self.host_id + " stopped")

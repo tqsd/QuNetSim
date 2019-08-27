@@ -39,14 +39,12 @@ def main():
         network.add_host(host_bob)
         network.add_host(host_eve)
 
+        for _ in range(4):
+            host_alice.send_epr('00000011')
+            host_alice.send_epr('00000001')
+
         host_alice.send_superdense('00000011', '11')
-
-        time.sleep(1)
-
         host_alice.send_superdense('00000011', '10')
-
-        time.sleep(1)
-
         host_alice.send_superdense('00000001', '01')
 
         nodes = [host_alice, host_bob, host_eve]
