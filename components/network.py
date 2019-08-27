@@ -23,17 +23,24 @@ class Network:
             Network()
         return Network.__instance
 
-    def __init__(self, routing_algo=nx.shortest_path):
+    def __init__(self):
         if Network.__instance is None:
             self.ARP = {}
             self.network = nx.DiGraph()
-            self.routing_algo = routing_algo
+            self.routing_algo = nx.shortest_path
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
+            self.delay = 0.5
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
+
+    def set_routing_algo(self, algo):
+        self.routing_algo = algo
+
+    def set_delay(self, delay):
+        self.delay = delay
 
     def add_host(self, host):
         Logger.get_instance().debug('host added: ' + host.host_id)
@@ -127,7 +134,9 @@ class Network:
                 break
 
             if not self._packet_queue.empty():
-                time.sleep(0.5)
+                # To keep things from behaving well with simulaqron, we add a small
+                # delay for packet queries
+                time.sleep(self.delay)
 
                 packet = self._packet_queue.get()
                 sender, receiver = packet['sender'], packet['receiver']
