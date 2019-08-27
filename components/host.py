@@ -117,6 +117,9 @@ class Host:
         if partner_id not in self._EPR_store:
             return None
 
+        if len(self._EPR_store[partner_id]) == 0:
+            return None
+
         # If q_id is not specified, then return the last in the stack
         # else return the qubit with q_id q_id
         if q_id is None:
@@ -126,9 +129,11 @@ class Host:
             else:
                 print('accessed blocked epr qubit')
         else:
-            for qubit in self._EPR_store[partner_id]:
+            for index, qubit in enumerate(self._EPR_store[partner_id]):
                 if qubit['q_id'] == q_id:
-                    return qubit['q']
+                    q = qubit['q']
+                    del self._EPR_store[partner_id][index]
+                    return q
         return None
 
     def get_data_qubit(self, partner_id, q_id=None):
@@ -144,9 +149,11 @@ class Host:
             else:
                 print('accessed blocked data qubit')
         else:
-            for qubit in self._data_qubit_store[partner_id]:
+            for index, qubit in enumerate(self._data_qubit_store[partner_id]):
                 if qubit['q_id'] == q_id:
-                    return qubit['q']
+                    q = qubit['q']
+                    del self._data_qubit_store[partner_id][index]
+                    return q
         return None
 
     def stop(self):

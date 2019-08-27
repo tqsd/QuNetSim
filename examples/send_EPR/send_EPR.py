@@ -9,10 +9,13 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    network.start()
+    network.set_delay(1)
 
     print('')
 
-    with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
+    with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, CQCConnection('Eve') as Eve, CQCConnection(
+            'Dean') as Dean:
         host_alice = Host('00000000', Alice)
         host_alice.add_connection('00000001')
         host_alice.start()
@@ -35,19 +38,17 @@ def main():
 
         host_alice.send_epr('00000111')
 
-        time.sleep(15)
+        time.sleep(10)
 
         q1 = host_alice.get_epr('00000111')
         q2 = host_dean.get_epr('00000000')
 
-        m1 = q1.measure()
-        m2 = q2.measure()
+        m1 = q1['q'].measure()
+        m2 = q2['q'].measure()
 
-        print("Results of the measurements are " )
+        print("Results of the measurements are ")
         print(m1)
         print(m2)
-
-
 
         nodes = [host_alice, host_bob, host_eve, host_dean]
 
@@ -57,6 +58,8 @@ def main():
 
         for h in nodes:
             h.stop()
+
+        network.stop()
 
 
 main()
