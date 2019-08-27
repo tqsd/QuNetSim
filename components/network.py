@@ -15,10 +15,11 @@ class Network:
             Network()
         return Network.__instance
 
-    def __init__(self):
+    def __init__(self, routing_algo=nx.shortest_path):
         if Network.__instance is None:
             self.ARP = {}
             self.network = nx.DiGraph()
+            self.routing_algo = routing_algo
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -57,7 +58,7 @@ class Network:
         return self.ARP[host_id].cqc.name
 
     def get_route(self, source, dest):
-        return nx.shortest_path(self.network, source=source, target=dest)
+        return self.routing_algo(self.network, source=source, target=dest)
 
     def _send_network_packet(self, src, dest, link_layer_packet):
         network_packet = protocols.encode(src, dest, protocols.RELAY, link_layer_packet, protocols.SIGNAL)
@@ -81,7 +82,7 @@ class Network:
             for index, q in enumerate(qubits):
                 self.ARP[s].cqc.sendQubit(q, self.get_host_name(r))
                 q = self.ARP[r].cqc.recvQubit()
-                # update the set of qubits so that they aren't pointing at inactive qubits
+                # Update the set of qubits so that they aren't pointing at inactive qubits
                 qubits[index] = q
 
                 if store and original_sender is not None:

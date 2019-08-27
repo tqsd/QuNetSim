@@ -53,7 +53,7 @@ def process(packet):
     elif protocol == REC_SUPERDENSE:
         return _rec_superdense(sender, receiver)
     elif protocol == RELAY:
-        return _relay_message(sender, receiver, packet)
+        return _relay_message(receiver, packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
@@ -79,11 +79,10 @@ def _parse_message(message):
     return sender, receiver, protocol, payload, payload_type
 
 
-def _relay_message(sender, receiver, packet):
+def _relay_message(receiver, packet):
     packet['TTL'] -= 1
     packet['sender'] = receiver
     packet['receiver'] = packet['payload']['receiver']
-
     network.send(packet)
 
 
@@ -93,7 +92,7 @@ def _send_classical(sender, receiver, message):
     host_receiver = network.get_host(receiver)
 
     if not (host_receiver or host_sender):
-        # TODO: create meaningful exception
+        # TODO: create a meaningful exception
         raise Exception
 
     network.send(packet)
