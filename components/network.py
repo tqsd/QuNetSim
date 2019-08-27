@@ -108,6 +108,7 @@ class Network:
         try:
             # TODO: what to do if route doesn't exist?
             route = self.get_route(sender, receiver)
+            # print(route)
 
             if len(route) < 2:
                 raise Exception
@@ -117,7 +118,8 @@ class Network:
                 if packet['protocol'] != protocols.RELAY:
                     self.ARP[receiver].rec_packet(packet)
                 else:
-                    self.ARP[receiver].rec_packet(packet['payload'])
+                    self.ARP[route[1]].rec_packet(packet['payload'])
+
 
             else:
                 print('sending packet from ' + route[0] + ' to ' + route[1])

@@ -2,6 +2,7 @@ from queue import Queue
 import threading
 from components import protocols
 from components.logger import Logger
+import time
 
 
 class DaemonThread(threading.Thread):
@@ -98,6 +99,7 @@ class Host:
         self._data_qubit_store[partner_id].append(qubit)
 
     def get_epr(self, partner_id):
+        time.sleep(1)
         if partner_id not in self._EPR_store:
             return False
         return self._EPR_store[partner_id].pop()

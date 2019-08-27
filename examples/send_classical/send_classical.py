@@ -34,11 +34,10 @@ def main():
         network.add_host(host_eve)
         network.add_host(host_dean)
 
-        # network.draw_network()
 
         print('alice sends message')
 
-        host_alice.send_classical('00000111', 'hello')
+        host_alice.send_classical('00000011', 'hello')
 
         nodes = [host_alice, host_bob, host_eve, host_dean]
 
