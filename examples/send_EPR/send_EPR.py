@@ -36,9 +36,10 @@ def main():
         network.add_host(host_eve)
         network.add_host(host_dean)
 
+        #host_alice.send_epr('00000111')
         host_alice.send_epr('00000111')
 
-        time.sleep(15)
+        time.sleep(65)
 
         q1 = host_alice.get_epr('00000111')
         q2 = host_dean.get_epr('00000000')

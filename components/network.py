@@ -152,14 +152,16 @@ class Network:
                         raise Exception
 
                     elif len(route) == 2:
-                        Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
+                        if packet['protocol'] != protocols.SEND_TELEPORT:
+                            Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                         if packet['protocol'] != protocols.RELAY:
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet['payload'])
 
                     else:
-                        Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
+                        if packet['protocol'] != protocols.SEND_TELEPORT:
+                            Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
                         # Here we're using hop by hop approach
                         if packet['protocol'] != protocols.RELAY:
                             network_packet = self.encode(route[0], route[1], packet)
@@ -187,3 +189,62 @@ class Network:
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
                          with_labels=True, hold=False)
         plt.show()
+
+    def _send_epr(self,sender, receiver):
+        route = self.get_route(sender, receiver)
+        host_sender = self.get_host(sender)
+        receiver_name = self.get_host_name(receiver)
+        if len(route) == 2:
+            q = host_sender.cqc.createEPR(receiver_name)
+            q_id = host_sender.add_epr(receiver, q)
+            packet = protocols.encode(sender, receiver, protocols.REC_EPR, payload={'q_id': q_id}, payload_type=protocols.CLASSICAL)
+            self.send(packet)
+        else:
+            for i in range(len(route) - 1):
+                self._send_epr(route[i], route[i + 1])
+
+            for i in range(len(route) - 2):
+                q = None
+
+                while q is None:
+                    q = (self.get_host(route[i + 1])).get_epr(route[0])
+
+                data = {'q': q, 'node': sender, 'type': protocols.EPR}
+                protocols._send_teleport(route[i + 1], route[i + 2], data)
+
+            q2 = host_sender.get_epr(route[1])
+            host_sender.add_epr(receiver, q2['q'], q2['q_id'])
+
+    def _rec_epr(self,sender, receiver, payload):
+        host_receiver = self.get_host(receiver)
+        q = host_receiver.cqc.recvEPR()
+        host_receiver.add_epr(sender, q, q_id=payload['q_id'])
+        return protocols._send_ack(sender, receiver)
+
+    def entanglement_swap(self,sender,receiver):
+        route = self.get_route(sender,receiver)
+        host_sender = self.get_host(sender)
+        receiver_name = self.get_host_name(receiver)
+        for i in range(len(route)-1):
+            packet = protocols.encode(route[i], route[i+1], protocols.SEND_EPR, payload_type=protocols.SIGNAL)
+            time.sleep(5)
+            self.send(packet)
+
+        for i in range(len(route) - 2):
+            q = None
+
+            while q is None:
+
+                q = (self.get_host(route[i + 1])).get_epr(route[0])
+
+            data = {'q' : q , 'node' : sender , 'type' : protocols.EPR}
+            time.sleep(10)
+            packet = protocols.encode(route[i+1], route[i+2], protocols.SEND_TELEPORT, data, payload_type=protocols.SIGNAL)
+            Logger.get_instance().log(sender + " sends TELEPORT to " + receiver)
+            self.send(packet)
+
+        q2 = host_sender.get_epr(route[1])
+        host_sender.add_epr(receiver, q2['q'], q2['q_id'])
+
+
+
