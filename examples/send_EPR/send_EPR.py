@@ -38,7 +38,7 @@ def main():
 
         host_alice.send_epr('00000111')
 
-        time.sleep(10)
+        time.sleep(15)
 
         q1 = host_alice.get_epr('00000111')
         q2 = host_dean.get_epr('00000000')

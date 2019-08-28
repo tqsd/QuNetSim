@@ -9,6 +9,10 @@ CLASSICAL = '00'
 QUANTUM = '11'
 SIGNAL = '10'
 
+#QUBIT TYPES
+EPR = 0
+DATA = 1
+
 # SIGNALS
 ACK = '1111'
 NACK = '0000'
@@ -106,32 +110,31 @@ def _rec_classical(sender, receiver, payload):
     return payload
 
 
-def _send_teleport(sender, receiver, q):
+def _send_teleport(sender, receiver, node, q, type):
     host_sender = network.get_host(sender)
+    # host_receiver = network.get_host(receiver)
+    time.sleep(3)
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         _send_epr(sender, receiver)
 
     epr_teleport = host_sender.get_epr(receiver)
-
     q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
-
-    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id']}
+    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': type , 'node' : node}
     packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
     network.send(packet)
 
 
 def _rec_teleport(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
-
-    q = host_receiver.get_epr(sender, q_id=payload['q_id'])
-
+    q = host_receiver.get_epr(sender , q_id=payload['q_id'])
     a = payload['measurements'][0]
     b = payload['measurements'][1]
+    epr_host = payload['node']
 
     # Apply corrections
     if b == 1:
@@ -139,43 +142,11 @@ def _rec_teleport(sender, receiver, payload):
     if a == 1:
         q.Z()
 
-    m = q.measure()
-    Logger.get_instance().log('Teleported qubit is: ' + str(m))
+    if payload['type'] == EPR:
+        host_receiver.add_epr(epr_host, q)
 
-    _send_ack(sender, receiver)
-
-
-def _send_teleport_epr(sender, receiver, node, q):
-    host_sender = network.get_host(sender)
-    # host_receiver = network.get_host(receiver)
-    if not network.shares_epr(sender, receiver):
-        print('Sent epr')
-        _send_epr(sender, receiver)
-
-    epr_teleport = host_sender.get_epr(receiver)
-    q.cnot(epr_teleport['q'])
-    q.H()
-
-    m1 = q.measure()
-    m2 = epr_teleport['q'].measure()
-    packet = encode(sender, receiver, REC_TELEPORT_EPR, [m1, m2, node], CLASSICAL)
-    network.send(packet)
-
-
-def _rec_teleport_epr(sender, receiver, payload):
-    host_receiver = network.get_host(receiver)
-    q1 = host_receiver.get_epr(sender)['q']
-    a = payload[0]
-    b = payload[1]
-    epr_host = payload[2]
-
-    # Apply corrections
-    if b == 1:
-        q1.X()
-    if a == 1:
-        q1.Z()
-
-    host_receiver.add_epr(epr_host, q1)
+    if payload['type'] == DATA:
+        host_receiver.add_data_qubit(epr_host,q)
 
     # Logger.get_instance().log('Teleported qubit is: ' + str(m))
 
@@ -201,7 +172,7 @@ def _send_epr(sender, receiver):
             while q is None:
                 q = (network.get_host(route[i + 1])).get_epr(route[0])
 
-            _send_teleport_epr(route[i + 1], route[i + 2], sender, q['q'])
+            _send_teleport(route[i + 1], route[i + 2], sender, q['q'], EPR)
 
         q2 = host_sender.get_epr(route[1])
         host_sender.add_epr(receiver, q2['q'], q2['q_id'])
