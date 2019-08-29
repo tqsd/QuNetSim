@@ -47,7 +47,8 @@ class Host:
 
     def send_epr(self, receiver):
         q_id = str(uuid.uuid4())
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR, payload=q_id,  payload_type=protocols.SIGNAL)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR, payload=q_id,
+                                  payload_type=protocols.SIGNAL)
         self.logger.log(self.host_id + " sends EPR to " + receiver)
         self._packet_queue.put(packet)
         return q_id
@@ -67,7 +68,6 @@ class Host:
 
     def _process_queue(self):
         self.logger.log('Host ' + self.host_id + ' started processing')
-
         while True:
             if self._stop_thread:
                 break

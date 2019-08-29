@@ -39,7 +39,6 @@ network = Network.get_instance()
 
 def process(packet):
     sender, receiver, protocol, payload, payload_type = _parse_message(packet)
-
     if protocol == SEND_TELEPORT:
         return _send_teleport(sender, receiver, payload)
     elif protocol == REC_TELEPORT:
@@ -112,8 +111,12 @@ def _send_teleport(sender, receiver, payload):
     node = None
     if 'node' in payload:
         node = payload['node']
+    q_type = None
+    if 'type' in payload:
+        q_type = payload['type']
 
     q = payload['q']
+
     host_sender = network.get_host(sender)
 
     if not network.shares_epr(sender, receiver):
@@ -129,7 +132,7 @@ def _send_teleport(sender, receiver, payload):
 
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
-    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': type, 'node': node}
+    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': q_type, 'node': node}
     packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
     network.send(packet)
 
@@ -159,7 +162,7 @@ def _rec_teleport(sender, receiver, payload):
 
 
 def _send_epr(sender, receiver, payload=None):
-    if not payload is None:
+    if payload is not None:
         payload = {'q_id': payload}
     packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=CLASSICAL)
     network.send(packet)

@@ -109,7 +109,7 @@ class Network:
 
         # TODO: We use a sleep here to allow the network to complete the tasks but
         #  we need to use an Observer pattern to remove this need of sleeps
-        time.sleep(15)
+        time.sleep(3)
 
         for i in range(len(route) - 2):
             q = None
@@ -178,7 +178,7 @@ class Network:
                         raise Exception
 
                     elif len(route) == 2:
-                        Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
+                        # Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                         if packet['protocol'] != protocols.RELAY:
                             if packet['protocol'] == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
@@ -191,7 +191,7 @@ class Network:
                             self.ARP[receiver].rec_packet(packet['payload'])
 
                     else:
-                        Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
+                        # Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
 
                         # Here we're using hop by hop approach (i.e. the route is recalculated at each hop
                         if packet['protocol'] == protocols.RELAY:

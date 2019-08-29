@@ -14,6 +14,7 @@ def main():
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
             CQCConnection('Eve') as Eve:
+
         host_alice = Host('00000000', Alice)
         host_alice.add_connection('00000001')
         host_alice.start()
