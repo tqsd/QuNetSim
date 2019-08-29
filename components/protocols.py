@@ -109,11 +109,12 @@ def _rec_classical(sender, receiver, payload):
 
 
 def _send_teleport(sender, receiver, payload):
-    node = payload['node']
+    node = None
+    if 'node' in payload:
+        node = payload['node']
+
     q = payload['q']
-    type = payload['type']
     host_sender = network.get_host(sender)
-    # host_receiver = network.get_host(receiver)
 
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
@@ -137,25 +138,22 @@ def _rec_teleport(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
     q_id = payload['q_id']
     q = host_receiver.get_epr(sender, q_id)
-    print("Receiver : " + receiver + " q_id: " + q_id)
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
     epr_host = payload['node']
 
     # Apply corrections
-    if b == 1:
-        q.X()
     if a == 1:
         q.Z()
+    if b == 1:
+        q.X()
 
     if payload['type'] == EPR:
         host_receiver.add_epr(epr_host, q, q_id)
 
     if payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
-
-    # Logger.get_instance().log('Teleported qubit is: ' + str(m))
 
     _send_ack(sender, receiver)
 

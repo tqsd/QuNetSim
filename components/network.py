@@ -99,7 +99,35 @@ class Network:
         }
         return packet
 
-    def route_quantum_info(self, sender, receiver, qubits):
+    def _entanglement_swap(self, sender, receiver, route, q_id):
+        host_sender = self.get_host(sender)
+
+        for i in range(len(route) - 1):
+            packet = protocols.encode(route[i], route[i + 1], protocols.SEND_EPR, q_id,
+                                      payload_type=protocols.SIGNAL)
+            self.get_host(route[i]).rec_packet(packet)
+
+        # TODO: We use a sleep here to allow the network to complete the tasks but
+        #  we need to use an Observer pattern to remove this need of sleeps
+        time.sleep(15)
+
+        for i in range(len(route) - 2):
+            q = None
+
+            while q is None:
+                q = (self.get_host(route[i + 1])).get_epr(route[0])
+
+            data = {'q': q['q'], 'q_id': q['q_id'], 'node': sender, 'type': protocols.EPR}
+
+            packet = protocols.encode(route[i + 1], route[i + 2], protocols.SEND_TELEPORT, data,
+                                      payload_type=protocols.SIGNAL)
+            Logger.get_instance().log(sender + " sends EPR to " + receiver)
+            self.get_host(route[i + 1]).rec_packet(packet)
+
+        q2 = host_sender.get_epr(route[1])
+        host_sender.add_epr(receiver, q2['q'], q2['q_id'])
+
+    def _route_quantum_info(self, sender, receiver, qubits):
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
                 Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
@@ -126,15 +154,10 @@ class Network:
                 transfer_qubits(route[i], route[i + 1])
             else:
                 transfer_qubits(route[i], route[i + 1], True, route[0])
-
             i += 1
-
-    def send(self, packet):
-        self._packet_queue.put(packet)
 
     def _process_queue(self):
         while True:
-            # print('processing')
             if self._stop_thread:
                 break
 
@@ -146,7 +169,7 @@ class Network:
                 sender, receiver = packet['sender'], packet['receiver']
 
                 if packet['payload_type'] == protocols.QUANTUM:
-                    self.route_quantum_info(sender, receiver, packet['payload'])
+                    self._route_quantum_info(sender, receiver, packet['payload'])
 
                 try:
                     # TODO: what to do if route doesn't exist?
@@ -155,9 +178,7 @@ class Network:
                         raise Exception
 
                     elif len(route) == 2:
-
-                        if packet['protocol'] != protocols.SEND_TELEPORT and protocols.SEND_EPR:
-                            Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
+                        Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                         if packet['protocol'] != protocols.RELAY:
                             if packet['protocol'] == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
@@ -170,15 +191,14 @@ class Network:
                             self.ARP[receiver].rec_packet(packet['payload'])
 
                     else:
-                        if packet['protocol'] != protocols.SEND_TELEPORT:
-                            Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
-                        # Here we're using hop by hop approach
+                        Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
+
+                        # Here we're using hop by hop approach (i.e. the route is recalculated at each hop
                         if packet['protocol'] == protocols.RELAY:
                             packet['receiver'] = route[1]
                             network_packet = packet
                             self.ARP[route[1]].rec_packet(network_packet)
                         elif packet['protocol'] == protocols.REC_EPR:
-                            print('here')
                             q_id = packet['payload']['q_id']
                             DaemonThread(self._entanglement_swap, args=(sender, receiver, route, q_id))
                         else:
@@ -190,7 +210,10 @@ class Network:
                 except ValueError:
                     Logger.get_instance().error("route couldn't be calculated, value error")
                 except Exception as e:
-                    print('error' + str(e))
+                    print('Error in network: ' + str(e))
+
+    def send(self, packet):
+        self._packet_queue.put(packet)
 
     def stop(self):
         Logger.get_instance().log("Network stopped")
@@ -203,36 +226,3 @@ class Network:
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
                          with_labels=True, hold=False)
         plt.show()
-
-    def _rec_epr(self, sender, receiver, payload):
-        host_receiver = self.get_host(receiver)
-        q = host_receiver.cqc.recvEPR()
-        host_receiver.add_epr(sender, q, q_id=payload['q_id'])
-        return protocols._send_ack(sender, receiver)
-
-    def _entanglement_swap(self, sender, receiver, route, q_id):
-        host_sender = self.get_host(sender)
-
-        for i in range(len(route) - 1):
-            packet = protocols.encode(route[i], route[i + 1], protocols.SEND_EPR, q_id,
-                                      payload_type=protocols.SIGNAL)
-            self.get_host(route[i]).rec_packet(packet)
-
-        time.sleep(5)
-
-        for i in range(len(route) - 2):
-            q = None
-
-            while q is None:
-                q = (self.get_host(route[i + 1])).get_epr(route[0])
-
-            data = {'q': q['q'], 'q_id': q['q_id'], 'node': sender, 'type': protocols.EPR}
-
-            # time.sleep(10)
-            packet = protocols.encode(route[i + 1], route[i + 2], protocols.SEND_TELEPORT, data,
-                                      payload_type=protocols.SIGNAL)
-            Logger.get_instance().log(sender + " sends EPR to " + receiver)
-            self.get_host(route[i + 1]).rec_packet(packet)
-
-        q2 = host_sender.get_epr(route[1])
-        host_sender.add_epr(receiver, q2['q'], q2['q_id'])
