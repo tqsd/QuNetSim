@@ -9,7 +9,7 @@ CLASSICAL = '00'
 QUANTUM = '11'
 SIGNAL = '10'
 
-#QUBIT TYPES
+# QUBIT TYPES
 EPR = 0
 DATA = 1
 
@@ -51,7 +51,7 @@ def process(packet):
     elif protocol == REC_EPR:
         return _rec_epr(sender, receiver, payload)
     elif protocol == SEND_EPR:
-        return _send_epr(sender, receiver)
+        return _send_epr(sender, receiver, payload)
     elif protocol == SEND_SUPERDENSE:
         return _send_superdense(sender, receiver, payload)
     elif protocol == REC_SUPERDENSE:
@@ -110,30 +110,35 @@ def _rec_classical(sender, receiver, payload):
 
 def _send_teleport(sender, receiver, payload):
     node = payload['node']
-    q = payload['q']['q']
+    q = payload['q']
     type = payload['type']
     host_sender = network.get_host(sender)
     # host_receiver = network.get_host(receiver)
-    time.sleep(3)
+
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        network._send_epr(sender, receiver)
+        _send_epr(sender, receiver)
 
     epr_teleport = host_sender.get_epr(receiver)
+    while epr_teleport is None:
+        epr_teleport = host_sender.get_epr(receiver)
 
     q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
-    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': type , 'node' : node}
+    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': type, 'node': node}
     packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
     network.send(packet)
 
 
 def _rec_teleport(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
-    q = host_receiver.get_epr(sender , q_id=payload['q_id'])
+    q_id = payload['q_id']
+    q = host_receiver.get_epr(sender, q_id)
+    print("Receiver : " + receiver + " q_id: " + q_id)
+
     a = payload['measurements'][0]
     b = payload['measurements'][1]
     epr_host = payload['node']
@@ -145,59 +150,30 @@ def _rec_teleport(sender, receiver, payload):
         q.Z()
 
     if payload['type'] == EPR:
-        host_receiver.add_epr(epr_host, q)
+        host_receiver.add_epr(epr_host, q, q_id)
 
     if payload['type'] == DATA:
-        host_receiver.add_data_qubit(epr_host,q)
+        host_receiver.add_data_qubit(epr_host, q, q_id)
 
     # Logger.get_instance().log('Teleported qubit is: ' + str(m))
 
     _send_ack(sender, receiver)
 
 
-def _send_epr_old(sender, receiver):
-    route = network.get_route(sender, receiver)
-    host_sender = network.get_host(sender)
-    receiver_name = network.get_host_name(receiver)
-    if len(route) == 2:
-        q = host_sender.cqc.createEPR(receiver_name)
-        q_id = host_sender.add_epr(receiver, q)
-        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id}, payload_type=CLASSICAL)
-        network.send(packet)
-    else:
-        for i in range(len(route) - 1):
-            _send_epr(route[i], route[i + 1])
-
-        for i in range(len(route) - 2):
-            q = None
-
-            while q is None:
-                q = (network.get_host(route[i + 1])).get_epr(route[0])
-
-            _send_teleport(route[i + 1], route[i + 2], sender, q['q'], EPR)
-
-        q2 = host_sender.get_epr(route[1])
-        host_sender.add_epr(receiver, q2['q'], q2['q_id'])
-
-
-def _send_epr(sender, receiver):
-    route = network.get_route(sender, receiver)
-    host_sender = network.get_host(sender)
-    receiver_name = network.get_host_name(receiver)
-    if len(route) == 2:
-        q = host_sender.cqc.createEPR(receiver_name)
-        q_id = host_sender.add_epr(receiver, q)
-        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id}, payload_type=CLASSICAL)
-        network.send(packet)
-    else:
-        network.entanglement_swap(sender,receiver)
-
+def _send_epr(sender, receiver, payload=None):
+    if not payload is None:
+        payload = {'q_id': payload}
+    packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=CLASSICAL)
+    network.send(packet)
 
 
 def _rec_epr(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
     q = host_receiver.cqc.recvEPR()
-    host_receiver.add_epr(sender, q, q_id=payload['q_id'])
+    if payload is None:
+        host_receiver.add_epr(sender, q)
+    else:
+        host_receiver.add_epr(sender, q, q_id=payload['q_id'])
     return _send_ack(sender, receiver)
 
 
@@ -207,10 +183,9 @@ def _send_ack(sender, receiver):
 
 def _send_superdense(sender, receiver, payload):
     host_sender = network.get_host(sender)
-
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        network._send_epr(sender, receiver)
+        _send_epr(sender, receiver)
 
     q_superdense = host_sender.get_epr(receiver)
 
