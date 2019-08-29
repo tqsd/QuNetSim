@@ -1,4 +1,4 @@
-from cqc.pythonLib import CQCConnection
+from cqc.pythonLib import CQCConnection, qubit
 
 
 #####################################################################################################
@@ -7,26 +7,25 @@ from cqc.pythonLib import CQCConnection
 #
 def main():
     # Initialize the connection
-    with CQCConnection("Bob") as Bob:
+    with CQCConnection("Eve") as Eve:
 
-        # Make an EPR pair with Alice
-        qB = Bob.recvEPR()
+        qE = Eve.recvEPR()
 
         # Receive info about corrections
-        data = Bob.recvClassical()
+        data = Eve.recvClassical()
         message = list(data)
         a = message[0]
         b = message[1]
 
         # Apply corrections
         if b == 1:
-            qB.X()
+            qE.X()
         if a == 1:
-            qB.Z()
+            qE.Z()
 
-            # Measure qubit
-        m = qB.measure()
-        to_print = "App {}: Measurement outcome is: {}".format(Bob.name, m)
+        # Measure qubit
+        m = qE.measure()
+        to_print = "App {}: Measurement outcome is: {}".format(Eve.name, m)
         print("|" + "-" * (len(to_print) + 2) + "|")
         print("| " + to_print + " |")
         print("|" + "-" * (len(to_print) + 2) + "|")
