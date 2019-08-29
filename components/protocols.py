@@ -113,6 +113,9 @@ def _send_teleport(sender, receiver, payload):
     if 'node' in payload:
         node = payload['node']
 
+    if 'type' in payload:
+        type = payload['type']
+
     q = payload['q']
     host_sender = network.get_host(sender)
 
