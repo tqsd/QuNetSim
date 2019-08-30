@@ -24,6 +24,7 @@ class Host:
         self._packet_queue = Queue()
         self._stop_thread = False
         self._data_qubit_store = {}
+        self._classical = []
         self._EPR_store = {}
         self._queue_processor_thread = None
         self.connections = []
@@ -36,9 +37,6 @@ class Host:
 
     def add_connection(self, connection_id):
         self.connections.append(connection_id)
-
-    def add_path(self, path):
-        self.paths.append(path)
 
     def send_classical(self, receiver, message):
         packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL)
@@ -54,7 +52,7 @@ class Host:
         return q_id
 
     def send_teleport(self, receiver, q):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, q, protocols.SIGNAL)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL)
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver)
         self._packet_queue.put(packet)
 
@@ -87,7 +85,8 @@ class Host:
 
                 result = protocols.process(message)
                 if result:
-                    self.logger.log(self.cqc.name + ' received ' + result)
+                    self._classical.append({'sender': sender, 'message': result['message']})
+                    self.logger.log(self.cqc.name + ' received ' + result['message'])
 
     def add_epr(self, partner_id, qubit, q_id=None):
         if partner_id not in self._EPR_store and partner_id != self.host_id:
@@ -157,6 +156,9 @@ class Host:
                     del self._data_qubit_store[partner_id][index]
                     return q
         return None
+
+    def get_classical_messages(self):
+        return self._classical
 
     def stop(self):
         self.logger.log('Host ' + self.host_id + " stopped")

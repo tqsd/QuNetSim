@@ -91,7 +91,7 @@ def _relay_message(receiver, packet):
 
 def _send_classical(sender, receiver, message):
     host_sender = network.get_host(sender)
-    packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, message, CLASSICAL)
+    packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL)
     host_receiver = network.get_host(receiver)
 
     if not (host_receiver or host_sender):
@@ -104,16 +104,19 @@ def _send_classical(sender, receiver, message):
 def _rec_classical(sender, receiver, payload):
     # Assume the payload is the classical message
     _send_ack(sender, receiver)
-    return payload
+    return {'message': payload['message']}
 
 
 def _send_teleport(sender, receiver, payload):
-    node = None
     if 'node' in payload:
         node = payload['node']
-    q_type = None
+    else:
+        node = receiver
+
     if 'type' in payload:
         q_type = payload['type']
+    else:
+        q_type = DATA
 
     q = payload['q']
 
@@ -127,11 +130,14 @@ def _send_teleport(sender, receiver, payload):
     while epr_teleport is None:
         epr_teleport = host_sender.get_epr(receiver)
 
+    print('got epr')
+
     q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
+
     data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': q_type, 'node': node}
     packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
     network.send(packet)
@@ -155,7 +161,7 @@ def _rec_teleport(sender, receiver, payload):
     if payload['type'] == EPR:
         host_receiver.add_epr(epr_host, q, q_id)
 
-    if payload['type'] == DATA:
+    elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
     _send_ack(sender, receiver)
@@ -188,7 +194,11 @@ def _send_superdense(sender, receiver, payload):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         _send_epr(sender, receiver)
 
+    # either there is an epr pair already or one is being generated
     q_superdense = host_sender.get_epr(receiver)
+
+    while q_superdense is None:
+        q_superdense = host_sender.get_epr(receiver)
 
     _encode_superdense(payload, q_superdense['q'])
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
@@ -204,8 +214,10 @@ def _rec_superdense(sender, receiver, payload):
         return
 
     qB = host_receiver.get_epr(sender, payload[0]['q_id'])
-    m = _decode_superdense(qA, qB)
-    return m
+    while qB is None:
+        qB = host_receiver.get_epr(sender, payload[0]['q_id'])
+
+    return {'message': _decode_superdense(qA, qB)}
 
 
 def _add_checksum(sender, qubits, size=2):

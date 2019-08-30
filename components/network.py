@@ -51,6 +51,16 @@ class Network:
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
+    def remove_host(self, host):
+        if host.host_id in self.ARP:
+            del self.ARP[host.host_id]
+
+    def _remove_network_node(self, host):
+        try:
+            self.network.remove_node(host.host_id)
+        except nx.NetworkXError:
+            Logger.get_instance().error('attempted to remove a non-exiting node from network')
+
     def _update_network_graph(self, host):
         self.network.add_node(host.host_id)
 
@@ -184,7 +194,11 @@ class Network:
                                 host_sender = self.get_host(sender)
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
-                                q_id = host_sender.add_epr(receiver, q, packet['payload']['q_id'])
+                                if packet['payload'] is not None:
+                                    q_id = host_sender.add_epr(receiver, q, packet['payload']['q_id'])
+                                else:
+                                    q_id = host_sender.add_epr(receiver, q)
+
                                 packet['payload'] = {'q_id': q_id}
                             self.ARP[receiver].rec_packet(packet)
                         else:
@@ -210,7 +224,7 @@ class Network:
                 except ValueError:
                     Logger.get_instance().error("route couldn't be calculated, value error")
                 except Exception as e:
-                    print('Error in network: ' + str(e))
+                    Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
         self._packet_queue.put(packet)
