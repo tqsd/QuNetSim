@@ -111,7 +111,7 @@ def _send_teleport(sender, receiver, payload):
     if 'node' in payload:
         node = payload['node']
     else:
-        node = receiver
+        node = sender
 
     if 'type' in payload:
         q_type = payload['type']
@@ -129,8 +129,6 @@ def _send_teleport(sender, receiver, payload):
     epr_teleport = host_sender.get_epr(receiver)
     while epr_teleport is None:
         epr_teleport = host_sender.get_epr(receiver)
-
-    print('got epr')
 
     q.cnot(epr_teleport['q'])
     q.H()

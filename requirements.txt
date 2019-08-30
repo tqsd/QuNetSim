@@ -27,3 +27,4 @@ simulaqron==3.0.4
 six==1.12.0
 Twisted==19.2.1
 zope.interface==4.6.0
+nose2==0.9.1
