@@ -17,11 +17,12 @@ do_sequence = True
 class TestOneHop(unittest.TestCase):
     sim_network = None
     network = None
+    MAX_WAIT = 20
 
     @classmethod
     def setUpClass(cls):
         simulaqron_settings.default_settings()
-        nodes = ['Alice', 'Bob', 'Eve']
+        nodes = ['Alice', 'Bob']
         cls.sim_network = SimulaNetwork(nodes=nodes, force=True)
         cls.sim_network.start()
 
@@ -63,9 +64,12 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_classical(hosts['bob'].host_id, 'hello')
 
-            time.sleep(2)
-
+            i = 0
             messages = hosts['bob'].get_classical_messages()
+            while i < TestOneHop.MAX_WAIT and len(messages) == 0:
+                messages = hosts['bob'].get_classical_messages()
+                i += 1
+                time.sleep(1)
 
             self.assertTrue(len(messages) > 0)
             self.assertEqual(messages[0], {'sender': hosts['alice'].host_id,
@@ -89,14 +93,24 @@ class TestOneHop(unittest.TestCase):
                 self.network.add_host(h)
 
             q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
-            time.sleep(5)
 
             q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
 
-            time.sleep(5)
+            i = 0
+            while q1 is None and i < TestOneHop.MAX_WAIT:
+                q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+                i += 1
+                time.sleep(1)
 
+            self.assertIsNotNone(q1)
+            i = 0
             q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+            while q2 is None and i < TestOneHop.MAX_WAIT:
+                q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+                i += 1
+                time.sleep(1)
 
+            self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
@@ -121,9 +135,12 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_teleport(hosts['bob'].host_id, q)
 
-            time.sleep(2)
-
             q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+            i = 0
+            while q2 is None and i < TestOneHop.MAX_WAIT:
+                q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+                i += 1
+                time.sleep(1)
 
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
@@ -146,10 +163,14 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_superdense(hosts['bob'].host_id, '01')
 
-            time.sleep(3)
-
             messages = hosts['bob'].get_classical_messages()
+            i = 0
+            while i < TestOneHop.MAX_WAIT and len(messages) == 0:
+                messages = hosts['bob'].get_classical_messages()
+                i += 1
+                time.sleep(1)
 
+            self.assertIsNotNone(messages)
             self.assertTrue(len(messages) > 0)
             self.assertEqual(messages[0], {'sender': hosts['alice'].host_id,
                                            'message': '01'})
