@@ -1,6 +1,7 @@
 import unittest
 import time
 import sys
+import os
 
 from cqc.pythonLib import CQCConnection, qubit
 from simulaqron.network import Network as SimulaNetwork
@@ -9,6 +10,8 @@ from simulaqron.settings import simulaqron_settings
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
+
+do_sequence = True
 
 
 class TestApplications(unittest.TestCase):
@@ -24,6 +27,7 @@ class TestApplications(unittest.TestCase):
     def tearDownClass(cls):
         cls.sim_network.stop()
         simulaqron_settings.default_settings()
+        #os.system('simulaqron stop')
 
     def setUp(self):
         self.network = Network.get_instance()
@@ -34,9 +38,9 @@ class TestApplications(unittest.TestCase):
             self.hosts[key].cqc.flush()
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
-        self.network.stop()
+        #self.network.stop()
 
-    @unittest.skip('')
+    #@unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -58,11 +62,13 @@ class TestApplications(unittest.TestCase):
             time.sleep(2)
 
             messages = hosts['bob'].get_classical_messages()
+            Alice.flush()
+            Bob.flush()
             self.assertTrue(len(messages) > 0)
             self.assertEqual(messages[0], {'sender': hosts['alice'].host_id,
                                            'message': 'hello'})
 
-    @unittest.skip('')
+    #@unittest.skip('')
     def test_one_hop_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -80,17 +86,18 @@ class TestApplications(unittest.TestCase):
                 self.network.add_host(h)
 
             q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
-
-            time.sleep(1)
+            time.sleep(5)
 
             q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
 
-            time.sleep(2)
+            time.sleep(5)
 
             q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+            Alice.flush_factory(1, do_sequence)
+            Bob.flush_factory(1, do_sequence)
             self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    #@unittest.skip('')
     def test_one_hop_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -110,14 +117,17 @@ class TestApplications(unittest.TestCase):
             q = qubit(Alice)
             q.X()
 
-            q_id = hosts['alice'].send_teleport(hosts['bob'].host_id, q)
+            hosts['alice'].send_teleport(hosts['bob'].host_id, q)
 
-            time.sleep(1)
+            time.sleep(2)
 
-            q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
-            self.assertEqual(q2.measure(), 1)
+            q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+            Alice.flush()
+            Bob.flush()
+            self.assertIsNotNone(q2)
+            self.assertEqual(q2['q'].measure(), 1)
 
-    # @unittest.skip('')
+    #@unittest.skip('')
     def test_one_hop_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -138,6 +148,8 @@ class TestApplications(unittest.TestCase):
             time.sleep(3)
 
             messages = hosts['bob'].get_classical_messages()
+            Alice.flush()
+            Bob.flush()
 
             self.assertTrue(len(messages) > 0)
             self.assertEqual(messages[0], {'sender': hosts['alice'].host_id,
