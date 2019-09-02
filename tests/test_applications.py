@@ -15,6 +15,7 @@ do_sequence = True
 
 
 class TestApplications(unittest.TestCase):
+    sim_network = None
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +26,8 @@ class TestApplications(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.sim_network.stop()
+        if cls.sim_network is not None:
+            cls.sim_network.stop()
         simulaqron_settings.default_settings()
         #os.system('simulaqron stop')
 
