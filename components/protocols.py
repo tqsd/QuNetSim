@@ -195,11 +195,13 @@ def _send_superdense(sender, receiver, payload):
     host_sender = network.get_host(sender)
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        _send_epr(sender, receiver, str(uuid.uuid4()))
+        q_id = str(uuid.uuid4())
+        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id},
+                        payload_type=SIGNAL)
+        network.send(packet)
 
     # either there is an epr pair already or one is being generated
     q_superdense = host_sender.get_epr(receiver)
-
     while q_superdense is None:
         q_superdense = host_sender.get_epr(receiver)
 
