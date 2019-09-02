@@ -1,5 +1,6 @@
+import threading
 from cqc.pythonLib import qubit
-import time
+import uuid
 
 # DATA TYPES
 from components.logger import Logger
@@ -121,12 +122,15 @@ def _send_teleport(sender, receiver, payload):
     q = payload['q']
 
     host_sender = network.get_host(sender)
-
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        _send_epr(sender, receiver)
+        q_id = str(uuid.uuid4())
+        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id},
+                        payload_type=SIGNAL)
+        network.send(packet)
 
     epr_teleport = host_sender.get_epr(receiver)
+
     while epr_teleport is None:
         epr_teleport = host_sender.get_epr(receiver)
 
@@ -168,6 +172,7 @@ def _rec_teleport(sender, receiver, payload):
 def _send_epr(sender, receiver, payload=None):
     if payload is not None:
         payload = {'q_id': payload}
+
     packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=CLASSICAL)
     network.send(packet)
 
@@ -190,7 +195,7 @@ def _send_superdense(sender, receiver, payload):
     host_sender = network.get_host(sender)
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        _send_epr(sender, receiver)
+        _send_epr(sender, receiver, str(uuid.uuid4()))
 
     # either there is an epr pair already or one is being generated
     q_superdense = host_sender.get_epr(receiver)

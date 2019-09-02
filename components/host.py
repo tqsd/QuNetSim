@@ -3,12 +3,14 @@ import threading
 from components import protocols
 from components.logger import Logger
 import uuid
-import time
 
 
 class DaemonThread(threading.Thread):
-    def __init__(self, target):
-        super().__init__(target=target, daemon=True)
+    def __init__(self, target, args=None):
+        if args is not None:
+            super().__init__(target=target, daemon=True, args=args)
+        else:
+            super().__init__(target=target, daemon=True)
         self.start()
 
 
@@ -64,6 +66,20 @@ class Host:
     def shares_epr(self, receiver):
         return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
 
+    def _process_message(self, message):
+        sender = message['sender']
+
+        if sender not in self._data_qubit_store and sender != self.host_id:
+            self._data_qubit_store[sender] = []
+
+        if sender not in self._EPR_store and sender != self.host_id:
+            self._EPR_store[sender] = []
+
+        result = protocols.process(message)
+        if result:
+            self._classical.append({'sender': sender, 'message': result['message']})
+            self.logger.log(self.cqc.name + ' received ' + result['message'])
+
     def _process_queue(self):
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
@@ -74,19 +90,7 @@ class Host:
                 message = self._packet_queue.get()
                 if not message:
                     raise Exception('empty message')
-
-                sender = message['sender']
-
-                if sender not in self._data_qubit_store and sender != self.host_id:
-                    self._data_qubit_store[sender] = []
-
-                if sender not in self._EPR_store and sender != self.host_id:
-                    self._EPR_store[sender] = []
-
-                result = protocols.process(message)
-                if result:
-                    self._classical.append({'sender': sender, 'message': result['message']})
-                    self.logger.log(self.cqc.name + ' received ' + result['message'])
+                DaemonThread(self._process_message, args=(message,))
 
     def add_epr(self, partner_id, qubit, q_id=None):
         if partner_id not in self._EPR_store and partner_id != self.host_id:
