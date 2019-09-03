@@ -1,17 +1,15 @@
 import unittest
 import time
 import sys
-import os
 
 from cqc.pythonLib import CQCConnection, qubit
 from simulaqron.network import Network as SimulaNetwork
-from simulaqron.settings import simulaqron_settings
+
+# from simulaqron.settings import simulaqron_settings
 
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-
-do_sequence = True
 
 
 @unittest.skip('')
@@ -22,7 +20,7 @@ class TestOneHop(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        simulaqron_settings.default_settings()
+        # simulaqron_settings.default_settings()
         nodes = ['Alice', 'Bob']
         cls.sim_network = SimulaNetwork(nodes=nodes, force=True)
         cls.sim_network.start()
@@ -35,7 +33,7 @@ class TestOneHop(unittest.TestCase):
     def tearDownClass(cls):
         if cls.sim_network is not None:
             cls.sim_network.stop()
-        simulaqron_settings.default_settings()
+        # simulaqron_settings.default_settings()
         cls.network.stop()
         cls.network = None
 

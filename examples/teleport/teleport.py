@@ -33,24 +33,15 @@ def main():
         q1 = qubit(Alice)
         q1.X()
 
-        #q2 = qubit(Alice)
-        #q2.X()
+        host_alice.send_teleport('00000011', q1)
 
-        #q3 = qubit(Alice)
-        #q3.X()
+        time.sleep(10)
 
-        #host_alice.send_epr('00000011')
-        #host_alice.send_epr('00000011')
-        #host_alice.send_epr('00000011')
-
-        #time.sleep(15)
-
-        host_alice.send_teleport('00000001', q1)
-        time.sleep(5)
-        q = host_bob.get_data_qubit(host_alice.host_id)
+        q = host_eve.get_data_qubit(host_alice.host_id)
         print(q['q'].measure())
-        #host_alice.send_teleport('00000011', q2)
-        #host_alice.send_teleport('00000011', q3)
+
+        # host_alice.send_teleport('00000011', q2)
+        # host_alice.send_teleport('00000011', q3)
 
         nodes = [host_alice, host_bob, host_eve]
 
