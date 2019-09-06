@@ -33,15 +33,24 @@ class Host:
         self.cqc = cqc
         self.logger = Logger.get_instance()
         self.role = role
+        self.seq_number = {}
 
     def rec_packet(self, packet):
         self._packet_queue.put(packet)
 
     def add_connection(self, connection_id):
         self.connections.append(connection_id)
+        self.seq_number[connection_id] = 0
 
     def send_classical(self, receiver, message):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL)
+        if receiver in self.seq_number.keys():
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL, self.seq_number[receiver])
+            self.seq_number[receiver] += 1
+        else:
+            self.seq_number[receiver] = 0
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL,
+                                      self.seq_number[receiver])
+            self.seq_number[receiver] += 1
         self.logger.log('sent classical')
         self._packet_queue.put(packet)
 
@@ -54,12 +63,28 @@ class Host:
         return q_id
 
     def send_teleport(self, receiver, q):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL)
+        if receiver in self.seq_number.keys():
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL , self.seq_number[receiver])
+            self.seq_number[receiver] += 1
+        else:
+            self.seq_number[receiver]=0
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
+                                      self.seq_number[receiver])
+            self.seq_number[receiver] += 1
+
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver)
         self._packet_queue.put(packet)
 
     def send_superdense(self, receiver, message):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL)
+        if receiver in self.seq_number.keys():
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL , self.seq_number[receiver])
+            self.seq_number[receiver] += 1
+        else:
+            self.seq_number[receiver] = 0
+            packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL,
+                                      self.seq_number[receiver])
+            self.seq_number[receiver] += 1
+
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver)
         self._packet_queue.put(packet)
 
@@ -76,9 +101,14 @@ class Host:
             self._EPR_store[sender] = []
 
         result = protocols.process(message)
-        if result:
-            self._classical.append({'sender': sender, 'message': result['message']})
-            self.logger.log(self.cqc.name + ' received ' + result['message'])
+        if result is not None:
+                #if result['sequence number'] is None:
+                if not 'sequence number' in result.keys():
+                    self._classical.append({'sender': sender, 'message': result['message']})
+                    self.logger.log(self.cqc.name + ' received ' + result['message'])
+                else:
+                    self._classical.append({'sender': sender, 'message': result['message'], 'sequence number': result['sequence number']})
+                    self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(result['sequence number']))
 
     def _process_queue(self):
         self.logger.log('Host ' + self.host_id + ' started processing')
