@@ -1,6 +1,7 @@
 import threading
 from cqc.pythonLib import qubit
 import uuid
+import time
 
 # DATA TYPES
 from components.logger import Logger
@@ -36,6 +37,9 @@ SEND_SUPERDENSE = '00001101'
 RELAY = '00001111'
 REC_TELEPORT_EPR = '00010001'
 SEND_TELEPORT_EPR = '0001010'
+
+MAX_WAIT = 10
+WAIT_ITER = 0.5
 
 
 def process(packet):
@@ -156,7 +160,15 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
 def _rec_teleport(sender, receiver, payload):
     host_receiver = network.get_host(receiver)
     q_id = payload['q_id']
+
     q = host_receiver.get_epr(sender, q_id)
+    i = 0
+    while q is None and i < MAX_WAIT:
+        i += 1
+        time.sleep(WAIT_ITER)
+        q = host_receiver.get_epr(sender, q_id)
+
+    assert q is not None
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -175,11 +187,6 @@ def _rec_teleport(sender, receiver, payload):
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
     _send_ack(sender, receiver)
-
-    # if payload['type'] == EPR:
-    #     return {'message': 'a EPR pair via teleport'}
-    # if payload['type'] == DATA:
-    #     return {'message': 'a data qubit via teleport'}
 
 
 def _send_epr(sender, receiver, payload=None):
@@ -215,8 +222,12 @@ def _send_superdense(sender, receiver, payload, rec_sequence_num):
 
     # either there is an epr pair already or one is being generated
     q_superdense = host_sender.get_epr(receiver)
-    while q_superdense is None:
+    i = 0
+    while q_superdense is None and i < MAX_WAIT:
+        time.sleep(WAIT_ITER)
         q_superdense = host_sender.get_epr(receiver)
+
+    assert q_superdense is not None
 
     _encode_superdense(payload, q_superdense['q'])
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM, rec_sequence_num)
