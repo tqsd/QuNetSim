@@ -51,6 +51,16 @@ class Network:
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
+    def remove_host(self, host):
+        if host.host_id in self.ARP:
+            del self.ARP[host.host_id]
+
+    def _remove_network_node(self, host):
+        try:
+            self.network.remove_node(host.host_id)
+        except nx.NetworkXError:
+            Logger.get_instance().error('attempted to remove a non-exiting node from network')
+
     def _update_network_graph(self, host):
         self.network.add_node(host.host_id)
 
@@ -73,6 +83,9 @@ class Network:
         if host_id not in self.ARP:
             return None
         return self.ARP[host_id]
+
+    def get_ARP(self):
+        return self.ARP
 
     def get_host_name(self, host_id):
         if host_id not in self.ARP:
@@ -106,10 +119,6 @@ class Network:
             packet = protocols.encode(route[i], route[i + 1], protocols.SEND_EPR, q_id,
                                       payload_type=protocols.SIGNAL)
             self.get_host(route[i]).rec_packet(packet)
-
-        # TODO: We use a sleep here to allow the network to complete the tasks but
-        #  we need to use an Observer pattern to remove this need of sleeps
-        time.sleep(15)
 
         for i in range(len(route) - 2):
             q = None
@@ -178,20 +187,24 @@ class Network:
                         raise Exception
 
                     elif len(route) == 2:
-                        Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
+                        # Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                         if packet['protocol'] != protocols.RELAY:
                             if packet['protocol'] == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
-                                q_id = host_sender.add_epr(receiver, q, packet['payload']['q_id'])
+                                if packet['payload'] is not None:
+                                    q_id = host_sender.add_epr(receiver, q, packet['payload']['q_id'])
+                                else:
+                                    q_id = host_sender.add_epr(receiver, q)
+
                                 packet['payload'] = {'q_id': q_id}
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet['payload'])
 
                     else:
-                        Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
+                        # Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
 
                         # Here we're using hop by hop approach (i.e. the route is recalculated at each hop
                         if packet['protocol'] == protocols.RELAY:
@@ -210,7 +223,7 @@ class Network:
                 except ValueError:
                     Logger.get_instance().error("route couldn't be calculated, value error")
                 except Exception as e:
-                    print('Error in network: ' + str(e))
+                    Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
         self._packet_queue.put(packet)

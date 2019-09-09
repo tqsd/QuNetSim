@@ -36,33 +36,35 @@ def main():
         network.add_host(host_eve)
         network.add_host(host_dean)
 
-        #host_alice.send_epr('00000111')
-        #host_alice.send_epr('00000111')
-        q_id1 = host_alice.send_epr('00000011')
-        q_id2 =  host_alice.send_epr('00000011')
+        # host_alice.send_epr('00000111')
+        # host_alice.send_epr('00000111')
 
-        time.sleep(20)
+        q_id1 = host_alice.send_epr('00000011')
+        # q_id2 =  host_alice.send_epr('00000011')
+
+        time.sleep(15)
 
         q1 = host_alice.get_epr('00000011', q_id1)
         q2 = host_eve.get_epr('00000000', q_id1)
 
-        q3 = host_alice.get_epr('00000011', q_id2)
-        q4 = host_eve.get_epr('00000000', q_id2)
+        # q3 = host_alice.get_epr('00000011', q_id2)
+        # q4 = host_eve.get_epr('00000000', q_id2)
 
-        m1 = q1.measure()
-        m2 = q2.measure()
+        if q1 is not None and q2 is not None:
+            m1 = q1.measure()
+            m2 = q2.measure()
 
-        m3 = q3.measure()
-        m4 = q4.measure()
+            print("Results of the measurements for q_id1 are ")
+            print(m1)
+            print(m2)
+        else:
+            print('failed')
 
-        print("Results of the measurements for q_id1 are ")
-        print(m1)
-        print(m2)
-
-        print("Results of the measurements for q_id2 are ")
-        print(m3)
-        print(m4)
-
+        # m3 = q3.measure()
+        # m4 = q4.measure()
+        # print("Results of the measurements for q_id2 are ")
+        # print(m3)
+        # print(m4)
 
         nodes = [host_alice, host_bob, host_eve, host_dean]
 

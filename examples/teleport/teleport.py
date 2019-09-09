@@ -14,6 +14,7 @@ def main():
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
             CQCConnection('Eve') as Eve:
+
         host_alice = Host('00000000', Alice)
         host_alice.add_connection('00000001')
         host_alice.start()
@@ -30,23 +31,17 @@ def main():
         network.add_host(host_eve)
 
         q1 = qubit(Alice)
-        #q1.X()
-
-        q2 = qubit(Alice)
-        #q2.X()
-
-        q3 = qubit(Alice)
-        #q3.X()
-
-        host_alice.send_epr('00000011')
-        host_alice.send_epr('00000011')
-        host_alice.send_epr('00000011')
-
-        time.sleep(0.5)
+        q1.X()
 
         host_alice.send_teleport('00000011', q1)
-        host_alice.send_teleport('00000011', q2)
-        host_alice.send_teleport('00000011', q3)
+
+        time.sleep(10)
+
+        q = host_eve.get_data_qubit(host_alice.host_id)
+        print(q['q'].measure())
+
+        # host_alice.send_teleport('00000011', q2)
+        # host_alice.send_teleport('00000011', q3)
 
         nodes = [host_alice, host_bob, host_eve]
 

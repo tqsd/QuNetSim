@@ -3,12 +3,14 @@ import threading
 from components import protocols
 from components.logger import Logger
 import uuid
-import time
 
 
 class DaemonThread(threading.Thread):
-    def __init__(self, target):
-        super().__init__(target=target, daemon=True)
+    def __init__(self, target, args=None):
+        if args is not None:
+            super().__init__(target=target, daemon=True, args=args)
+        else:
+            super().__init__(target=target, daemon=True)
         self.start()
 
 
@@ -24,50 +26,82 @@ class Host:
         self._packet_queue = Queue()
         self._stop_thread = False
         self._data_qubit_store = {}
+        self._classical = []
         self._EPR_store = {}
         self._queue_processor_thread = None
         self.connections = []
         self.cqc = cqc
         self.logger = Logger.get_instance()
         self.role = role
+        self.seq_number = {}
 
     def rec_packet(self, packet):
         self._packet_queue.put(packet)
 
     def add_connection(self, connection_id):
         self.connections.append(connection_id)
+        self.seq_number[connection_id] = 0
 
-    def add_path(self, path):
-        self.paths.append(path)
+    def _get_sequence_number(self, receiver):
+        if receiver not in self.seq_number:
+            self.seq_number[receiver] = 0
+        else:
+            self.seq_number[receiver] += 1
+        return self.seq_number[receiver]
 
     def send_classical(self, receiver, message):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL,
+                                  self._get_sequence_number(receiver))
         self.logger.log('sent classical')
         self._packet_queue.put(packet)
 
     def send_epr(self, receiver):
         q_id = str(uuid.uuid4())
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR, payload=q_id,  payload_type=protocols.SIGNAL)
+        packet = protocols.encode(sender=self.host_id, receiver=receiver, protocol=protocols.SEND_EPR, payload=q_id,
+                                  payload_type=protocols.SIGNAL, sequence_num=self._get_sequence_number(receiver))
         self.logger.log(self.host_id + " sends EPR to " + receiver)
         self._packet_queue.put(packet)
         return q_id
 
     def send_teleport(self, receiver, q):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, q, protocols.SIGNAL)
+        self.seq_number[receiver] = 0
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
+                                  self._get_sequence_number(receiver))
+
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver)
         self._packet_queue.put(packet)
 
     def send_superdense(self, receiver, message):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL)
+        packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL,
+                                  self._get_sequence_number(receiver))
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver)
         self._packet_queue.put(packet)
 
     def shares_epr(self, receiver):
         return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
 
+    def _process_message(self, message):
+        sender = message['sender']
+
+        if sender not in self._data_qubit_store and sender != self.host_id:
+            self._data_qubit_store[sender] = []
+
+        if sender not in self._EPR_store and sender != self.host_id:
+            self._EPR_store[sender] = []
+
+        result = protocols.process(message)
+        if result is not None:
+            if 'sequence_number' not in result.keys():
+                self._classical.append({'sender': sender, 'message': result['message']})
+                self.logger.log(self.cqc.name + ' received ' + result['message'])
+            else:
+                self._classical.append(
+                    {'sender': sender, 'message': result['message'], 'sequence_number': result['sequence_number']})
+                self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(
+                    result['sequence_number']))
+
     def _process_queue(self):
         self.logger.log('Host ' + self.host_id + ' started processing')
-
         while True:
             if self._stop_thread:
                 break
@@ -76,18 +110,7 @@ class Host:
                 message = self._packet_queue.get()
                 if not message:
                     raise Exception('empty message')
-
-                sender = message['sender']
-
-                if sender not in self._data_qubit_store and sender != self.host_id:
-                    self._data_qubit_store[sender] = []
-
-                if sender not in self._EPR_store and sender != self.host_id:
-                    self._EPR_store[sender] = []
-
-                result = protocols.process(message)
-                if result:
-                    self.logger.log(self.cqc.name + ' received ' + result)
+                DaemonThread(self._process_message, args=(message,))
 
     def add_epr(self, partner_id, qubit, q_id=None):
         if partner_id not in self._EPR_store and partner_id != self.host_id:
@@ -125,11 +148,13 @@ class Host:
         # If q_id is not specified, then return the last in the stack
         # else return the qubit with q_id q_id
         if q_id is None:
+            if partner_id not in self._EPR_store or len(self._EPR_store[partner_id]) == 0:
+                return None
             if not self._EPR_store[partner_id][-1]['blocked']:
                 self._EPR_store[partner_id][-1]['blocked'] = True
                 return self._EPR_store[partner_id].pop()
             else:
-                print('accessed blocked epr qubit')
+                self.logger.log('accessed blocked epr qubit')
         else:
             for index, qubit in enumerate(self._EPR_store[partner_id]):
                 if qubit['q_id'] == q_id:
@@ -145,8 +170,10 @@ class Host:
         # If q_id is not specified, then return the last in the stack
         # else return the qubit with q_id q_id
         if q_id is None:
-            if not self._EPR_store[partner_id][-1]['blocked']:
-                self._EPR_store[partner_id][-1]['blocked'] = True
+            if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
+                return None
+            if not self._data_qubit_store[partner_id][-1]['blocked']:
+                self._data_qubit_store[partner_id][-1]['blocked'] = True
                 return self._data_qubit_store[partner_id].pop()
             else:
                 print('accessed blocked data qubit')
@@ -157,6 +184,9 @@ class Host:
                     del self._data_qubit_store[partner_id][index]
                     return q
         return None
+
+    def get_classical_messages(self):
+        return sorted(self._classical, key=lambda x: x['sequence_number'])
 
     def stop(self):
         self.logger.log('Host ' + self.host_id + " stopped")
