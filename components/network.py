@@ -84,6 +84,9 @@ class Network:
             return None
         return self.ARP[host_id]
 
+    def get_ARP(self):
+        return self.ARP
+
     def get_host_name(self, host_id):
         if host_id not in self.ARP:
             return None

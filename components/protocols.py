@@ -6,6 +6,8 @@ import uuid
 from components.logger import Logger
 from components.network import Network
 
+network = Network.get_instance()
+
 CLASSICAL = '00'
 QUANTUM = '11'
 SIGNAL = '10'
@@ -35,40 +37,39 @@ RELAY = '00001111'
 REC_TELEPORT_EPR = '00010001'
 SEND_TELEPORT_EPR = '0001010'
 
-network = Network.get_instance()
-
 
 def process(packet):
-    sender, receiver, protocol, payload, payload_type = _parse_message(packet)
+    sender, receiver, protocol, payload, payload_type, rec_sequence_num = _parse_message(packet)
     if protocol == SEND_TELEPORT:
-        return _send_teleport(sender, receiver, payload)
+        return _send_teleport(sender, receiver, payload, rec_sequence_num)
     elif protocol == REC_TELEPORT:
         return _rec_teleport(sender, receiver, payload)
     elif protocol == SEND_CLASSICAL:
-        return _send_classical(sender, receiver, payload)
+        return _send_classical(sender, receiver, payload, rec_sequence_num)
     elif protocol == REC_CLASSICAL:
-        return _rec_classical(sender, receiver, payload)
+        return _rec_classical(sender, receiver, payload, rec_sequence_num)
     elif protocol == REC_EPR:
         return _rec_epr(sender, receiver, payload)
     elif protocol == SEND_EPR:
         return _send_epr(sender, receiver, payload)
     elif protocol == SEND_SUPERDENSE:
-        return _send_superdense(sender, receiver, payload)
+        return _send_superdense(sender, receiver, payload, rec_sequence_num)
     elif protocol == REC_SUPERDENSE:
-        return _rec_superdense(sender, receiver, payload)
+        return _rec_superdense(sender, receiver, payload, rec_sequence_num)
     elif protocol == RELAY:
         return _relay_message(receiver, packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type=''):
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1):
     packet = {
         'sender': sender,
         'receiver': receiver,
         'protocol': protocol,
         'payload_type': payload_type,
         'payload': payload,
+        'sequence_number': sequence_num
     }
     return packet
 
@@ -80,7 +81,11 @@ def _parse_message(message):
     payload_type = message['payload_type']
     payload = message['payload']
 
-    return sender, receiver, protocol, payload, payload_type
+    if 'sequence_number' in message:
+        rec_sequence_num = message['sequence_number']
+        return sender, receiver, protocol, payload, payload_type, rec_sequence_num
+    else:
+        return sender, receiver, protocol, payload, payload_type, None
 
 
 def _relay_message(receiver, packet):
@@ -90,9 +95,9 @@ def _relay_message(receiver, packet):
     network.send(packet)
 
 
-def _send_classical(sender, receiver, message):
+def _send_classical(sender, receiver, message, rec_sequence_num):
     host_sender = network.get_host(sender)
-    packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL)
+    packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL, rec_sequence_num)
     host_receiver = network.get_host(receiver)
 
     if not (host_receiver or host_sender):
@@ -102,13 +107,13 @@ def _send_classical(sender, receiver, message):
     network.send(packet)
 
 
-def _rec_classical(sender, receiver, payload):
+def _rec_classical(sender, receiver, payload, rec_sequence_num):
     # Assume the payload is the classical message
     _send_ack(sender, receiver)
-    return {'message': payload['message']}
+    return {'message': payload['message'], 'sequence_number': rec_sequence_num}
 
 
-def _send_teleport(sender, receiver, payload):
+def _send_teleport(sender, receiver, payload, rec_sequence_num):
     if 'node' in payload:
         node = payload['node']
     else:
@@ -141,7 +146,7 @@ def _send_teleport(sender, receiver, payload):
     m2 = epr_teleport['q'].measure()
 
     data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': q_type, 'node': node}
-    packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL)
+    packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL, rec_sequence_num)
     network.send(packet)
 
 
@@ -168,6 +173,11 @@ def _rec_teleport(sender, receiver, payload):
 
     _send_ack(sender, receiver)
 
+    # if payload['type'] == EPR:
+    #     return {'message': 'a EPR pair via teleport'}
+    # if payload['type'] == DATA:
+    #     return {'message': 'a data qubit via teleport'}
+
 
 def _send_epr(sender, receiver, payload=None):
     if payload is not None:
@@ -191,7 +201,7 @@ def _send_ack(sender, receiver):
     return
 
 
-def _send_superdense(sender, receiver, payload):
+def _send_superdense(sender, receiver, payload, rec_sequence_num):
     host_sender = network.get_host(sender)
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
@@ -206,11 +216,11 @@ def _send_superdense(sender, receiver, payload):
         q_superdense = host_sender.get_epr(receiver)
 
     _encode_superdense(payload, q_superdense['q'])
-    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM)
+    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM, rec_sequence_num)
     network.send(packet)
 
 
-def _rec_superdense(sender, receiver, payload):
+def _rec_superdense(sender, receiver, payload, rec_sequence_num):
     host_receiver = network.get_host(receiver)
     qA = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
 
@@ -222,7 +232,7 @@ def _rec_superdense(sender, receiver, payload):
     while qB is None:
         qB = host_receiver.get_epr(sender, payload[0]['q_id'])
 
-    return {'message': _decode_superdense(qA, qB)}
+    return {'message': _decode_superdense(qA, qB), 'sequence_number': rec_sequence_num}
 
 
 def _add_checksum(sender, qubits, size=2):
