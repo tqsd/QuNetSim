@@ -20,7 +20,7 @@ class TestOneHop(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # simulaqron_settings.default_settings()
+        simulaqron_settings.default_settings()
         nodes = ['Alice', 'Bob']
         cls.sim_network = SimulaNetwork(nodes=nodes, force=True)
         cls.sim_network.start()
@@ -33,7 +33,7 @@ class TestOneHop(unittest.TestCase):
     def tearDownClass(cls):
         if cls.sim_network is not None:
             cls.sim_network.stop()
-        # simulaqron_settings.default_settings()
+        simulaqron_settings.default_settings()
         cls.network.stop()
         cls.network = None
 
