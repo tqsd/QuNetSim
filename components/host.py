@@ -57,8 +57,8 @@ class Host:
 
     def send_epr(self, receiver):
         q_id = str(uuid.uuid4())
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_EPR, payload=q_id,
-                                  payload_type=protocols.SIGNAL)
+        packet = protocols.encode(sender=self.host_id, receiver=receiver, protocol=protocols.SEND_EPR, payload=q_id,
+                                  payload_type=protocols.SIGNAL, sequence_num=self._get_sequence_number(receiver))
         self.logger.log(self.host_id + " sends EPR to " + receiver)
         self._packet_queue.put(packet)
         return q_id

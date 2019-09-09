@@ -183,7 +183,7 @@ def _send_epr(sender, receiver, payload=None):
     if payload is not None:
         payload = {'q_id': payload}
 
-    packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=CLASSICAL)
+    packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=SIGNAL)
     network.send(packet)
 
 

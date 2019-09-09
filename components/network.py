@@ -120,10 +120,6 @@ class Network:
                                       payload_type=protocols.SIGNAL)
             self.get_host(route[i]).rec_packet(packet)
 
-        # TODO: We use a sleep here to allow the network to complete the tasks but
-        #  we need to use an Observer pattern to remove this need of sleeps
-        time.sleep(3)
-
         for i in range(len(route) - 2):
             q = None
 

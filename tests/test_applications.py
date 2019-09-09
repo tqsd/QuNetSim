@@ -12,7 +12,7 @@ from components.host import Host
 from components.network import Network
 
 
-# @unittest.skip('')
+@unittest.skip('')
 class TestOneHop(unittest.TestCase):
     sim_network = None
     network = None
@@ -46,8 +46,7 @@ class TestOneHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
-    # @unittest.skip('')
-    def test_one_hop_send_classical(self):
+    def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -76,8 +75,7 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'hello')
 
-    # @unittest.skip('')
-    def test_one_hop_epr(self):
+    def test_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -112,8 +110,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    # @unittest.skip('')
-    def test_one_hop_teleport(self):
+    def test_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -144,8 +141,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
 
-    # @unittest.skip('')
-    def test_one_hop_superdense(self):
+    def test_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -176,8 +172,7 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], '01')
 
-    # @unittest.skip('')
-    def test_one_hop_superdense_epr_combination(self):
+    def test_superdense_epr_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -225,8 +220,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    # @unittest.skip('')
-    def test_one_hop_teleport_superdense_combination(self):
+    def test_teleport_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -271,7 +265,7 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(q2['q'].measure(), 1)
 
 
-@unittest.skip('')
+# @unittest.skip('')
 class TestTwoHop(unittest.TestCase):
     sim_network = None
     network = None
@@ -360,14 +354,14 @@ class TestTwoHop(unittest.TestCase):
             i = 0
             q1 = None
             q2 = None
-            while i < TestOneHop.MAX_WAIT and (q1 is None or q2 is None):
+            while i < TestOneHop.MAX_WAIT * 2 and (q1 is None or q2 is None):
                 q1 = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
                 q2 = hosts['eve'].get_epr(hosts['alice'].host_id, q_id)
                 i += 1
                 time.sleep(1)
 
-            self.assertIsNotNone(q1)
             self.assertIsNotNone(q2)
+            self.assertIsNotNone(q1)
             self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
