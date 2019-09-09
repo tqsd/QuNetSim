@@ -5,7 +5,7 @@ import sys
 from cqc.pythonLib import CQCConnection, qubit
 from simulaqron.network import Network as SimulaNetwork
 
-# from simulaqron.settings import simulaqron_settings
+from simulaqron.settings import simulaqron_settings
 
 sys.path.append("../..")
 from components.host import Host
