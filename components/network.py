@@ -4,21 +4,12 @@ from queue import Queue
 import time
 from components import protocols
 from components.logger import Logger
-import threading
-import uuid
-
-
-class DaemonThread(threading.Thread):
-    def __init__(self, target, args=None):
-        if args is not None:
-            super().__init__(target=target, daemon=True, args=args)
-        else:
-            super().__init__(target=target, daemon=True)
-        self.start()
+from components.daemon_thread import DaemonThread
 
 
 # Network singleton
 class Network:
+    """ A network control singleton object. """
     __instance = None
 
     @staticmethod

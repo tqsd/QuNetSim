@@ -1,4 +1,3 @@
-import threading
 from cqc.pythonLib import qubit
 import uuid
 import time
@@ -220,7 +219,6 @@ def _send_superdense(sender, receiver, payload, rec_sequence_num):
                         payload_type=SIGNAL)
         network.send(packet)
 
-    # either there is an epr pair already or one is being generated
     q_superdense = host_sender.get_epr(receiver)
     i = 0
     while q_superdense is None and i < MAX_WAIT:

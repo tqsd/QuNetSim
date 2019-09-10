@@ -1,26 +1,23 @@
 from queue import Queue
-import threading
 from components import protocols
 from components.logger import Logger
+from components.daemon_thread import DaemonThread
 import uuid
 
 
-class DaemonThread(threading.Thread):
-    def __init__(self, target, args=None):
-        if args is not None:
-            super().__init__(target=target, daemon=True, args=args)
-        else:
-            super().__init__(target=target, daemon=True)
-        self.start()
-
-
 class Host:
+    """ Host object acting as either a router node or an application host node. """
+
     def __init__(self, host_id, cqc, role='host'):
         """
-        Init a Host
-        :param host_id: a 4 bit ID string e.g. 0110
-        :param cqc: the CQCConnection
-        :param logging: print log messages
+        Return the most important thing about a person.
+
+        Parameters
+        ----------
+        host_id
+            The ID of the host
+        cqc
+            The CQC for this host
         """
         self.host_id = host_id
         self._packet_queue = Queue()
@@ -36,9 +33,25 @@ class Host:
         self.seq_number = {}
 
     def rec_packet(self, packet):
+        """
+        Return the most important thing about a person.
+
+        Parameters
+        ----------
+        packet
+            A string indicating the name of the person.
+        """
         self._packet_queue.put(packet)
 
     def add_connection(self, connection_id):
+        """
+        Adds the connection to host with ID *connection_id*.
+
+        Parameters
+        ----------
+        connection_id
+           The ID of the host to connect with.
+        """
         self.connections.append(connection_id)
         self.seq_number[connection_id] = 0
 
