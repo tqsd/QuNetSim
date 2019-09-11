@@ -12,7 +12,7 @@ Welcome to Quantum Network Simulation's documentation!
 
    install
    concepts
-   objects
+   components
    examples
 
 Indices and tables

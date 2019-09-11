@@ -12,12 +12,10 @@ class Host:
         """
         Return the most important thing about a person.
 
-        Parameters
-        ----------
-        host_id
-            The ID of the host
-        cqc
-            The CQC for this host
+        Args:
+            host_id: The ID of the host
+            cqc: The CQC for this host
+
         """
         self.host_id = host_id
         self._packet_queue = Queue()
@@ -36,24 +34,21 @@ class Host:
         """
         Return the most important thing about a person.
 
-        Parameters
-        ----------
-        packet
-            A string indicating the name of the person.
+        Args:
+            packet: A string indicating the name of the person.
+
         """
         self._packet_queue.put(packet)
 
-    def add_connection(self, connection_id):
+    def add_connection(self, receiver_id):
         """
         Adds the connection to host with ID *connection_id*.
 
-        Parameters
-        ----------
-        connection_id
-           The ID of the host to connect with.
+        Args:
+            receiver_id (string): The ID of the host to connect with.
+
         """
-        self.connections.append(connection_id)
-        self.seq_number[connection_id] = 0
+        self.connections.append(receiver_id)
 
     def _get_sequence_number(self, receiver):
         if receiver not in self.seq_number:
@@ -63,20 +58,53 @@ class Host:
         return self.seq_number[receiver]
 
     def send_classical(self, receiver, message):
+        """
+        Sends the classical message *message*  to the receiver host with
+        id *receiver*
+
+        Args:
+            receiver (string): The ID of the host to send the message.
+            message (string): The classical message to send.
+
+        """
         packet = protocols.encode(self.host_id, receiver, protocols.SEND_CLASSICAL, message, protocols.CLASSICAL,
                                   self._get_sequence_number(receiver))
         self.logger.log('sent classical')
         self._packet_queue.put(packet)
 
-    def send_epr(self, receiver):
+    def send_epr(self, receiver_id):
+        """
+        Establish an EPR pair with the receiver and return the qubit
+        ID of pair.
+
+        Args:
+            receiver_id (string): The receiver ID
+
+
+        Returns:
+            string: The qubit ID of the EPR pair.
+
+        """
         q_id = str(uuid.uuid4())
-        packet = protocols.encode(sender=self.host_id, receiver=receiver, protocol=protocols.SEND_EPR, payload=q_id,
-                                  payload_type=protocols.SIGNAL, sequence_num=self._get_sequence_number(receiver))
-        self.logger.log(self.host_id + " sends EPR to " + receiver)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_id,
+                                  protocol=protocols.SEND_EPR,
+                                  payload=q_id,
+                                  payload_type=protocols.SIGNAL,
+                                  sequence_num=self._get_sequence_number(receiver_id))
+        self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
         return q_id
 
     def send_teleport(self, receiver, q):
+        """
+        Teleport the qubit *q* with the receiver with host ID *receiver*
+
+        Args:
+            receiver (string): The ID of the host to establish the EPR pair with.
+            q (Qubit): The qubit to teleport.
+
+        """
         self.seq_number[receiver] = 0
         packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
                                   self._get_sequence_number(receiver))
@@ -84,14 +112,33 @@ class Host:
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver)
         self._packet_queue.put(packet)
 
-    def send_superdense(self, receiver, message):
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL,
-                                  self._get_sequence_number(receiver))
-        self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver)
+    def send_superdense(self, receiver_id, message):
+        """
+        Send the two bit binary (i.e. '00', '01', '10', '11) message via superdesne
+        coding to the receiver with receiver ID *receiver_id*.
+
+        Args:
+            receiver_id (string): The receiver ID to send the message to
+            message (string): The two bit binary message
+
+        """
+        packet = protocols.encode(self.host_id, receiver_id, protocols.SEND_SUPERDENSE, message, protocols.CLASSICAL,
+                                  self._get_sequence_number(receiver_id))
+        self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
-    def shares_epr(self, receiver):
-        return receiver in self._EPR_store and len(self._EPR_store[receiver]) != 0
+    def shares_epr(self, receiver_id):
+        """
+        Returns boolean value dependant on if the host shares an EPR pair
+        with receiver with ID *receiver_id*
+
+        Args:
+            receiver_id (string): The receiver ID to check.
+
+        Returns:
+             boolean: whether the host shares an EPR pair with receiver with ID *receiver_id*
+        """
+        return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]) != 0
 
     def _process_message(self, message):
         sender = message['sender']

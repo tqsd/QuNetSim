@@ -1,5 +1,5 @@
-Objects
-=======
+Components
+==========
 
 .. automodule:: components.host
    :members:
