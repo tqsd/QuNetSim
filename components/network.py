@@ -19,6 +19,15 @@ class Network:
         return Network.__instance
 
     def __init__(self):
+        """
+                Return the most important thing about a person.
+
+                Args:
+                    host_id: The ID of the host
+                    cqc: The CQC for this host
+
+        """
+
         if Network.__instance is None:
             self.ARP = {}
             self.network = nx.DiGraph()
@@ -38,15 +47,39 @@ class Network:
         self.delay = delay
 
     def add_host(self, host):
+
+        """
+        Adds the *host* to ARP table and updates the network graph.
+
+        Args:
+            host (Host): The host to be added to the network.
+        """
+
         Logger.get_instance().debug('host added: ' + host.host_id)
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
     def remove_host(self, host):
+
+        """
+        Removes the host from the ARP table.
+
+        Args:
+            host (Host): The host to be removed from the network.
+        """
+
         if host.host_id in self.ARP:
             del self.ARP[host.host_id]
 
     def _remove_network_node(self, host):
+
+        """
+        Removes the host from the ARP table.
+
+        Args:
+            host (Host): The host to be removed from the network.
+        """
+
         try:
             self.network.remove_node(host.host_id)
         except nx.NetworkXError:
@@ -65,25 +98,70 @@ class Network:
                 self.network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):
+        """
+        Returns boolean value dependent on if the sender and receiver share an EPR pair.
+
+        Args:
+            receiver (Host): The receiver
+            sender (Host) : The sender
+
+        Returns:
+             boolean: whether the sender and receiver share an EPR pair.
+        """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
 
         return host_sender.shares_epr(receiver) and host_receiver.shares_epr(sender)
 
     def get_host(self, host_id):
+        """
+        Returns the host with the *host_id*.
+
+        Args:
+            host_id (string): ID number of the host that is returned.
+
+        Returns:
+             Host: Host with the *host_id*
+        """
         if host_id not in self.ARP:
             return None
         return self.ARP[host_id]
 
     def get_ARP(self):
+
+        """
+        Returns the ARP table.
+
+        Returns:
+             dict: The ARP table
+        """
         return self.ARP
 
     def get_host_name(self, host_id):
+        """
+        Args:
+            host_id (string): ID number of the host whose name is returned if it is in ARP table
+
+        Returns the name of the host with *host_id* if the host is in ARP table , otherwise returns None.
+
+        Returns:
+             dict or None: Name of the host
+        """
         if host_id not in self.ARP:
             return None
         return self.ARP[host_id].cqc.name
 
     def get_route(self, source, dest):
+        """
+        Args:
+            source (string): ID number of the source host
+            dest (string) : ID number of the destination host
+
+        Gets the shortest route from source to destination.
+
+        Returns:
+             string array: An ordered array of ID numbers on the shortest path from source to destination.
+        """
         return self.routing_algo(self.network, source=source, target=dest)
 
     def _send_network_packet(self, src, dest, link_layer_packet):
@@ -93,6 +171,21 @@ class Network:
         return None
 
     def encode(self, sender, receiver, payload, ttl=10):
+
+        """
+        Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+        Time-To-Live information in this layer.
+
+        Args:
+            sender (Host): Sender of the packet
+            receiver (Host): Receiver of the packet
+            payload (dict): Lower layers of the packet
+            ttl(int): Time-to-Live parameter
+
+        Returns:
+            dict: Encoded RELAY packet
+        """
+
         packet = {
             'sender': sender,
             'receiver': receiver,
@@ -104,6 +197,17 @@ class Network:
         return packet
 
     def _entanglement_swap(self, sender, receiver, route, q_id):
+
+        """
+        Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair between sender and receiver.
+
+        Args:
+            sender (Host): Sender of the EPR pair
+            receiver (Host): Receiver of the EPR pair
+            route (string array): Route between the sender and receiver
+            q_id(string): Qubit ID of the sent EPR pair
+        """
+
         host_sender = self.get_host(sender)
 
         for i in range(len(route) - 1):
@@ -128,6 +232,17 @@ class Network:
         host_sender.add_epr(receiver, q2['q'], q2['q_id'])
 
     def _route_quantum_info(self, sender, receiver, qubits):
+
+        """
+        Routes qubits from sender to receiver.
+
+        Args:
+            sender (Host): Sender of qubits
+            receiver (Host): Receiver qubits
+            qubits (Array of Qubit-Dictionaries): The qubits to be sent
+
+        """
+
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
                 Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
@@ -157,6 +272,12 @@ class Network:
             i += 1
 
     def _process_queue(self):
+
+        """
+        Runs a thread for processing the packets in the packet queue.
+
+        """
+
         while True:
             if self._stop_thread:
                 break
@@ -217,16 +338,37 @@ class Network:
                     Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
+
+        """
+        Puts the packet to the packet queue of the network.
+
+        Args:
+            packet (dict): Packet to be sent
+        """
+
         self._packet_queue.put(packet)
 
     def stop(self):
+        """
+        Stops the network.
+
+        """
+
         Logger.get_instance().log("Network stopped")
         self._stop_thread = True
 
     def start(self):
+        """
+        Starts the network.
+
+        """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
     def draw_network(self):
+        """
+        Draws a plot of the network.
+        """
+
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
                          with_labels=True, hold=False)
         plt.show()

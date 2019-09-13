@@ -32,10 +32,10 @@ class Host:
 
     def rec_packet(self, packet):
         """
-        Return the most important thing about a person.
+        Puts the packet into packet queue of the host.
 
         Args:
-            packet: A string indicating the name of the person.
+            packet: Received packet.
 
         """
         self._packet_queue.put(packet)
@@ -51,6 +51,16 @@ class Host:
         self.connections.append(receiver_id)
 
     def _get_sequence_number(self, receiver):
+        """
+                Returns the sequence number of connection with a receiver.
+
+                Args:
+                    receiver(string): The ID of the receiver
+
+                Returns:
+                    int: If a connection is present returns the sequence number , otherwise returns 0.
+
+                """
         if receiver not in self.seq_number:
             self.seq_number[receiver] = 0
         else:
@@ -98,7 +108,7 @@ class Host:
 
     def send_teleport(self, receiver, q):
         """
-        Teleport the qubit *q* with the receiver with host ID *receiver*
+        Teleports the qubit *q* with the receiver with host ID *receiver*
 
         Args:
             receiver (string): The ID of the host to establish the EPR pair with.
@@ -114,7 +124,7 @@ class Host:
 
     def send_superdense(self, receiver_id, message):
         """
-        Send the two bit binary (i.e. '00', '01', '10', '11) message via superdesne
+        Send the two bit binary (i.e. '00', '01', '10', '11) message via superdense
         coding to the receiver with receiver ID *receiver_id*.
 
         Args:
@@ -129,18 +139,27 @@ class Host:
 
     def shares_epr(self, receiver_id):
         """
-        Returns boolean value dependant on if the host shares an EPR pair
+        Returns boolean value dependent on if the host shares an EPR pair
         with receiver with ID *receiver_id*
 
         Args:
             receiver_id (string): The receiver ID to check.
 
         Returns:
-             boolean: whether the host shares an EPR pair with receiver with ID *receiver_id*
+             boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
         return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]) != 0
 
     def _process_message(self, message):
+
+        """
+        Processes the received packet.
+
+        Args:
+            message (dict): The received packet
+
+        """
+
         sender = message['sender']
 
         if sender not in self._data_qubit_store and sender != self.host_id:
@@ -161,6 +180,11 @@ class Host:
                     result['sequence_number']))
 
     def _process_queue(self):
+
+        """
+        Runs a thread for processing the packets in the packet queue.
+        """
+
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
             if self._stop_thread:
@@ -173,6 +197,19 @@ class Host:
                 DaemonThread(self._process_message, args=(message,))
 
     def add_epr(self, partner_id, qubit, q_id=None):
+
+        """
+        Adds the EPR to the EPR store of a host . If the EPR has an ID , adds the EPR with it , otherwise generates an ID for the EPR and adds the qubit with that ID.
+
+        Args:
+            q_id(string): The ID of the qubit to be added.
+            qubit(Qubit): The data Qubit to be added.
+
+        Returns:
+             string: *q_id*
+        """
+
+
         if partner_id not in self._EPR_store and partner_id != self.host_id:
             self._EPR_store[partner_id] = []
 
@@ -186,6 +223,18 @@ class Host:
         return q_id
 
     def add_data_qubit(self, partner_id, qubit, q_id=None):
+
+        """
+        Adds the data qubit to the data qubit store of a host . If the qubit has an ID , adds the qubit with it , otherwise generates an ID for the qubit and adds the qubit with that ID.
+
+        Args:
+            q_id (string): The ID of the qubit to be added.
+            qubit (Qubit): The data Qubit to be added.
+
+        Returns:
+             string: *q_id*
+        """
+
         if partner_id not in self._data_qubit_store and partner_id != self.host_id:
             self._data_qubit_store[partner_id] = []
 
@@ -199,6 +248,19 @@ class Host:
         return q_id
 
     def get_epr(self, partner_id, q_id=None):
+
+        """
+        Gets the EPR that is entangled with another host in the network. If qubit ID is specified, EPR with that ID is returned, else, the last EPR added is returned.
+
+
+        Args:
+            partner_id (string): The ID of the host that returned EPR is entangled to.
+            q_id (string): The qubit ID of the EPR to get.
+
+        Returns:
+             Qubit: Qubit shared with the host with *partner_id* and *q_id*.
+        """
+
         if partner_id not in self._EPR_store:
             return None
 
@@ -224,6 +286,18 @@ class Host:
         return None
 
     def get_data_qubit(self, partner_id, q_id=None):
+
+        """
+        Gets the data qubit received from another host in the network. If qubit ID is specified, qubit with that ID is returned, else, the last qubit received is returned.
+
+        Args:
+            partner_id (string): The ID of the host that data qubit to be returned is received from.
+            q_id (string): The qubit ID of the data qubit to get.
+
+        Returns:
+             Qubit: Qubit recevied from the host with *partner_id* and *q_id*.
+        """
+
         if partner_id not in self._data_qubit_store:
             return None
 
@@ -246,11 +320,23 @@ class Host:
         return None
 
     def get_classical_messages(self):
+        """
+        Gets the received classical messages sorted with the sequence number.
+
+        Returns:
+             Array: Sorted array of classical messages.
+        """
         return sorted(self._classical, key=lambda x: x['sequence_number'])
 
     def stop(self):
+        """
+         Stops the host.
+         """
         self.logger.log('Host ' + self.host_id + " stopped")
         self._stop_thread = True
 
     def start(self):
+        """
+         Starts the host.
+         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
