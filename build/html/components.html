@@ -199,7 +199,7 @@
 <dl class="method">
 <dt id="components.host.Host.add_connection">
 <code class="sig-name descname">add_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds the connection to host with ID <em>connection_id</em>.</p>
+<dd><p>Adds the connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to connect with.</p>
@@ -304,7 +304,7 @@
 <dl class="method">
 <dt id="components.host.Host.rec_packet">
 <code class="sig-name descname">rec_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.rec_packet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Puts the packet into packet queue of the host.</p>
+<dd><p>Puts the packet into the packet queue of the host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>packet</strong> – Received packet.</p>
@@ -315,8 +315,8 @@
 <dl class="method">
 <dt id="components.host.Host.send_classical">
 <code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sends the classical message <em>message</em>  to the receiver host with
-id <em>receiver</em></p>
+<dd><p>Sends the classical message to the receiver host with
+ID:receiver</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -367,8 +367,8 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with.</p></li>
-<li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport.</p></li>
+<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
+<li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
 </ul>
 </dd>
 </dl>

@@ -176,7 +176,7 @@ qB: the supporting entangled pair</p>
 <dl class="function">
 <dt id="components.protocols._encode_superdense">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_encode_superdense</code><span class="sig-paren">(</span><em class="sig-param">message</em>, <em class="sig-param">q</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._encode_superdense" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode qubit q with the 2 bit message message.</p>
+<dd><p>Encode qubit q with the 2 bit message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -190,13 +190,13 @@ qB: the supporting entangled pair</p>
 <dl class="function">
 <dt id="components.protocols._parse_message">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_parse_message</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._parse_message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses the packet to its components : sender, receiver, payload, protocol, payload_type, payload, sequence number.</p>
+<dd><p>Parses the packet to its components : sender, receiver, protocol, payload, payload_type, sequence number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Packet to be parsed</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Sender of the packet, receiver of the packet, payload, the protocol which the packet should be processed, type of the payload, sequence number of the packet</p>
+<dd class="field-even"><p>Sender of the packet, receiver of the packet,  the protocol which the packet should be processed, payload, type of the payload, sequence number of the packet</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Host, Host, string, <em>depends on protocol</em>, string, int</p>
@@ -268,7 +268,7 @@ qB: the supporting entangled pair</p>
 <dl class="function">
 <dt id="components.protocols._rec_teleport">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_teleport</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_teleport" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receives a classical message and applies the required operations EPR pair entangled with the sender to retrieve the teleported qubit.</p>
+<dd><p>Receives a classical message and applies the required operations to EPR pair entangled with the sender to retrieve the teleported qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -297,7 +297,7 @@ qB: the supporting entangled pair</p>
 <dl class="function">
 <dt id="components.protocols._send_classical">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_classical</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">message</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_classical" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sends a classical to another host.</p>
+<dd><p>Sends a classical message to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -373,7 +373,7 @@ qB: the supporting entangled pair</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded packet.</p>
+<dd class="field-even"><p>Encoded packet</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>

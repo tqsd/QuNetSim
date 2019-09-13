@@ -87,7 +87,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         payload_type(string): Type of the payload.
         sequence_num(int): Sequence number of the packet.
     Returns:
-         dict: Encoded packet.
+         dict: Encoded packet
 
     """
     packet = {
@@ -96,7 +96,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         'protocol': protocol,
         'payload_type': payload_type,
         'payload': payload,
-        'sequence_number': sequence_numa
+        'sequence_number': sequence_num
     }
     return packet
 
@@ -104,13 +104,13 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
 def _parse_message(message):
 
     """
-    Parses the packet to its components : sender, receiver, payload, protocol, payload_type, payload, sequence number.
+    Parses the packet to its components : sender, receiver, protocol, payload, payload_type, sequence number.
 
     Args:
         message (dict): Packet to be parsed
 
     Returns:
-         Host, Host, string, *depends on protocol*, string, int : Sender of the packet, receiver of the packet, payload, the protocol which the packet should be processed, type of the payload, sequence number of the packet
+         Host, Host, string, *depends on protocol*, string, int : Sender of the packet, receiver of the packet,  the protocol which the packet should be processed, payload, type of the payload, sequence number of the packet
     """
     sender = message['sender']
     receiver = message['receiver']
@@ -142,7 +142,7 @@ def _relay_message(receiver, packet):
 
 def _send_classical(sender, receiver, message, rec_sequence_num):
     """
-    Sends a classical to another host.
+    Sends a classical message to another host.
 
     Args:
         sender (Host): Sender of the message
@@ -235,7 +235,7 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
 
 def _rec_teleport(sender, receiver, payload):
     """
-    Receives a classical message and applies the required operations EPR pair entangled with the sender to retrieve the teleported qubit.
+    Receives a classical message and applies the required operations to EPR pair entangled with the sender to retrieve the teleported qubit.
 
     Args:
         sender (Host): Sender of the teleported qubit
@@ -392,7 +392,7 @@ def _add_checksum(sender, qubits, size=2):
 
 def _encode_superdense(message, q):
     """
-    Encode qubit q with the 2 bit message message.
+    Encode qubit q with the 2 bit message.
 
     Args:
 

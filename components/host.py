@@ -32,7 +32,7 @@ class Host:
 
     def rec_packet(self, packet):
         """
-        Puts the packet into packet queue of the host.
+        Puts the packet into the packet queue of the host.
 
         Args:
             packet: Received packet.
@@ -42,7 +42,7 @@ class Host:
 
     def add_connection(self, receiver_id):
         """
-        Adds the connection to host with ID *connection_id*.
+        Adds the connection to host with ID *receiver_id*.
 
         Args:
             receiver_id (string): The ID of the host to connect with.
@@ -69,8 +69,8 @@ class Host:
 
     def send_classical(self, receiver, message):
         """
-        Sends the classical message *message*  to the receiver host with
-        id *receiver*
+        Sends the classical message to the receiver host with
+        ID:receiver
 
         Args:
             receiver (string): The ID of the host to send the message.
@@ -111,8 +111,8 @@ class Host:
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
         Args:
-            receiver (string): The ID of the host to establish the EPR pair with.
-            q (Qubit): The qubit to teleport.
+            receiver (string): The ID of the host to establish the EPR pair with
+            q (Qubit): The qubit to teleport
 
         """
         self.seq_number[receiver] = 0

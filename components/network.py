@@ -19,14 +19,6 @@ class Network:
         return Network.__instance
 
     def __init__(self):
-        """
-                Return the most important thing about a person.
-
-                Args:
-                    host_id: The ID of the host
-                    cqc: The CQC for this host
-
-        """
 
         if Network.__instance is None:
             self.ARP = {}
@@ -351,7 +343,6 @@ class Network:
     def stop(self):
         """
         Stops the network.
-
         """
 
         Logger.get_instance().log("Network stopped")
