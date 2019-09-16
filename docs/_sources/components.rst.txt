@@ -1,11 +1,13 @@
+##########
 Components
-==========
+##########
 
-.. automodule:: components.host
-   :members:
-
-.. automodule:: components.network
-   :members:
+Writing text here to see what it does
 
 
+.. toctree::
+   :maxdepth: 2
 
+   components/host
+   components/network
+   components/protocols

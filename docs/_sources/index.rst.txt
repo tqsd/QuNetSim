@@ -1,15 +1,16 @@
-Welcome to Quantum Network Simulation's documentation!
-======================================================
+QuNetSim Documentation
+======================
 
 .. toctree::
    :caption: Contents
    :titlesonly:
+   :glob:
+   :maxdepth: 2
 
+   intro
    install
-   concepts
    components
    examples
-   protocols
 
 
 Indices and tables
