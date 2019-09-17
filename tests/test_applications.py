@@ -26,7 +26,6 @@ class TestOneHop(unittest.TestCase):
         cls.sim_network.start()
 
         cls.network = Network.get_instance()
-        cls.network.set_delay(0.7)
         cls.network.start()
 
     @classmethod
@@ -158,7 +157,7 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_superdense(hosts['bob'].host_id, '01')
 
-            q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
+            hosts['alice'].send_epr(hosts['bob'].host_id)
 
             messages = hosts['bob'].get_classical_messages()
             i = 0
@@ -298,7 +297,7 @@ class TestTwoHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -330,7 +329,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'testing123')
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -354,17 +353,23 @@ class TestTwoHop(unittest.TestCase):
             i = 0
             q1 = None
             q2 = None
-            while i < TestOneHop.MAX_WAIT * 2 and (q1 is None or q2 is None):
+            while i < TestOneHop.MAX_WAIT and q1 is None:
                 q1 = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
+                i += 1
+                time.sleep(1)
+
+            self.assertIsNotNone(q1)
+
+            i = 0
+            while i < TestOneHop.MAX_WAIT and q2 is None:
                 q2 = hosts['eve'].get_epr(hosts['alice'].host_id, q_id)
                 i += 1
                 time.sleep(1)
 
             self.assertIsNotNone(q2)
-            self.assertIsNotNone(q1)
             self.assertEqual(q1.measure(), q2.measure())
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -388,7 +393,7 @@ class TestTwoHop(unittest.TestCase):
             q.X()
 
             hosts['alice'].send_teleport(hosts['eve'].host_id, q)
-            q2 = hosts['eve'].get_data_qubit(hosts['alice'].host_id)
+            q2 = None
             i = 0
             while i < TestOneHop.MAX_WAIT and q2 is None:
                 q2 = hosts['eve'].get_data_qubit(hosts['alice'].host_id)
@@ -398,7 +403,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -430,7 +435,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], '10')
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_classical_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -496,7 +501,6 @@ class TestTwoHop(unittest.TestCase):
             q_teleport = None
 
             i = 0
-
             while (q1_epr is None or q2_epr is None or q_teleport is None) and i < TestOneHop.MAX_WAIT:
                 if q1_epr is None:
                     q1_epr = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
@@ -510,6 +514,8 @@ class TestTwoHop(unittest.TestCase):
                 time.sleep(1)
                 i += 1
 
+            self.assertIsNotNone(q1_epr)
+            self.assertIsNotNone(q2_epr)
             self.assertEqual(q1_epr.measure(), q2_epr.measure())
             self.assertIsNotNone(q_teleport)
             self.assertEqual(q_teleport['q'].measure(), 1)

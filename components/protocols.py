@@ -37,7 +37,7 @@ RELAY = '00001111'
 REC_TELEPORT_EPR = '00010001'
 SEND_TELEPORT_EPR = '0001010'
 
-MAX_WAIT = 10
+MAX_WAIT = 30
 WAIT_ITER = 0.5
 
 
@@ -77,7 +77,8 @@ def process(packet):
 
 def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1):
     """
-    Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet with data and the header.
+    Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
+    with data and the header.
 
     Args:
         sender(string): ID of the sender
@@ -102,7 +103,6 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
 
 
 def _parse_message(message):
-
     """
     Parses the packet to its components : sender, receiver, protocol, payload, payload_type, sequence number.
 
@@ -110,7 +110,12 @@ def _parse_message(message):
         message (dict): Packet to be parsed
 
     Returns:
-         Host, Host, string, *depends on protocol*, string, int : Sender of the packet, receiver of the packet,  the protocol which the packet should be processed, payload, type of the payload, sequence number of the packet
+         Host: Sender of the packet,
+         Host: receiver of the packet,
+         string: the protocol which the packet should be processed,
+         dict: payload,
+         string: type of the payload,
+         int: sequence number of the packet
     """
     sender = message['sender']
     receiver = message['receiver']
@@ -164,7 +169,8 @@ def _send_classical(sender, receiver, message, rec_sequence_num):
 
 def _rec_classical(sender, receiver, payload, rec_sequence_num):
     """
-    Receives a classical message packet , parses it into sequence number and message and sends an ACK message to receiver.
+    Receives a classical message packet , parses it into sequence number and message and sends an
+    ACK message to receiver.
 
     Args:
         sender (Host): Sender of the message
@@ -182,14 +188,14 @@ def _rec_classical(sender, receiver, payload, rec_sequence_num):
 
 
 def _send_teleport(sender, receiver, payload, rec_sequence_num):
-
     """
     Does the measurements for teleportation of a qubit and sends the measurement results to another host.
 
     Args:
         sender (Host): Sender of the teleported qubit
         receiver (Host): Receiver of the teleported qubit
-        payload (dict): A dictionary consisting of information about the teleported qubit , such as the type of the qubit (EPR or DATA) , if it is EPR the initial sender of the qubit.
+        payload (dict): A dictionary consisting of information about the teleported qubit , such as the type of the
+                        qubit (EPR or DATA) , if it is EPR the initial sender of the qubit.
         rec_sequence_num (int): Sequence number of the packet to be sent
 
     """
@@ -235,18 +241,21 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
 
 def _rec_teleport(sender, receiver, payload):
     """
-    Receives a classical message and applies the required operations to EPR pair entangled with the sender to retrieve the teleported qubit.
+    Receives a classical message and applies the required operations to EPR pair entangled with the sender to
+    retrieve the teleported qubit.
 
     Args:
         sender (Host): Sender of the teleported qubit
         receiver (Host): Receiver of the teleported qubit
-        payload (dict): A dictionary consisting of information about the measurements necessary to complete the teleportation and the initial receiver of the qubit if qubit is an EPR qubit.
+        payload (dict): A dictionary consisting of information about the measurements necessary to complete the
+                        teleportation and the initial receiver of the qubit if qubit is an EPR qubit.
     """
     host_receiver = network.get_host(receiver)
     q_id = payload['q_id']
 
     q = host_receiver.get_epr(sender, q_id)
     i = 0
+
     while q is None and i < MAX_WAIT:
         i += 1
         time.sleep(WAIT_ITER)
@@ -293,10 +302,13 @@ def _send_epr(sender, receiver, payload=None):
 
 def _rec_epr(sender, receiver, payload):
     """
-    Receives a classical message packet , parses it into sequence number and message and sends an ACK message to receiver.
+    Receives a classical message packet , parses it into sequence number and message and sends an ACK message to
+    receiver.
 
     Args:
-        message (dict): Packet to be parsed
+        sender: ID of sender
+        receiver: ID of receiver
+        payload (dict): Packet to be parsed
 
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
@@ -336,10 +348,13 @@ def _send_superdense(sender, receiver, payload, rec_sequence_num):
     q_superdense = host_sender.get_epr(receiver)
     i = 0
     while q_superdense is None and i < MAX_WAIT:
+        i += 1
         time.sleep(WAIT_ITER)
         q_superdense = host_sender.get_epr(receiver)
 
     assert q_superdense is not None
+    if q_superdense is None:
+        print('q is none')
 
     _encode_superdense(payload, q_superdense['q'])
     packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM, rec_sequence_num)
@@ -347,7 +362,6 @@ def _send_superdense(sender, receiver, payload, rec_sequence_num):
 
 
 def _rec_superdense(sender, receiver, payload, rec_sequence_num):
-
     """
     Receives a superdense qubit and decodes it.
 
@@ -367,15 +381,17 @@ def _rec_superdense(sender, receiver, payload, rec_sequence_num):
         Logger.get_instance().log("no data qubits")
         return
 
+    i = 0
     qB = host_receiver.get_epr(sender, payload[0]['q_id'])
-    while qB is None:
+    while qB is None and i < MAX_WAIT:
+        i += 1
+        time.sleep(WAIT_ITER)
         qB = host_receiver.get_epr(sender, payload[0]['q_id'])
 
     return {'message': _decode_superdense(qA, qB), 'sequence_number': rec_sequence_num}
 
 
 def _add_checksum(sender, qubits, size=2):
-
     i = 0
     check_qubits = []
     while i < len(qubits):

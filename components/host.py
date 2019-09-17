@@ -20,10 +20,10 @@ class Host:
         self.host_id = host_id
         self._packet_queue = Queue()
         self._stop_thread = False
-        self._data_qubit_store = {}
-        self._classical = []
-        self._EPR_store = {}
         self._queue_processor_thread = None
+        self._data_qubit_store = {}
+        self._EPR_store = {}
+        self._classical = []
         self.connections = []
         self.cqc = cqc
         self.logger = Logger.get_instance()
