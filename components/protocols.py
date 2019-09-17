@@ -38,7 +38,7 @@ REC_TELEPORT_EPR = '00010001'
 SEND_TELEPORT_EPR = '0001010'
 
 MAX_WAIT = 30
-WAIT_ITER = 0.5
+WAIT_ITER = 1
 
 
 def process(packet):
@@ -254,14 +254,9 @@ def _rec_teleport(sender, receiver, payload):
     q_id = payload['q_id']
 
     q = host_receiver.get_epr(sender, q_id)
-    i = 0
 
-    while q is None and i < MAX_WAIT:
-        i += 1
-        time.sleep(WAIT_ITER)
+    while q is None:
         q = host_receiver.get_epr(sender, q_id)
-
-    assert q is not None
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -346,13 +341,9 @@ def _send_superdense(sender, receiver, payload, rec_sequence_num):
         network.send(packet)
 
     q_superdense = host_sender.get_epr(receiver)
-    i = 0
-    while q_superdense is None and i < MAX_WAIT:
-        i += 1
-        time.sleep(WAIT_ITER)
+    while q_superdense is None:
         q_superdense = host_sender.get_epr(receiver)
 
-    assert q_superdense is not None
     if q_superdense is None:
         print('q is none')
 
@@ -375,20 +366,16 @@ def _rec_superdense(sender, receiver, payload, rec_sequence_num):
         dict : A dictionary consisting of decoded superdense message and sequence number
     """
     host_receiver = network.get_host(receiver)
-    qA = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
 
-    if not qA:
-        Logger.get_instance().log("no data qubits")
-        return
+    q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
+    while q1 is None:
+        q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
 
-    i = 0
-    qB = host_receiver.get_epr(sender, payload[0]['q_id'])
-    while qB is None and i < MAX_WAIT:
-        i += 1
-        time.sleep(WAIT_ITER)
-        qB = host_receiver.get_epr(sender, payload[0]['q_id'])
+    q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
+    while q2 is None:
+        q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
 
-    return {'message': _decode_superdense(qA, qB), 'sequence_number': rec_sequence_num}
+    return {'message': _decode_superdense(q1, q2), 'sequence_number': rec_sequence_num}
 
 
 def _add_checksum(sender, qubits, size=2):
@@ -430,7 +417,7 @@ def _encode_superdense(message, q):
         raise Exception("Not possible to encode this message")
 
 
-def _decode_superdense(qA, qB):
+def _decode_superdense(q1, q2):
     """
     Return the message encoded into qA with the support of qB.
 
@@ -442,11 +429,11 @@ def _decode_superdense(qA, qB):
         string: A string of decoded message.
 
     """
-    qA.cnot(qB)
-    qA.H()
+    q1.cnot(q2)
+    q1.H()
 
     # Measure
-    a = qA.measure()
-    b = qB.measure()
+    a = q1.measure()
+    b = q2.measure()
 
     return str(a) + str(b)
