@@ -30,13 +30,74 @@ class Host:
         self.role = role
         self.seq_number = {}
 
+    def _get_sequence_number(self, receiver):
+        """
+        Returns the sequence number of connection with a receiver.
+
+        Args:
+            receiver(string): The ID of the receiver
+
+        Returns:
+            int: If a connection is present returns the sequence number , otherwise returns 0.
+
+        """
+        if receiver not in self.seq_number:
+            self.seq_number[receiver] = 0
+        else:
+            self.seq_number[receiver] += 1
+        return self.seq_number[receiver]
+
+    def _process_message(self, message):
+
+        """
+        Processes the received packet.
+
+        Args:
+            message (dict): The received packet
+        """
+
+        sender = message['sender']
+
+        if sender not in self._data_qubit_store and sender != self.host_id:
+            self._data_qubit_store[sender] = []
+
+        if sender not in self._EPR_store and sender != self.host_id:
+            self._EPR_store[sender] = []
+
+        result = protocols.process(message)
+        if result is not None:
+            if 'sequence_number' not in result.keys():
+                self._classical.append({'sender': sender, 'message': result['message']})
+                self.logger.log(self.cqc.name + ' received ' + result['message'])
+            else:
+                self._classical.append(
+                    {'sender': sender, 'message': result['message'], 'sequence_number': result['sequence_number']})
+                self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(
+                    result['sequence_number']))
+
+    def _process_queue(self):
+
+        """
+        Runs a thread for processing the packets in the packet queue.
+        """
+
+        self.logger.log('Host ' + self.host_id + ' started processing')
+        while True:
+            if self._stop_thread:
+                break
+
+            if not self._packet_queue.empty():
+                message = self._packet_queue.get()
+                if not message:
+                    raise Exception('empty message')
+                DaemonThread(self._process_message, args=(message,))
+
     def rec_packet(self, packet):
         """
         Puts the packet into the packet queue of the host.
 
         Args:
             packet: Received packet.
-
         """
         self._packet_queue.put(packet)
 
@@ -49,23 +110,6 @@ class Host:
 
         """
         self.connections.append(receiver_id)
-
-    def _get_sequence_number(self, receiver):
-        """
-                Returns the sequence number of connection with a receiver.
-
-                Args:
-                    receiver(string): The ID of the receiver
-
-                Returns:
-                    int: If a connection is present returns the sequence number , otherwise returns 0.
-
-                """
-        if receiver not in self.seq_number:
-            self.seq_number[receiver] = 0
-        else:
-            self.seq_number[receiver] += 1
-        return self.seq_number[receiver]
 
     def send_classical(self, receiver, message):
         """
@@ -90,10 +134,8 @@ class Host:
         Args:
             receiver_id (string): The receiver ID
 
-
         Returns:
             string: The qubit ID of the EPR pair.
-
         """
         q_id = str(uuid.uuid4())
         packet = protocols.encode(sender=self.host_id,
@@ -150,54 +192,7 @@ class Host:
         """
         return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]) != 0
 
-    def _process_message(self, message):
-
-        """
-        Processes the received packet.
-
-        Args:
-            message (dict): The received packet
-
-        """
-
-        sender = message['sender']
-
-        if sender not in self._data_qubit_store and sender != self.host_id:
-            self._data_qubit_store[sender] = []
-
-        if sender not in self._EPR_store and sender != self.host_id:
-            self._EPR_store[sender] = []
-
-        result = protocols.process(message)
-        if result is not None:
-            if 'sequence_number' not in result.keys():
-                self._classical.append({'sender': sender, 'message': result['message']})
-                self.logger.log(self.cqc.name + ' received ' + result['message'])
-            else:
-                self._classical.append(
-                    {'sender': sender, 'message': result['message'], 'sequence_number': result['sequence_number']})
-                self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(
-                    result['sequence_number']))
-
-    def _process_queue(self):
-
-        """
-        Runs a thread for processing the packets in the packet queue.
-        """
-
-        self.logger.log('Host ' + self.host_id + ' started processing')
-        while True:
-            if self._stop_thread:
-                break
-
-            if not self._packet_queue.empty():
-                message = self._packet_queue.get()
-                if not message:
-                    raise Exception('empty message')
-                DaemonThread(self._process_message, args=(message,))
-
     def add_epr(self, partner_id, qubit, q_id=None):
-
         """
         Adds the EPR to the EPR store of a host . If the EPR has an ID , adds the EPR with it , otherwise generates an ID for the EPR and adds the qubit with that ID.
 
@@ -208,7 +203,6 @@ class Host:
         Returns:
              string: *q_id*
         """
-
 
         if partner_id not in self._EPR_store and partner_id != self.host_id:
             self._EPR_store[partner_id] = []
@@ -223,7 +217,6 @@ class Host:
         return q_id
 
     def add_data_qubit(self, partner_id, qubit, q_id=None):
-
         """
         Adds the data qubit to the data qubit store of a host . If the qubit has an ID , adds the qubit with it , otherwise generates an ID for the qubit and adds the qubit with that ID.
 
@@ -248,7 +241,6 @@ class Host:
         return q_id
 
     def get_epr(self, partner_id, q_id=None):
-
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified, EPR with that ID is returned, else, the last EPR added is returned.
 
@@ -286,7 +278,6 @@ class Host:
         return None
 
     def get_data_qubit(self, partner_id, q_id=None):
-
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified, qubit with that ID is returned, else, the last qubit received is returned.
 
@@ -330,13 +321,13 @@ class Host:
 
     def stop(self):
         """
-         Stops the host.
-         """
+        Stops the host.
+        """
         self.logger.log('Host ' + self.host_id + " stopped")
         self._stop_thread = True
 
     def start(self):
         """
-         Starts the host.
-         """
+        Starts the host.
+        """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)

@@ -1,6 +1,5 @@
 from cqc.pythonLib import qubit
 import uuid
-import time
 
 # DATA TYPES
 from components.logger import Logger
