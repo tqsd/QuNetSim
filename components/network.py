@@ -32,14 +32,25 @@ class Network:
         else:
             raise Exception('this is a singleton class')
 
-    def set_routing_algo(self, algo):
-        self.routing_algo = algo
+    def set_routing_algo(self, algorithm):
+        """
+        Set the routing algorithm for the network.
+
+        Args:
+             algorithm (function): The routing function. Should return a list of host_ids which represents the route
+        """
+        self.routing_algo = algorithm
 
     def set_delay(self, delay):
+        """
+        Set the delay interval of the network.
+
+        Args:
+             delay (float): Delay in network tick in seconds
+        """
         self.delay = delay
 
     def add_host(self, host):
-
         """
         Adds the *host* to ARP table and updates the network graph.
 
@@ -52,7 +63,6 @@ class Network:
         self._update_network_graph(host)
 
     def remove_host(self, host):
-
         """
         Removes the host from the ARP table.
 
@@ -64,7 +74,6 @@ class Network:
             del self.ARP[host.host_id]
 
     def _remove_network_node(self, host):
-
         """
         Removes the host from the ARP table.
 
@@ -120,7 +129,6 @@ class Network:
         return self.ARP[host_id]
 
     def get_ARP(self):
-
         """
         Returns the ARP table.
 
@@ -163,9 +171,9 @@ class Network:
         return None
 
     def encode(self, sender, receiver, payload, ttl=10):
-
         """
-        Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+        Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
+        protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
         Time-To-Live information in this layer.
 
         Args:
@@ -189,9 +197,9 @@ class Network:
         return packet
 
     def _entanglement_swap(self, sender, receiver, route, q_id):
-
         """
-        Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair between sender and receiver.
+        Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
+        between sender and receiver.
 
         Args:
             sender (Host): Sender of the EPR pair
@@ -206,6 +214,9 @@ class Network:
             packet = protocols.encode(route[i], route[i + 1], protocols.SEND_EPR, q_id,
                                       payload_type=protocols.SIGNAL)
             self.get_host(route[i]).rec_packet(packet)
+
+        # TODO: wait for acknowledgements from the above process
+        time.sleep(3)
 
         for i in range(len(route) - 2):
             q = None
@@ -224,7 +235,6 @@ class Network:
         host_sender.add_epr(receiver, q2['q'], q2['q_id'])
 
     def _route_quantum_info(self, sender, receiver, qubits):
-
         """
         Routes qubits from sender to receiver.
 
@@ -264,7 +274,6 @@ class Network:
             i += 1
 
     def _process_queue(self):
-
         """
         Runs a thread for processing the packets in the packet queue.
 
@@ -330,7 +339,6 @@ class Network:
                     Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
-
         """
         Puts the packet to the packet queue of the network.
 
