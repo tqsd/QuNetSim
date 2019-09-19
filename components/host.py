@@ -28,6 +28,7 @@ class Host:
         self.cqc = cqc
         self.logger = Logger.get_instance()
         self.role = role
+        self.memory_limit = -1
         self.seq_number = {}
 
     def _get_sequence_number(self, receiver):
@@ -194,7 +195,36 @@ class Host:
         """
         return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]) != 0
 
-    def set_epr_memory_size(self, limit, partner_id=None):
+    def set_memory_limit(self, limit):
+        """
+        Set the default maximum size limit a memory can have.
+
+        Args:
+            limit (int): The size of the memory.
+        """
+        self.memory_limit = limit
+
+    def get_epr_pairs(self, host_id=None):
+        """
+        Return the dictionary of EPR pairs stored.
+
+        Args:
+            host_id (optional): If set,
+
+        Returns:
+            dict: If *host_id* is not set, then return the entire dictionary of EPR pairs.
+                  Else If *host_id* is set, then return the EPRs for that particular host if there are any.
+                  Return None otherwise.
+        """
+        if host_id is None:
+            return self._EPR_store
+
+        if host_id in self._EPR_store:
+            return self._EPR_store[host_id]
+
+        return None
+
+    def set_epr_memory_limit(self, limit, partner_id=None):
         """
         Set the limit to how many EPR pair halves can be stored from partner_id, or if partner_id is not set,
         use the limit for all connections.
@@ -204,13 +234,15 @@ class Host:
             partner_id (str): (optional) The partner ID to set the limit with
         """
         if partner_id is not None:
-            if partner_id not in self._EPR_store and partner_id != self.host_id:
+            if partner_id in self._EPR_store and partner_id != self.host_id:
                 self._EPR_store[partner_id]['max_limit'] = limit
+            elif partner_id != self.host_id:
+                self._EPR_store[partner_id] = {'qubits': [], 'max_limit': limit}
         else:
             for partner in self._EPR_store.keys():
                 self._EPR_store[partner]['max_limit'] = limit
 
-    def set_data_qubit_memory_size(self, limit, partner_id=None):
+    def set_data_qubit_memory_limit(self, limit, partner_id=None):
         """
         Set the limit to how many data qubits can be stored from partner_id, or if partner_id is not set,
         use the limit for all connections.
@@ -220,8 +252,10 @@ class Host:
             partner_id (str): (optional) The partner ID to set the limit with
         """
         if partner_id is not None:
-            if partner_id not in self._data_qubit_store and partner_id != self.host_id:
+            if partner_id in self._data_qubit_store and partner_id != self.host_id:
                 self._data_qubit_store[partner_id]['max_limit'] = limit
+            elif partner_id != self.host_id:
+                self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': limit}
         else:
             for partner in self._data_qubit_store.keys():
                 self._data_qubit_store[partner]['max_limit'] = limit
@@ -239,7 +273,7 @@ class Host:
              string: *q_id*
         """
         if partner_id not in self._EPR_store and partner_id != self.host_id:
-            self._EPR_store[partner_id] = {'qubits': [], 'max_limit': -1}
+            self._EPR_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
 
         if q_id is None:
             q_id = str(uuid.uuid4())
@@ -273,7 +307,7 @@ class Host:
         """
 
         if partner_id not in self._data_qubit_store and partner_id != self.host_id:
-            self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': -1}
+            self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
 
         if q_id is None:
             q_id = str(uuid.uuid4())

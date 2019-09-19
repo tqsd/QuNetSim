@@ -12,7 +12,7 @@ from components.host import Host
 from components.network import Network
 
 
-@unittest.skip('')
+# @unittest.skip('')
 class TestOneHop(unittest.TestCase):
     sim_network = None
     network = None
@@ -41,7 +41,8 @@ class TestOneHop(unittest.TestCase):
             os.system('rm -rf ./tests/__pycache__/')
 
     def setUp(self):
-        pass
+        if os.path.exists('./tests/__pycache__'):
+            os.system('rm -rf ./tests/__pycache__/')
 
     def tearDown(self):
         for key in self.hosts.keys():
@@ -49,6 +50,7 @@ class TestOneHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
+    @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -271,3 +273,57 @@ class TestOneHop(unittest.TestCase):
 
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
+
+    # @unittest.skip('')
+    def test_maximum_epr_qubit_limit(self):
+        with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['alice'].add_connection('00000001')
+
+            hosts['alice'].set_memory_limit(1)
+            hosts['bob'].set_memory_limit(1)
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            hosts['alice'].send_epr(hosts['bob'].host_id)
+            hosts['alice'].send_epr(hosts['bob'].host_id)
+
+            # Allow the network to process the requests
+            time.sleep(1)
+
+            self.assertTrue(hosts['alice'].shares_epr(hosts['bob'].host_id))
+            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)['qubits']) == 1)
+
+            i = 0
+            while not hosts['bob'].shares_epr(hosts['alice'].host_id) and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            self.assertTrue(hosts['bob'].shares_epr(hosts['alice'].host_id))
+            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)['qubits']) == 1)
+
+            hosts['alice'].set_epr_memory_limit(2, hosts['bob'].host_id)
+            hosts['bob'].set_epr_memory_limit(2)
+
+            hosts['alice'].send_epr(hosts['bob'].host_id)
+            hosts['alice'].send_epr(hosts['bob'].host_id)
+
+            # Allow the network to process the requests
+            time.sleep(1)
+
+            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)['qubits']) == 2)
+
+            i = 0
+            while not hosts['bob'].shares_epr(hosts['alice'].host_id) and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)['qubits']) == 2)
