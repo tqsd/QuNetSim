@@ -147,20 +147,19 @@ class Host:
         self._packet_queue.put(packet)
         return q_id
 
-    def send_teleport(self, receiver, q):
+    def send_teleport(self, receiver_id, q):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
         Args:
-            receiver (string): The ID of the host to establish the EPR pair with
+            receiver_id (string): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
 
         """
-        self.seq_number[receiver] = 0
-        packet = protocols.encode(self.host_id, receiver, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
-                                  self._get_sequence_number(receiver))
+        packet = protocols.encode(self.host_id, receiver_id, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
+                                  self._get_sequence_number(receiver_id))
 
-        self.logger.log(self.host_id + " sends TELEPORT to " + receiver)
+        self.logger.log(self.host_id + " sends TELEPORT to " + receiver_id)
         self._packet_queue.put(packet)
 
     def send_superdense(self, receiver_id, message):
@@ -181,6 +180,25 @@ class Host:
                                   self._get_sequence_number(receiver_id))
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
+
+    def send_qubit(self, receiver_id, q):
+        """
+        Send the qubit *q* to the receiver with ID *receiver_id*.
+        Args:
+            receiver_id (string): The receiver ID to send the message to
+            q (Qubit): The qubit to send
+
+        """
+        q_id = str(uuid.uuid4())
+        packet = protocols.encode(self.host_id, receiver_id,
+                                  protocols.SEND_QUBIT,
+                                  {'q': q, 'q_id': q_id, 'blocked': True},
+                                  protocols.QUANTUM,
+                                  self._get_sequence_number(receiver_id))
+
+        self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
+        self._packet_queue.put(packet)
+        return q_id
 
     def shares_epr(self, receiver_id):
         """
@@ -314,8 +332,8 @@ class Host:
 
         to_add = {'q': qubit, 'q_id': q_id, 'blocked': False}
 
-        if self._EPR_store[partner_id]['max_limit'] == -1 or (len(self._data_qubit_store[partner_id]['qubits'])
-                                                              < self._EPR_store[partner_id]['max_limit']):
+        if self._data_qubit_store[partner_id]['max_limit'] == -1 or (len(self._data_qubit_store[partner_id]['qubits'])
+                                                                     < self._data_qubit_store[partner_id]['max_limit']):
             self._data_qubit_store[partner_id]['qubits'].append(to_add)
             self.logger.log(self.host_id + ' added data qubit ' + q_id + ' from ' + partner_id)
         else:

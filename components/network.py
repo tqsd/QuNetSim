@@ -242,7 +242,6 @@ class Network:
             sender (Host): Sender of qubits
             receiver (Host): Receiver qubits
             qubits (Array of Qubit-Dictionaries): The qubits to be sent
-
         """
 
         def transfer_qubits(s, r, store=False, original_sender=None):
@@ -256,10 +255,11 @@ class Network:
                 # Update the set of qubits so that they aren't pointing at inactive qubits
                 qubits[index]['q'] = q
 
-                # Unblock qubits incase they were blocked
+                # Unblock qubits in case they were blocked
                 qubits[index]['blocked'] = False
 
                 if store and original_sender is not None:
+
                     self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
 
         route = self.get_route(sender, receiver)
@@ -276,7 +276,6 @@ class Network:
     def _process_queue(self):
         """
         Runs a thread for processing the packets in the packet queue.
-
         """
 
         while True:
@@ -317,8 +316,7 @@ class Network:
                             self.ARP[receiver].rec_packet(packet['payload'])
 
                     else:
-                        # Logger.get_instance().log('sending packet from ' + route[0] + ' to ' + route[1])
-
+                        # TODO: make hop by hop optional and find a way to fix a route
                         # Here we're using hop by hop approach (i.e. the route is recalculated at each hop
                         if packet['protocol'] == protocols.RELAY:
                             packet['receiver'] = route[1]
