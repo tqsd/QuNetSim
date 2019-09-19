@@ -1,9 +1,7 @@
-name: QuNetSim
+name: QuNetSim Tests
 
 on: 
-  pull_request:
-    branches:
-      -master
+  [push]
 
 jobs:
   build:
