@@ -50,7 +50,7 @@ class TestOneHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -80,7 +80,7 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'hello')
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -116,7 +116,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -148,7 +148,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -180,7 +180,37 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], '01')
 
-    @unittest.skip('')
+    # @unittest.skip('')
+    def test_send_qubit(self):
+        with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['alice'].add_connection('00000001')
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            q = qubit(Alice)
+            q.X()
+
+            q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
+            i = 0
+            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            while i < TestOneHop.MAX_WAIT and rec_q is None:
+                rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+                i += 1
+                time.sleep(1)
+
+            self.assertIsNotNone(rec_q)
+            self.assertEqual(rec_q.measure(), 1)
+
+    # @unittest.skip('')
     def test_superdense_epr_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -229,7 +259,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),

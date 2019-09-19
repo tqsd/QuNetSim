@@ -7,9 +7,9 @@ from components.network import Network
 
 network = Network.get_instance()
 
-CLASSICAL = '00'
-QUANTUM = '11'
-SIGNAL = '10'
+CLASSICAL = 'classical'
+QUANTUM = 'quantum'
+SIGNAL = 'signal'
 
 # QUBIT TYPES
 EPR = 0
@@ -20,21 +20,19 @@ ACK = '1111'
 NACK = '0000'
 
 # PROTOCOL IDs
-REC_EPR = '00000000'
-SEND_EPR = '00000001'
-REC_TELEPORT = '00000011'
-SEND_TELEPORT = '00000100'
-REC_SUPERDENSE = '00000101'
-SEND_UDP = '00000111'
-TERMINATE_UDP = '00001000'
-SEND_ACK = '00001001'
-REC_ACK = '00001010'
-SEND_CLASSICAL = '00001011'
-REC_CLASSICAL = '00001100'
-SEND_SUPERDENSE = '00001101'
-RELAY = '00001111'
-REC_TELEPORT_EPR = '00010001'
-SEND_TELEPORT_EPR = '0001010'
+REC_EPR = 'rec_epr'
+SEND_EPR = 'send_epr'
+REC_TELEPORT = 'rec_teleport'
+SEND_TELEPORT = 'send_teleport'
+REC_SUPERDENSE = 'rec_superdense'
+SEND_SUPERDENSE = 'send_superdense'
+REC_ACK = 'rec_ack'
+SEND_ACK = 'send_ack'
+REC_CLASSICAL = 'rec_classical'
+SEND_CLASSICAL = 'send_classical'
+RELAY = 'relay'
+SEND_QUBIT = 'send_qubit'
+REC_QUBIT = 'rec_qubit'
 
 MAX_WAIT = 30
 WAIT_ITER = 1
@@ -68,6 +66,10 @@ def process(packet):
         return _send_superdense(sender, receiver, payload, rec_sequence_num)
     elif protocol == REC_SUPERDENSE:
         return _rec_superdense(sender, receiver, payload, rec_sequence_num)
+    elif protocol == SEND_QUBIT:
+        return _send_qubit(sender, receiver, payload, rec_sequence_num)
+    elif protocol == REC_QUBIT:
+        return _rec_qubit(sender, receiver, payload, )
     elif protocol == RELAY:
         return _relay_message(receiver, packet)
     else:
@@ -155,14 +157,7 @@ def _send_classical(sender, receiver, message, rec_sequence_num):
         rec_sequence_num (int): Sequence number of the packet
 
     """
-    host_sender = network.get_host(sender)
-    packet = encode(host_sender.host_id, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL, rec_sequence_num)
-    host_receiver = network.get_host(receiver)
-
-    if not (host_receiver or host_sender):
-        # TODO: create a meaningful exception
-        raise Exception
-
+    packet = encode(sender, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL, rec_sequence_num)
     network.send(packet)
 
 
@@ -186,6 +181,17 @@ def _rec_classical(sender, receiver, payload, rec_sequence_num):
     return {'message': payload['message'], 'sequence_number': rec_sequence_num}
 
 
+def _send_qubit(sender, receiver, payload, rec_sequence_num):
+    packet = encode(sender, receiver, REC_QUBIT, [payload], QUANTUM, rec_sequence_num)
+    network.send(packet)
+
+
+def _rec_qubit(sender, receiver, payload):
+    Logger.get_instance().log(receiver + ' received qubit ' + payload[0]['q_id'] + ' from ' + sender)
+    _send_ack(sender, receiver)
+    pass
+
+
 def _send_teleport(sender, receiver, payload, rec_sequence_num):
     """
     Does the measurements for teleportation of a qubit and sends the measurement results to another host.
@@ -196,7 +202,6 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
         payload (dict): A dictionary consisting of information about the teleported qubit , such as the type of the
                         qubit (EPR or DATA) , if it is EPR the initial sender of the qubit.
         rec_sequence_num (int): Sequence number of the packet to be sent
-
     """
 
     if 'node' in payload:
@@ -208,9 +213,6 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
         q_type = payload['type']
     else:
         q_type = DATA
-
-    if 'type' in payload:
-        type = payload['type']
 
     q = payload['q']
 
@@ -253,7 +255,6 @@ def _rec_teleport(sender, receiver, payload):
     q_id = payload['q_id']
 
     q = host_receiver.get_epr(sender, q_id)
-
     while q is None:
         q = host_receiver.get_epr(sender, q_id)
 
