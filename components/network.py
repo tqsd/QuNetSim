@@ -259,7 +259,6 @@ class Network:
                 qubits[index]['blocked'] = False
 
                 if store and original_sender is not None:
-
                     self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
 
         route = self.get_route(sender, receiver)

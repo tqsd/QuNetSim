@@ -22,12 +22,14 @@ class TestOneHop(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         simulaqron_settings.default_settings()
-        nodes = ['Alice', 'Bob']
+        nodes = ["Alice", "Bob"]
         cls.sim_network = SimulaNetwork(nodes=nodes, force=True)
         cls.sim_network.start()
 
         cls.network = Network.get_instance()
         cls.network.start()
+        if os.path.exists('./components/__pycache__'):
+            os.system('rm -rf ./components/__pycache__/')
 
     @classmethod
     def tearDownClass(cls):
@@ -36,11 +38,11 @@ class TestOneHop(unittest.TestCase):
         simulaqron_settings.default_settings()
         cls.network.stop()
         cls.network = None
-
         if os.path.exists('./tests/__pycache__'):
             os.system('rm -rf ./tests/__pycache__/')
 
     def setUp(self):
+        # TODO: Why do tests fail on second attempt if we don't clear the cache?
         if os.path.exists('./tests/__pycache__'):
             os.system('rm -rf ./tests/__pycache__/')
 
@@ -49,6 +51,48 @@ class TestOneHop(unittest.TestCase):
             self.hosts[key].cqc.flush()
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
+
+    # @unittest.skip('')
+    def test_shares_epr(self):
+        with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['alice'].add_connection('00000001')
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
+            q1 = hosts['alice'].shares_epr(hosts['bob'].host_id)
+            i = 0
+            while not q1 and i < TestOneHop.MAX_WAIT:
+                q1 = hosts['alice'].shares_epr(hosts['bob'].host_id)
+                i += 1
+                time.sleep(1)
+
+            i = 0
+            q2 = hosts['bob'].shares_epr(hosts['alice'].host_id)
+            while not q2 and i < TestOneHop.MAX_WAIT:
+                q2 = hosts['bob'].shares_epr(hosts['alice'].host_id)
+                i += 1
+                time.sleep(1)
+
+            self.assertTrue(hosts['alice'].shares_epr(hosts['bob'].host_id))
+            self.assertTrue(hosts['bob'].shares_epr(hosts['alice'].host_id))
+            q_alice = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+            q_bob = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+            self.assertIsNotNone(q_alice)
+            self.assertIsNotNone(q_bob)
+            self.assertEqual(q_alice.measure(), q_bob.measure())
+            self.assertFalse(hosts['alice'].shares_epr(hosts['bob'].host_id))
+            self.assertFalse(hosts['bob'].shares_epr(hosts['alice'].host_id))
 
     # @unittest.skip('')
     def test_send_classical(self):
@@ -67,18 +111,30 @@ class TestOneHop(unittest.TestCase):
             for h in hosts.values():
                 self.network.add_host(h)
 
-            hosts['alice'].send_classical(hosts['bob'].host_id, 'hello')
+            hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob')
+            hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice')
 
             i = 0
-            messages = hosts['bob'].get_classical_messages()
-            while i < TestOneHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['bob'].get_classical_messages()
+            bob_messages = hosts['bob'].get_classical_messages()
+            while i < TestOneHop.MAX_WAIT and len(bob_messages) == 0:
+                bob_messages = hosts['bob'].get_classical_messages()
                 i += 1
                 time.sleep(1)
 
-            self.assertTrue(len(messages) > 0)
-            self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
-            self.assertEqual(messages[0]['message'], 'hello')
+            i = 0
+            alice_messages = hosts['alice'].get_classical_messages()
+            while i < TestOneHop.MAX_WAIT and len(alice_messages) == 0:
+                alice_messages = hosts['alice'].get_classical_messages()
+                i += 1
+                time.sleep(1)
+
+            self.assertTrue(len(alice_messages) > 0)
+            self.assertEqual(alice_messages[0]['sender'], hosts['bob'].host_id)
+            self.assertEqual(alice_messages[0]['message'], 'Hello Alice')
+
+            self.assertTrue(len(bob_messages) > 0)
+            self.assertEqual(bob_messages[0]['sender'], hosts['alice'].host_id)
+            self.assertEqual(bob_messages[0]['message'], 'Hello Bob')
 
     # @unittest.skip('')
     def test_epr(self):
@@ -181,7 +237,7 @@ class TestOneHop(unittest.TestCase):
             self.assertEqual(messages[0]['message'], '01')
 
     # @unittest.skip('')
-    def test_send_qubit(self):
+    def test_send_qubit_alice_to_bob(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
@@ -204,6 +260,39 @@ class TestOneHop(unittest.TestCase):
             rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
             while i < TestOneHop.MAX_WAIT and rec_q is None:
                 rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+                i += 1
+                time.sleep(1)
+
+            self.assertIsNotNone(rec_q)
+            self.assertEqual(rec_q.measure(), 1)
+
+    @unittest.skip('')
+    def test_send_qubit_bob_to_alice(self):
+        with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['bob'].add_connection('00000000')
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            q = qubit(Bob)
+            q.X()
+
+            q_id = hosts['bob'].send_qubit(hosts['alice'].host_id, q)
+
+            i = 0
+            rec_q = hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_id)
+            while i < TestOneHop.MAX_WAIT and rec_q is None:
+                rec_q = hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_id)
                 i += 1
                 time.sleep(1)
 
@@ -236,19 +325,19 @@ class TestOneHop(unittest.TestCase):
                 i += 1
                 time.sleep(1)
 
+            self.assertIsNotNone(messages)
+            self.assertTrue(len(messages) > 0)
+            self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
+            self.assertEqual(messages[0]['message'], '01')
+
             i = 0
             q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
             while q1 is None and i < TestOneHop.MAX_WAIT:
                 q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
                 i += 1
                 time.sleep(1)
-
-            self.assertIsNotNone(messages)
-            self.assertTrue(len(messages) > 0)
-            self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
-            self.assertEqual(messages[0]['message'], '01')
-
             self.assertIsNotNone(q1)
+
             i = 0
             q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
             while q2 is None and i < TestOneHop.MAX_WAIT:
@@ -330,7 +419,7 @@ class TestOneHop(unittest.TestCase):
             time.sleep(1)
 
             self.assertTrue(hosts['alice'].shares_epr(hosts['bob'].host_id))
-            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)['qubits']) == 1)
+            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)) == 1)
 
             i = 0
             while not hosts['bob'].shares_epr(hosts['alice'].host_id) and i < TestOneHop.MAX_WAIT:
@@ -338,7 +427,7 @@ class TestOneHop(unittest.TestCase):
                 i += 1
 
             self.assertTrue(hosts['bob'].shares_epr(hosts['alice'].host_id))
-            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)['qubits']) == 1)
+            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)) == 1)
 
             hosts['alice'].set_epr_memory_limit(2, hosts['bob'].host_id)
             hosts['bob'].set_epr_memory_limit(2)
@@ -349,11 +438,94 @@ class TestOneHop(unittest.TestCase):
             # Allow the network to process the requests
             time.sleep(1)
 
-            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)['qubits']) == 2)
+            self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)) == 2)
 
             i = 0
             while not hosts['bob'].shares_epr(hosts['alice'].host_id) and i < TestOneHop.MAX_WAIT:
                 time.sleep(1)
                 i += 1
 
-            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)['qubits']) == 2)
+            self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)) == 2)
+
+    @unittest.skip('')
+    def test_maximum_data_qubit_limit(self):
+        with CQCConnection("Bob") as Bob, CQCConnection("Alice") as Alice:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
+            hosts['alice'].set_memory_limit(1)
+            hosts['bob'].set_memory_limit(1)
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            q_alice_id_1 = hosts['alice'].send_qubit(hosts['bob'].host_id, qubit(Alice))
+            q_alice_id_2 = hosts['alice'].send_qubit(hosts['bob'].host_id, qubit(Alice))
+
+            q_bob_id_1 = hosts['bob'].send_qubit(hosts['alice'].host_id, qubit(Bob))
+            q_bob_id_2 = hosts['bob'].send_qubit(hosts['alice'].host_id, qubit(Bob))
+
+            # Allow the network to process the requests
+            # TODO: remove the need for this
+            time.sleep(2)
+
+            i = 0
+            while len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 0 and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            i = 0
+            while len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 0 and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            print(hosts['alice'].get_data_qubits(hosts['bob'].host_id))
+
+            self.assertTrue(len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 1)
+            self.assertTrue(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_1).measure() == 0)
+            self.assertIsNotNone(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_2))
+            self.assertTrue(len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 1)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1).measure() == 0)
+            self.assertIsNotNone(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2))
+
+            hosts['alice'].set_data_qubit_memory_limit(2, hosts['bob'].host_id)
+            hosts['bob'].set_data_qubit_memory_limit(2)
+
+            q_alice_id_1 = hosts['alice'].send_qubit(hosts['bob'].host_id, qubit(Alice))
+            q_alice_id_2 = hosts['alice'].send_qubit(hosts['bob'].host_id, qubit(Alice))
+            q_alice_id_3 = hosts['alice'].send_qubit(hosts['bob'].host_id, qubit(Alice))
+
+            q_bob_id_1 = hosts['bob'].send_qubit(hosts['alice'].host_id, qubit(Bob))
+            q_bob_id_2 = hosts['bob'].send_qubit(hosts['alice'].host_id, qubit(Bob))
+            q_bob_id_3 = hosts['bob'].send_qubit(hosts['alice'].host_id, qubit(Bob))
+
+            # Allow the network to process the requests
+            time.sleep(3)
+
+            i = 0
+            while len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            i = 0
+            while len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
+                time.sleep(1)
+                i += 1
+
+            self.assertTrue(len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 2)
+            self.assertTrue(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_1).measure() == 0)
+            self.assertTrue(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_2).measure() == 0)
+            self.assertIsNotNone(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_3))
+
+            self.assertTrue(len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 2)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1).measure() == 0)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2).measure() == 0)
+            self.assertIsNotNone(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_3))

@@ -211,7 +211,7 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]) != 0
+        return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]['qubits']) != 0
 
     def set_memory_limit(self, limit):
         """
@@ -224,7 +224,8 @@ class Host:
 
     def get_epr_pairs(self, host_id=None):
         """
-        Return the dictionary of EPR pairs stored.
+        Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
+        Does not remove the qubits from storage like *get_epr_pair* does.
 
         Args:
             host_id (optional): If set,
@@ -232,15 +233,36 @@ class Host:
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of EPR pairs.
                   Else If *host_id* is set, then return the EPRs for that particular host if there are any.
-                  Return None otherwise.
+                  Return an empty list otherwise.
         """
         if host_id is None:
             return self._EPR_store
 
         if host_id in self._EPR_store:
-            return self._EPR_store[host_id]
+            return self._EPR_store[host_id]['qubits']
 
-        return None
+        return []
+
+    def get_data_qubits(self, host_id=None):
+        """
+        Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
+        Does not remove the qubits from storage like *get_data_qubit* does.
+
+        Args:
+            host_id (optional): If set,
+
+        Returns:
+            dict: If *host_id* is not set, then return the entire dictionary of data qubits.
+                  Else If *host_id* is set, then return the data qubits for that particular host if there are any.
+                  Return an empty list otherwise.
+        """
+        if host_id is None:
+            return self._data_qubit_store
+
+        if host_id in self._data_qubit_store:
+            return self._data_qubit_store[host_id]['qubits']
+
+        return []
 
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
