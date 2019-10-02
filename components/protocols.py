@@ -5,19 +5,27 @@ import uuid
 from components.logger import Logger
 from components.network import Network
 
-network = Network.get_instance()
+# CONSTANTS
+SEND_ACK = 'send_ack'
+SEQUENCE_NUMBER = 'sequence_number'
+PAYLOAD = 'payload'
+PAYLOAD_TYPE = 'payload_type'
+SENDER = 'sender'
+RECEIVER = 'receiver'
+PROTOCOL = 'protocol'
 
-CLASSICAL = 'classical'
-QUANTUM = 'quantum'
-SIGNAL = 'signal'
+network = Network.get_instance()
 
 # QUBIT TYPES
 EPR = 0
 DATA = 1
 
-# SIGNALS
-ACK = '1111'
-NACK = '0000'
+# DATA KINDS
+SIGNAL = 'signal'
+CLASSICAL = 'classical'
+QUANTUM = 'quantum'
+ACK = 'ACK'
+NACK = 'NACK'
 
 # PROTOCOL IDs
 REC_EPR = 'rec_epr'
@@ -26,16 +34,11 @@ REC_TELEPORT = 'rec_teleport'
 SEND_TELEPORT = 'send_teleport'
 REC_SUPERDENSE = 'rec_superdense'
 SEND_SUPERDENSE = 'send_superdense'
-REC_ACK = 'rec_ack'
-SEND_ACK = 'send_ack'
 REC_CLASSICAL = 'rec_classical'
 SEND_CLASSICAL = 'send_classical'
 RELAY = 'relay'
 SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
-
-MAX_WAIT = 30
-WAIT_ITER = 1
 
 
 def process(packet):
@@ -49,34 +52,34 @@ def process(packet):
         Returns what protocol function returns.
 
     """
-    sender, receiver, protocol, payload, payload_type, rec_sequence_num = _parse_message(packet)
+    protocol = packet[PROTOCOL]
     if protocol == SEND_TELEPORT:
-        return _send_teleport(sender, receiver, payload, rec_sequence_num)
+        return _send_teleport(packet)
     elif protocol == REC_TELEPORT:
-        return _rec_teleport(sender, receiver, payload)
+        return _rec_teleport(packet)
     elif protocol == SEND_CLASSICAL:
-        return _send_classical(sender, receiver, payload, rec_sequence_num)
+        return _send_classical(packet)
     elif protocol == REC_CLASSICAL:
-        return _rec_classical(sender, receiver, payload, rec_sequence_num)
+        return _rec_classical(packet)
     elif protocol == REC_EPR:
-        return _rec_epr(sender, receiver, payload)
+        return _rec_epr(packet)
     elif protocol == SEND_EPR:
-        return _send_epr(sender, receiver, payload)
+        return _send_epr(packet)
     elif protocol == SEND_SUPERDENSE:
-        return _send_superdense(sender, receiver, payload, rec_sequence_num)
+        return _send_superdense(packet)
     elif protocol == REC_SUPERDENSE:
-        return _rec_superdense(sender, receiver, payload, rec_sequence_num)
+        return _rec_superdense(packet)
     elif protocol == SEND_QUBIT:
-        return _send_qubit(sender, receiver, payload, rec_sequence_num)
+        return _send_qubit(packet)
     elif protocol == REC_QUBIT:
-        return _rec_qubit(sender, receiver, payload, )
+        return _rec_qubit(packet)
     elif protocol == RELAY:
-        return _relay_message(receiver, packet)
+        return _relay_message(packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1):
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, send_ack=False):
     """
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
     with data and the header.
@@ -88,146 +91,127 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
         payload_type(string): Type of the payload.
         sequence_num(int): Sequence number of the packet.
+        send_ack(bool): If the sender should expect an ACK returned
     Returns:
          dict: Encoded packet
 
     """
+
     packet = {
-        'sender': sender,
-        'receiver': receiver,
-        'protocol': protocol,
-        'payload_type': payload_type,
-        'payload': payload,
-        'sequence_number': sequence_num
+        SENDER: sender,
+        RECEIVER: receiver,
+        PROTOCOL: protocol,
+        PAYLOAD_TYPE: payload_type,
+        PAYLOAD: payload,
+        SEQUENCE_NUMBER: sequence_num,
+        SEND_ACK: send_ack
     }
     return packet
 
 
-def _parse_message(message):
-    """
-    Parses the packet to its components : sender, receiver, protocol, payload, payload_type, sequence number.
-
-    Args:
-        message (dict): Packet to be parsed
-
-    Returns:
-         Host: Sender of the packet,
-         Host: receiver of the packet,
-         string: the protocol which the packet should be processed,
-         dict: payload,
-         string: type of the payload,
-         int: sequence number of the packet
-    """
-    sender = message['sender']
-    receiver = message['receiver']
-    protocol = message['protocol']
-    payload_type = message['payload_type']
-    payload = message['payload']
-
-    if 'sequence_number' in message:
-        rec_sequence_num = message['sequence_number']
-        return sender, receiver, protocol, payload, payload_type, rec_sequence_num
-    else:
-        return sender, receiver, protocol, payload, payload_type, None
-
-
-def _relay_message(receiver, packet):
+def _relay_message(packet):
     """
     Sends the message to be relayed to the next node in the network and modifies the header.
 
     Args:
-        receiver (Host): Receiver of the packet
         packet (dict): Packet to be relayed
 
     """
     packet['TTL'] -= 1
-    packet['sender'] = receiver
-    packet['receiver'] = packet['payload']['receiver']
+    packet[SENDER] = packet[RECEIVER]
+    packet[RECEIVER] = packet[PAYLOAD][RECEIVER]
     network.send(packet)
 
 
-def _send_classical(sender, receiver, message, rec_sequence_num):
+def _send_classical(packet):
     """
     Sends a classical message to another host.
 
     Args:
-        sender (Host): Sender of the message
-        receiver (Host): Receiver of the message
-        message (string): Message to be sent
-        rec_sequence_num (int): Sequence number of the packet
+       packet (dict): The packet in which to transmit.
 
     """
-    packet = encode(sender, receiver, REC_CLASSICAL, {'message': message}, CLASSICAL, rec_sequence_num)
+    packet[PROTOCOL] = REC_CLASSICAL
     network.send(packet)
 
 
-def _rec_classical(sender, receiver, payload, rec_sequence_num):
+def _rec_classical(packet):
     """
     Receives a classical message packet , parses it into sequence number and message and sends an
     ACK message to receiver.
 
     Args:
-        sender (Host): Sender of the message
-        receiver (Host): Receiver of the message
-        payload (dict): Packet to be parsed
-        rec_sequence_num: Sequence number of the received packet
+        packet (dict): The packet in which to receive.
 
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
+    if packet[PAYLOAD] == ACK:
+        Logger.get_instance().log(packet[RECEIVER] + " received ACK from " + packet[SENDER]
+                                  + " with sequence number " + str(packet[SEQUENCE_NUMBER]))
 
-    # Assume the payload is the classical message
-    _send_ack(sender, receiver)
-    return {'message': payload['message'], 'sequence_number': rec_sequence_num}
+    if packet[SEND_ACK]:
+        _send_ack(packet[RECEIVER], packet[SENDER], packet[SEQUENCE_NUMBER])
+
+    return {'message': packet[PAYLOAD], 'sequence_number': packet[SEQUENCE_NUMBER]}
 
 
-def _send_qubit(sender, receiver, payload, rec_sequence_num):
-    packet = encode(sender, receiver, REC_QUBIT, [payload], QUANTUM, rec_sequence_num)
+def _send_qubit(packet):
+    """
+    Transmit the qubit
+    Args:
+        packet (dict): The packet in which to transmit.
+    """
+    packet[PROTOCOL] = REC_QUBIT
     network.send(packet)
 
 
-def _rec_qubit(sender, receiver, payload):
-    Logger.get_instance().log(receiver + ' received qubit ' + payload[0]['q_id'] + ' from ' + sender)
-    _send_ack(sender, receiver)
-    pass
+def _rec_qubit(packet):
+    """
+    Receive a packet containing qubit information (qubit is transmitted externally)
+
+    Args:
+        packet (dict): The packet in which to receive.
+    """
+    Logger.get_instance().log(
+        packet[RECEIVER] + ' received qubit ' + packet[PAYLOAD][0]['q_id'] + ' from ' + packet[SENDER])
+    if packet[SEND_ACK]:
+        _send_ack(packet[RECEIVER], packet[SENDER], packet[SEQUENCE_NUMBER])
 
 
-def _send_teleport(sender, receiver, payload, rec_sequence_num):
+def _send_teleport(packet):
     """
     Does the measurements for teleportation of a qubit and sends the measurement results to another host.
 
     Args:
-        sender (Host): Sender of the teleported qubit
-        receiver (Host): Receiver of the teleported qubit
-        payload (dict): A dictionary consisting of information about the teleported qubit , such as the type of the
-                        qubit (EPR or DATA) , if it is EPR the initial sender of the qubit.
-        rec_sequence_num (int): Sequence number of the packet to be sent
+        packet (dict): The packet in which to transmit.
     """
 
-    if 'node' in payload:
-        node = payload['node']
+    if 'node' in packet[PAYLOAD]:
+        node = packet[PAYLOAD]['node']
     else:
-        node = sender
+        node = packet[SENDER]
 
-    if 'type' in payload:
-        q_type = payload['type']
+    if 'type' in packet[PAYLOAD]:
+        q_type = packet[PAYLOAD]['type']
     else:
         q_type = DATA
 
-    q = payload['q']
+    q = packet[PAYLOAD]['q']
 
-    host_sender = network.get_host(sender)
-    if not network.shares_epr(sender, receiver):
-        Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
+    host_sender = network.get_host(packet[SENDER])
+    if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
+        Logger.get_instance().log(
+            'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
         q_id = str(uuid.uuid4())
-        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id},
+        packet = encode(packet[SENDER], packet[RECEIVER], REC_EPR, payload={'q_id': q_id},
                         payload_type=SIGNAL)
         network.send(packet)
 
-    epr_teleport = host_sender.get_epr(receiver)
+    epr_teleport = host_sender.get_epr(packet[RECEIVER])
 
     while epr_teleport is None:
-        epr_teleport = host_sender.get_epr(receiver)
+        epr_teleport = host_sender.get_epr(packet[RECEIVER])
 
     q.cnot(epr_teleport['q'])
     q.H()
@@ -236,27 +220,27 @@ def _send_teleport(sender, receiver, payload, rec_sequence_num):
     m2 = epr_teleport['q'].measure()
 
     data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': q_type, 'node': node}
-    packet = encode(sender, receiver, REC_TELEPORT, data, CLASSICAL, rec_sequence_num)
+
+    packet[PAYLOAD] = data
+    packet[PROTOCOL] = REC_TELEPORT
     network.send(packet)
 
 
-def _rec_teleport(sender, receiver, payload):
+def _rec_teleport(packet):
     """
     Receives a classical message and applies the required operations to EPR pair entangled with the sender to
     retrieve the teleported qubit.
 
     Args:
-        sender (Host): Sender of the teleported qubit
-        receiver (Host): Receiver of the teleported qubit
-        payload (dict): A dictionary consisting of information about the measurements necessary to complete the
-                        teleportation and the initial receiver of the qubit if qubit is an EPR qubit.
+        packet (dict): The packet in which to receive.
     """
-    host_receiver = network.get_host(receiver)
+    host_receiver = network.get_host(packet[RECEIVER])
+    payload = packet[PAYLOAD]
     q_id = payload['q_id']
 
-    q = host_receiver.get_epr(sender, q_id)
+    q = host_receiver.get_epr(packet[SENDER], q_id)
     while q is None:
-        q = host_receiver.get_epr(sender, q_id)
+        q = host_receiver.get_epr(packet[SENDER], q_id)
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -274,97 +258,100 @@ def _rec_teleport(sender, receiver, payload):
     elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
-    _send_ack(sender, receiver)
+    if packet[SEND_ACK]:
+        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
 
-def _send_epr(sender, receiver, payload=None):
+def _send_epr(packet):
     """
     Sends an EPR to another host in the network.
 
     Args:
-        sender (Host): Sender of the EPR
-        receiver (Host): Receiver of the EPR
-        payload (dict): A dictionary consisting of qubit ID of the EPR pair
-
+        packet (dict): The packet in which to transmit.
     """
-
-    if payload is not None:
-        payload = {'q_id': payload}
-
-    packet = encode(sender, receiver, REC_EPR, payload=payload, payload_type=SIGNAL)
+    packet[PROTOCOL] = REC_EPR
     network.send(packet)
 
 
-def _rec_epr(sender, receiver, payload):
+def _rec_epr(packet):
     """
     Receives a classical message packet , parses it into sequence number and message and sends an ACK message to
     receiver.
 
     Args:
-        sender: ID of sender
-        receiver: ID of receiver
-        payload (dict): Packet to be parsed
+        packet (dict): The packet in which to receive.
 
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
-
+    payload = packet[PAYLOAD]
+    receiver = packet[RECEIVER]
+    sender = packet[SENDER]
     host_receiver = network.get_host(receiver)
+
     q = host_receiver.cqc.recvEPR()
     if payload is None:
         host_receiver.add_epr(sender, q)
     else:
         host_receiver.add_epr(sender, q, q_id=payload['q_id'])
-    return _send_ack(sender, receiver)
+
+    if packet[SEND_ACK]:
+        _send_ack(sender, receiver, packet[SEQUENCE_NUMBER])
 
 
-def _send_ack(sender, receiver):
-    return
+def _send_ack(sender, receiver, seq_number):
+    """
+    Send an acknowledge message from the sender to the receiver.
+    Args:
+        sender (string): The sender ID
+        receiver (string): The receiver ID
+        seq_number (string): The sequence number which to ACK
+    """
+    Logger.get_instance().log('sending ACK from ' + receiver + " to " + sender)
+    host_receiver = network.get_host(receiver)
+    host_receiver.send_ack(sender, seq_number)
 
 
-def _send_superdense(sender, receiver, payload, rec_sequence_num):
+def _send_superdense(packet):
     """
     Encodes and sends a qubit to send a superdense message.
 
     Args:
-        sender (Host): Sender of the superdense message
-        receiver (Host): Receiver of the superdense qubit
-        payload (string): The message to be sent
-        rec_sequence_num (int): Sequence number of the packet
+        packet (dict): The packet in which to transmit.
     """
+    sender = packet[SENDER]
+    receiver = packet[RECEIVER]
     host_sender = network.get_host(sender)
+
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        q_id = str(uuid.uuid4())
-        packet = encode(sender, receiver, REC_EPR, payload={'q_id': q_id},
-                        payload_type=SIGNAL)
-        network.send(packet)
+        host_sender.send_epr(receiver)
 
     q_superdense = host_sender.get_epr(receiver)
     while q_superdense is None:
         q_superdense = host_sender.get_epr(receiver)
 
-    if q_superdense is None:
-        print('q is none')
-
-    _encode_superdense(payload, q_superdense['q'])
-    packet = encode(sender, receiver, REC_SUPERDENSE, [q_superdense], QUANTUM, rec_sequence_num)
+    _encode_superdense(packet[PAYLOAD], q_superdense['q'])
+    packet[PAYLOAD] = [q_superdense]
+    packet[PROTOCOL] = REC_SUPERDENSE
+    packet[PAYLOAD_TYPE] = QUANTUM
     network.send(packet)
 
 
-def _rec_superdense(sender, receiver, payload, rec_sequence_num):
+def _rec_superdense(packet):
     """
     Receives a superdense qubit and decodes it.
 
     Args:
-        sender (Host): Sender of the superdense message
-        receiver (Host): Receiver of the superdense qubit
-        payload (dict): The message that contains the qubit ID
-        rec_sequence_num (int): Sequence number of the packet
+       packet (dict): The packet in which to receive.
 
     Returns:
-        dict : A dictionary consisting of decoded superdense message and sequence number
+        dict: A dictionary consisting of decoded superdense message and sequence number
     """
+    receiver = packet[RECEIVER]
+    sender = packet[SENDER]
+    payload = packet[PAYLOAD]
+
     host_receiver = network.get_host(receiver)
 
     q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
@@ -375,10 +362,23 @@ def _rec_superdense(sender, receiver, payload, rec_sequence_num):
     while q2 is None:
         q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
 
-    return {'message': _decode_superdense(q1, q2), 'sequence_number': rec_sequence_num}
+    if packet[SEND_ACK]:
+        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
+
+    return {'message': _decode_superdense(q1, q2), SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
 
 
 def _add_checksum(sender, qubits, size=2):
+    """
+    Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
+    Args:
+        sender: The sender name
+        qubits: The set of qubits to encode
+        size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+
+    Returns:
+        list: A list of qubits that are encoded for *qubits*
+    """
     i = 0
     check_qubits = []
     while i < len(qubits):
@@ -398,10 +398,8 @@ def _encode_superdense(message, q):
     Encode qubit q with the 2 bit message.
 
     Args:
-
         message: the message to encode
-        qubit: the qubit to encode the message
-
+        q: the qubit to encode the message
     """
     if message == '00':
         # do nothing (i.e. perform identity)
@@ -419,11 +417,11 @@ def _encode_superdense(message, q):
 
 def _decode_superdense(q1, q2):
     """
-    Return the message encoded into qA with the support of qB.
+    Return the message encoded into q1 with the support of q2.
 
     Args:
-    qA: the qubit the message is encoded into
-    qB: the supporting entangled pair
+    q1: the qubit the message is encoded into
+    q1: the supporting entangled pair
 
     Returns:
         string: A string of decoded message.

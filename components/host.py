@@ -3,6 +3,7 @@ from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
 import uuid
+import time
 
 
 class Host:
@@ -48,26 +49,23 @@ class Host:
             self.seq_number[receiver] += 1
         return self.seq_number[receiver]
 
-    def _process_message(self, message):
+    def _process_packet(self, packet):
         """
         Processes the received packet.
 
         Args:
-            message (dict): The received packet
+            packet (dict): The received packet
         """
 
-        sender = message['sender']
-        result = protocols.process(message)
+        sender = packet['sender']
+        result = protocols.process(packet)
         if result is not None:
-            if 'sequence_number' not in result.keys():
-                self._classical.append({'sender': sender, 'message': result['message']})
-                self.logger.log(self.cqc.name + ' received ' + result['message'])
-            else:
-                self._classical.append({
-                    'sender': sender,
-                    'message': result['message'],
-                    'sequence_number': result['sequence_number']
-                })
+            self._classical.append({
+                'sender': sender,
+                'message': result['message'],
+                'sequence_number': result['sequence_number']
+            })
+            if result['message'] != protocols.ACK:
                 self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(
                     result['sequence_number']))
 
@@ -82,11 +80,12 @@ class Host:
             if self._stop_thread:
                 break
 
+            time.sleep(0.1)
             if not self._packet_queue.empty():
-                message = self._packet_queue.get()
-                if not message:
+                packet = self._packet_queue.get()
+                if not packet:
                     raise Exception('empty message')
-                DaemonThread(self._process_message, args=(message,))
+                DaemonThread(self._process_packet, args=(packet,))
 
     def rec_packet(self, packet):
         """
@@ -107,7 +106,29 @@ class Host:
         """
         self.connections.append(receiver_id)
 
-    def send_classical(self, receiver, message):
+    def rec_ack(self):
+        pass
+
+    def send_ack(self, receiver, seq_number):
+        """
+        Sends the classical message to the receiver host with
+        ID:receiver
+
+        Args:
+            receiver (string): The ID of the host to send the message.
+            seq_number (int): Sequence number of the acknowleged packet.
+
+        """
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver,
+                                  protocol=protocols.SEND_CLASSICAL,
+                                  payload=protocols.ACK,
+                                  payload_type=protocols.SIGNAL,
+                                  sequence_num=seq_number,
+                                  send_ack=False)
+        self._packet_queue.put(packet)
+
+    def send_classical(self, receiver, message, send_ack=False):
         """
         Sends the classical message to the receiver host with
         ID:receiver
@@ -115,54 +136,65 @@ class Host:
         Args:
             receiver (string): The ID of the host to send the message.
             message (string): The classical message to send.
+            send_ack (bool): If sender should wait for an ACK.
 
         """
-        packet = protocols.encode(self.host_id, receiver,
-                                  protocols.SEND_CLASSICAL,
-                                  message,
-                                  protocols.CLASSICAL,
-                                  self._get_sequence_number(receiver))
-        self.logger.log('sent classical')
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver,
+                                  protocol=protocols.SEND_CLASSICAL,
+                                  payload=message,
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=self._get_sequence_number(receiver),
+                                  send_ack=send_ack)
         self._packet_queue.put(packet)
 
-    def send_epr(self, receiver_id):
+    def send_epr(self, receiver_id, q_id=None, send_ack=False):
         """
         Establish an EPR pair with the receiver and return the qubit
         ID of pair.
 
         Args:
             receiver_id (string): The receiver ID
-
+            q_id (string): The ID of the qubit
+            send_ack (bool): If sender should wait for an ACK.
         Returns:
             string: The qubit ID of the EPR pair.
         """
-        q_id = str(uuid.uuid4())
+        if q_id is None:
+            q_id = str(uuid.uuid4())
+
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload=q_id,
+                                  payload={'q_id': q_id},
                                   payload_type=protocols.SIGNAL,
-                                  sequence_num=self._get_sequence_number(receiver_id))
+                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  send_ack=send_ack)
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
         return q_id
 
-    def send_teleport(self, receiver_id, q):
+    def send_teleport(self, receiver_id, q, send_ack=False):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
         Args:
             receiver_id (string): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
-
+            send_ack (bool): If sender should wait for an ACK.
         """
-        packet = protocols.encode(self.host_id, receiver_id, protocols.SEND_TELEPORT, {'q': q}, protocols.SIGNAL,
-                                  self._get_sequence_number(receiver_id))
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_id,
+                                  protocol=protocols.SEND_TELEPORT,
+                                  payload={'q': q},
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  send_ack=send_ack)
 
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver_id)
         self._packet_queue.put(packet)
 
-    def send_superdense(self, receiver_id, message):
+    def send_superdense(self, receiver_id, message, send_ack=False):
         """
         Send the two bit binary (i.e. '00', '01', '10', '11) message via superdense
         coding to the receiver with receiver ID *receiver_id*.
@@ -170,31 +202,35 @@ class Host:
         Args:
             receiver_id (string): The receiver ID to send the message to
             message (string): The two bit binary message
+            send_ack (bool): If sender should wait for an ACK.
 
         """
-        packet = protocols.encode(self.host_id,
-                                  receiver_id,
-                                  protocols.SEND_SUPERDENSE,
-                                  message,
-                                  protocols.CLASSICAL,
-                                  self._get_sequence_number(receiver_id))
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_id,
+                                  protocol=protocols.SEND_SUPERDENSE,
+                                  payload=message,
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  send_ack=send_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
-    def send_qubit(self, receiver_id, q):
+    def send_qubit(self, receiver_id, q, send_ack=False):
         """
         Send the qubit *q* to the receiver with ID *receiver_id*.
         Args:
             receiver_id (string): The receiver ID to send the message to
             q (Qubit): The qubit to send
-
+            send_ack (bool): If sender should wait for an ACK.
         """
         q_id = str(uuid.uuid4())
-        packet = protocols.encode(self.host_id, receiver_id,
-                                  protocols.SEND_QUBIT,
-                                  {'q': q, 'q_id': q_id, 'blocked': True},
-                                  protocols.QUANTUM,
-                                  self._get_sequence_number(receiver_id))
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_id,
+                                  protocol=protocols.SEND_QUBIT,
+                                  payload=[{'q': q, 'q_id': q_id, 'blocked': True}],
+                                  payload_type=protocols.QUANTUM,
+                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  send_ack=send_ack)
 
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
         self._packet_queue.put(packet)

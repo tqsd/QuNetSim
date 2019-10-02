@@ -211,9 +211,7 @@ class Network:
         host_sender = self.get_host(sender)
 
         for i in range(len(route) - 1):
-            packet = protocols.encode(route[i], route[i + 1], protocols.SEND_EPR, q_id,
-                                      payload_type=protocols.SIGNAL)
-            self.get_host(route[i]).rec_packet(packet)
+            self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
 
         # TODO: wait for acknowledgements from the above process
         time.sleep(3)
@@ -226,7 +224,11 @@ class Network:
 
             data = {'q': q['q'], 'q_id': q['q_id'], 'node': sender, 'type': protocols.EPR}
 
-            packet = protocols.encode(route[i + 1], route[i + 2], protocols.SEND_TELEPORT, data,
+            # TODO: modify the application send_teleport in host to do this
+            packet = protocols.encode(route[i + 1],
+                                      route[i + 2],
+                                      protocols.SEND_TELEPORT,
+                                      data,
                                       payload_type=protocols.SIGNAL)
             Logger.get_instance().log(sender + " sends EPR to " + receiver)
             self.get_host(route[i + 1]).rec_packet(packet)

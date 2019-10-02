@@ -87,14 +87,14 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../protocols.html">Protocols</a></li>
 </ul>
 
             
@@ -186,12 +186,12 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="components.host.Host._process_message">
-<code class="sig-name descname">_process_message</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._process_message" title="Permalink to this definition">¶</a></dt>
+<dt id="components.host.Host._process_packet">
+<code class="sig-name descname">_process_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._process_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Processes the received packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – The received packet</p>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The received packet</p>
 </dd>
 </dl>
 </dd></dl>
@@ -216,12 +216,14 @@
 <dl class="method">
 <dt id="components.host.Host.add_data_qubit">
 <code class="sig-name descname">add_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_data_qubit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds the data qubit to the data qubit store of a host . If the qubit has an ID , adds the qubit with it , otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
+<dd><p>Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
+otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
+<li><p><strong>partner_id</strong> – The ID of the host to pair the qubit</p></li>
 <li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
+<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -236,12 +238,14 @@
 <dl class="method">
 <dt id="components.host.Host.add_epr">
 <code class="sig-name descname">add_epr</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_epr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds the EPR to the EPR store of a host . If the EPR has an ID , adds the EPR with it , otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
+<dd><p>Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
+otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
+<li><p><strong>partner_id</strong> – The ID of the host to pair the qubit</p></li>
 <li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
+<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -270,7 +274,8 @@
 <dl class="method">
 <dt id="components.host.Host.get_data_qubit">
 <code class="sig-name descname">get_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_data_qubit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the data qubit received from another host in the network. If qubit ID is specified, qubit with that ID is returned, else, the last qubit received is returned.</p>
+<dd><p>Gets the data qubit received from another host in the network. If qubit ID is specified,
+qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -288,9 +293,33 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.get_data_qubits">
+<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
+Does not remove the qubits from storage like <em>get_data_qubit</em> does.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>optional</em>) – If set,</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>If <em>host_id</em> is not set, then return the entire dictionary of data qubits.</dt><dd><p>Else If <em>host_id</em> is set, then return the data qubits for that particular host if there are any.
+Return an empty list otherwise.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.get_epr">
 <code class="sig-name descname">get_epr</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_epr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the EPR that is entangled with another host in the network. If qubit ID is specified, EPR with that ID is returned, else, the last EPR added is returned.</p>
+<dd><p>Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
+EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -308,6 +337,29 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.get_epr_pairs">
+<code class="sig-name descname">get_epr_pairs</code><span class="sig-paren">(</span><em class="sig-param">host_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_epr_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
+Does not remove the qubits from storage like <em>get_epr_pair</em> does.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>optional</em>) – If set,</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>If <em>host_id</em> is not set, then return the entire dictionary of EPR pairs.</dt><dd><p>Else If <em>host_id</em> is set, then return the EPRs for that particular host if there are any.
+Return an empty list otherwise.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.rec_packet">
 <code class="sig-name descname">rec_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.rec_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Puts the packet into the packet queue of the host.</p>
@@ -319,8 +371,23 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.send_ack">
+<code class="sig-name descname">send_ack</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">seq_number</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the classical message to the receiver host with
+ID:receiver</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
+<li><p><strong>seq_number</strong> (<em>int</em>) – Sequence number of the acknowleged packet.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.send_classical">
-<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">message</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the classical message to the receiver host with
 ID:receiver</p>
 <dl class="field-list simple">
@@ -328,6 +395,7 @@ ID:receiver</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
 <li><p><strong>message</strong> (<em>string</em>) – The classical message to send.</p></li>
+<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 </dl>
@@ -335,12 +403,16 @@ ID:receiver</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_epr">
-<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Establish an EPR pair with the receiver and return the qubit
 ID of pair.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID</p></li>
+<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit</p></li>
+<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The qubit ID of the EPR pair.</p>
@@ -352,8 +424,20 @@ ID of pair.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.send_qubit">
+<code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the qubit <em>q</em> to the receiver with ID <em>receiver_id</em>.
+:param receiver_id: The receiver ID to send the message to
+:type receiver_id: string
+:param q: The qubit to send
+:type q: Qubit
+:param send_ack: If sender should wait for an ACK.
+:type send_ack: bool</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.send_superdense">
-<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the two bit binary (i.e. ‘00’, ‘01’, ‘10’, ‘11) message via superdense
 coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
@@ -361,6 +445,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID to send the message to</p></li>
 <li><p><strong>message</strong> (<em>string</em>) – The two bit binary message</p></li>
+<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 </dl>
@@ -368,14 +453,56 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_teleport">
-<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">q</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teleports the qubit <em>q</em> with the receiver with host ID <em>receiver</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
+<li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
 <li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
+<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.set_data_qubit_memory_limit">
+<code class="sig-name descname">set_data_qubit_memory_limit</code><span class="sig-paren">(</span><em class="sig-param">limit</em>, <em class="sig-param">partner_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_data_qubit_memory_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the limit to how many data qubits can be stored from partner_id, or if partner_id is not set,
+use the limit for all connections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limit</strong> (<em>int</em>) – The maximum number of qubits for the memory</p></li>
+<li><p><strong>partner_id</strong> (<em>str</em>) – (optional) The partner ID to set the limit with</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.set_epr_memory_limit">
+<code class="sig-name descname">set_epr_memory_limit</code><span class="sig-paren">(</span><em class="sig-param">limit</em>, <em class="sig-param">partner_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_epr_memory_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the limit to how many EPR pair halves can be stored from partner_id, or if partner_id is not set,
+use the limit for all connections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limit</strong> (<em>int</em>) – The maximum number of qubits for the memory</p></li>
+<li><p><strong>partner_id</strong> (<em>str</em>) – (optional) The partner ID to set the limit with</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.set_memory_limit">
+<code class="sig-name descname">set_memory_limit</code><span class="sig-paren">(</span><em class="sig-param">limit</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_memory_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the default maximum size limit a memory can have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>limit</strong> (<em>int</em>) – The size of the memory.</p>
 </dd>
 </dl>
 </dd></dl>

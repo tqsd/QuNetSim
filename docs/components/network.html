@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Install" href="../install.html" />
+    <link rel="next" title="Protocols" href="protocols.html" />
     <link rel="prev" title="Host" href="host.html" /> 
 </head>
 
@@ -87,14 +87,14 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="host.html">Host</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../protocols.html">Protocols</a></li>
 </ul>
 
             
@@ -171,7 +171,8 @@
 <dl class="method">
 <dt id="components.network.Network._entanglement_swap">
 <code class="sig-name descname">_entanglement_swap</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">route</em>, <em class="sig-param">q_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._entanglement_swap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair between sender and receiver.</p>
+<dd><p>Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
+between sender and receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -236,7 +237,8 @@
 <dl class="method">
 <dt id="components.network.Network.encode">
 <code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl=10</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+<dd><p>Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
+protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
 Time-To-Live information in this layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -351,6 +353,28 @@ Time-To-Live information in this layer.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.network.Network.set_delay">
+<code class="sig-name descname">set_delay</code><span class="sig-paren">(</span><em class="sig-param">delay</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.set_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the delay interval of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>delay</strong> (<em>float</em>) – Delay in network tick in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.set_routing_algo">
+<code class="sig-name descname">set_routing_algo</code><span class="sig-paren">(</span><em class="sig-param">algorithm</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.set_routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the routing algorithm for the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>algorithm</strong> (<em>function</em>) – The routing function. Should return a list of host_ids which represents the route</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network.shares_epr">
 <code class="sig-name descname">shares_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.shares_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns boolean value dependent on if the sender and receiver share an EPR pair.</p>
@@ -394,7 +418,7 @@ Time-To-Live information in this layer.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../install.html" class="btn btn-neutral float-right" title="Install" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="protocols.html" class="btn btn-neutral float-right" title="Protocols" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="host.html" class="btn btn-neutral float-left" title="Host" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

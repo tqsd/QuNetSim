@@ -1,4 +1,8 @@
+from simulaqron.network import Network as SimulaNetwork
+from simulaqron.settings import simulaqron_settings
+
 from cqc.pythonLib import CQCConnection, qubit
+
 import sys
 import time
 
@@ -8,51 +12,53 @@ from components.network import Network
 
 
 def main():
-    network = Network.get_instance()
-    network.start()
-    print('')
+    # nodes = ["Bob", "Alice"]
+    # sim_network = SimulaNetwork(nodes=nodes, force=True)
+    # sim_network.start()
 
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
-            CQCConnection('Eve') as Eve:
+    # time.sleep(1)
+
+    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+
+        network = Network.get_instance()
+        network.start()
+        print('')
 
         host_alice = Host('00000000', Alice)
-        host_alice.add_connection('00000001')
-        host_alice.start()
-
         host_bob = Host('00000001', Bob)
-        host_bob.add_connection('00000011')
-        host_bob.start()
 
-        host_eve = Host('00000011', Eve)
-        host_eve.start()
+        host_bob.add_connection('00000000')
+
+        host_alice.start()
+        host_bob.start()
 
         network.add_host(host_alice)
         network.add_host(host_bob)
-        network.add_host(host_eve)
 
         q1 = qubit(Alice)
         q1.X()
 
-        host_alice.send_teleport('00000011', q1)
+        q_id = host_alice.send_qubit('00000001', q1)
 
         time.sleep(10)
 
-        q = host_eve.get_data_qubit(host_alice.host_id)
-        print(q['q'].measure())
+        q = host_bob.get_data_qubit(host_alice.host_id, q_id)
+        assert q is not None
+        print(q.measure())
 
-        # host_alice.send_teleport('00000011', q2)
-        # host_alice.send_teleport('00000011', q3)
-
-        nodes = [host_alice, host_bob, host_eve]
-
+        nodes = [host_alice, host_bob]
         start_time = time.time()
 
-        while time.time() - start_time < 10:
+        while time.time() - start_time < 5:
             pass
 
         for h in nodes:
             h.stop()
         network.stop()
 
+        # sim_network.stop()
+        # simulaqron_settings.default_settings()
 
-main()
+
+if __name__ == '__main__':
+    main()

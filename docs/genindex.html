@@ -176,6 +176,8 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/protocols.html#components.protocols._add_checksum">_add_checksum() (in module components.protocols)</a>
+</li>
       <li><a href="components/protocols.html#components.protocols._decode_superdense">_decode_superdense() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._encode_superdense">_encode_superdense() (in module components.protocols)</a>
@@ -184,9 +186,7 @@
 </li>
       <li><a href="components/host.html#components.host.Host._get_sequence_number">_get_sequence_number() (components.host.Host method)</a>
 </li>
-      <li><a href="components/protocols.html#components.protocols._parse_message">_parse_message() (in module components.protocols)</a>
-</li>
-      <li><a href="components/host.html#components.host.Host._process_message">_process_message() (components.host.Host method)</a>
+      <li><a href="components/host.html#components.host.Host._process_packet">_process_packet() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host._process_queue">_process_queue() (components.host.Host method)</a>
 
@@ -196,10 +196,12 @@
       </ul></li>
       <li><a href="components/protocols.html#components.protocols._rec_classical">_rec_classical() (in module components.protocols)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#components.protocols._rec_epr">_rec_epr() (in module components.protocols)</a>
 </li>
+      <li><a href="components/protocols.html#components.protocols._rec_qubit">_rec_qubit() (in module components.protocols)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#components.protocols._rec_superdense">_rec_superdense() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._rec_teleport">_rec_teleport() (in module components.protocols)</a>
@@ -210,9 +212,13 @@
 </li>
       <li><a href="components/network.html#components.network.Network._route_quantum_info">_route_quantum_info() (components.network.Network method)</a>
 </li>
+      <li><a href="components/protocols.html#components.protocols._send_ack">_send_ack() (in module components.protocols)</a>
+</li>
       <li><a href="components/protocols.html#components.protocols._send_classical">_send_classical() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._send_epr">_send_epr() (in module components.protocols)</a>
+</li>
+      <li><a href="components/protocols.html#components.protocols._send_qubit">_send_qubit() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._send_superdense">_send_superdense() (in module components.protocols)</a>
 </li>
@@ -280,9 +286,13 @@
 </li>
       <li><a href="components/host.html#components.host.Host.get_data_qubit">get_data_qubit() (components.host.Host method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.get_data_qubits">get_data_qubits() (components.host.Host method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#components.host.Host.get_epr">get_epr() (components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.get_epr_pairs">get_epr_pairs() (components.host.Host method)</a>
 </li>
       <li><a href="components/network.html#components.network.Network.get_host">get_host() (components.network.Network method)</a>
 </li>
@@ -334,16 +344,30 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#components.network.Network.send">send() (components.network.Network method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.send_ack">send_ack() (components.host.Host method)</a>
+</li>
       <li><a href="components/host.html#components.host.Host.send_classical">send_classical() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.send_epr">send_epr() (components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.send_qubit">send_qubit() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.send_superdense">send_superdense() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.send_teleport">send_teleport() (components.host.Host method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.set_data_qubit_memory_limit">set_data_qubit_memory_limit() (components.host.Host method)</a>
+</li>
+      <li><a href="components/network.html#components.network.Network.set_delay">set_delay() (components.network.Network method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#components.host.Host.set_epr_memory_limit">set_epr_memory_limit() (components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.set_memory_limit">set_memory_limit() (components.host.Host method)</a>
+</li>
+      <li><a href="components/network.html#components.network.Network.set_routing_algo">set_routing_algo() (components.network.Network method)</a>
+</li>
       <li><a href="components/host.html#components.host.Host.shares_epr">shares_epr() (components.host.Host method)</a>
 
       <ul>

@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Install" href="../install.html" />
+    <link rel="next" title="Examples" href="../examples.html" />
     <link rel="prev" title="Network" href="network.html" /> 
 </head>
 
@@ -87,13 +87,13 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="host.html">Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="network.html">Network</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 
@@ -164,12 +164,29 @@
   <div class="section" id="module-components.protocols">
 <span id="protocols"></span><h1>Protocols<a class="headerlink" href="#module-components.protocols" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
+<dt id="components.protocols._add_checksum">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_add_checksum</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">qubits</em>, <em class="sig-param">size=2</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._add_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of qubits that represent a quantum checksum for the set of qubits <em>qubits</em>
+:param sender: The sender name
+:param qubits: The set of qubits to encode
+:param size: The size of the checksum per qubit (i.e. 1 qubit encoded into <em>size</em>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of qubits that are encoded for <em>qubits</em></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="components.protocols._decode_superdense">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_decode_superdense</code><span class="sig-paren">(</span><em class="sig-param">qA</em>, <em class="sig-param">qB</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._decode_superdense" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the message encoded into qA with the support of qB.</p>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_decode_superdense</code><span class="sig-paren">(</span><em class="sig-param">q1</em>, <em class="sig-param">q2</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._decode_superdense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the message encoded into q1 with the support of q2.</p>
 <p>Args:
-qA: the qubit the message is encoded into
-qB: the supporting entangled pair</p>
+q1: the qubit the message is encoded into
+q1: the supporting entangled pair</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A string of decoded message.</p>
@@ -188,41 +205,20 @@ qB: the supporting entangled pair</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>message</strong> – the message to encode</p></li>
-<li><p><strong>qubit</strong> – the qubit to encode the message</p></li>
+<li><p><strong>q</strong> – the qubit to encode the message</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="components.protocols._parse_message">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_parse_message</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._parse_message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses the packet to its components : sender, receiver, protocol, payload, payload_type, sequence number.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Packet to be parsed</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Sender of the packet, receiver of the packet,  the protocol which the packet should be processed, payload, type of the payload, sequence number of the packet</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Host, Host, string, <em>depends on protocol</em>, string, int</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="components.protocols._rec_classical">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_classical</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_classical" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an ACK message to receiver.</p>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_classical</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_classical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an
+ACK message to receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the message</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the message</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – Packet to be parsed</p></li>
-<li><p><strong>rec_sequence_num</strong> – Sequence number of the received packet</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -235,11 +231,12 @@ qB: the supporting entangled pair</p>
 
 <dl class="function">
 <dt id="components.protocols._rec_epr">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_epr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an ACK message to receiver.</p>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_epr</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an ACK message to
+receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Packet to be parsed</p>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -251,17 +248,23 @@ qB: the supporting entangled pair</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="components.protocols._rec_qubit">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_qubit</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a packet containing qubit information (qubit is transmitted externally)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to receive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="components.protocols._rec_superdense">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_superdense</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_superdense" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_superdense</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_superdense" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receives a superdense qubit and decodes it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the superdense message</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the superdense qubit</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – The message that contains the qubit ID</p></li>
-<li><p><strong>rec_sequence_num</strong> (<em>int</em>) – Sequence number of the packet</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of decoded superdense message and sequence number</p>
@@ -274,100 +277,96 @@ qB: the supporting entangled pair</p>
 
 <dl class="function">
 <dt id="components.protocols._rec_teleport">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_teleport</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_teleport" title="Permalink to this definition">¶</a></dt>
-<dd><p>Receives a classical message and applies the required operations to EPR pair entangled with the sender to retrieve the teleported qubit.</p>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_teleport</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_teleport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message and applies the required operations to EPR pair entangled with the sender to
+retrieve the teleported qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the teleported qubit</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the teleported qubit</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – A dictionary consisting of information about the measurements necessary to complete the teleportation and the initial receiver of the qubit if qubit is an EPR qubit.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to receive.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="components.protocols._relay_message">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_relay_message</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._relay_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_relay_message</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._relay_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the message to be relayed to the next node in the network and modifies the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the packet</p></li>
-<li><p><strong>packet</strong> (<em>dict</em>) – Packet to be relayed</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – Packet to be relayed</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
+<dt id="components.protocols._send_ack">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_ack</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq_number</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an acknowledge message from the sender to the receiver.
+:param sender: The sender ID
+:type sender: string
+:param receiver: The receiver ID
+:type receiver: string
+:param seq_number: The sequence number which to ACK
+:type seq_number: string</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="components.protocols._send_classical">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_classical</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">message</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_classical</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends a classical message to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the message</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the message</p></li>
-<li><p><strong>message</strong> (<em>string</em>) – Message to be sent</p></li>
-<li><p><strong>rec_sequence_num</strong> (<em>int</em>) – Sequence number of the packet</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="components.protocols._send_epr">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_epr</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends an EPR to another host in the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the EPR</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the EPR</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – A dictionary consisting of qubit ID of the EPR pair</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
+<dt id="components.protocols._send_qubit">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_qubit</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transmit the qubit
+:param packet: The packet in which to transmit.
+:type packet: dict</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="components.protocols._send_superdense">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_superdense</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_superdense" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_superdense</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_superdense" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes and sends a qubit to send a superdense message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the superdense message</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the superdense qubit</p></li>
-<li><p><strong>payload</strong> (<em>string</em>) – The message to be sent</p></li>
-<li><p><strong>rec_sequence_num</strong> (<em>int</em>) – Sequence number of the packet</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="components.protocols._send_teleport">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_teleport</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">rec_sequence_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_teleport</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does the measurements for teleportation of a qubit and sends the measurement results to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the teleported qubit</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the teleported qubit</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – A dictionary consisting of information about the teleported qubit , such as the type of the qubit (EPR or DATA) , if it is EPR the initial sender of the qubit.</p></li>
-<li><p><strong>rec_sequence_num</strong> (<em>int</em>) – Sequence number of the packet to be sent</p></li>
-</ul>
+<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="components.protocols.encode">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">payload_type=''</em>, <em class="sig-param">sequence_num=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet with data and the header.</p>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">payload_type=''</em>, <em class="sig-param">sequence_num=-1</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
+with data and the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -377,6 +376,7 @@ qB: the supporting entangled pair</p>
 <li><p><strong>payload</strong> – The message that is intended to send with the packet. Type of payload depends on the protocol.</p></li>
 <li><p><strong>payload_type</strong> (<em>string</em>) – Type of the payload.</p></li>
 <li><p><strong>sequence_num</strong> (<em>int</em>) – Sequence number of the packet.</p></li>
+<li><p><strong>send_ack</strong> (<em>bool</em>) – If the sender should expect an ACK returned</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -412,7 +412,7 @@ qB: the supporting entangled pair</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../install.html" class="btn btn-neutral float-right" title="Install" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="network.html" class="btn btn-neutral float-left" title="Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
