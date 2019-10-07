@@ -258,6 +258,13 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.await_ack">
+<code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param">sequence_number</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Block until an ACK for packet with sequence number arrives.
+:param sequence_number: The sequence number to wait for.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.get_classical_messages">
 <code class="sig-name descname">get_classical_messages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_classical_messages" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the received classical messages sorted with the sequence number.</p>
@@ -387,15 +394,15 @@ ID:receiver</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_classical">
-<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">message</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the classical message to the receiver host with
 ID:receiver</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
+<li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
 <li><p><strong>message</strong> (<em>string</em>) – The classical message to send.</p></li>
-<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 </dl>
@@ -403,7 +410,7 @@ ID:receiver</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_epr">
-<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Establish an EPR pair with the receiver and return the qubit
 ID of pair.</p>
 <dl class="field-list simple">
@@ -411,7 +418,7 @@ ID of pair.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID</p></li>
 <li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit</p></li>
-<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -425,19 +432,19 @@ ID of pair.</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_qubit">
-<code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the qubit <em>q</em> to the receiver with ID <em>receiver_id</em>.
 :param receiver_id: The receiver ID to send the message to
 :type receiver_id: string
 :param q: The qubit to send
 :type q: Qubit
-:param send_ack: If sender should wait for an ACK.
-:type send_ack: bool</p>
+:param await_ack: If sender should wait for an ACK.
+:type await_ack: bool</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.host.Host.send_superdense">
-<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the two bit binary (i.e. ‘00’, ‘01’, ‘10’, ‘11) message via superdense
 coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
@@ -445,7 +452,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID to send the message to</p></li>
 <li><p><strong>message</strong> (<em>string</em>) – The two bit binary message</p></li>
-<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 </dl>
@@ -453,14 +460,14 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_teleport">
-<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teleports the qubit <em>q</em> with the receiver with host ID <em>receiver</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
 <li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
-<li><p><strong>send_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
 </dl>

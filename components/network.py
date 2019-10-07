@@ -19,7 +19,6 @@ class Network:
         return Network.__instance
 
     def __init__(self):
-
         if Network.__instance is None:
             self.ARP = {}
             self.network = nx.DiGraph()

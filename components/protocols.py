@@ -1,12 +1,13 @@
 from cqc.pythonLib import qubit
 import uuid
+import asyncio
 
 # DATA TYPES
 from components.logger import Logger
 from components.network import Network
 
 # CONSTANTS
-SEND_ACK = 'send_ack'
+AWAIT_ACK = 'await_ack'
 SEQUENCE_NUMBER = 'sequence_number'
 PAYLOAD = 'payload'
 PAYLOAD_TYPE = 'payload_type'
@@ -79,7 +80,7 @@ def process(packet):
         Logger.get_instance().error('protocol not defined')
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, send_ack=False):
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
     """
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
     with data and the header.
@@ -91,7 +92,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
         payload_type(string): Type of the payload.
         sequence_num(int): Sequence number of the packet.
-        send_ack(bool): If the sender should expect an ACK returned
+        await_ack(bool): If the sender should await an ACK
     Returns:
          dict: Encoded packet
 
@@ -104,7 +105,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         PAYLOAD_TYPE: payload_type,
         PAYLOAD: payload,
         SEQUENCE_NUMBER: sequence_num,
-        SEND_ACK: send_ack
+        AWAIT_ACK: await_ack
     }
     return packet
 
@@ -150,8 +151,8 @@ def _rec_classical(packet):
         Logger.get_instance().log(packet[RECEIVER] + " received ACK from " + packet[SENDER]
                                   + " with sequence number " + str(packet[SEQUENCE_NUMBER]))
 
-    if packet[SEND_ACK]:
-        _send_ack(packet[RECEIVER], packet[SENDER], packet[SEQUENCE_NUMBER])
+    if packet[AWAIT_ACK]:
+        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
     return {'message': packet[PAYLOAD], 'sequence_number': packet[SEQUENCE_NUMBER]}
 
@@ -175,8 +176,8 @@ def _rec_qubit(packet):
     """
     Logger.get_instance().log(
         packet[RECEIVER] + ' received qubit ' + packet[PAYLOAD][0]['q_id'] + ' from ' + packet[SENDER])
-    if packet[SEND_ACK]:
-        _send_ack(packet[RECEIVER], packet[SENDER], packet[SEQUENCE_NUMBER])
+    if packet[AWAIT_ACK]:
+        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
 
 def _send_teleport(packet):
@@ -203,15 +204,9 @@ def _send_teleport(packet):
     if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
         Logger.get_instance().log(
             'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
-        q_id = str(uuid.uuid4())
-        packet = encode(packet[SENDER], packet[RECEIVER], REC_EPR, payload={'q_id': q_id},
-                        payload_type=SIGNAL)
-        network.send(packet)
+        host_sender.send_epr(packet[RECEIVER], await_ack=True)
 
     epr_teleport = host_sender.get_epr(packet[RECEIVER])
-
-    while epr_teleport is None:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER])
 
     q.cnot(epr_teleport['q'])
     q.H()
@@ -258,7 +253,7 @@ def _rec_teleport(packet):
     elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
-    if packet[SEND_ACK]:
+    if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
 
@@ -295,7 +290,7 @@ def _rec_epr(packet):
     else:
         host_receiver.add_epr(sender, q, q_id=payload['q_id'])
 
-    if packet[SEND_ACK]:
+    if packet[AWAIT_ACK]:
         _send_ack(sender, receiver, packet[SEQUENCE_NUMBER])
 
 
@@ -325,11 +320,9 @@ def _send_superdense(packet):
 
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        host_sender.send_epr(receiver)
+        host_sender.send_epr(receiver, await_ack=True)
 
     q_superdense = host_sender.get_epr(receiver)
-    while q_superdense is None:
-        q_superdense = host_sender.get_epr(receiver)
 
     _encode_superdense(packet[PAYLOAD], q_superdense['q'])
     packet[PAYLOAD] = [q_superdense]
@@ -362,7 +355,7 @@ def _rec_superdense(packet):
     while q2 is None:
         q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
 
-    if packet[SEND_ACK]:
+    if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
     return {'message': _decode_superdense(q1, q2), SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}

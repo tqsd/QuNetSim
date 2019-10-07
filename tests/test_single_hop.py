@@ -10,6 +10,7 @@ from simulaqron.settings import simulaqron_settings
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
+from components import protocols
 
 
 # @unittest.skip('')
@@ -135,6 +136,81 @@ class TestOneHop(unittest.TestCase):
             self.assertTrue(len(bob_messages) > 0)
             self.assertEqual(bob_messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(bob_messages[0]['message'], 'Hello Bob')
+
+    # @unittest.skip('')
+    def test_await_ack(self):
+        with CQCConnection("Bob") as Bob, CQCConnection("Alice") as Alice:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob)}
+
+            self.hosts = hosts
+
+            # A <-> B
+            hosts['alice'].add_connection('00000001')
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
+            hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
+            hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob two', await_ack=True)
+            print(f"ack test - SEND CLASSICAL - finished at {time.strftime('%X')}")
+
+            saw_ack_1 = False
+            saw_ack_2 = False
+            messages = hosts['alice'].get_classical_messages()
+            for m in messages:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 0:
+                    saw_ack_1 = True
+                if m['message'] == protocols.ACK and m['sequence_number'] == 1:
+                    saw_ack_2 = True
+                if saw_ack_1 and saw_ack_2:
+                    break
+
+            self.assertTrue(saw_ack_1)
+            self.assertTrue(saw_ack_2)
+
+            print(f"ack test - SEND SUPERDENSE - started at {time.strftime('%X')}")
+            hosts['alice'].send_superdense(hosts['bob'].host_id, '00', await_ack=True)
+            print(f"ack test - SEND SUPERDENSE - finished at {time.strftime('%X')}")
+
+            saw_ack = False
+            messages = hosts['alice'].get_classical_messages()
+            for m in messages:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 2:
+                    saw_ack = True
+                    break
+
+            self.assertTrue(saw_ack)
+
+            print(f"ack test - SEND TELEPORT - started at {time.strftime('%X')}")
+            hosts['alice'].send_teleport(hosts['bob'].host_id, qubit(Alice), await_ack=True)
+            print(f"ack test - SEND TELEPORT - finished at {time.strftime('%X')}")
+
+            saw_ack = False
+            messages = hosts['alice'].get_classical_messages()
+            for m in messages:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 3:
+                    saw_ack = True
+                    break
+
+            self.assertTrue(saw_ack)
+
+            print(f"ack test - SEND EPR - started at {time.strftime('%X')}")
+            hosts['alice'].send_epr(hosts['bob'].host_id, await_ack=True)
+            print(f"ack test - SEND EPR - finished at {time.strftime('%X')}")
+
+            saw_ack = False
+            messages = hosts['alice'].get_classical_messages()
+            for m in messages:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 4:
+                    saw_ack = True
+                    break
+
+            self.assertTrue(saw_ack)
 
     # @unittest.skip('')
     def test_epr(self):
@@ -350,7 +426,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_teleport_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),
@@ -458,7 +534,6 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
-            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].set_memory_limit(1)
             hosts['bob'].set_memory_limit(1)

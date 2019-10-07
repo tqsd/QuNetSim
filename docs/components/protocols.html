@@ -364,7 +364,7 @@ retrieve the teleported qubit.</p>
 
 <dl class="function">
 <dt id="components.protocols.encode">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">payload_type=''</em>, <em class="sig-param">sequence_num=-1</em>, <em class="sig-param">send_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">payload_type=''</em>, <em class="sig-param">sequence_num=-1</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
 with data and the header.</p>
 <dl class="field-list simple">
@@ -376,7 +376,7 @@ with data and the header.</p>
 <li><p><strong>payload</strong> – The message that is intended to send with the packet. Type of payload depends on the protocol.</p></li>
 <li><p><strong>payload_type</strong> (<em>string</em>) – Type of the payload.</p></li>
 <li><p><strong>sequence_num</strong> (<em>int</em>) – Sequence number of the packet.</p></li>
-<li><p><strong>send_ack</strong> (<em>bool</em>) – If the sender should expect an ACK returned</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If the sender should await an ACK</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
