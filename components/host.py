@@ -9,7 +9,7 @@ import time
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    def __init__(self, host_id, cqc, role='host'):
+    def __init__(self, host_id, cqc):
         """
         Return the most important thing about a person.
 
@@ -27,6 +27,8 @@ class Host:
         self._classical = []
         self.connections = []
         self.cqc = cqc
+        # Frequency of queue processing
+        self.delay = 0.1
         self.logger = Logger.get_instance()
         # Size of quantum memories (default -1, unlimited)
         self.memory_limit = -1
@@ -81,7 +83,7 @@ class Host:
             if self._stop_thread:
                 break
 
-            time.sleep(0.1)
+            time.sleep(self.delay)
             if not self._packet_queue.empty():
                 packet = self._packet_queue.get()
                 if not packet:

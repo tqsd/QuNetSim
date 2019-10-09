@@ -290,7 +290,8 @@ retrieve the teleported qubit.</p>
 <dl class="function">
 <dt id="components.protocols._relay_message">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_relay_message</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._relay_message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sends the message to be relayed to the next node in the network and modifies the header.</p>
+<dd><p>Reduce TTL of network packet and if TTL &gt; 0, sends the message to be relayed to the next
+node in the network and modifies the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – Packet to be relayed</p>

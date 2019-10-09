@@ -112,16 +112,16 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
 
 def _relay_message(packet):
     """
-    Sends the message to be relayed to the next node in the network and modifies the header.
+    Reduce TTL of network packet and if TTL > 0, sends the message to be relayed to the next
+    node in the network and modifies the header.
 
     Args:
         packet (dict): Packet to be relayed
 
     """
     packet['TTL'] -= 1
-    packet[SENDER] = packet[RECEIVER]
-    packet[RECEIVER] = packet[PAYLOAD][RECEIVER]
-    network.send(packet)
+    if packet['TTL'] != 0:
+        network.send(packet)
 
 
 def _send_classical(packet):

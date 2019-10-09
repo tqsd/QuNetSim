@@ -52,7 +52,7 @@ class TestTwoHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -64,6 +64,7 @@ class TestTwoHop(unittest.TestCase):
 
             hosts['alice'].add_connection('00000001')
             hosts['bob'].add_connection('00000011')
+
             hosts['alice'].start()
             hosts['bob'].start()
             hosts['eve'].start()
@@ -75,6 +76,40 @@ class TestTwoHop(unittest.TestCase):
 
             messages = hosts['eve'].get_classical_messages()
             i = 0
+            while i < TestTwoHop.MAX_WAIT and len(messages) == 0:
+                messages = hosts['eve'].get_classical_messages()
+                i += 1
+                time.sleep(1)
+
+            self.assertTrue(len(messages) > 0)
+            self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
+            self.assertEqual(messages[0]['message'], 'testing123')
+
+    # @unittest.skip('')
+    def test_full_network_routing(self):
+        with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
+            hosts = {'alice': Host('00000000', Alice),
+                     'bob': Host('00000001', Bob),
+                     'eve': Host('00000011', Eve)}
+
+            self.hosts = hosts
+            # A <-> B <-> E
+
+            hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000011')
+
+            hosts['alice'].start()
+            hosts['bob'].start()
+            hosts['eve'].start()
+
+            for h in hosts.values():
+                self.network.add_host(h)
+
+            self.network.use_hop_by_hop = False
+            hosts['alice'].send_classical(hosts['eve'].host_id, 'testing123')
+
+            i = 0
+            messages = hosts['eve'].get_classical_messages()
             while i < TestTwoHop.MAX_WAIT and len(messages) == 0:
                 messages = hosts['eve'].get_classical_messages()
                 i += 1

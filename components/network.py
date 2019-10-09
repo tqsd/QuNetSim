@@ -23,6 +23,7 @@ class Network:
             self.ARP = {}
             self.network = nx.DiGraph()
             self.routing_algo = nx.shortest_path
+            self.use_hop_by_hop = True
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
@@ -86,6 +87,11 @@ class Network:
             Logger.get_instance().error('attempted to remove a non-exiting node from network')
 
     def _update_network_graph(self, host):
+        """
+        Add host *host* to the network and update the graph representation of the network
+        Args:
+            host: The host to be added
+        """
         self.network.add_node(host.host_id)
 
         for connection in host.connections:
@@ -163,38 +169,6 @@ class Network:
         """
         return self.routing_algo(self.network, source=source, target=dest)
 
-    def _send_network_packet(self, src, dest, link_layer_packet):
-        network_packet = protocols.encode(src, dest, protocols.RELAY, link_layer_packet, protocols.SIGNAL)
-        self.ARP[dest].rec_packet(network_packet)
-
-        return None
-
-    def encode(self, sender, receiver, payload, ttl=10):
-        """
-        Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
-        protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
-        Time-To-Live information in this layer.
-
-        Args:
-            sender (Host): Sender of the packet
-            receiver (Host): Receiver of the packet
-            payload (dict): Lower layers of the packet
-            ttl(int): Time-to-Live parameter
-
-        Returns:
-            dict: Encoded RELAY packet
-        """
-
-        packet = {
-            'sender': sender,
-            'receiver': receiver,
-            'payload': payload,
-            'protocol': protocols.RELAY,
-            'payload_type': protocols.SIGNAL,
-            'TTL': ttl
-        }
-        return packet
-
     def _entanglement_swap(self, sender, receiver, route, q_id):
         """
         Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
@@ -211,9 +185,6 @@ class Network:
 
         for i in range(len(route) - 1):
             self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
-
-        # TODO: wait for acknowledgements from the above process
-        time.sleep(3)
 
         for i in range(len(route) - 2):
             q = None
@@ -287,19 +258,25 @@ class Network:
                 # delay for packet queries
                 time.sleep(self.delay)
                 packet = self._packet_queue.get()
+
                 sender, receiver = packet['sender'], packet['receiver']
 
                 if packet['payload_type'] == protocols.QUANTUM:
                     self._route_quantum_info(sender, receiver, packet['payload'])
 
                 try:
-                    # TODO: what to do if route doesn't exist?
-                    route = self.get_route(sender, receiver)
+                    if self.use_hop_by_hop:
+                        route = self.get_route(sender, receiver)
+                    elif packet['protocol'] == protocols.RELAY:
+                        full_route = packet['route']
+                        route = full_route[full_route.index(sender):]
+                    else:
+                        route = self.get_route(sender, receiver)
+
                     if len(route) < 2:
                         raise Exception
 
                     elif len(route) == 2:
-                        # Logger.get_instance().log('sending packet from ' + sender + ' to ' + receiver)
                         if packet['protocol'] != protocols.RELAY:
                             if packet['protocol'] == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
@@ -314,19 +291,13 @@ class Network:
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet['payload'])
-
                     else:
-                        # TODO: make hop by hop optional and find a way to fix a route
-                        # Here we're using hop by hop approach (i.e. the route is recalculated at each hop
-                        if packet['protocol'] == protocols.RELAY:
-                            packet['receiver'] = route[1]
-                            network_packet = packet
-                            self.ARP[route[1]].rec_packet(network_packet)
-                        elif packet['protocol'] == protocols.REC_EPR:
+                        if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
                             DaemonThread(self._entanglement_swap, args=(sender, receiver, route, q_id))
                         else:
-                            network_packet = self.encode(route[0], route[1], packet)
+                            network_packet = self._encode(route, packet)
+                            # Sender route[0] has a direct connection to route[1]
                             self.ARP[route[1]].rec_packet(network_packet)
 
                 except nx.NodeNotFound:
@@ -369,3 +340,34 @@ class Network:
         nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
                          with_labels=True, hold=False)
         plt.show()
+
+    def _encode(self, route, payload, ttl=10):
+        """
+        Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
+        protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+        Time-To-Live information in this layer.
+
+        Args:
+            route: route of the packet from sender to receiver
+            payload (dict): Lower layers of the packet
+            ttl(int): Time-to-Live parameter
+
+        Returns:
+            dict: Encoded RELAY packet
+        """
+
+        packet = {
+            'sender': route[1],
+            'payload': payload,
+            'protocol': protocols.RELAY,
+            'payload_type': protocols.SIGNAL,
+            'TTL': ttl,
+            'route': route
+        }
+
+        if self.use_hop_by_hop:
+            packet['receiver'] = route[-1]
+        else:
+            packet['receiver'] = route[2]
+
+        return packet

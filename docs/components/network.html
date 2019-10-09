@@ -169,6 +169,29 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A network control singleton object.</p>
 <dl class="method">
+<dt id="components.network.Network._encode">
+<code class="sig-name descname">_encode</code><span class="sig-paren">(</span><em class="sig-param">route</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl=10</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
+protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+Time-To-Live information in this layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>route</strong> – route of the packet from sender to receiver</p></li>
+<li><p><strong>payload</strong> (<em>dict</em>) – Lower layers of the packet</p></li>
+<li><p><strong>ttl</strong> (<em>int</em>) – Time-to-Live parameter</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Encoded RELAY packet</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network._entanglement_swap">
 <code class="sig-name descname">_entanglement_swap</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">route</em>, <em class="sig-param">q_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._entanglement_swap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
@@ -218,6 +241,13 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.network.Network._update_network_graph">
+<code class="sig-name descname">_update_network_graph</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._update_network_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add host <em>host</em> to the network and update the graph representation of the network
+:param host: The host to be added</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network.add_host">
 <code class="sig-name descname">add_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.add_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the <em>host</em> to ARP table and updates the network graph.</p>
@@ -232,30 +262,6 @@ between sender and receiver.</p>
 <dt id="components.network.Network.draw_network">
 <code class="sig-name descname">draw_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.draw_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws a plot of the network.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.network.Network.encode">
-<code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl=10</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
-protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
-Time-To-Live information in this layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the packet</p></li>
-<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the packet</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – Lower layers of the packet</p></li>
-<li><p><strong>ttl</strong> (<em>int</em>) – Time-to-Live parameter</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded RELAY packet</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
