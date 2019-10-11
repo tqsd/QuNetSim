@@ -10,6 +10,7 @@ from components.network import Network
 def main():
     network = Network.get_instance()
     network.set_delay(0.2)
+    network.set_drop_rate(0)
     network.start()
     print('')
 
@@ -39,7 +40,21 @@ def main():
 
         print('alice sends message')
 
-        host_alice.send_classical('00000011', 'hello')
+        host_alice.send_classical('00000001', 'hello1')
+        host_alice.send_classical('00000001', 'hello2')
+        host_alice.send_classical('00000001', 'hello3')
+        host_alice.send_classical('00000001', 'hello4')
+        host_alice.send_classical('00000001', 'hello5')
+        host_alice.send_classical('00000001', 'hello6')
+        host_alice.send_classical('00000001', 'hello7')
+        host_alice.send_classical('00000001', 'hello8')
+        host_alice.send_classical('00000001', 'hello9')
+        host_alice.send_classical('00000001', 'hello10')
+
+        time.sleep(10)
+        bob_messages = host_bob.get_classical_messages()
+        print(len(bob_messages))
+
 
         nodes = [host_alice, host_bob, host_eve, host_dean]
 

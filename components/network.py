@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from queue import Queue
 import time
+import random
 from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
@@ -28,6 +29,7 @@ class Network:
             self._stop_thread = False
             self._queue_processor_thread = None
             self.delay = 0.5
+            self.packet_drop_rate = 0
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -49,6 +51,16 @@ class Network:
              delay (float): Delay in network tick in seconds
         """
         self.delay = delay
+
+    def set_drop_rate(self,drop_rate):
+        """
+        Set the drop rate of the network.
+
+        Args:
+             drop_rate (float): Probability of dropping a packet in the network
+        """
+        self.packet_drop_rate = drop_rate
+
 
     def add_host(self, host):
         """
@@ -255,6 +267,8 @@ class Network:
         Runs a thread for processing the packets in the packet queue.
         """
 
+
+
         while True:
             if self._stop_thread:
                 break
@@ -264,6 +278,12 @@ class Network:
                 # delay for packet queries
                 time.sleep(self.delay)
                 packet = self._packet_queue.get()
+                packet_drop_var = random.random()
+
+
+                if packet_drop_var > (1 - self.packet_drop_rate):
+                    continue
+
 
                 sender, receiver = packet[protocols.SENDER], packet[protocols.RECEIVER]
 
