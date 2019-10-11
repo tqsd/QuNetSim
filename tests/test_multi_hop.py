@@ -52,7 +52,7 @@ class TestTwoHop(unittest.TestCase):
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -85,7 +85,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'testing123')
 
-    # @unittest.skip('')
+    @unittest.skip('')
     def test_full_network_routing(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),

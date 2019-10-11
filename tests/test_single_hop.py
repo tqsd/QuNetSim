@@ -24,7 +24,8 @@ class TestOneHop(unittest.TestCase):
     def setUpClass(cls):
         simulaqron_settings.default_settings()
         nodes = ["Alice", "Bob"]
-        cls.sim_network = SimulaNetwork(nodes=nodes, force=True)
+        topology = {"Alice": ["Bob"], "Bob": ["Alice"]}
+        cls.sim_network = SimulaNetwork(nodes=nodes, topology=topology, force=True)
         cls.sim_network.start()
 
         cls.network = Network.get_instance()
@@ -154,10 +155,10 @@ class TestOneHop(unittest.TestCase):
             for h in hosts.values():
                 self.network.add_host(h)
 
-            print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
+            # print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
             hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
             hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob two', await_ack=True)
-            print(f"ack test - SEND CLASSICAL - finished at {time.strftime('%X')}")
+            # print(f"ack test - SEND CLASSICAL - finished at {time.strftime('%X')}")
 
             saw_ack_1 = False
             saw_ack_2 = False
@@ -173,9 +174,9 @@ class TestOneHop(unittest.TestCase):
             self.assertTrue(saw_ack_1)
             self.assertTrue(saw_ack_2)
 
-            print(f"ack test - SEND SUPERDENSE - started at {time.strftime('%X')}")
+            # print(f"ack test - SEND SUPERDENSE - started at {time.strftime('%X')}")
             hosts['alice'].send_superdense(hosts['bob'].host_id, '00', await_ack=True)
-            print(f"ack test - SEND SUPERDENSE - finished at {time.strftime('%X')}")
+            # print(f"ack test - SEND SUPERDENSE - finished at {time.strftime('%X')}")
 
             saw_ack = False
             messages = hosts['alice'].get_classical_messages()
@@ -186,9 +187,9 @@ class TestOneHop(unittest.TestCase):
 
             self.assertTrue(saw_ack)
 
-            print(f"ack test - SEND TELEPORT - started at {time.strftime('%X')}")
+            # print(f"ack test - SEND TELEPORT - started at {time.strftime('%X')}")
             hosts['alice'].send_teleport(hosts['bob'].host_id, qubit(Alice), await_ack=True)
-            print(f"ack test - SEND TELEPORT - finished at {time.strftime('%X')}")
+            # print(f"ack test - SEND TELEPORT - finished at {time.strftime('%X')}")
 
             saw_ack = False
             messages = hosts['alice'].get_classical_messages()
@@ -199,9 +200,9 @@ class TestOneHop(unittest.TestCase):
 
             self.assertTrue(saw_ack)
 
-            print(f"ack test - SEND EPR - started at {time.strftime('%X')}")
+            # print(f"ack test - SEND EPR - started at {time.strftime('%X')}")
             hosts['alice'].send_epr(hosts['bob'].host_id, await_ack=True)
-            print(f"ack test - SEND EPR - finished at {time.strftime('%X')}")
+            # print(f"ack test - SEND EPR - finished at {time.strftime('%X')}")
 
             saw_ack = False
             messages = hosts['alice'].get_classical_messages()
@@ -426,7 +427,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
             hosts = {'alice': Host('00000000', Alice),

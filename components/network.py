@@ -169,7 +169,7 @@ class Network:
         """
         return self.routing_algo(self.network, source=source, target=dest)
 
-    def _entanglement_swap(self, sender, receiver, route, q_id):
+    def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num):
         """
         Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
         between sender and receiver.
@@ -183,25 +183,31 @@ class Network:
 
         host_sender = self.get_host(sender)
 
+        # TODO: Multiprocess this
         for i in range(len(route) - 1):
             self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
 
         for i in range(len(route) - 2):
-            q = None
-
+            q = self.get_host(route[i + 1]).get_epr(route[0])
             while q is None:
-                q = (self.get_host(route[i + 1])).get_epr(route[0])
+                q = self.get_host(route[i + 1]).get_epr(route[0])
 
-            data = {'q': q['q'], 'q_id': q['q_id'], 'node': sender, 'type': protocols.EPR}
+            data = {'q': q['q'],
+                    'q_id': q['q_id'],
+                    'node': sender,
+                    'o_seq_num': o_seq_num,
+                    'type': protocols.EPR}
 
-            # TODO: modify the application send_teleport in host to do this
-            packet = protocols.encode(route[i + 1],
-                                      route[i + 2],
-                                      protocols.SEND_TELEPORT,
-                                      data,
-                                      payload_type=protocols.SIGNAL)
-            Logger.get_instance().log(sender + " sends EPR to " + receiver)
-            self.get_host(route[i + 1]).rec_packet(packet)
+            if route[i + 2] == route[-1]:
+                data = {'q': q['q'],
+                        'q_id': q['q_id'],
+                        'node': sender,
+                        'ack': True,
+                        'o_seq_num': o_seq_num,
+                        'type': protocols.EPR}
+
+            host = self.get_host(route[i + 1])
+            host.send_teleport(route[i + 2], None, await_ack=True, payload=data)
 
         q2 = host_sender.get_epr(route[1])
         host_sender.add_epr(receiver, q2['q'], q2['q_id'])
@@ -259,10 +265,10 @@ class Network:
                 time.sleep(self.delay)
                 packet = self._packet_queue.get()
 
-                sender, receiver = packet['sender'], packet['receiver']
+                sender, receiver = packet[protocols.SENDER], packet[protocols.RECEIVER]
 
                 if packet['payload_type'] == protocols.QUANTUM:
-                    self._route_quantum_info(sender, receiver, packet['payload'])
+                    self._route_quantum_info(sender, receiver, packet[protocols.PAYLOAD])
 
                 try:
                     if self.use_hop_by_hop:
@@ -283,21 +289,21 @@ class Network:
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
                                 if packet['payload'] is not None:
-                                    q_id = host_sender.add_epr(receiver, q, packet['payload']['q_id'])
+                                    q_id = host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'])
                                 else:
                                     q_id = host_sender.add_epr(receiver, q)
 
                                 packet['payload'] = {'q_id': q_id}
                             self.ARP[receiver].rec_packet(packet)
                         else:
-                            self.ARP[receiver].rec_packet(packet['payload'])
+                            self.ARP[receiver].rec_packet(packet[protocols.PAYLOAD])
                     else:
                         if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
-                            DaemonThread(self._entanglement_swap, args=(sender, receiver, route, q_id))
+                            DaemonThread(self._entanglement_swap,
+                                         args=(sender, receiver, route, q_id, packet[protocols.SEQUENCE_NUMBER]))
                         else:
                             network_packet = self._encode(route, packet)
-                            # Sender route[0] has a direct connection to route[1]
                             self.ARP[route[1]].rec_packet(network_packet)
 
                 except nx.NodeNotFound:
@@ -355,15 +361,18 @@ class Network:
         Returns:
             dict: Encoded RELAY packet
         """
-
-        packet = {
-            'sender': route[1],
-            'payload': payload,
-            'protocol': protocols.RELAY,
-            'payload_type': protocols.SIGNAL,
-            'TTL': ttl,
-            'route': route
-        }
+        if payload[protocols.PROTOCOL] != protocols.RELAY:
+            packet = {
+                'sender': route[1],
+                'payload': payload,
+                'protocol': protocols.RELAY,
+                'payload_type': protocols.SIGNAL,
+                'TTL': ttl,
+                'route': route
+            }
+        else:
+            packet = payload
+            packet['sender'] = route[1]
 
         if self.use_hop_by_hop:
             packet['receiver'] = route[-1]

@@ -122,6 +122,8 @@ def _relay_message(packet):
     packet['TTL'] -= 1
     if packet['TTL'] != 0:
         network.send(packet)
+    else:
+        Logger.get_instance().log('TTL Expired on packet')
 
 
 def _send_classical(packet):
@@ -154,7 +156,7 @@ def _rec_classical(packet):
     if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
-    return {'message': packet[PAYLOAD], 'sequence_number': packet[SEQUENCE_NUMBER]}
+    return {'sender': packet[SENDER], 'message': packet[PAYLOAD], 'sequence_number': packet[SEQUENCE_NUMBER]}
 
 
 def _send_qubit(packet):
@@ -214,7 +216,15 @@ def _send_teleport(packet):
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
 
-    data = {'measurements': [m1, m2], 'q_id': epr_teleport['q_id'], 'type': q_type, 'node': node}
+    data = {'measurements': [m1, m2],
+            'q_id': epr_teleport['q_id'],
+            'type': q_type,
+            'node': node,
+            }
+    if 'o_seq_num' in packet[PAYLOAD]:
+        data['o_seq_num'] = packet[PAYLOAD]['o_seq_num']
+    if 'ack' in packet[PAYLOAD]:
+        data['ack'] = packet[PAYLOAD]['ack']
 
     packet[PAYLOAD] = data
     packet[PROTOCOL] = REC_TELEPORT
@@ -234,6 +244,8 @@ def _rec_teleport(packet):
     q_id = payload['q_id']
 
     q = host_receiver.get_epr(packet[SENDER], q_id)
+
+    # TODO: Put a timeout on this
     while q is None:
         q = host_receiver.get_epr(packet[SENDER], q_id)
 
@@ -248,12 +260,16 @@ def _rec_teleport(packet):
         q.X()
 
     if payload['type'] == EPR:
+
         host_receiver.add_epr(epr_host, q, q_id)
 
     elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
     if packet[AWAIT_ACK]:
+        if 'o_seq_num' in payload and 'ack' in payload:
+            _send_ack(epr_host, packet[RECEIVER], payload['o_seq_num'])
+
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
 
@@ -302,7 +318,7 @@ def _send_ack(sender, receiver, seq_number):
         receiver (string): The receiver ID
         seq_number (string): The sequence number which to ACK
     """
-    Logger.get_instance().log('sending ACK from ' + receiver + " to " + sender)
+    Logger.get_instance().log('sending ACK:' + str(seq_number) + ' from ' + receiver + " to " + sender)
     host_receiver = network.get_host(receiver)
     host_receiver.send_ack(sender, seq_number)
 

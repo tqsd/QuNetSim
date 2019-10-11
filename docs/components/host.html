@@ -170,11 +170,11 @@
 <p>Host object acting as either a router node or an application host node.</p>
 <dl class="method">
 <dt id="components.host.Host._get_sequence_number">
-<code class="sig-name descname">_get_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">receiver</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._get_sequence_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_get_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._get_sequence_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the sequence number of connection with a receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver</strong> (<em>string</em>) – The ID of the receiver</p>
+<dd class="field-odd"><p><strong>host</strong> (<em>string</em>) – The ID of the receiver</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>If a connection is present returns the sequence number , otherwise returns 0.</p>
@@ -183,6 +183,15 @@
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host._log_ack">
+<code class="sig-name descname">_log_ack</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._log_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs acknowledgement messages.
+:param protocol: The protocol for the ACK
+:param receiver: The sender of the ACK
+:param seq: The sequence number of the packet</p>
 </dd></dl>
 
 <dl class="method">
@@ -259,9 +268,10 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 
 <dl class="method">
 <dt id="components.host.Host.await_ack">
-<code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param">sequence_number</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param">sequence_number</em>, <em class="sig-param">sender</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Block until an ACK for packet with sequence number arrives.
-:param sequence_number: The sequence number to wait for.</p>
+:param sequence_number: The sequence number to wait for.
+:param sender: The sender of the ACK</p>
 </dd></dl>
 
 <dl class="method">
@@ -460,7 +470,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_teleport">
-<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teleports the qubit <em>q</em> with the receiver with host ID <em>receiver</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
