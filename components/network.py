@@ -52,7 +52,7 @@ class Network:
         """
         self.delay = delay
 
-    def set_drop_rate(self,drop_rate):
+    def set_drop_rate(self, drop_rate):
         """
         Set the drop rate of the network.
 
@@ -60,7 +60,6 @@ class Network:
              drop_rate (float): Probability of dropping a packet in the network
         """
         self.packet_drop_rate = drop_rate
-
 
     def add_host(self, host):
         """
@@ -267,8 +266,6 @@ class Network:
         Runs a thread for processing the packets in the packet queue.
         """
 
-
-
         while True:
             if self._stop_thread:
                 break
@@ -278,12 +275,12 @@ class Network:
                 # delay for packet queries
                 time.sleep(self.delay)
                 packet = self._packet_queue.get()
+
+                # Simulate packet loss
                 packet_drop_var = random.random()
-
-
                 if packet_drop_var > (1 - self.packet_drop_rate):
+                    Logger.get_instance().log("PACKET DROPPED")
                     continue
-
 
                 sender, receiver = packet[protocols.SENDER], packet[protocols.RECEIVER]
 

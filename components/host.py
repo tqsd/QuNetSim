@@ -27,6 +27,7 @@ class Host:
         self._classical = []
         self.connections = []
         self.cqc = cqc
+        self.max_ack_wait = None
         # Frequency of queue processing
         self.delay = 0.1
         self.logger = Logger.get_instance()
@@ -144,10 +145,18 @@ class Host:
         Args:
             sequence_number: The sequence number to wait for.
             sender: The sender of the ACK
+        Returns:
+            The status of the ACK
         """
 
         def wait():
+            nonlocal did_ack
+            ack_start_time = time.time()
             while True:
+                if self.max_ack_wait is not None and time.time() - ack_start_time > self.max_ack_wait:
+                    did_ack = False
+                    return
+
                 time.sleep(0.1)
                 messages = self.get_classical_messages()
                 for m in messages:
@@ -155,9 +164,12 @@ class Host:
                         if m['sender'] == sender and m['sequence_number'] == sequence_number:
                             Logger.get_instance().log(
                                 'ACK ' + str(m['sequence_number']) + ' from ' + sender + ' arrived at ' + self.host_id)
+                            did_ack = True
                             return
 
+        did_ack = False
         DaemonThread(wait).join()
+        return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
         """
@@ -168,7 +180,8 @@ class Host:
             receiver_id (string): The ID of the host to send the message.
             message (string): The classical message to send.
             await_ack (bool): If sender should wait for an ACK.
-
+        Returns:
+            boolean: If await_ack=True, return the status of the ACK
         """
         seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
@@ -182,7 +195,7 @@ class Host:
 
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('classical', receiver_id, seq_num)
-            self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
     def send_epr(self, receiver_id, q_id=None, await_ack=False):
         """
@@ -195,6 +208,7 @@ class Host:
             await_ack (bool): If sender should wait for an ACK.
         Returns:
             string: The qubit ID of the EPR pair.
+            (string, boolean): If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
@@ -211,7 +225,7 @@ class Host:
 
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('EPR', receiver_id, seq_num)
-            self.await_ack(seq_num, receiver_id)
+            return q_id, self.await_ack(seq_num, receiver_id)
 
         return q_id
 
@@ -223,6 +237,8 @@ class Host:
             receiver_id (string): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
+        Returns:
+            boolean: If await_ack=True, return the status of the ACK
         """
 
         packet = protocols.encode(sender=self.host_id,
@@ -240,7 +256,7 @@ class Host:
 
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('TELEPORT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
     def send_superdense(self, receiver_id, message, await_ack=False):
         """
@@ -251,7 +267,8 @@ class Host:
             receiver_id (string): The receiver ID to send the message to
             message (string): The two bit binary message
             await_ack (bool): If sender should wait for an ACK.
-
+        Returns:
+           boolean: If await_ack=True, return the status of the ACK
         """
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
@@ -265,7 +282,7 @@ class Host:
 
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('SUPERDENSE', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
     def send_qubit(self, receiver_id, q, await_ack=False):
         """
@@ -274,6 +291,9 @@ class Host:
             receiver_id (string): The receiver ID to send the message to
             q (Qubit): The qubit to send
             await_ack (bool): If sender should wait for an ACK.
+        Returns:
+            boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
+            (string, boolean): If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q_id = str(uuid.uuid4())
         packet = protocols.encode(sender=self.host_id,
@@ -289,7 +309,7 @@ class Host:
 
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('SEND QUBIT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return q_id, self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
         return q_id
 
