@@ -30,6 +30,8 @@ class Network:
             self._queue_processor_thread = None
             self.delay = 0.5
             self.packet_drop_rate = 0
+            self.x_error_rate = 0
+            self.z_error_rate = 0
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -60,6 +62,24 @@ class Network:
              drop_rate (float): Probability of dropping a packet in the network
         """
         self.packet_drop_rate = drop_rate
+
+    def set_x_error_rate(self, error_rate):
+        """
+        Set the X error rate of the network.
+
+        Args:
+             error_rate (float): Probability of a X error during a qubit transmission in the network
+        """
+        self.x_error_rate = error_rate
+
+    def set_z_error_rate(self, error_rate):
+        """
+        Set the Z error rate of the network.
+
+        Args:
+             error_rate (float): Probability of an Z error during a qubit transmission in the network
+        """
+        self.z_error_rate = error_rate
 
     def add_host(self, host):
         """
@@ -236,6 +256,15 @@ class Network:
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
                 Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
+
+                x_err_var = random.random()
+                z_err_var = random.random()
+
+                if x_err_var > (1 - self.x_error_rate):
+                    q['q'].X()
+                if z_err_var > (1 - self.z_error_rate):
+                    q['q'].Z()
+
                 self.ARP[s].cqc.sendQubit(q['q'], self.get_host_name(r))
                 Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
                 q = self.ARP[r].cqc.recvQubit()
