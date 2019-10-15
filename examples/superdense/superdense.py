@@ -9,8 +9,8 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
-    network.set_delay(0.2)
-    #network.set_drop_rate(0.3)
+    network.delay = 0.2
+    network.packet_drop_rate = 0.3
     network.start()
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \

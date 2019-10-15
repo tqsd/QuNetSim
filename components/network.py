@@ -23,63 +23,166 @@ class Network:
         if Network.__instance is None:
             self.ARP = {}
             self.network = nx.DiGraph()
-            self.routing_algo = nx.shortest_path
-            self.use_hop_by_hop = True
+            self._routing_algo = nx.shortest_path
+            self._use_hop_by_hop = True
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
-            self.delay = 0.5
-            self.packet_drop_rate = 0
-            self.x_error_rate = 0
-            self.z_error_rate = 0
+            self._delay = 0.5
+            self._packet_drop_rate = 0
+            self._x_error_rate = 0
+            self._z_error_rate = 0
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
 
-    def set_routing_algo(self, algorithm):
+    @property
+    def use_hop_by_hop(self):
+        """
+        Get the routing style for the network.
+
+        Returns:
+            If the network uses hop by hop routing.
+        """
+        return self._use_hop_by_hop
+
+    @use_hop_by_hop.setter
+    def use_hop_by_hop(self, should_use):
+        """
+        Set the routing style for the network.
+        Args:
+            should_use (bool): If the network should use hop by hop routing or not
+
+        """
+        if not isinstance(should_use, bool):
+            raise Exception('use_hop_by_hop should be a boolean value.')
+
+        self._use_hop_by_hop = should_use
+
+    @property
+    def routing_algo(self):
+        """
+        Get the routing algorithm for the network.
+
+        """
+        return self._routing_algo
+
+    @routing_algo.setter
+    def routing_algo(self, algorithm):
         """
         Set the routing algorithm for the network.
 
         Args:
              algorithm (function): The routing function. Should return a list of host_ids which represents the route
         """
-        self.routing_algo = algorithm
+        self._routing_algo = algorithm
 
-    def set_delay(self, delay):
+    @property
+    def delay(self):
+        """
+        Get the delay interval of the network.
+
+        """
+
+        return self._delay
+
+    @delay.setter
+    def delay(self, delay):
+
         """
         Set the delay interval of the network.
 
         Args:
              delay (float): Delay in network tick in seconds
         """
-        self.delay = delay
+        if not (isinstance(delay, int) or isinstance(delay, float)):
+            raise Exception('delay should be a number')
 
-    def set_drop_rate(self, drop_rate):
+        if delay < 0:
+            raise Exception('Delay should not be negative')
+
+        self._delay = delay
+
+    @property
+    def packet_drop_rate(self):
+        """
+        Get the drop rate of the network.
+
+        Args:
+             drop_rate (float): Probability of dropping a packet in the network
+        """
+        return self._packet_drop_rate
+
+    @packet_drop_rate.setter
+    def packet_drop_rate(self, drop_rate):
+
         """
         Set the drop rate of the network.
 
         Args:
              drop_rate (float): Probability of dropping a packet in the network
         """
-        self.packet_drop_rate = drop_rate
 
-    def set_x_error_rate(self, error_rate):
+        if drop_rate < 0 or drop_rate > 1:
+            raise Exception('Packet drop rate should be between 0 and 1')
+
+        if not (isinstance(drop_rate, int) or isinstance(drop_rate, float)):
+            raise Exception('Packet drop rate should be a number')
+
+        self._packet_drop_rate = drop_rate
+
+    @property
+    def x_error_rate(self):
+        """
+        Get the X error rate of the network.
+
+        Args:
+             error_rate (float): Probability of a X error during a qubit transmission in the network
+        """
+
+        return self._x_error_rate
+
+    @x_error_rate.setter
+    def x_error_rate(self, error_rate):
         """
         Set the X error rate of the network.
 
         Args:
              error_rate (float): Probability of a X error during a qubit transmission in the network
         """
-        self.x_error_rate = error_rate
 
-    def set_z_error_rate(self, error_rate):
+        if error_rate < 0 or error_rate > 1:
+            raise Exception('Error rate should be between 0 and 1.')
+
+        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
+            raise Exception('X error rate should be a number')
+
+        self._x_error_rate = error_rate
+
+    @property
+    def z_error_rate(self):
+        """
+        Get the Z error rate of the network.
+
+        """
+        return self._z_error_rate
+
+    @z_error_rate.setter
+    def z_error_rate(self, error_rate):
         """
         Set the Z error rate of the network.
 
         Args:
-             error_rate (float): Probability of an Z error during a qubit transmission in the network
+             error_rate (float): Probability of a Z error during a qubit transmission in the network
         """
-        self.z_error_rate = error_rate
+
+        if error_rate < 0 or error_rate > 1:
+            raise Exception('Error rate should be between 0 and 1.')
+
+        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
+            raise Exception('Z error rate should be a number')
+
+        self._z_error_rate = error_rate
 
     def add_host(self, host):
         """

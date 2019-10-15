@@ -74,10 +74,10 @@ class TestTwoHop(unittest.TestCase):
 
             hosts['alice'].send_classical(hosts['eve'].host_id, 'testing123')
 
-            messages = hosts['eve'].get_classical_messages()
+            messages = hosts['eve'].classical
             i = 0
             while i < TestTwoHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['eve'].get_classical_messages()
+                messages = hosts['eve'].classical
                 i += 1
                 time.sleep(1)
 
@@ -109,9 +109,9 @@ class TestTwoHop(unittest.TestCase):
             hosts['alice'].send_classical(hosts['eve'].host_id, 'testing123')
 
             i = 0
-            messages = hosts['eve'].get_classical_messages()
+            messages = hosts['eve'].classical
             while i < TestTwoHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['eve'].get_classical_messages()
+                messages = hosts['eve'].classical
                 i += 1
                 time.sleep(1)
 
@@ -214,10 +214,10 @@ class TestTwoHop(unittest.TestCase):
 
             hosts['alice'].send_superdense(hosts['bob'].host_id, '10')
 
-            messages = hosts['bob'].get_classical_messages()
+            messages = hosts['bob'].classical
             i = 0
             while i < TestTwoHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['bob'].get_classical_messages()
+                messages = hosts['bob'].classical
                 i += 1
                 time.sleep(1)
 
@@ -247,10 +247,10 @@ class TestTwoHop(unittest.TestCase):
             hosts['alice'].send_superdense(hosts['eve'].host_id, '11')
             hosts['alice'].send_classical(hosts['eve'].host_id, 'hello')
 
-            messages = hosts['eve'].get_classical_messages()
+            messages = hosts['eve'].classical
             i = 0
             while i < TestTwoHop.MAX_WAIT and len(messages) < 3:
-                messages = hosts['eve'].get_classical_messages()
+                messages = hosts['eve'].classical
                 i += 1
                 time.sleep(1)
 

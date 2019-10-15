@@ -9,9 +9,9 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
-    network.set_delay(0.2)
-    network.set_drop_rate(0)
     network.start()
+    network.delay = 0.2
+    network.packet_drop_rate = 0.5
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
@@ -52,7 +52,7 @@ def main():
         host_alice.send_classical('00000001', 'hello10')
 
         time.sleep(10)
-        bob_messages = host_bob.get_classical_messages()
+        bob_messages = host_bob.classical
         print(len(bob_messages))
 
 

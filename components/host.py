@@ -27,14 +27,104 @@ class Host:
         self._classical = []
         self.connections = []
         self.cqc = cqc
-        self.max_ack_wait = None
+        self._max_ack_wait = None
         # Frequency of queue processing
-        self.delay = 0.1
+        self._delay = 0.1
         self.logger = Logger.get_instance()
         # Size of quantum memories (default -1, unlimited)
-        self.memory_limit = -1
+        self._memory_limit = -1
         # Packet sequence numbers per connection
         self.seq_number = {}
+
+    @property
+    def classical(self):
+        """
+        Gets the received classical messages sorted with the sequence number.
+
+        Returns:
+             Array: Sorted array of classical messages.
+        """
+        return sorted(self._classical, key=lambda x: x['sequence_number'])
+
+    @property
+    def delay(self):
+        """
+
+        Returns:
+
+        """
+        return self._delay
+
+    @delay.setter
+    def delay(self, delay):
+        """
+
+        Args:
+            delay:
+
+        Returns:
+
+        """
+        if not (isinstance(delay, int) or isinstance(delay, float)):
+            raise Exception('delay should be a number')
+
+        if delay < 0:
+            raise Exception('Delay should not be negative')
+
+        self._delay = delay
+
+    @property
+    def max_ack_wait(self):
+        """
+
+        Returns:
+
+        """
+        return self._max_ack_wait
+
+    @max_ack_wait.setter
+    def max_ack_wait(self, max_ack_wait):
+        """
+
+        Args:
+            max_ack_wait:
+
+        Returns:
+
+        """
+
+        if not (isinstance(max_ack_wait, int) or isinstance(max_ack_wait, float)):
+            raise Exception('max ack wait should be a number')
+
+        if max_ack_wait < 0:
+            raise Exception('max ack wait should be non-negative')
+
+        self._max_ack_wait = max_ack_wait
+
+    @property
+    def memory_limit(self):
+        """
+
+        Returns:
+
+        """
+        return self._memory_limit
+
+    @memory_limit.setter
+    def memory_limit(self, memory_limit):
+        """
+
+        Args:
+            memory_limit:
+
+        Returns:
+
+        """
+
+        if not (isinstance(memory_limit, int) or isinstance(memory_limit, float)):
+            raise Exception('memory limit should be a number')
+
+        self._memory_limit = memory_limit
 
     def _get_sequence_number(self, host):
         """
@@ -158,7 +248,7 @@ class Host:
                     return
 
                 time.sleep(0.1)
-                messages = self.get_classical_messages()
+                messages = self.classical
                 for m in messages:
                     if str.startswith(m['message'], protocols.ACK):
                         if m['sender'] == sender and m['sequence_number'] == sequence_number:
@@ -325,15 +415,6 @@ class Host:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
         return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]['qubits']) != 0
-
-    def set_memory_limit(self, limit):
-        """
-        Set the default maximum size limit a memory can have.
-
-        Args:
-            limit (int): The size of the memory.
-        """
-        self.memory_limit = limit
 
     def get_epr_pairs(self, host_id=None):
         """
@@ -548,15 +629,6 @@ class Host:
                     del self._data_qubit_store[partner_id]['qubits'][index]
                     return q
         return None
-
-    def get_classical_messages(self):
-        """
-        Gets the received classical messages sorted with the sequence number.
-
-        Returns:
-             Array: Sorted array of classical messages.
-        """
-        return sorted(self._classical, key=lambda x: x['sequence_number'])
 
     def stop(self):
         """

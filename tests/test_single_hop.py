@@ -49,8 +49,8 @@ class TestOneHop(unittest.TestCase):
             os.system('rm -rf ./tests/__pycache__/')
 
     def tearDown(self):
-        self.network.set_drop_rate(0)
-        self.network.set_delay(0.5)
+        self.network.packet_drop_rate = 0
+        self.network.delay = 0.5
         for key in self.hosts.keys():
             self.hosts[key].cqc.flush()
             self.hosts[key].stop()
@@ -104,7 +104,7 @@ class TestOneHop(unittest.TestCase):
             hosts = {'alice': Host('00000000', Alice),
                      'bob': Host('00000001', Bob)}
 
-            self.network.set_delay(0)
+            self.network.delay = 0
             self.hosts = hosts
             # A <-> B
 
@@ -120,16 +120,16 @@ class TestOneHop(unittest.TestCase):
             hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice')
 
             i = 0
-            bob_messages = hosts['bob'].get_classical_messages()
+            bob_messages = hosts['bob'].classical
             while i < TestOneHop.MAX_WAIT and len(bob_messages) == 0:
-                bob_messages = hosts['bob'].get_classical_messages()
+                bob_messages = hosts['bob'].classical
                 i += 1
                 time.sleep(1)
 
             i = 0
-            alice_messages = hosts['alice'].get_classical_messages()
+            alice_messages = hosts['alice'].classical
             while i < TestOneHop.MAX_WAIT and len(alice_messages) == 0:
-                alice_messages = hosts['alice'].get_classical_messages()
+                alice_messages = hosts['alice'].classical
                 i += 1
                 time.sleep(1)
 
@@ -148,7 +148,7 @@ class TestOneHop(unittest.TestCase):
                      'bob': Host('00000001', Bob)}
 
             self.hosts = hosts
-            self.network.set_delay(0)
+            self.network.delay = 0
             # A <-> B
             hosts['alice'].add_connection('00000001')
 
@@ -165,7 +165,7 @@ class TestOneHop(unittest.TestCase):
 
             saw_ack_1 = False
             saw_ack_2 = False
-            messages = hosts['alice'].get_classical_messages()
+            messages = hosts['alice'].classical
             for m in messages:
                 if m['message'] == protocols.ACK and m['sequence_number'] == 0:
                     saw_ack_1 = True
@@ -182,7 +182,7 @@ class TestOneHop(unittest.TestCase):
             # print(f"ack test - SEND SUPERDENSE - finished at {time.strftime('%X')}")
 
             saw_ack = False
-            messages = hosts['alice'].get_classical_messages()
+            messages = hosts['alice'].classical
             for m in messages:
                 if m['message'] == protocols.ACK and m['sequence_number'] == 2:
                     saw_ack = True
@@ -195,7 +195,7 @@ class TestOneHop(unittest.TestCase):
             # print(f"ack test - SEND TELEPORT - finished at {time.strftime('%X')}")
 
             saw_ack = False
-            messages = hosts['alice'].get_classical_messages()
+            messages = hosts['alice'].classical
             for m in messages:
                 if m['message'] == protocols.ACK and m['sequence_number'] == 3:
                     saw_ack = True
@@ -208,7 +208,7 @@ class TestOneHop(unittest.TestCase):
             # print(f"ack test - SEND EPR - finished at {time.strftime('%X')}")
 
             saw_ack = False
-            messages = hosts['alice'].get_classical_messages()
+            messages = hosts['alice'].classical
             for m in messages:
                 if m['message'] == protocols.ACK and m['sequence_number'] == 4:
                     saw_ack = True
@@ -327,10 +327,10 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_epr(hosts['bob'].host_id)
 
-            messages = hosts['bob'].get_classical_messages()
+            messages = hosts['bob'].classical
             i = 0
             while i < TestOneHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['bob'].get_classical_messages()
+                messages = hosts['bob'].classical
                 i += 1
                 time.sleep(1)
 
@@ -425,10 +425,10 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_teleport(hosts['bob'].host_id, q)
 
-            messages = hosts['bob'].get_classical_messages()
+            messages = hosts['bob'].classical
             i = 0
             while i < TestOneHop.MAX_WAIT and len(messages) == 0:
-                messages = hosts['bob'].get_classical_messages()
+                messages = hosts['bob'].classical
                 i += 1
                 time.sleep(1)
 
@@ -457,8 +457,9 @@ class TestOneHop(unittest.TestCase):
             # A <-> B
             hosts['alice'].add_connection('00000001')
 
-            hosts['alice'].set_memory_limit(1)
-            hosts['bob'].set_memory_limit(1)
+            # hosts['alice'].set_memory_limit(1)
+            hosts['alice'].memory_limit = 1
+            hosts['bob'].memory_limit = 1
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -495,8 +496,8 @@ class TestOneHop(unittest.TestCase):
             # A <-> B
             hosts['alice'].add_connection('00000001')
 
-            hosts['alice'].set_memory_limit(1)
-            hosts['bob'].set_memory_limit(1)
+            hosts['alice'].memory_limit = 1
+            hosts['bob'].memory_limit = 1
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -594,7 +595,7 @@ class TestOneHop(unittest.TestCase):
                 if ack:
                     num_acks += 1
 
-            num_messages_bob_received = len(hosts['bob'].get_classical_messages())
+            num_messages_bob_received = len(hosts['bob'].classical)
             self.assertTrue(num_acks != num_messages)
             self.assertTrue(num_acks < num_messages)
             self.assertTrue(num_messages_bob_received < num_messages)
