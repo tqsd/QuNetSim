@@ -6,6 +6,7 @@ import random
 from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
+from inspect import signature
 
 
 # Network singleton
@@ -22,7 +23,10 @@ class Network:
     def __init__(self):
         if Network.__instance is None:
             self.ARP = {}
+            # The directed graph for the connections
             self.network = nx.DiGraph()
+            self.quantum_network = nx.DiGraph()
+            self._quantum_routing_algo = nx.shortest_path
             self._routing_algo = nx.shortest_path
             self._use_hop_by_hop = True
             self._packet_queue = Queue()
@@ -69,6 +73,43 @@ class Network:
 
     @routing_algo.setter
     def routing_algo(self, algorithm):
+        """
+        Set the routing algorithm for the network.
+
+        Args:
+             algorithm (function): The routing function. Should return a list of host_ids which represents the route
+        """
+        self._routing_algo = algorithm
+
+    @property
+    def quantum_routing_algo(self):
+        """
+        Gets the quantum routing algorithm of the network.
+
+        Returns:
+           algorithm (function): The quantum routing algorithm of the network
+        """
+        return self._quantum_routing_algo
+
+    @quantum_routing_algo.setter
+    def quantum_routing_algo(self, algorithm):
+        """
+        Sets the quantum routing algorithm of the network.
+
+        Args:
+            algorithm (function): The routing algorithm of the network. Should take an input and an output
+        """
+        if not callable(algorithm):
+            raise Exception("The quantum routing algorithm must be a function.")
+
+        num_algo_params = len(signature(algorithm).parameters)
+        if num_algo_params != 3:
+            raise Exception("The quantum routing algorithm function should take three parameters: " + \
+                            "the (nx) graph representation of the network, the sender address and the receiver address.")
+
+        self._quantum_routing_algo = algorithm
+
+    def set_routing_algo(self, algorithm):
         """
         Set the routing algorithm for the network.
 
@@ -227,15 +268,17 @@ class Network:
             host: The host to be added
         """
         self.network.add_node(host.host_id)
+        self.quantum_network.add_node(host.host_id)
 
         for connection in host.connections:
             if not self.network.has_edge(host.host_id, connection):
                 edge = (host.host_id, connection, {'weight': 1})
                 self.network.add_edges_from([edge])
 
-            if not self.network.has_edge(connection, host.host_id):
-                edge = (connection, host.host_id, {'weight': 1})
-                self.network.add_edges_from([edge])
+        for connection in host.quantum_connections:
+            if not self.quantum_network.has_edge(host.host_id, connection):
+                edge = (host.host_id, connection, {'weight': 1})
+                self.quantum_network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):
         """
@@ -290,16 +333,28 @@ class Network:
             return None
         return self.ARP[host_id].cqc.name
 
+    def get_quantum_route(self, source, dest):
+        """
+        Gets the route for quantum information from source to destination.
+
+        Args:
+            source (string): ID of the source host
+            dest (string) : ID of the destination host
+        Returns:
+            route (array): An ordered array of ID numbers on the shortest path from source to destination.
+        """
+        return self.quantum_routing_algo(self.network, source=source, target=dest)
+
     def get_route(self, source, dest):
         """
-        Args:
-            source (string): ID number of the source host
-            dest (string) : ID number of the destination host
+        Gets the route for classical information from source to destination.
 
-        Gets the shortest route from source to destination.
+        Args:
+            source (string): ID of the source host
+            dest (string) : ID of the destination host
 
         Returns:
-             string array: An ordered array of ID numbers on the shortest path from source to destination.
+            route (array): An ordered array of ID numbers on the shortest path from source to destination.
         """
         return self.routing_algo(self.network, source=source, target=dest)
 
@@ -382,7 +437,7 @@ class Network:
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
 
-        route = self.get_route(sender, receiver)
+        route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])

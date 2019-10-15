@@ -27,6 +27,7 @@ def main():
         host_alice = Host('00000000', Alice)
         host_bob = Host('00000001', Bob)
 
+        host_alice.add_connection('00000001')
         host_bob.add_connection('00000000')
 
         host_alice.start()

@@ -21,14 +21,17 @@ def main():
         host_alice.start()
 
         host_bob = Host('00000001', Bob)
+        host_bob.add_connection('00000000')
         host_bob.add_connection('00000011')
         host_bob.start()
 
         host_eve = Host('00000011', Eve)
+        host_eve.add_connection('00000001')
         host_eve.add_connection('00000111')
         host_eve.start()
 
         host_dean = Host('00000111', Dean)
+        host_dean.add_connection('00000011')
         host_dean.start()
 
         network.add_host(host_alice)

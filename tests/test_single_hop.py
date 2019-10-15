@@ -66,6 +66,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -106,9 +107,10 @@ class TestOneHop(unittest.TestCase):
 
             self.network.delay = 0
             self.hosts = hosts
-            # A <-> B
 
+            # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -151,6 +153,7 @@ class TestOneHop(unittest.TestCase):
             self.network.delay = 0
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -226,6 +229,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -249,6 +253,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -285,6 +290,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -316,6 +322,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -348,6 +355,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -411,6 +419,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -456,6 +465,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             # hosts['alice'].set_memory_limit(1)
             hosts['alice'].memory_limit = 1
@@ -495,6 +505,7 @@ class TestOneHop(unittest.TestCase):
 
             # A <-> B
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].memory_limit = 1
             hosts['bob'].memory_limit = 1
@@ -579,6 +590,7 @@ class TestOneHop(unittest.TestCase):
             self.hosts = hosts
 
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
 
             hosts['alice'].start()
             hosts['bob'].start()

@@ -63,7 +63,10 @@ class TestTwoHop(unittest.TestCase):
             # A <-> B <-> E
 
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -85,7 +88,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'testing123')
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_full_network_routing(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -96,7 +99,10 @@ class TestTwoHop(unittest.TestCase):
             # A <-> B <-> E
 
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -119,7 +125,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
             self.assertEqual(messages[0]['message'], 'testing123')
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -129,7 +135,10 @@ class TestTwoHop(unittest.TestCase):
             self.hosts = hosts
 
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -159,7 +168,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -170,7 +179,10 @@ class TestTwoHop(unittest.TestCase):
 
             # A <-> B <-> E
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -193,7 +205,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertIsNotNone(q2)
             self.assertEqual(q2['q'].measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -203,7 +215,10 @@ class TestTwoHop(unittest.TestCase):
 
             # A <-> B <-> E
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -235,7 +250,10 @@ class TestTwoHop(unittest.TestCase):
 
             # A <-> B <-> E
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()
@@ -270,7 +288,10 @@ class TestTwoHop(unittest.TestCase):
 
             # A <-> B <-> E
             hosts['alice'].add_connection('00000001')
+            hosts['bob'].add_connection('00000000')
+
             hosts['bob'].add_connection('00000011')
+            hosts['eve'].add_connection('00000001')
 
             hosts['alice'].start()
             hosts['bob'].start()

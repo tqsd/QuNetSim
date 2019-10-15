@@ -26,6 +26,7 @@ class Host:
         self._EPR_store = {}
         self._classical = []
         self.connections = []
+        self._quantum_connections = []
         self.cqc = cqc
         self._max_ack_wait = None
         # Frequency of queue processing
@@ -126,6 +127,10 @@ class Host:
 
         self._memory_limit = memory_limit
 
+    @property
+    def quantum_connections(self):
+        return self._quantum_connections
+
     def _get_sequence_number(self, host):
         """
         Returns the sequence number of connection with a receiver.
@@ -200,15 +205,34 @@ class Host:
         """
         self._packet_queue.put(packet)
 
+    def add_c_connections(self, receiver_id):
+        """
+        Adds the classical connection to host with ID *receiver_id*.
+
+        Args:
+            receiver_id (string): The ID of the host to connect with.
+        """
+        self.connections.append(receiver_id)
+
+    def add_q_connections(self, receiver_id):
+        """
+        Adds the quantum connection to host with ID *receiver_id*.
+
+        Args:
+            receiver_id (string): The ID of the host to connect with.
+        """
+        self.quantum_connections.append(receiver_id)
+
     def add_connection(self, receiver_id):
         """
-        Adds the connection to host with ID *receiver_id*.
+        Adds the classical and quantum connection to host with ID *receiver_id*.
 
         Args:
             receiver_id (string): The ID of the host to connect with.
 
         """
         self.connections.append(receiver_id)
+        self.quantum_connections.append(receiver_id)
 
     def send_ack(self, receiver, seq_number):
         """
