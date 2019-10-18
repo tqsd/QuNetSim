@@ -632,27 +632,30 @@ class Host:
         Returns:
              Qubit: Qubit recevied from the host with *partner_id* and *q_id*.
         """
+        try :
+            if partner_id not in self._data_qubit_store:
+                return None
 
-        if partner_id not in self._data_qubit_store:
+            # If q_id is not specified, then return the last in the stack
+            # else return the qubit with q_id q_id
+            if q_id is None:
+                if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
+                    return None
+                if not self._data_qubit_store[partner_id]['qubits'][-1]['blocked']:
+                    self._data_qubit_store[partner_id]['qubits'][-1]['blocked'] = True
+                    return self._data_qubit_store[partner_id]['qubits'].pop()
+                else:
+                    print('accessed blocked data qubit')
+            else:
+                for index, qubit in enumerate(self._data_qubit_store[partner_id]['qubits']):
+                    if qubit['q_id'] == q_id:
+                        q = qubit['q']
+                        del self._data_qubit_store[partner_id]['qubits'][index]
+                        return q
             return None
 
-        # If q_id is not specified, then return the last in the stack
-        # else return the qubit with q_id q_id
-        if q_id is None:
-            if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
-                return None
-            if not self._data_qubit_store[partner_id]['qubits'][-1]['blocked']:
-                self._data_qubit_store[partner_id]['qubits'][-1]['blocked'] = True
-                return self._data_qubit_store[partner_id]['qubits'].pop()
-            else:
-                print('accessed blocked data qubit')
-        else:
-            for index, qubit in enumerate(self._data_qubit_store[partner_id]['qubits']):
-                if qubit['q_id'] == q_id:
-                    q = qubit['q']
-                    del self._data_qubit_store[partner_id]['qubits'][index]
-                    return q
-        return None
+        except IndexError:
+            return None
 
     def stop(self):
         """
