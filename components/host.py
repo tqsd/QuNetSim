@@ -159,6 +159,14 @@ class Host:
         Logger.get_instance().log(
             self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq))
 
+    def is_idle(self):
+        """
+        Returns if the host has packets to process or is idle.
+        Returns:
+            (boolean): If the host is idle or not.
+        """
+        return self._packet_queue.empty()
+
     def _process_packet(self, packet):
         """
         Processes the received packet.
