@@ -351,6 +351,7 @@ class Host:
             receiver_id (string): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
+            payload:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
@@ -424,7 +425,6 @@ class Host:
         if packet[protocols.AWAIT_ACK]:
             self._log_ack('SEND QUBIT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
             return q_id, self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
-
         return q_id
 
     def shares_epr(self, receiver_id):
@@ -583,7 +583,33 @@ class Host:
 
         return q_id
 
-    def get_epr(self, partner_id, q_id=None):
+    def get_classical(self, partner_id, wait=-1):
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        def process_messages():
+            nonlocal cla
+            for m in self._classical:
+                if m['sender'] == partner_id:
+                    cla.append(m)
+
+        def _wait():
+            nonlocal cla
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and len(cla) == 0:
+                process_messages()
+            return cla
+
+        if wait > 0:
+            cla = []
+            DaemonThread(_wait).join()
+            return cla
+        else:
+            cla = []
+            return process_messages()
+
+    def get_epr(self, partner_id, q_id=None, wait=-1):
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
         EPR with that ID is returned, else, the last EPR added is returned.
@@ -591,36 +617,29 @@ class Host:
         Args:
             partner_id (string): The ID of the host that returned EPR is entangled to.
             q_id (string): The qubit ID of the EPR to get.
-
+            wait (float): the amount of time to wait
         Returns:
              Qubit: Qubit shared with the host with *partner_id* and *q_id*.
         """
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
 
-        if partner_id not in self._EPR_store:
-            return None
+        def _wait():
+            nonlocal q
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and q is None:
+                q = _get_qubit(self._EPR_store, partner_id, q_id)
+            return q
 
-        if len(self._EPR_store[partner_id]) == 0:
-            return None
-
-        # If q_id is not specified, then return the last in the stack
-        # else return the qubit with q_id q_id
-        if q_id is None:
-            if partner_id not in self._EPR_store or len(self._EPR_store[partner_id]['qubits']) == 0:
-                return None
-            if not self._EPR_store[partner_id]['qubits'][-1]['blocked']:
-                self._EPR_store[partner_id]['qubits'][-1]['blocked'] = True
-                return self._EPR_store[partner_id]['qubits'].pop()
-            else:
-                self.logger.log('accessed blocked epr qubit')
+        if wait > 0:
+            q = None
+            DaemonThread(_wait).join()
+            return q
         else:
-            for index, qubit in enumerate(self._EPR_store[partner_id]['qubits']):
-                if qubit['q_id'] == q_id:
-                    q = qubit['q']
-                    del self._EPR_store[partner_id]['qubits'][index]
-                    return q
-        return None
+            return _get_qubit(self._EPR_store, partner_id, q_id)
 
-    def get_data_qubit(self, partner_id, q_id=None):
+    def get_data_qubit(self, partner_id, q_id=None, wait=-1):
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified,
         qubit with that ID is returned, else, the last qubit received is returned.
@@ -628,31 +647,27 @@ class Host:
         Args:
             partner_id (string): The ID of the host that data qubit to be returned is received from.
             q_id (string): The qubit ID of the data qubit to get.
-
+            wait (float): The amount of time to wait for the a qubit to arrive
         Returns:
-             Qubit: Qubit recevied from the host with *partner_id* and *q_id*.
+             Qubit: Qubit received from the host with *partner_id* and *q_id*.
         """
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
 
-        if partner_id not in self._data_qubit_store:
-            return None
+        def _wait():
+            nonlocal q
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and q is None:
+                q = _get_qubit(self._data_qubit_store, partner_id, q_id)
+            return q
 
-        # If q_id is not specified, then return the last in the stack
-        # else return the qubit with q_id q_id
-        if q_id is None:
-            if partner_id not in self._data_qubit_store or len(self._data_qubit_store[partner_id]) == 0:
-                return None
-            if not self._data_qubit_store[partner_id]['qubits'][-1]['blocked']:
-                self._data_qubit_store[partner_id]['qubits'][-1]['blocked'] = True
-                return self._data_qubit_store[partner_id]['qubits'].pop()
-            else:
-                print('accessed blocked data qubit')
+        if wait > 0:
+            q = None
+            DaemonThread(_wait).join()
+            return q
         else:
-            for index, qubit in enumerate(self._data_qubit_store[partner_id]['qubits']):
-                if qubit['q_id'] == q_id:
-                    q = qubit['q']
-                    del self._data_qubit_store[partner_id]['qubits'][index]
-                    return q
-        return None
+            return _get_qubit(self._data_qubit_store, partner_id, q_id)
 
     def stop(self):
         """
@@ -666,3 +681,47 @@ class Host:
         Starts the host.
         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
+
+
+def _get_qubit(store, partner_id, q_id):
+    """
+    Gets the data qubit received from another host in the network. If qubit ID is specified,
+    qubit with that ID is returned, else, the last qubit received is returned.
+
+    Args:
+        store: The qubit storage to retrieve the qubit
+        partner_id (string): The ID of the host that data qubit to be returned is received from.
+        q_id (string): The qubit ID of the data qubit to get.
+    Returns:
+         Qubit: Qubit received from the host with *partner_id* and *q_id*.
+    """
+
+    def get_qubit():
+        if len(store[partner_id]) == 0:
+            return None
+        if not store[partner_id]['qubits'][-1]['blocked']:
+            store[partner_id]['qubits'][-1]['blocked'] = True
+            return store[partner_id]['qubits'].pop()
+        else:
+            print('accessed blocked qubit')
+
+    def get_qubit_with_id():
+        for index, qubit in enumerate(store[partner_id]['qubits']):
+            if qubit['q_id'] == q_id:
+                qu = qubit['q']
+                # TODO: make deletion optional
+                del store[partner_id]['qubits'][index]
+                return qu
+        return None
+
+    # check if there is a qubit in the data store from expected sender
+    if partner_id not in store:
+        # there are no qubits from the expected sender
+        return None
+
+        # If q_id is not specified, then return the last in the stack
+    # else return the qubit with q_id q_id
+    if q_id is None:
+        return get_qubit()
+    else:
+        return get_qubit_with_id()
