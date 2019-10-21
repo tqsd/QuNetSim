@@ -609,6 +609,7 @@ class Host:
             cla = []
             return process_messages()
 
+
     def get_epr(self, partner_id, q_id=None, wait=-1):
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
@@ -697,7 +698,7 @@ def _get_qubit(store, partner_id, q_id):
     """
 
     def get_qubit():
-        if len(store[partner_id]) == 0:
+        if len(store[partner_id]['qubits']) == 0:
             return None
         if not store[partner_id]['qubits'][-1]['blocked']:
             store[partner_id]['qubits'][-1]['blocked'] = True
