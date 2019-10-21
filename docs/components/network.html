@@ -259,6 +259,12 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.network.Network.delay">
+<em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#components.network.Network.delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the delay interval of the network.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network.draw_network">
 <code class="sig-name descname">draw_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.draw_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws a plot of the network.</p>
@@ -315,23 +321,66 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="components.network.Network.get_route">
-<code class="sig-name descname">get_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_route" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dt id="components.network.Network.get_quantum_route">
+<code class="sig-name descname">get_quantum_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_quantum_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the route for quantum information from source to destination.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<em>string</em>) – ID number of the source host</p></li>
-<li><p><strong>dest</strong> (<em>string</em>) – ID number of the destination host</p></li>
+<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>route (array)</p>
+</dd>
 </dl>
-<p>Gets the shortest route from source to destination.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.get_route">
+<code class="sig-name descname">get_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the route for classical information from source to destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>route (array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.packet_drop_rate">
+<em class="property">property </em><code class="sig-name descname">packet_drop_rate</code><a class="headerlink" href="#components.network.Network.packet_drop_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the drop rate of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>drop_rate</strong> (<em>float</em>) – Probability of dropping a packet in the network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.quantum_routing_algo">
+<em class="property">property </em><code class="sig-name descname">quantum_routing_algo</code><a class="headerlink" href="#components.network.Network.quantum_routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the quantum routing algorithm of the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+<dd class="field-odd"><p>The quantum routing algorithm of the network</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>string array</p>
+<dd class="field-even"><p>algorithm (function)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,23 +397,18 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.network.Network.routing_algo">
+<em class="property">property </em><code class="sig-name descname">routing_algo</code><a class="headerlink" href="#components.network.Network.routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the routing algorithm for the network.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network.send">
 <code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Puts the packet to the packet queue of the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – Packet to be sent</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.network.Network.set_delay">
-<code class="sig-name descname">set_delay</code><span class="sig-paren">(</span><em class="sig-param">delay</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.set_delay" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the delay interval of the network.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>delay</strong> (<em>float</em>) – Delay in network tick in seconds</p>
 </dd>
 </dl>
 </dd></dl>
@@ -410,6 +454,34 @@ between sender and receiver.</p>
 <dt id="components.network.Network.stop">
 <code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.use_hop_by_hop">
+<em class="property">property </em><code class="sig-name descname">use_hop_by_hop</code><a class="headerlink" href="#components.network.Network.use_hop_by_hop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the routing style for the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the network uses hop by hop routing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.x_error_rate">
+<em class="property">property </em><code class="sig-name descname">x_error_rate</code><a class="headerlink" href="#components.network.Network.x_error_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the X error rate of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>error_rate</strong> (<em>float</em>) – Probability of a X error during a qubit transmission in the network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.z_error_rate">
+<em class="property">property </em><code class="sig-name descname">z_error_rate</code><a class="headerlink" href="#components.network.Network.z_error_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Z error rate of the network.</p>
 </dd></dl>
 
 </dd></dl>
