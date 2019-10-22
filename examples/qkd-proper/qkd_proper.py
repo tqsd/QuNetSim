@@ -7,12 +7,14 @@ sys.path.append("../..")
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
+from components.daemon_thread import DaemonThread
 
 
 def qkd_sender(host, q_size, receiver_id):
     bit_arr = np.random.randint(2, size=q_size)
     base_arr = np.random.randint(2, size=q_size)  # 0 represents X basis , 1 represents Z basis
-    wait_time = 10
+    wait_time = 5
+
     q_arr = []
     for i in range(q_size):
         q_arr.append(qubit(host.cqc))
@@ -24,11 +26,20 @@ def qkd_sender(host, q_size, receiver_id):
     for i in range(q_size):
         host.send_qubit(receiver_id, q_arr[i], await_ack=True)
 
-    messages = host.get_classical(receiver_id, wait=wait_time)
+    messages = []
     while len(messages) < q_size + 1:
         messages = host.get_classical(receiver_id, wait=wait_time)
 
-    intended_message = messages[-1]['message']
+    intended_message = ''
+    for m in messages:
+        if m['sequence_number'] == q_size:
+            intended_message = m['message']
+            break
+
+    if intended_message == '':
+        print('sender failed')
+        return
+
     message_edited = np.fromstring(intended_message[1:-1], dtype=np.int, sep=' ')
     check = []
 
@@ -40,17 +51,25 @@ def qkd_sender(host, q_size, receiver_id):
     check = np.asarray(check)
 
     host.send_classical(receiver_id, str(check), True)
-    message = host.get_classical(receiver_id, wait=wait_time)
-    while len(message) < q_size + 3:
-        message = host.get_classical(receiver_id, wait=wait_time)
+    messages = host.get_classical(receiver_id, wait=wait_time)
+    while len(messages) < q_size + 3:
+        messages = host.get_classical(receiver_id, wait=wait_time)
 
-    intended_message_2 = message[-1]['message']
-    message_3_edited = np.fromstring(intended_message_2[1:-1], dtype=np.int, sep=' ')
+    intended_message = ''
+    for m in messages:
+        if m['sequence_number'] == q_size + 3:
+            intended_message = m['message']
+            break
+
+    if intended_message == '':
+        print('sender failed')
+        return
+
+    message_edited = np.fromstring(intended_message[1:-1], dtype=np.int, sep=' ')
     confirmation = True
-
     for i in range(q_size):
-        if message_3_edited[i] == 0 or message_3_edited[i] == 1:
-            if message_3_edited[i] != bit_arr[i]:
+        if message_edited[i] == 0 or message_edited[i] == 1:
+            if message_edited[i] != bit_arr[i]:
                 confirmation = False
 
     shared_key = []
@@ -65,7 +84,7 @@ def qkd_sender(host, q_size, receiver_id):
 def qkd_receiver(host, q_size, sender_id):
     bit_arr = []
     base_arr = np.random.randint(2, size=q_size)
-    wait_time = 10
+    wait_time = 5
 
     for i in range(q_size):
         q = host.get_data_qubit(sender_id, wait=wait_time)
@@ -80,7 +99,7 @@ def qkd_receiver(host, q_size, sender_id):
     while len(messages) < 2:
         messages = host.get_classical(sender_id, wait=wait_time)
 
-    message_2 = host.get_classical(sender_id, wait=wait_time)[1]['message']
+    message_2 = host.get_classical(sender_id, wait=wait_time)[0]['message']
     message_2_edited = np.fromstring(message_2[1:-1], dtype=np.int, sep=' ')
 
     reveal_arr_pos = np.random.randint(2, size=len(message_2_edited))
@@ -105,10 +124,14 @@ def qkd_receiver(host, q_size, sender_id):
     while len(messages) < 4:
         messages = host.get_classical(sender_id, wait=wait_time)
 
-    message_4 = messages[-1]['message']
-    shared_key = []
+    message = messages[0]['message']
+    if message == '':
+        print('receiver failed')
+        return
 
-    if message_4 == 'True':
+    shared_key = []
+    print(message)
+    if message == 'True':
         for i in range(len(message_2_edited)):
             shared_key.append(bit_arr[(message_2_edited[i])])
 
@@ -118,7 +141,7 @@ def qkd_receiver(host, q_size, sender_id):
 def main():
     network = Network.get_instance()
     network.start()
-    network.delay = 0.5
+    network.delay = 0.2
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
@@ -126,30 +149,32 @@ def main():
 
         host_alice = Host('alice', Alice)
         host_alice.add_connection('bob')
+        host_alice.max_ack_wait = 10
         host_alice.start()
 
         host_bob = Host('bob', Bob)
+        host_bob.max_ack_wait = 10
         host_bob.add_connection('alice')
-        # host_bob.add_connection('eve')
+        host_bob.add_connection('eve')
         host_bob.start()
 
-        # host_eve = Host('eve', Eve)
-        # host_eve.add_connection('bob')
-        # host_eve.start()
+        host_eve = Host('eve', Eve)
+        host_eve.add_connection('bob')
+        host_eve.start()
 
         network.add_host(host_alice)
         network.add_host(host_bob)
-        # network.add_host(host_eve)
+        network.add_host(host_eve)
 
-        q_size = 5
+        q_size = 10
 
-        qkd_sender(host_alice, q_size, host_bob.host_id)
-        qkd_receiver(host_bob, q_size, host_alice.host_id)
+        DaemonThread(qkd_sender, args=(host_alice, q_size, host_eve.host_id))
+        DaemonThread(qkd_receiver, args=(host_eve, q_size, host_alice.host_id))
 
-        nodes = [host_alice, host_bob]
+        nodes = [host_alice, host_bob, host_eve]
 
         start_time = time.time()
-        while time.time() - start_time < 20:
+        while time.time() - start_time < 40:
             pass
 
         for h in nodes:
