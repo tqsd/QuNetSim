@@ -45,7 +45,7 @@ class Host:
         Returns:
              Array: Sorted array of classical messages.
         """
-        return sorted(self._classical, key=lambda x: x['sequence_number'])
+        return sorted(self._classical, key=lambda x: x['sequence_number'], reverse=True)
 
     @property
     def delay(self):
@@ -259,6 +259,10 @@ class Host:
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
+        if receiver in self.seq_number:
+            self.seq_number[receiver] = max(self.seq_number[receiver] + 1, seq_number)
+        else:
+            self.seq_number[receiver] = seq_number + 1
         self._packet_queue.put(packet)
 
     def await_ack(self, sequence_number, sender):
@@ -592,6 +596,15 @@ class Host:
         return q_id
 
     def get_classical(self, partner_id, wait=-1):
+        """
+
+        Args:
+            partner_id:
+            wait:
+
+        Returns:
+
+        """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
@@ -612,7 +625,7 @@ class Host:
         if wait > 0:
             cla = []
             DaemonThread(_wait).join()
-            return cla
+            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
         else:
             cla = []
             return process_messages()
@@ -705,7 +718,7 @@ def _get_qubit(store, partner_id, q_id):
     """
 
     def get_qubit():
-        if len(store[partner_id]) == 0:
+        if len(store[partner_id]['qubits']) == 0:
             return None
         if not store[partner_id]['qubits'][-1]['blocked']:
             store[partner_id]['qubits'][-1]['blocked'] = True
