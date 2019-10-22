@@ -213,7 +213,7 @@ class Host:
         """
         self._packet_queue.put(packet)
 
-    def add_c_connections(self, receiver_id):
+    def add_c_connection(self, receiver_id):
         """
         Adds the classical connection to host with ID *receiver_id*.
 
@@ -222,7 +222,7 @@ class Host:
         """
         self.connections.append(receiver_id)
 
-    def add_q_connections(self, receiver_id):
+    def add_q_connection(self, receiver_id):
         """
         Adds the quantum connection to host with ID *receiver_id*.
 
