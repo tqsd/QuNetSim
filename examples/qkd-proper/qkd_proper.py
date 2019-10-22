@@ -130,7 +130,6 @@ def qkd_receiver(host, q_size, sender_id):
         return
 
     shared_key = []
-    print(message)
     if message == 'True':
         for i in range(len(message_2_edited)):
             shared_key.append(bit_arr[(message_2_edited[i])])
