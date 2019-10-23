@@ -25,7 +25,7 @@ class Host:
         self._data_qubit_store = {}
         self._EPR_store = {}
         self._classical = []
-        self.connections = []
+        self._connections = []
         self._quantum_connections = []
         self.cqc = cqc
         self._max_ack_wait = None
@@ -36,6 +36,18 @@ class Host:
         self._memory_limit = -1
         # Packet sequence numbers per connection
         self.seq_number = {}
+
+    @property
+    def connections(self, classical_only=True):
+        if classical_only:
+            return self._connections
+        else:
+            connection_list = []
+            for c in self._connections:
+                connection_list.append({'type': 'classical', 'connection': c})
+            for q in self._quantum_connections:
+                connection_list.append({'type': 'quantum', 'connection': q)
+            return connection_list
 
     @property
     def classical(self):
@@ -355,7 +367,7 @@ class Host:
 
         return q_id
 
-    def send_teleport(self, receiver_id, q, await_ack=False, payload=None):
+    def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
@@ -364,6 +376,7 @@ class Host:
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
             payload:
+            generate_epr_if_none: Generate an EPR pair with receiver if one doesn't exist
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
@@ -371,7 +384,7 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
-                                  payload={'q': q},
+                                  payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=self._get_sequence_number(receiver_id),
                                   await_ack=await_ack)

@@ -203,10 +203,11 @@ def _send_teleport(packet):
     q = packet[PAYLOAD]['q']
 
     host_sender = network.get_host(packet[SENDER])
-    if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
-        Logger.get_instance().log(
-            'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
-        host_sender.send_epr(packet[RECEIVER], await_ack=True)
+    if packet[PAYLOAD]['generate_epr_if_none']:
+        if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
+            Logger.get_instance().log(
+                'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
+            host_sender.send_epr(packet[RECEIVER], await_ack=True)
 
     epr_teleport = host_sender.get_epr(packet[RECEIVER])
 
@@ -243,11 +244,10 @@ def _rec_teleport(packet):
     payload = packet[PAYLOAD]
     q_id = payload['q_id']
 
-    q = host_receiver.get_epr(packet[SENDER], q_id)
-
-    # TODO: Put a timeout on this
-    while q is None:
-        q = host_receiver.get_epr(packet[SENDER], q_id)
+    q = host_receiver.get_epr(packet[SENDER], q_id, 10)
+    if q is None:
+        # TODO: what to do when fails
+        return
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -260,7 +260,6 @@ def _rec_teleport(packet):
         q.X()
 
     if payload['type'] == EPR:
-
         host_receiver.add_epr(epr_host, q, q_id)
 
     elif payload['type'] == DATA:
