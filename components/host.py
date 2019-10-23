@@ -46,7 +46,7 @@ class Host:
             for c in self._connections:
                 connection_list.append({'type': 'classical', 'connection': c})
             for q in self._quantum_connections:
-                connection_list.append({'type': 'quantum', 'connection': q)
+                connection_list.append({'type': 'quantum', 'connection': q})
             return connection_list
 
     @property
