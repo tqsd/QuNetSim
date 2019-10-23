@@ -203,7 +203,8 @@ def _send_teleport(packet):
     q = packet[PAYLOAD]['q']
 
     host_sender = network.get_host(packet[SENDER])
-    if packet[PAYLOAD]['generate_epr_if_none']:
+    # TODO: turn string into const 
+    if 'generate_epr_if_none' in packet[PAYLOAD] and packet[PAYLOAD]['generate_epr_if_none']:
         if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])

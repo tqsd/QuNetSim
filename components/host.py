@@ -24,8 +24,8 @@ class Host:
         self._queue_processor_thread = None
         self._data_qubit_store = {}
         self._EPR_store = {}
-        self._classical = []
-        self._connections = []
+        self._classical_messages = []
+        self._classical_connections = []
         self._quantum_connections = []
         self.cqc = cqc
         self._max_ack_wait = None
@@ -38,16 +38,28 @@ class Host:
         self.seq_number = {}
 
     @property
-    def connections(self, classical_only=True):
-        if classical_only:
-            return self._connections
-        else:
-            connection_list = []
-            for c in self._connections:
-                connection_list.append({'type': 'classical', 'connection': c})
-            for q in self._quantum_connections:
-                connection_list.append({'type': 'quantum', 'connection': q})
-            return connection_list
+    def classical_connections(self):
+        """
+        Gets the classical connections of the host.
+
+        Returns:
+            classical connections
+        """
+        return self._classical_connections
+
+    def get_connections(self):
+        """
+        Get a list of the connections with the types.
+
+        Returns:
+
+        """
+        connection_list = []
+        for c in self._classical_connections:
+            connection_list.append({'type': 'classical', 'connection': c})
+        for q in self._quantum_connections:
+            connection_list.append({'type': 'quantum', 'connection': q})
+        return connection_list
 
     @property
     def classical(self):
@@ -57,7 +69,7 @@ class Host:
         Returns:
              Array: Sorted array of classical messages.
         """
-        return sorted(self._classical, key=lambda x: x['sequence_number'], reverse=True)
+        return sorted(self._classical_messages, key=lambda x: x['sequence_number'], reverse=True)
 
     @property
     def delay(self):
@@ -190,7 +202,7 @@ class Host:
         sender = packet['sender']
         result = protocols.process(packet)
         if result is not None:
-            self._classical.append({
+            self._classical_messages.append({
                 'sender': sender,
                 'message': result['message'],
                 'sequence_number': result['sequence_number']
@@ -232,7 +244,7 @@ class Host:
         Args:
             receiver_id (string): The ID of the host to connect with.
         """
-        self.connections.append(receiver_id)
+        self.classical_connections.append(receiver_id)
 
     def add_q_connection(self, receiver_id):
         """
@@ -251,7 +263,7 @@ class Host:
             receiver_id (string): The ID of the host to connect with.
 
         """
-        self.connections.append(receiver_id)
+        self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
 
     def send_ack(self, receiver, seq_number):
@@ -465,6 +477,12 @@ class Host:
         """
         return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]['qubits']) != 0
 
+    def change_epr_qubit_id(self, host_id, q_id):
+        self.logger.log('Changing qubit ID')
+        if host_id in self._EPR_store:
+            q = self._EPR_store[host_id]['qubits'][0]
+            q['q_id'] = q_id
+
     def get_epr_pairs(self, host_id=None):
         """
         Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
@@ -623,7 +641,7 @@ class Host:
 
         def process_messages():
             nonlocal cla
-            for m in self._classical:
+            for m in self._classical_messages:
                 if m['sender'] == partner_id:
                     cla.append(m)
 

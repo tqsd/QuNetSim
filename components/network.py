@@ -270,7 +270,7 @@ class Network:
         self.network.add_node(host.host_id)
         self.quantum_network.add_node(host.host_id)
 
-        for connection in host.connections:
+        for connection in host.classical_connections:
             if not self.network.has_edge(host.host_id, connection):
                 edge = (host.host_id, connection, {'weight': 1})
                 self.network.add_edges_from([edge])
@@ -374,12 +374,15 @@ class Network:
 
         # TODO: Multiprocess this
         for i in range(len(route) - 1):
-            self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
+            if not self.shares_epr(route[i], route[i + 1]):
+                self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
+            else:
+                self.get_host(route[i]).change_epr_qubit_id(route[i + 1], q_id)
 
         for i in range(len(route) - 2):
-            q = self.get_host(route[i + 1]).get_epr(route[0])
-            while q is None:
-                q = self.get_host(route[i + 1]).get_epr(route[0])
+            q = self.get_host(route[i + 1]).get_epr(route[0], wait=10)
+            if q is None:
+                Logger.get_instance().error('Entanglement swap failed')
 
             data = {'q': q['q'],
                     'q_id': q['q_id'],
