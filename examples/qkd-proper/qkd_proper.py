@@ -143,42 +143,38 @@ def main():
     network.delay = 0.2
     print('')
 
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
-            CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
+    with CQCConnection("Alice") as A, CQCConnection("Bob") as node_1, \
+            CQCConnection('Eve') as node_2, CQCConnection('Dean') as B:
 
-        host_alice = Host('alice', Alice)
-        host_alice.add_q_connection('bob')
-        host_alice.add_c_connection('eve')
-        host_alice.max_ack_wait = 10
-        host_alice.start()
+        A = Host('A', A)
+        A.add_q_connection('node_1')
+        A.add_c_connection('node_2')
+        A.start()
 
-        host_bob = Host('bob', Bob)
-        host_bob.max_ack_wait = 10
-        host_bob.add_q_connection('alice')
-        host_bob.add_q_connection('dean')
-        host_bob.start()
+        node_1 = Host('node_1', node_1)
+        node_1.add_q_connection('B')
+        node_1.start()
 
-        host_eve = Host('eve', Eve)
-        host_eve.add_c_connection('alice')
-        host_eve.add_c_connection('dean')
-        host_eve.start()
+        node_2 = Host('node_2', node_2)
+        node_2.add_c_connection('A')
+        node_2.add_c_connection('B')
+        node_2.start()
 
-        host_dean = Host('dean', Dean)
-        host_dean.add_q_connection('bob')
-        host_dean.add_c_connection('eve')
-        host_dean.start()
+        B = Host('B', B)
+        B.add_c_connection('node_2')
+        B.start()
 
-        network.add_host(host_alice)
-        network.add_host(host_bob)
-        network.add_host(host_eve)
-        network.add_host(host_dean)
+        network.add_host(A)
+        network.add_host(node_1)
+        network.add_host(node_2)
+        network.add_host(B)
 
         q_size = 10
 
-        DaemonThread(qkd_sender, args=(host_alice, q_size, host_dean.host_id))
-        DaemonThread(qkd_receiver, args=(host_dean, q_size, host_alice.host_id))
+        DaemonThread(qkd_sender, args=(A, q_size, B.host_id))
+        DaemonThread(qkd_receiver, args=(B, q_size, A.host_id))
 
-        nodes = [host_alice, host_bob, host_eve, host_dean]
+        nodes = [A, node_1, node_2, B]
         start_time = time.time()
         while time.time() - start_time < 40:
             pass
