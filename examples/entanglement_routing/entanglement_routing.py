@@ -95,7 +95,7 @@ def main():
 
         choices = ['00', '11', '10', '01']
         for _ in range(5):
-            print('SUPPPPPERRRR')
+            print('----  sending superdense  ----')
             A.send_superdense(B.host_id, random.choice(choices), await_ack=True)
             time.sleep(1)
 
