@@ -27,7 +27,7 @@ class Network:
         if Network.__instance is None:
             self.ARP = {}
             # The directed graph for the connections
-            self.network = nx.DiGraph()
+            self.classical_network = nx.DiGraph()
             self.sim_network = None
             self.quantum_network = nx.DiGraph()
             self._quantum_routing_algo = nx.shortest_path
@@ -261,7 +261,7 @@ class Network:
         """
 
         try:
-            self.network.remove_node(host.host_id)
+            self.classical_network.remove_node(host.host_id)
         except nx.NetworkXError:
             Logger.get_instance().error('attempted to remove a non-exiting node from network')
 
@@ -271,13 +271,13 @@ class Network:
         Args:
             host: The host to be added
         """
-        self.network.add_node(host.host_id)
+        self.classical_network.add_node(host.host_id)
         self.quantum_network.add_node(host.host_id)
 
         for connection in host.classical_connections:
-            if not self.network.has_edge(host.host_id, connection):
+            if not self.classical_network.has_edge(host.host_id, connection):
                 edge = (host.host_id, connection, {'weight': 1})
-                self.network.add_edges_from([edge])
+                self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
             if not self.quantum_network.has_edge(host.host_id, connection):
@@ -346,7 +346,7 @@ class Network:
         Returns:
             route (array): An ordered array of ID numbers on the shortest path from source to destination.
         """
-        return self.quantum_routing_algo(self.network, source, dest)
+        return self.quantum_routing_algo(self.quantum_network, source, dest)
 
     def get_classical_route(self, source, dest):
         """
@@ -359,7 +359,7 @@ class Network:
         Returns:
             route (array): An ordered array of ID numbers on the shortest path from source to destination.
         """
-        return self.classical_routing_algo(self.network, source, dest)
+        return self.classical_routing_algo(self.classical_network, source, dest)
 
     def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num):
         """
@@ -508,8 +508,9 @@ class Network:
                     else:
                         if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
+                            q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
-                                         args=(sender, receiver, route, q_id, packet[protocols.SEQUENCE_NUMBER]))
+                                         args=(sender, receiver, q_route, q_id, packet[protocols.SEQUENCE_NUMBER]))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)
@@ -561,7 +562,7 @@ class Network:
         Draws a plot of the network.
         """
 
-        nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
+        nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
                          with_labels=True, hold=False)
         plt.show()
 
