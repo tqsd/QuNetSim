@@ -2,6 +2,7 @@ from cqc.pythonLib import CQCConnection, qubit
 import sys
 import time
 import networkx as nx
+import matplotlib.pyplot as plt
 
 sys.path.append("../..")
 from components.host import Host
@@ -35,12 +36,12 @@ def routing_algorithm(di_graph, source, target):
             if connection['type'] == 'quantum':
                 w = len(host.get_epr_pairs(connection['connection']))
                 if w == 0:
-                    edge = (host.host_id, connection['connection'], {'weight': 1000})
+                    entanglement_network.add_edge(host.host_id, connection['connection'], weight=1000)
                 else:
-                    edge = (host.host_id, connection['connection'], {'weight': 1. / w})
-                entanglement_network.add_edges_from([edge])
+                    entanglement_network.add_edge(host.host_id, connection['connection'], weight=1. / w)
+
     try:
-        route = nx.shortest_path(entanglement_network, source=source, target=target, weight='weight')
+        route = nx.shortest_path(entanglement_network, source, target, weight='weight')
         print(route)
         return route
     except Exception as e:
@@ -48,52 +49,55 @@ def routing_algorithm(di_graph, source, target):
 
 
 def main():
-    network.start()
-    network.quantum_routing_algo = routing_algorithm
+    # network.quantum_routing_algo = routing_algorithm
+    nodes = ['A', 'node_1', 'node_2', 'B']
+    network.set_delay = 0.2
+    network.start(nodes)
 
-    with CQCConnection("Alice") as A, CQCConnection("Bob") as node_1, \
-            CQCConnection('Eve') as node_2, CQCConnection('Dean') as B:
+    with CQCConnection("A") as A, CQCConnection("node_1") as node_1, \
+            CQCConnection('node_2') as node_2, CQCConnection('B') as B:
 
         A = Host('A', A)
         A.add_connection('node_1')
-        A.add_connection('node_2')
         A.start()
-
+        #
         node_1 = Host('node_1', node_1)
         node_1.add_connection('A')
         node_1.add_connection('B')
         node_1.start()
 
-        node_2 = Host('node_2', node_2)
-        node_2.add_connection('A')
-        node_2.add_connection('B')
-        node_2.start()
-
+        #
         B = Host('B', B)
         B.add_connection('node_1')
-        B.add_connection('node_2')
         B.start()
-
-        hosts = [A, node_1, node_2, B]
+        #
+        hosts = [A, node_1, B]
         for h in hosts:
             network.add_host(h)
 
-        DaemonThread(generate_entanglement, args=(node_1,))
+        # DaemonThread(generate_entanglement, args=(node_1,))
 
-        time.sleep(5)
-        for _ in range(2):
-            time.sleep(1)
-            print('send')
-            A.send_superdense(B.host_id, '10')
+        node_1.send_epr('A', await_ack=True)
+        node_1.send_epr('A', await_ack=True)
+        node_1.send_epr('B', await_ack=True)
+        node_1.send_epr('B', await_ack=True)
+        node_1.send_epr('B', await_ack=True)
+        node_1.send_epr('B', await_ack=True)
 
-        start_time = time.time()
+        A.send_superdense(B.host_id, '11')
+        A.send_superdense(B.host_id, '00')
+        A.send_superdense(B.host_id, '10')
+        A.send_superdense(B.host_id, '01')
 
-        while time.time() - start_time < 40:
-            pass
+        # for _ in range():
+        #     time.sleep(0.5)
+        #     print('send')
+        #     A.send_superdense(B.host_id, '10')
 
-        for h in hosts:
-            h.stop()
-        network.stop()
+        time.sleep(30)
+        print('stopping')
+
+        network.stop(stop_hosts=True)
 
 
 if __name__ == '__main__':
