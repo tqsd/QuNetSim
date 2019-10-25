@@ -2,6 +2,7 @@ from cqc.pythonLib import CQCConnection, qubit
 import sys
 import time
 import networkx as nx
+import random
 import matplotlib.pyplot as plt
 
 sys.path.append("../..")
@@ -75,28 +76,15 @@ def main():
         for h in hosts:
             network.add_host(h)
 
-        # DaemonThread(generate_entanglement, args=(node_1,))
+        DaemonThread(generate_entanglement, args=(node_1,))
+        time.sleep(5)
+        choices = ['00', '11', '10', '01']
+        for _ in range(10):
+            A.send_superdense(B.host_id, random.choice(choices), await_ack=True)
+            time.sleep(1)
 
-        node_1.send_epr('A', await_ack=True)
-        node_1.send_epr('A', await_ack=True)
-        node_1.send_epr('B', await_ack=True)
-        node_1.send_epr('B', await_ack=True)
-        node_1.send_epr('B', await_ack=True)
-        node_1.send_epr('B', await_ack=True)
-
-        A.send_superdense(B.host_id, '11')
-        A.send_superdense(B.host_id, '00')
-        A.send_superdense(B.host_id, '10')
-        A.send_superdense(B.host_id, '01')
-
-        # for _ in range():
-        #     time.sleep(0.5)
-        #     print('send')
-        #     A.send_superdense(B.host_id, '10')
-
-        time.sleep(30)
+        time.sleep(40)
         print('stopping')
-
         network.stop(stop_hosts=True)
 
 
