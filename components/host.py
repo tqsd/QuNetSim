@@ -497,6 +497,7 @@ class Host:
                     raise Exception('No unblocked EPR pairs')
                 old_id = q['q_id']
                 q['q_id'] = new_id
+                self.logger.log(self.host_id + " changed EPR ID with " + host_id)
                 return old_id
             else:
                 qubits = self._EPR_store[host_id]['qubits']
@@ -504,6 +505,7 @@ class Host:
                     if q['q_id'] == old_id:
                         q['blocked'] = True
                         q['q_id'] = new_id
+                        self.logger.log(self.host_id + " changed EPR ID with " + host_id)
                         break
 
     def get_epr_pairs(self, host_id=None):

@@ -211,10 +211,11 @@ def _send_teleport(packet):
             host_sender.send_epr(packet[RECEIVER], await_ack=True)
 
     if 'q_id' in packet[PAYLOAD]:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=5)
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
     else:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=5)
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
 
+    assert epr_teleport is not None
     q.cnot(epr_teleport['q'])
     q.H()
 
