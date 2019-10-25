@@ -784,6 +784,7 @@ def _get_qubit(store, partner_id, q_id):
         if len(store[partner_id]['qubits']) == 0:
             return None
         else:
+            # If no q_id is specified, then return the first unblocked qubit
             for index, qubit in enumerate(store[partner_id]['qubits']):
                 if not qubit['blocked']:
                     del store[partner_id]['qubits'][index]
@@ -803,7 +804,7 @@ def _get_qubit(store, partner_id, q_id):
         # there are no qubits from the expected sender
         return None
 
-        # If q_id is not specified, then return the last in the stack
+    # If q_id is not specified, then return the last in the stack
     # else return the qubit with q_id q_id
     if q_id is None:
         return get_qubit()

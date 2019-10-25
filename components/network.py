@@ -372,9 +372,7 @@ class Network:
             route (string array): Route between the sender and receiver
             q_id(string): Qubit ID of the sent EPR pair
         """
-
         host_sender = self.get_host(sender)
-
         # TODO: Multiprocess this
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
