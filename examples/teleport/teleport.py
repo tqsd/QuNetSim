@@ -45,7 +45,7 @@ def main():
 
         q = host_bob.get_data_qubit(host_alice.host_id, q_id)
         assert q is not None
-        print(q.measure())
+        print(q['q'].measure())
 
         nodes = [host_alice, host_bob]
         start_time = time.time()

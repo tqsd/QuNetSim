@@ -203,25 +203,34 @@ def _send_teleport(packet):
     q = packet[PAYLOAD]['q']
 
     host_sender = network.get_host(packet[SENDER])
-    if packet[PAYLOAD]['generate_epr_if_none']:
+    # TODO: turn string into const 
+    if 'generate_epr_if_none' in packet[PAYLOAD] and packet[PAYLOAD]['generate_epr_if_none']:
         if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
             host_sender.send_epr(packet[RECEIVER], await_ack=True)
 
-    epr_teleport = host_sender.get_epr(packet[RECEIVER])
+    if 'q_id' in packet[PAYLOAD]:
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
+    else:
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
 
+    assert epr_teleport is not None
     q.cnot(epr_teleport['q'])
     q.H()
 
     m1 = q.measure()
     m2 = epr_teleport['q'].measure()
+    data = {
+        'measurements': [m1, m2],
+        'type': q_type,
+        'node': node
+    }
+    if q_type == EPR:
+        data['q_id'] = packet[PAYLOAD]['q_id']
+    else:
+        data['q_id'] = epr_teleport['q_id']
 
-    data = {'measurements': [m1, m2],
-            'q_id': epr_teleport['q_id'],
-            'type': q_type,
-            'node': node,
-            }
     if 'o_seq_num' in packet[PAYLOAD]:
         data['o_seq_num'] = packet[PAYLOAD]['o_seq_num']
     if 'ack' in packet[PAYLOAD]:
@@ -244,11 +253,11 @@ def _rec_teleport(packet):
     payload = packet[PAYLOAD]
     q_id = payload['q_id']
 
-    q = host_receiver.get_epr(packet[SENDER], q_id, 10)
+    q = host_receiver.get_epr(packet[SENDER], q_id, wait=10)
     if q is None:
         # TODO: what to do when fails
         return
-
+    q = q['q']
     a = payload['measurements'][0]
     b = payload['measurements'][1]
     epr_host = payload['node']
@@ -337,7 +346,10 @@ def _send_superdense(packet):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         host_sender.send_epr(receiver, await_ack=True)
 
-    q_superdense = host_sender.get_epr(receiver)
+    q_superdense = host_sender.get_epr(receiver, wait=10)
+    if q_superdense is None:
+        Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
+        raise Exception("couldn't encode superdense")
 
     _encode_superdense(packet[PAYLOAD], q_superdense['q'])
     packet[PAYLOAD] = [q_superdense]
@@ -362,18 +374,16 @@ def _rec_superdense(packet):
 
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
-    while q1 is None:
-        q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'])
+    q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'], wait=10)
+    q2 = host_receiver.get_epr(sender, payload[0]['q_id'], wait=10)
 
-    q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
-    while q2 is None:
-        q2 = host_receiver.get_epr(sender, payload[0]['q_id'])
+    assert q1 is not None and q2 is not None
 
     if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
-    return {'message': _decode_superdense(q1, q2), SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
+    return {'sender': packet[SENDER], 'message': _decode_superdense(q1['q'], q2['q']),
+            SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
 
 
 def _add_checksum(sender, qubits, size=2):

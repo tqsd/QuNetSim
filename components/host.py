@@ -24,8 +24,8 @@ class Host:
         self._queue_processor_thread = None
         self._data_qubit_store = {}
         self._EPR_store = {}
-        self._classical = []
-        self._connections = []
+        self._classical_messages = []
+        self._classical_connections = []
         self._quantum_connections = []
         self.cqc = cqc
         self._max_ack_wait = None
@@ -38,16 +38,28 @@ class Host:
         self.seq_number = {}
 
     @property
-    def connections(self, classical_only=True):
-        if classical_only:
-            return self._connections
-        else:
-            connection_list = []
-            for c in self._connections:
-                connection_list.append({'type': 'classical', 'connection': c})
-            for q in self._quantum_connections:
-                connection_list.append({'type': 'quantum', 'connection': q})
-            return connection_list
+    def classical_connections(self):
+        """
+        Gets the classical connections of the host.
+
+        Returns:
+            classical connections
+        """
+        return self._classical_connections
+
+    def get_connections(self):
+        """
+        Get a list of the connections with the types.
+
+        Returns:
+
+        """
+        connection_list = []
+        for c in self._classical_connections:
+            connection_list.append({'type': 'classical', 'connection': c})
+        for q in self._quantum_connections:
+            connection_list.append({'type': 'quantum', 'connection': q})
+        return connection_list
 
     @property
     def classical(self):
@@ -57,7 +69,7 @@ class Host:
         Returns:
              Array: Sorted array of classical messages.
         """
-        return sorted(self._classical, key=lambda x: x['sequence_number'], reverse=True)
+        return sorted(self._classical_messages, key=lambda x: x['sequence_number'], reverse=True)
 
     @property
     def delay(self):
@@ -190,7 +202,7 @@ class Host:
         sender = packet['sender']
         result = protocols.process(packet)
         if result is not None:
-            self._classical.append({
+            self._classical_messages.append({
                 'sender': sender,
                 'message': result['message'],
                 'sequence_number': result['sequence_number']
@@ -232,7 +244,7 @@ class Host:
         Args:
             receiver_id (string): The ID of the host to connect with.
         """
-        self.connections.append(receiver_id)
+        self.classical_connections.append(receiver_id)
 
     def add_q_connection(self, receiver_id):
         """
@@ -251,7 +263,7 @@ class Host:
             receiver_id (string): The ID of the host to connect with.
 
         """
-        self.connections.append(receiver_id)
+        self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
 
     def send_ack(self, receiver, seq_number):
@@ -380,7 +392,6 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
@@ -463,7 +474,39 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        return receiver_id in self._EPR_store and len(self._EPR_store[receiver_id]['qubits']) != 0
+        if receiver_id not in self._EPR_store:
+            return False
+        if len(self._EPR_store[receiver_id]['qubits']) == 0:
+            return False
+        blocked = 0
+        for q in self._EPR_store[receiver_id]['qubits']:
+            if q['blocked']:
+                blocked += 1
+        return blocked != len(self._EPR_store[receiver_id]['qubits'])
+
+    def change_epr_qubit_id(self, host_id, new_id, old_id=None):
+        if host_id in self._EPR_store:
+            if old_id is None:
+                q = None
+                for qubit in self._EPR_store[host_id]['qubits']:
+                    if not qubit['blocked']:
+                        q = qubit
+                        q['blocked'] = True
+                        break
+                if q is None:
+                    raise Exception('No unblocked EPR pairs')
+                old_id = q['q_id']
+                q['q_id'] = new_id
+                self.logger.log(self.host_id + " changed EPR ID with " + host_id)
+                return old_id
+            else:
+                qubits = self._EPR_store[host_id]['qubits']
+                for q in qubits:
+                    if q['q_id'] == old_id:
+                        q['blocked'] = True
+                        q['q_id'] = new_id
+                        self.logger.log(self.host_id + " changed EPR ID with " + host_id)
+                        break
 
     def get_epr_pairs(self, host_id=None):
         """
@@ -623,7 +666,7 @@ class Host:
 
         def process_messages():
             nonlocal cla
-            for m in self._classical:
+            for m in self._classical_messages:
                 if m['sender'] == partner_id:
                     cla.append(m)
 
@@ -703,11 +746,20 @@ class Host:
         else:
             return _get_qubit(self._data_qubit_store, partner_id, q_id)
 
-    def stop(self):
+    def stop(self, release_qubits=True):
         """
         Stops the host.
         """
         self.logger.log('Host ' + self.host_id + " stopped")
+        if release_qubits:
+
+            for connection in self._data_qubit_store:
+                for qubit in self._data_qubit_store[connection]['qubits']:
+                    qubit['q'].release()
+
+            for connection in self._EPR_store:
+                for qubit in self._EPR_store[connection]['qubits']:
+                    qubit['q'].release()
         self._stop_thread = True
 
     def start(self):
@@ -733,16 +785,17 @@ def _get_qubit(store, partner_id, q_id):
     def get_qubit():
         if len(store[partner_id]['qubits']) == 0:
             return None
-        if not store[partner_id]['qubits'][-1]['blocked']:
-            store[partner_id]['qubits'][-1]['blocked'] = True
-            return store[partner_id]['qubits'].pop()
         else:
-            print('accessed blocked qubit')
+            # If no q_id is specified, then return the first unblocked qubit
+            for index, qubit in enumerate(store[partner_id]['qubits']):
+                if not qubit['blocked']:
+                    del store[partner_id]['qubits'][index]
+                    return qubit
 
     def get_qubit_with_id():
         for index, qubit in enumerate(store[partner_id]['qubits']):
             if qubit['q_id'] == q_id:
-                qu = qubit['q']
+                qu = store[partner_id]['qubits'][index]
                 # TODO: make deletion optional
                 del store[partner_id]['qubits'][index]
                 return qu
@@ -753,7 +806,7 @@ def _get_qubit(store, partner_id, q_id):
         # there are no qubits from the expected sender
         return None
 
-        # If q_id is not specified, then return the last in the stack
+    # If q_id is not specified, then return the last in the stack
     # else return the qubit with q_id q_id
     if q_id is None:
         return get_qubit()
