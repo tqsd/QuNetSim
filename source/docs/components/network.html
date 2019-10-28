@@ -259,6 +259,12 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.network.Network.classical_routing_algo">
+<em class="property">property </em><code class="sig-name descname">classical_routing_algo</code><a class="headerlink" href="#components.network.Network.classical_routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the routing algorithm for the network.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.network.Network.delay">
 <em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#components.network.Network.delay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the delay interval of the network.</p>
@@ -280,6 +286,26 @@ between sender and receiver.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.get_classical_route">
+<code class="sig-name descname">get_classical_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_classical_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the route for classical information from source to destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>route (array)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -341,26 +367,6 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="components.network.Network.get_route">
-<code class="sig-name descname">get_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_route" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the route for classical information from source to destination.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
-<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>route (array)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="components.network.Network.packet_drop_rate">
 <em class="property">property </em><code class="sig-name descname">packet_drop_rate</code><a class="headerlink" href="#components.network.Network.packet_drop_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the drop rate of the network.</p>
@@ -394,12 +400,6 @@ between sender and receiver.</p>
 <dd class="field-odd"><p><strong>host</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – The host to be removed from the network.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.network.Network.routing_algo">
-<em class="property">property </em><code class="sig-name descname">routing_algo</code><a class="headerlink" href="#components.network.Network.routing_algo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the routing algorithm for the network.</p>
 </dd></dl>
 
 <dl class="method">
@@ -446,13 +446,13 @@ between sender and receiver.</p>
 
 <dl class="method">
 <dt id="components.network.Network.start">
-<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><em class="sig-param">nodes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts the network.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.network.Network.stop">
-<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param">stop_hosts=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the network.</p>
 </dd></dl>
 
