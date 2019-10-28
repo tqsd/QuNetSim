@@ -212,8 +212,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="components.host.Host.add_c_connections">
-<code class="sig-name descname">add_c_connections</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_c_connections" title="Permalink to this definition">¶</a></dt>
+<dt id="components.host.Host.add_c_connection">
+<code class="sig-name descname">add_c_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_c_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the classical connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -278,8 +278,8 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="components.host.Host.add_q_connections">
-<code class="sig-name descname">add_q_connections</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_q_connections" title="Permalink to this definition">¶</a></dt>
+<dt id="components.host.Host.add_q_connection">
+<code class="sig-name descname">add_q_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_q_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -316,9 +316,41 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.classical_connections">
+<em class="property">property </em><code class="sig-name descname">classical_connections</code><a class="headerlink" href="#components.host.Host.classical_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the classical connections of the host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>classical connections</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.delay">
 <em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#components.host.Host.delay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.get_classical">
+<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partner_id</strong> – </p></li>
+<li><p><strong>wait</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.get_connections">
+<code class="sig-name descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of the connections with the types.</p>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="method">
@@ -547,7 +579,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 
 <dl class="method">
 <dt id="components.host.Host.send_teleport">
-<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">generate_epr_if_none=True</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teleports the qubit <em>q</em> with the receiver with host ID <em>receiver</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -556,6 +588,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 <li><p><strong>payload</strong> – </p></li>
+<li><p><strong>generate_epr_if_none</strong> – Generate an EPR pair with receiver if one doesn’t exist</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -623,7 +656,7 @@ with receiver with ID <em>receiver_id</em></p>
 
 <dl class="method">
 <dt id="components.host.Host.stop">
-<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param">release_qubits=True</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the host.</p>
 </dd></dl>
 
