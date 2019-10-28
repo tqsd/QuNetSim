@@ -377,7 +377,7 @@ def _rec_superdense(packet):
     return {'message': _decode_superdense(q1, q2), SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
 
 
-def _add_checksum(sender, qubits, size=2):
+def _add_checksum(sender, qubits, size_per_qubit=2):
     """
     Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
     Args:
@@ -393,12 +393,12 @@ def _add_checksum(sender, qubits, size=2):
     while i < len(qubits):
         check = qubit(sender)
         j = 0
-        while j < size:
+        while j < size_per_qubit:
             qubits[i + j].cnot(check)
             j += 1
 
         check_qubits.append(check)
-        i += size
+        i += size_per_qubit
     return check_qubits
 
 
