@@ -53,7 +53,7 @@ class TestOneHop(unittest.TestCase):
         self.network.delay = 0.5
         for key in self.hosts.keys():
             self.hosts[key].cqc.flush()
-            self.hosts[key].stop()
+            self.hosts[key].stop(release_qubits=False)
             self.network.remove_host(self.hosts[key])
 
     # @unittest.skip('')
@@ -95,7 +95,7 @@ class TestOneHop(unittest.TestCase):
             q_bob = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
             self.assertIsNotNone(q_alice)
             self.assertIsNotNone(q_bob)
-            self.assertEqual(q_alice.measure(), q_bob.measure())
+            self.assertEqual(q_alice['q'].measure(), q_bob['q'].measure())
             self.assertFalse(hosts['alice'].shares_epr(hosts['bob'].host_id))
             self.assertFalse(hosts['bob'].shares_epr(hosts['alice'].host_id))
 
@@ -278,7 +278,7 @@ class TestOneHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(q2)
-            self.assertEqual(q1.measure(), q2.measure())
+            self.assertEqual(q1['q'].measure(), q2['q'].measure())
 
     # @unittest.skip('')
     def test_teleport(self):
@@ -310,7 +310,7 @@ class TestOneHop(unittest.TestCase):
                 i += 1
                 time.sleep(1)
 
-            self.assertIsNotNone(q2)
+            self.assertIsNotNone(q2['q'])
             self.assertEqual(q2['q'].measure(), 1)
 
     # @unittest.skip('')
@@ -375,7 +375,7 @@ class TestOneHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(rec_q)
-            self.assertEqual(rec_q.measure(), 1)
+            self.assertEqual(rec_q['q'].measure(), 1)
 
     @unittest.skip('')
     def test_send_qubit_bob_to_alice(self):
@@ -408,7 +408,7 @@ class TestOneHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(rec_q)
-            self.assertEqual(rec_q.measure(), 1)
+            self.assertEqual(rec_q['q'].measure(), 1)
 
     # @unittest.skip('')
     def test_teleport_superdense_combination(self):
@@ -539,10 +539,10 @@ class TestOneHop(unittest.TestCase):
             print(hosts['alice'].get_data_qubits(hosts['bob'].host_id))
 
             self.assertTrue(len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 1)
-            self.assertTrue(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_1).measure() == 0)
+            self.assertTrue(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_1)['q'].measure() == 0)
             self.assertIsNotNone(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_2))
             self.assertTrue(len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 1)
-            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1).measure() == 0)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1)['q'].measure() == 0)
             self.assertIsNotNone(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2))
 
             hosts['alice'].set_data_qubit_memory_limit(2, hosts['bob'].host_id)
@@ -575,8 +575,8 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_bob_id_3))
 
             self.assertTrue(len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 2)
-            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1).measure() == 0)
-            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2).measure() == 0)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_1)['q'].measure() == 0)
+            self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2)['q'].measure() == 0)
             self.assertIsNotNone(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_3))
 
     @unittest.skip('')

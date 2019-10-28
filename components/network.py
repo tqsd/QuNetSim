@@ -8,6 +8,9 @@ from components.logger import Logger
 from components.daemon_thread import DaemonThread
 from inspect import signature
 
+from simulaqron.network import Network as SimulaNetwork
+from simulaqron.settings import simulaqron_settings
+
 
 # Network singleton
 class Network:
@@ -24,7 +27,8 @@ class Network:
         if Network.__instance is None:
             self.ARP = {}
             # The directed graph for the connections
-            self.network = nx.DiGraph()
+            self.classical_network = nx.DiGraph()
+            self.sim_network = None
             self.quantum_network = nx.DiGraph()
             self._quantum_routing_algo = nx.shortest_path
             self._classical_routing_algo = nx.shortest_path
@@ -257,7 +261,7 @@ class Network:
         """
 
         try:
-            self.network.remove_node(host.host_id)
+            self.classical_network.remove_node(host.host_id)
         except nx.NetworkXError:
             Logger.get_instance().error('attempted to remove a non-exiting node from network')
 
@@ -267,13 +271,13 @@ class Network:
         Args:
             host: The host to be added
         """
-        self.network.add_node(host.host_id)
+        self.classical_network.add_node(host.host_id)
         self.quantum_network.add_node(host.host_id)
 
         for connection in host.classical_connections:
-            if not self.network.has_edge(host.host_id, connection):
+            if not self.classical_network.has_edge(host.host_id, connection):
                 edge = (host.host_id, connection, {'weight': 1})
-                self.network.add_edges_from([edge])
+                self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
             if not self.quantum_network.has_edge(host.host_id, connection):
@@ -293,7 +297,6 @@ class Network:
         """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
-
         return host_sender.shares_epr(receiver) and host_receiver.shares_epr(sender)
 
     def get_host(self, host_id):
@@ -343,7 +346,7 @@ class Network:
         Returns:
             route (array): An ordered array of ID numbers on the shortest path from source to destination.
         """
-        return self.quantum_routing_algo(self.network, source=source, target=dest)
+        return self.quantum_routing_algo(self.quantum_network, source, dest)
 
     def get_classical_route(self, source, dest):
         """
@@ -356,7 +359,7 @@ class Network:
         Returns:
             route (array): An ordered array of ID numbers on the shortest path from source to destination.
         """
-        return self.classical_routing_algo(self.network, source=source, target=dest)
+        return self.classical_routing_algo(self.classical_network, source, dest)
 
     def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num):
         """
@@ -369,39 +372,37 @@ class Network:
             route (string array): Route between the sender and receiver
             q_id(string): Qubit ID of the sent EPR pair
         """
-
         host_sender = self.get_host(sender)
-
         # TODO: Multiprocess this
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
                 self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
             else:
-                self.get_host(route[i]).change_epr_qubit_id(route[i + 1], q_id)
+                old_id = self.get_host(route[i]).change_epr_qubit_id(route[i + 1], q_id)
+                self.get_host(route[i + 1]).change_epr_qubit_id(route[i], q_id, old_id)
 
         for i in range(len(route) - 2):
-            q = self.get_host(route[i + 1]).get_epr(route[0], wait=10)
+            host = self.get_host(route[i + 1])
+            q = host.get_epr(route[0], q_id, wait=10)
             if q is None:
                 Logger.get_instance().error('Entanglement swap failed')
-
+                return
             data = {'q': q['q'],
-                    'q_id': q['q_id'],
+                    'q_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q['q'],
-                        'q_id': q['q_id'],
+                        'q_id': q_id,
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
                         'type': protocols.EPR}
+            host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
-            host = self.get_host(route[i + 1])
-            host.send_teleport(route[i + 2], None, await_ack=True, payload=data)
-
-        q2 = host_sender.get_epr(route[1])
+        q2 = host_sender.get_epr(route[1], q_id=q_id)
         host_sender.add_epr(receiver, q2['q'], q2['q_id'])
 
     def _route_quantum_info(self, sender, receiver, qubits):
@@ -507,8 +508,9 @@ class Network:
                     else:
                         if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
+                            q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
-                                         args=(sender, receiver, route, q_id, packet[protocols.SEQUENCE_NUMBER]))
+                                         args=(sender, receiver, q_route, q_id, packet[protocols.SEQUENCE_NUMBER]))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)
@@ -530,19 +532,29 @@ class Network:
 
         self._packet_queue.put(packet)
 
-    def stop(self):
+    def stop(self, stop_hosts=False):
         """
         Stops the network.
         """
 
         Logger.get_instance().log("Network stopped")
-        self._stop_thread = True
+        if stop_hosts:
+            for host in self.ARP:
+                self.ARP[host].stop(release_qubits=True)
 
-    def start(self):
+        self._stop_thread = True
+        if self.sim_network is not None:
+            self.sim_network.stop()
+
+    def start(self, nodes=None):
         """
         Starts the network.
 
         """
+        if nodes is not None:
+            simulaqron_settings.default_settings()
+            self.sim_network = SimulaNetwork(nodes=nodes, force=True)
+            self.sim_network.start()
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
     def draw_network(self):
@@ -550,7 +562,7 @@ class Network:
         Draws a plot of the network.
         """
 
-        nx.draw_networkx(self.network, pos=nx.spring_layout(self.network),
+        nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
                          with_labels=True, hold=False)
         plt.show()
 

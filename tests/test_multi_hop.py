@@ -166,7 +166,7 @@ class TestTwoHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(q2)
-            self.assertEqual(q1.measure(), q2.measure())
+            self.assertEqual(q1['q'].measure(), q2['q'].measure())
 
     # @unittest.skip('')
     def test_teleport(self):
