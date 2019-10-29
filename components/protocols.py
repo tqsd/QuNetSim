@@ -1,6 +1,4 @@
 from cqc.pythonLib import qubit
-import uuid
-import asyncio
 
 # DATA TYPES
 from components.logger import Logger
@@ -56,8 +54,6 @@ def process(packet):
 
     protocol = packet[PROTOCOL]
     if protocol == SEND_TELEPORT:
-        print('sequence number')
-        print(packet[SEQUENCE_NUMBER])
         return _send_teleport(packet)
     elif protocol == REC_TELEPORT:
         return _rec_teleport(packet)
@@ -68,8 +64,6 @@ def process(packet):
     elif protocol == REC_EPR:
         return _rec_epr(packet)
     elif protocol == SEND_EPR:
-        print('sequence number')
-        print(packet[SEQUENCE_NUMBER])
         return _send_epr(packet)
     elif protocol == SEND_SUPERDENSE:
         return _send_superdense(packet)
@@ -321,7 +315,7 @@ def _rec_epr(packet):
     if payload is None:
         host_receiver.add_epr(sender, q)
     else:
-        host_receiver.add_epr(sender, q, q_id=payload['q_id'])
+        host_receiver.add_epr(sender, q, q_id=payload['q_id'], blocked=payload['block'])
 
     if packet[AWAIT_ACK]:
         _send_ack(sender, receiver, packet[SEQUENCE_NUMBER])

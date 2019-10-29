@@ -60,7 +60,6 @@ class Network:
         Set the routing style for the network.
         Args:
             should_use (bool): If the network should use hop by hop routing or not
-
         """
         if not isinstance(should_use, bool):
             raise Exception('use_hop_by_hop should be a boolean value.')
@@ -71,7 +70,6 @@ class Network:
     def classical_routing_algo(self):
         """
         Get the routing algorithm for the network.
-
         """
         return self._classical_routing_algo
 
@@ -126,14 +124,11 @@ class Network:
     def delay(self):
         """
         Get the delay interval of the network.
-
         """
-
         return self._delay
 
     @delay.setter
     def delay(self, delay):
-
         """
         Set the delay interval of the network.
 
@@ -160,7 +155,6 @@ class Network:
 
     @packet_drop_rate.setter
     def packet_drop_rate(self, drop_rate):
-
         """
         Set the drop rate of the network.
 
@@ -180,9 +174,8 @@ class Network:
     def x_error_rate(self):
         """
         Get the X error rate of the network.
-
-        Args:
-             error_rate (float): Probability of a X error during a qubit transmission in the network
+        Returns:
+              The *x_error_rate* of the network.
         """
 
         return self._x_error_rate
@@ -209,6 +202,8 @@ class Network:
         """
         Get the Z error rate of the network.
 
+        Returns:
+            (float): The Z error rate of the network.
         """
         return self._z_error_rate
 
@@ -268,6 +263,7 @@ class Network:
     def _update_network_graph(self, host):
         """
         Add host *host* to the network and update the graph representation of the network
+
         Args:
             host: The host to be added
         """
@@ -290,7 +286,7 @@ class Network:
 
         Args:
             receiver (Host): The receiver
-            sender (Host) : The sender
+            sender (Host): The sender
 
         Returns:
              boolean: whether the sender and receiver share an EPR pair.
@@ -344,7 +340,7 @@ class Network:
             source (string): ID of the source host
             dest (string) : ID of the destination host
         Returns:
-            route (array): An ordered array of ID numbers on the shortest path from source to destination.
+            route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
         return self.quantum_routing_algo(self.quantum_network, source, dest)
 
@@ -357,7 +353,7 @@ class Network:
             dest (string) : ID of the destination host
 
         Returns:
-            route (array): An ordered array of ID numbers on the shortest path from source to destination.
+            route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
         return self.classical_routing_algo(self.classical_network, source, dest)
 
@@ -369,8 +365,9 @@ class Network:
         Args:
             sender (Host): Sender of the EPR pair
             receiver (Host): Receiver of the EPR pair
-            route (string array): Route between the sender and receiver
-            q_id(string): Qubit ID of the sent EPR pair
+            route (list): Route between the sender and receiver
+            q_id (string): Qubit ID of the sent EPR pair
+            blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)
         # TODO: Multiprocess this
@@ -391,8 +388,7 @@ class Network:
                     'q_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
-                    'type': protocols.EPR,
-                    'blocked': blocked}
+                    'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q['q'],
@@ -400,8 +396,7 @@ class Network:
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
-                        'type': protocols.EPR,
-                        'blocked': blocked}
+                        'type': protocols.EPR}
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
@@ -415,7 +410,7 @@ class Network:
         Args:
             sender (Host): Sender of qubits
             receiver (Host): Receiver qubits
-            qubits (Array of Qubit-Dictionaries): The qubits to be sent
+            qubits (List of Qubit-Dictionaries): The qubits to be sent
         """
 
         def transfer_qubits(s, r, store=False, original_sender=None):
@@ -500,23 +495,22 @@ class Network:
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
                                 if packet['payload'] is not None:
-                                    q_id = host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
-                                                               packet[protocols.PAYLOAD]['block'])
+                                    host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
+                                                        packet[protocols.PAYLOAD]['block'])
                                 else:
-                                    q_id = host_sender.add_epr(receiver, q)
+                                    host_sender.add_epr(receiver, q)
 
-                                packet['payload'] = {'q_id': q_id}
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet[protocols.PAYLOAD])
                     else:
                         if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
-                            blocked = packet['payload']['blocked']
+                            blocked = packet['payload']['block']
                             q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
-                                         args=(
-                                         sender, receiver, q_route, q_id, packet[protocols.SEQUENCE_NUMBER], blocked))
+                                         args=(sender, receiver, q_route, q_id,
+                                               packet[protocols.SEQUENCE_NUMBER], blocked))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)
