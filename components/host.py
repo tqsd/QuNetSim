@@ -347,7 +347,7 @@ class Host:
             self._log_ack('classical', receiver_id, seq_num)
             return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
-    def send_epr(self, receiver_id, q_id=None, await_ack=False):
+    def send_epr(self, receiver_id, q_id=None, await_ack=False , block = False):
         """
         Establish an EPR pair with the receiver and return the qubit
         ID of pair.
@@ -366,7 +366,7 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload={'q_id': q_id},
+                                  payload={'q_id': q_id , 'block':block},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -482,6 +482,7 @@ class Host:
         for q in self._EPR_store[receiver_id]['qubits']:
             if q['blocked']:
                 blocked += 1
+        print(blocked != len(self._EPR_store[receiver_id]['qubits']))
         return blocked != len(self._EPR_store[receiver_id]['qubits'])
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
@@ -586,7 +587,7 @@ class Host:
             for partner in self._data_qubit_store.keys():
                 self._data_qubit_store[partner]['max_limit'] = limit
 
-    def add_epr(self, partner_id, qubit, q_id=None):
+    def add_epr(self, partner_id, qubit, q_id=None, blocked = False):
         """
         Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
         otherwise generates an ID for the EPR and adds the qubit with that ID.
@@ -604,7 +605,7 @@ class Host:
         if q_id is None:
             q_id = str(uuid.uuid4())
 
-        to_add = {'q': qubit, 'q_id': q_id, 'blocked': False}
+        to_add = {'q': qubit, 'q_id': q_id, 'blocked': blocked}
 
         if self._EPR_store[partner_id]['max_limit'] == -1 or (len(self._EPR_store[partner_id]['qubits'])
                                                               < self._EPR_store[partner_id]['max_limit']):
