@@ -391,8 +391,7 @@ class Network:
                     'q_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
-                    'type': protocols.EPR,
-                    'blocked': blocked}
+                    'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q['q'],
@@ -400,8 +399,7 @@ class Network:
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
-                        'type': protocols.EPR,
-                        'blocked': blocked}
+                        'type': protocols.EPR}
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
@@ -500,23 +498,22 @@ class Network:
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
                                 if packet['payload'] is not None:
-                                    q_id = host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
-                                                               packet[protocols.PAYLOAD]['block'])
+                                    host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
+                                                        packet[protocols.PAYLOAD]['block'])
                                 else:
-                                    q_id = host_sender.add_epr(receiver, q)
+                                    host_sender.add_epr(receiver, q)
 
-                                packet['payload'] = {'q_id': q_id}
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet[protocols.PAYLOAD])
                     else:
                         if packet['protocol'] == protocols.REC_EPR:
                             q_id = packet['payload']['q_id']
-                            blocked = packet['payload']['blocked']
+                            blocked = packet['payload']['block']
                             q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
-                                         args=(
-                                         sender, receiver, q_route, q_id, packet[protocols.SEQUENCE_NUMBER], blocked))
+                                         args=(sender, receiver, q_route, q_id,
+                                               packet[protocols.SEQUENCE_NUMBER], blocked))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)

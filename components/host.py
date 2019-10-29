@@ -208,7 +208,7 @@ class Host:
                 'sequence_number': result['sequence_number']
             })
             if result['message'] != protocols.ACK:
-                self.logger.log(self.cqc.name + ' received ' + result['message'] + ' with sequence number ' + str(
+                self.logger.log(self.cqc.name + ' received ' + str(result['message']) + ' with sequence number ' + str(
                     result['sequence_number']))
 
     def _process_queue(self):
@@ -347,7 +347,7 @@ class Host:
             self._log_ack('classical', receiver_id, seq_num)
             return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
 
-    def send_epr(self, receiver_id, q_id=None, await_ack=False , block = False):
+    def send_epr(self, receiver_id, q_id=None, await_ack=False, block=False):
         """
         Establish an EPR pair with the receiver and return the qubit
         ID of pair.
@@ -356,6 +356,7 @@ class Host:
             receiver_id (string): The receiver ID
             q_id (string): The ID of the qubit
             await_ack (bool): If sender should wait for an ACK.
+            block:
         Returns:
             string: The qubit ID of the EPR pair.
             (string, boolean): If await_ack=True, return the ID of the EPR pair and the status of the ACK
@@ -366,7 +367,7 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload={'q_id': q_id , 'block':block},
+                                  payload={'q_id': q_id, 'block': block},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -587,7 +588,7 @@ class Host:
             for partner in self._data_qubit_store.keys():
                 self._data_qubit_store[partner]['max_limit'] = limit
 
-    def add_epr(self, partner_id, qubit, q_id=None, blocked = False):
+    def add_epr(self, partner_id, qubit, q_id=None, blocked=False):
         """
         Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
         otherwise generates an ID for the EPR and adds the qubit with that ID.
@@ -596,6 +597,7 @@ class Host:
             partner_id: The ID of the host to pair the qubit
             qubit(Qubit): The data Qubit to be added.
             q_id(string): The ID of the qubit to be added.
+            blocked: If the qubit should be stored as blocked or not
         Returns:
              string: *q_id*
         """
