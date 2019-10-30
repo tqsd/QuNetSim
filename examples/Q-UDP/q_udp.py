@@ -30,15 +30,13 @@ def qudp_sender(host, q_size, receiver_id):
 
     # Pre-generate EPR pairs
     # epr_array = []
-    # for i in range(len(data_qubits_w_checksum)):
-    #     id = host.send_epr(receiver_id, await_ack = True)
-    #     #time.sleep(1)
-    #     #epr_array.append(host.get_epr(receiver_id , id ))
+    # for i in range(len(data_qubits)):
+    #     id = host.send_epr(receiver_id, await_ack=False)
+    #     epr_array.append(host.get_epr(receiver_id, id))
 
-    for i in range(len(data_qubits)):
-        host.send_teleport(receiver_id, data_qubits[i])
-        time.sleep(1)
-
+    print(len(data_qubits))
+    for q in data_qubits:
+        host.send_teleport(receiver_id, q, await_ack=False)
     print('out of loop')
 
 
@@ -49,8 +47,6 @@ def qudp_receiver(host, q_size, sender_id):
     assert messages is not None and len(messages) > 0
 
     checksum_size = int(messages[0]['message'])
-    print('size info' + str(checksum_size))
-
     checksum_per_qubit = int(q_size / checksum_size)
 
     wait = 50
@@ -91,17 +87,11 @@ def qudp_receiver(host, q_size, sender_id):
             checksum_qubits.append(data_qubits[q_size + i]['q'])
             checksum_cnt = checksum_cnt + 1
 
-    checksum_qubits = checksum_qubits[::-1]
-    # print('checksum measurement')
-    # print(checksum_qubits[0].measure())
-
     k = 1
     for i in range(len(data_qubits) - checksum_size):
         data_qubits[i]['q'].cnot(checksum_qubits[k - 1])
-
         if i == (k * checksum_per_qubit - 1):
             k = k + 1
-            print('k incremented')
 
     for i in range(len(checksum_qubits)):
         if checksum_qubits[i].measure() != 0:
@@ -132,12 +122,12 @@ def main():
         host_alice.add_connection('bob')
         host_alice.add_c_connection('eve')
         host_alice.max_ack_wait = 10
-        host_alice.delay = 0.3
+        host_alice.delay = 0.2
         host_alice.start()
 
         host_bob = Host('bob', Bob)
         host_bob.max_ack_wait = 10
-        host_bob.delay = 0.3
+        host_bob.delay = 0.2
         host_bob.add_connection('alice')
         host_bob.add_q_connection('dean')
         host_bob.start()
