@@ -356,7 +356,7 @@ class Host:
             receiver_id (string): The receiver ID
             q_id (string): The ID of the qubit
             await_ack (bool): If sender should wait for an ACK.
-            block:
+            block (bool): If the created EPR pair should be blocked or not.
         Returns:
             string: The qubit ID of the EPR pair.
             (string, boolean): If await_ack=True, return the ID of the EPR pair and the status of the ACK
@@ -487,6 +487,14 @@ class Host:
         return blocked != len(self._EPR_store[receiver_id]['qubits'])
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
+        """
+        Change an EPR pair ID to another. If *old_id* is set, then change that specific
+        EPR half, otherwise change the first unblocked EPR half to the *new_id*.
+        Args:
+            host_id (string) : The partner ID of the EPR pair.
+            new_id (string): The new ID to change the qubit too
+            old_id (string:  The old ID of the qubit
+        """
         if host_id in self._EPR_store:
             if old_id is None:
                 q = None
@@ -656,13 +664,14 @@ class Host:
 
     def get_classical(self, partner_id, wait=-1):
         """
+        Get the classical messages from partner host *partner_id*.
 
         Args:
-            partner_id:
-            wait:
+            partner_id (string): The ID of the partner who sent the clasical messages
+            wait (float): How long in seconds to wait for the messages if none are set.
 
         Returns:
-
+            A list of classical messages from Host with ID *partner_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
