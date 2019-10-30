@@ -18,7 +18,7 @@ class Host:
             cqc: The CQC for this host
 
         """
-        self.host_id = host_id
+        self._host_id = host_id
         self._packet_queue = Queue()
         self._stop_thread = False
         self._queue_processor_thread = None
@@ -27,7 +27,7 @@ class Host:
         self._classical_messages = []
         self._classical_connections = []
         self._quantum_connections = []
-        self.cqc = cqc
+        self._cqc = cqc
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
@@ -36,6 +36,26 @@ class Host:
         self._memory_limit = -1
         # Packet sequence numbers per connection
         self.seq_number = {}
+
+    @property
+    def host_id(self):
+        """
+        Get the *host_id* of the host.
+
+        Returns:
+            (string): The host ID of the host.
+        """
+        return self._host_id
+
+    @property
+    def cqc(self):
+        """
+        Get the *cqc* of the host.
+
+        Returns:
+            (CQCConnection): The CQC of the host.
+        """
+        return self._cqc
 
     @property
     def classical_connections(self):
@@ -74,20 +94,20 @@ class Host:
     @property
     def delay(self):
         """
+        Get the delay of the queue processor.
 
         Returns:
-
+            The delay per tick for the queue processor.
         """
         return self._delay
 
     @delay.setter
     def delay(self, delay):
         """
+        Set the delay of the queue processor.
 
         Args:
-            delay:
-
-        Returns:
+            delay (float): The delay per tick for the queue processor.
 
         """
         if not (isinstance(delay, int) or isinstance(delay, float)):
@@ -101,21 +121,20 @@ class Host:
     @property
     def max_ack_wait(self):
         """
+        Get the maximum amount of time to wait for an ACK
 
         Returns:
-
+            (float): The maximum amount of time to wait for an ACK
         """
         return self._max_ack_wait
 
     @max_ack_wait.setter
     def max_ack_wait(self, max_ack_wait):
         """
+        Set the maximum amount of time to wait for an ACK
 
         Args:
-            max_ack_wait:
-
-        Returns:
-
+            max_ack_wait (float): The maximum amount of time to wait for an ACK
         """
 
         if not (isinstance(max_ack_wait, int) or isinstance(max_ack_wait, float)):
@@ -129,41 +148,46 @@ class Host:
     @property
     def memory_limit(self):
         """
+        Get the maximum number of qubits that can be held in each memory.
 
         Returns:
-
+            (int): The maximum number of qubits that can be held in each memory.
         """
         return self._memory_limit
 
     @memory_limit.setter
     def memory_limit(self, memory_limit):
         """
+        Set the maximum number of qubits that can be held in each memory.
 
         Args:
-            memory_limit:
-
-        Returns:
-
+            memory_limit (int): The maximum number of qubits that can be held in each memory
         """
 
-        if not (isinstance(memory_limit, int) or isinstance(memory_limit, float)):
-            raise Exception('memory limit should be a number')
+        if not isinstance(memory_limit, int):
+            raise Exception('memory limit should be an integer')
 
         self._memory_limit = memory_limit
 
     @property
     def quantum_connections(self):
+        """
+        Get the quantum connections for the host.
+
+        Returns:
+            (list): The quantum connections for the host.
+        """
         return self._quantum_connections
 
     def _get_sequence_number(self, host):
         """
-        Returns the sequence number of connection with a receiver.
+        Get and set the next sequence number of connection with a receiver.
 
         Args:
             host(string): The ID of the receiver
 
         Returns:
-            int: If a connection is present returns the sequence number , otherwise returns 0.
+            (int): The next sequence number of connection with a receiver.
 
         """
         if host not in self.seq_number:
@@ -176,9 +200,9 @@ class Host:
         """
         Logs acknowledgement messages.
         Args:
-            protocol: The protocol for the ACK
-            receiver: The sender of the ACK
-            seq: The sequence number of the packet
+            protocol (string): The protocol for the ACK
+            receiver (string): The sender of the ACK
+            seq (int): The sequence number of the packet
         """
         Logger.get_instance().log(
             self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq))
@@ -186,6 +210,7 @@ class Host:
     def is_idle(self):
         """
         Returns if the host has packets to process or is idle.
+
         Returns:
             (boolean): If the host is idle or not.
         """
