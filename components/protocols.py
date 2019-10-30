@@ -1,6 +1,4 @@
 from cqc.pythonLib import qubit
-import uuid
-import asyncio
 
 # DATA TYPES
 from components.logger import Logger
