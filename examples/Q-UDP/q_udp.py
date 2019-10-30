@@ -12,11 +12,14 @@ from components import protocols
 
 def qudp_sender(host, q_size, receiver_id):
     bit_arr = np.random.randint(2, size=q_size)
-    print(bit_arr)
     data_qubits = []
 
-    checksum_size = 2
+    checksum_size = 3
     checksum_per_qubit = int(q_size / checksum_size)
+
+    print('---------')
+    print('Sender sends the classical bits: ' + str(bit_arr))
+    print('---------')
 
     for i in range(q_size):
         q_tmp = qubit(host.cqc)
@@ -37,7 +40,6 @@ def qudp_sender(host, q_size, receiver_id):
     print(len(data_qubits))
     for q in data_qubits:
         host.send_teleport(receiver_id, q, await_ack=False)
-    print('out of loop')
 
 
 def qudp_receiver(host, q_size, sender_id):
@@ -62,23 +64,7 @@ def qudp_receiver(host, q_size, sender_id):
     else:
         print('qubits arrived')
 
-    # for i in range(len(host.get_data_qubits(sender_id))):
-    #     q = host.get_data_qubit(sender_id,wait = 3)
-    #     print('q measurement')
-    #     print(q['q'].measure())
-
-    # print('checksum qubit')
-    # print(host.get_data_qubit(sender_id)['q'].measure())
-
-    print('length of data qubits')
-    print(len(host.get_data_qubits(sender_id)))
-
-    # print('data_qubits')
-    # print( host.get_data_qubits(sender_id)[::-1])
     data_qubits = host.get_data_qubits(sender_id)
-
-    print('data qubits')
-    print(data_qubits)
 
     checksum_qubits = []
     checksum_cnt = 0
@@ -93,18 +79,26 @@ def qudp_receiver(host, q_size, sender_id):
         if i == (k * checksum_per_qubit - 1):
             k = k + 1
 
+    errors = 0
     for i in range(len(checksum_qubits)):
         if checksum_qubits[i].measure() != 0:
-            print('Error exists in UDP packet')
+            errors += 1
 
-    print('No error exist in UDP packet')
+    print('---------')
+    if errors == 0:
+        print('No error exist in UDP packet')
+    else:
+        print('There were errors in the UDP transmission')
+    print('---------')
 
     rec_bits = []
     for i in range(len(data_qubits) - checksum_size):
         rec_bits.append(data_qubits[i]['q'].measure())
 
-    print('rec_bits')
-    print(rec_bits)
+    print('---------')
+    print('Receiver received the classical bits: ' + str(rec_bits))
+    print('---------')
+
     return
 
 
@@ -112,9 +106,9 @@ def main():
     network = Network.get_instance()
 
     nodes = ["Alice", "Bob"]
-    network.start(nodes)
-
+    network.x_error_rate = 0.2
     network.delay = 0.5
+    network.start(nodes)
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:

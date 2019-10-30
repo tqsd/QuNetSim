@@ -207,7 +207,6 @@ def _send_teleport(packet):
     host_sender = network.get_host(packet[SENDER])
     if GENERATE_EPR_IF_NONE in packet[PAYLOAD] and packet[PAYLOAD][GENERATE_EPR_IF_NONE]:
         if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
-            print('!!! GENERATING EPR PAIR !!!')
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
             q_id, _ = host_sender.send_epr(packet[RECEIVER], await_ack=True, block=True)
