@@ -508,7 +508,6 @@ class Host:
         for q in self._EPR_store[receiver_id]['qubits']:
             if q['blocked']:
                 blocked += 1
-        print(blocked != len(self._EPR_store[receiver_id]['qubits']))
         return blocked != len(self._EPR_store[receiver_id]['qubits'])
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
