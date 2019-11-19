@@ -4,18 +4,18 @@ Open docs/index.hmtl in a browser for documentation (still under construction, b
 
 SETUP INSTRUCTIONS
 
-Install Python 3 from ...
-
-Create a new directory. While in the new directory: 
-
+- Ensure Python3 is installed / Install Python 3 from ...
+- Clone the project
+- At the same level as the cloned directory, create a virtual environment with the following:
 To create:
-`python3 -m venv <name of venv>`
+`python3 -m venv venv`
 
 To start:
-`source <name of venv>/bin/activate`
+`source venv/bin/activate`
 
+- In the cloned directory (i.e. cd QuNetSim) install the python libraries:
 To install packages in requirements.txt:
 `pip install -r requirements.txt`
 
-To stop:
+To stop the virtual environment (when not using the code) run:
 `deactivate`
