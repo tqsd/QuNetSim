@@ -4,7 +4,7 @@ Open docs/index.hmtl in a browser for documentation (still under construction, b
 
 SETUP INSTRUCTIONS
 
-- Ensure Python3 is installed / Install Python 3 from ...
+- Ensure Python3 (>=3.6) is installed / Install Python >=3.6 
 - Clone the project
 - At the same level as the cloned directory, create a virtual environment with the following:
 
