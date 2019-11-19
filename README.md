@@ -15,6 +15,9 @@ To create:
 To start:
 
 `source venv/bin/activate`
+  [WINDOWS] 
+    Find out where your python resides using 'where python' command in CMD
+    Then follow this guide https://www.c-sharpcorner.com/article/steps-to-set-up-a-virtual-environment-for-python-development/
 
 - In the cloned directory (i.e. cd QuNetSim) install the python libraries:
 To install packages in requirements.txt:
