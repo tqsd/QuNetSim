@@ -40,7 +40,12 @@ To create:
 
 To start:
 
+Debian/Ubuntu:
+
 `source venv/bin/activate`
+
+Windows:
+`.\venv\Scripts\activate`
 
 #### In the cloned directory (i.e. cd QuNetSim) install the python libraries:
 To install packages in requirements.txt:
