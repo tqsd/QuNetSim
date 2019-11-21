@@ -1,12 +1,11 @@
 from cqc.pythonLib import qubit
-import uuid
-import asyncio
 
 # DATA TYPES
 from components.logger import Logger
 from components.network import Network
 
 # CONSTANTS
+GENERATE_EPR_IF_NONE = 'generate_epr_if_none'
 AWAIT_ACK = 'await_ack'
 SEQUENCE_NUMBER = 'sequence_number'
 PAYLOAD = 'payload'
@@ -53,6 +52,7 @@ def process(packet):
         Returns what protocol function returns.
 
     """
+
     protocol = packet[PROTOCOL]
     if protocol == SEND_TELEPORT:
         return _send_teleport(packet)
@@ -200,21 +200,24 @@ def _send_teleport(packet):
     else:
         q_type = DATA
 
+    q_id = None
+
     q = packet[PAYLOAD]['q']
 
     host_sender = network.get_host(packet[SENDER])
-    # TODO: turn string into const 
-    if 'generate_epr_if_none' in packet[PAYLOAD] and packet[PAYLOAD]['generate_epr_if_none']:
+    if GENERATE_EPR_IF_NONE in packet[PAYLOAD] and packet[PAYLOAD][GENERATE_EPR_IF_NONE]:
         if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
-            host_sender.send_epr(packet[RECEIVER], await_ack=True)
+            q_id, _ = host_sender.send_epr(packet[RECEIVER], await_ack=True, block=True)
 
     if 'q_id' in packet[PAYLOAD]:
         epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
     else:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
-
+        if q_id is not None:
+            epr_teleport = host_sender.get_epr(packet[RECEIVER], q_id, wait=10)
+        else:
+            epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
     assert epr_teleport is not None
     q.cnot(epr_teleport['q'])
     q.H()
@@ -312,7 +315,7 @@ def _rec_epr(packet):
     if payload is None:
         host_receiver.add_epr(sender, q)
     else:
-        host_receiver.add_epr(sender, q, q_id=payload['q_id'])
+        host_receiver.add_epr(sender, q, q_id=payload['q_id'], blocked=payload['block'])
 
     if packet[AWAIT_ACK]:
         _send_ack(sender, receiver, packet[SEQUENCE_NUMBER])
@@ -386,7 +389,7 @@ def _rec_superdense(packet):
             SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
 
 
-def _add_checksum(sender, qubits, size=2):
+def _add_checksum(sender, qubits, size_per_qubit=2):
     """
     Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
     Args:
@@ -402,12 +405,12 @@ def _add_checksum(sender, qubits, size=2):
     while i < len(qubits):
         check = qubit(sender)
         j = 0
-        while j < size:
+        while j < size_per_qubit:
             qubits[i + j].cnot(check)
             j += 1
 
         check_qubits.append(check)
-        i += size
+        i += size_per_qubit
     return check_qubits
 
 
