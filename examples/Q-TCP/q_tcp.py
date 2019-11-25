@@ -431,7 +431,7 @@ def main():
         DaemonThread(qtcp_receiver, args=(host_bob, q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
-            if not thread_1_return or not thread_2_return:
+            if thread_1_return is False or thread_2_return is False:
                 Logger.get_instance().log('TCP Connection not successful : EXITING')
                 sys.exit(1)
             pass
