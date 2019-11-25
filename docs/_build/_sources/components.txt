@@ -15,10 +15,20 @@ Here we present the three major components for QuNetSim.
 Host
 ----
 
+The host component is analogous to a node in a network. They are responsible for both
+running applications and relaying information. In QuNetSim a host can (if desired) relay both
+classical and quantum information.
+
+Protocols
+---------
+The hosts in QuNetSim have certain protocols that they can execute. The protocols
+are designed to perform standardized encodings so as one would expect from the transport layer.
 
 Network
 -------
 
+The network in QuNetSim is analogous to the network in a traditional internet. The network
+is responsible for maintaining information of the hosts, calculating routes, and organizing entanglement
+swapping so that distant nodes share entanglement.
 
-Protocols
----------
+
