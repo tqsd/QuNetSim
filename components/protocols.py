@@ -346,11 +346,13 @@ def _send_superdense(packet):
     receiver = packet[RECEIVER]
     host_sender = network.get_host(sender)
 
+    qid = None
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        host_sender.send_epr(receiver, await_ack=True)
+        qid = host_sender.send_epr(receiver, await_ack=True, block=True)
 
-    q_superdense = host_sender.get_epr(receiver, wait=10)
+    assert qid is not None
+    q_superdense = host_sender.get_epr(receiver, qid=qid, wait=10)
     if q_superdense is None:
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
         raise Exception("couldn't encode superdense")
