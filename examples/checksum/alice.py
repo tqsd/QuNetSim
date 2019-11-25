@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection, qubit
 import sys
 import random
 
-sys.path.append("..")
+sys.path.append("../..")
 from components import protocols
 
 
@@ -36,10 +36,10 @@ def main():
         q4.I()
 
         # generate the checksum qubits with 2 qubits per checksum qubit
-        check_qubits = protocols.add_checksum(Alice, [q1, q2, q3, q4], size=2)
+        check_qubits = protocols._add_checksum(Alice, [q1, q2, q3, q4], size=2)
 
         print('Apply error to random qubit with p=0.5')
-        if random.random() < 0.5:
+        if random.random() < 0.1:
             print('error on qubit')
             random.choice([q1, q2, q3, q4]).X()
         else:

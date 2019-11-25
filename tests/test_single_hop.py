@@ -170,9 +170,9 @@ class TestOneHop(unittest.TestCase):
             saw_ack_2 = False
             messages = hosts['alice'].classical
             for m in messages:
-                if m['message'] == protocols.ACK and m['sequence_number'] == 0:
-                    saw_ack_1 = True
                 if m['message'] == protocols.ACK and m['sequence_number'] == 1:
+                    saw_ack_1 = True
+                if m['message'] == protocols.ACK and m['sequence_number'] == 2:
                     saw_ack_2 = True
                 if saw_ack_1 and saw_ack_2:
                     break
@@ -187,7 +187,7 @@ class TestOneHop(unittest.TestCase):
             saw_ack = False
             messages = hosts['alice'].classical
             for m in messages:
-                if m['message'] == protocols.ACK and m['sequence_number'] == 2:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 3:
                     saw_ack = True
                     break
 
@@ -200,7 +200,7 @@ class TestOneHop(unittest.TestCase):
             saw_ack = False
             messages = hosts['alice'].classical
             for m in messages:
-                if m['message'] == protocols.ACK and m['sequence_number'] == 3:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 4:
                     saw_ack = True
                     break
 
@@ -213,7 +213,7 @@ class TestOneHop(unittest.TestCase):
             saw_ack = False
             messages = hosts['alice'].classical
             for m in messages:
-                if m['message'] == protocols.ACK and m['sequence_number'] == 4:
+                if m['message'] == protocols.ACK and m['sequence_number'] == 5:
                     saw_ack = True
                     break
 
@@ -377,7 +377,7 @@ class TestOneHop(unittest.TestCase):
             self.assertIsNotNone(rec_q)
             self.assertEqual(rec_q['q'].measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_send_qubit_bob_to_alice(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
 

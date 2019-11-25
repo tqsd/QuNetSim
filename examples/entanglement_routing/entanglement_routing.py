@@ -23,8 +23,8 @@ def generate_entanglement(host):
             host_connections = host.get_connections()
             for connection in host_connections:
                 if connection["type"] == "quantum":
-                    w = len(host.get_epr_pairs(connection["connection"]))
-                    if w < 4:
+                    num_epr_pairs = len(host.get_epr_pairs(connection["connection"]))
+                    if num_epr_pairs < 4:
                         host.send_epr(connection["connection"], await_ack=True)
         time.sleep(5)
 
@@ -38,11 +38,11 @@ def routing_algorithm(di_graph, source, target):
         host_connections = host.get_connections()
         for connection in host_connections:
             if connection["type"] == "quantum":
-                w = len(host.get_epr_pairs(connection["connection"]))
-                if w == 0:
+                num_epr_pairs = len(host.get_epr_pairs(connection["connection"]))
+                if num_epr_pairs == 0:
                     entanglement_network.add_edge(host.host_id, connection["connection"], weight=1000)
                 else:
-                    entanglement_network.add_edge(host.host_id, connection["connection"], weight=1. / w)
+                    entanglement_network.add_edge(host.host_id, connection["connection"], weight=1. / num_epr_pairs)
 
     try:
         route = nx.shortest_path(entanglement_network, source, target, weight="weight")
