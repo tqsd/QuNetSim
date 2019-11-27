@@ -417,8 +417,7 @@ class Host:
             await_ack (bool): If sender should wait for an ACK.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
-            string: The qubit ID of the EPR pair.
-            (string, boolean): If await_ack=True, return the ID of the EPR pair and the status of the ACK
+            string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
@@ -503,8 +502,7 @@ class Host:
             q (Qubit): The qubit to send
             await_ack (bool): If sender should wait for an ACK.
         Returns:
-            boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
-            (string, boolean): If await_ack=True, return the ID of the qubit and the status of the ACK
+            string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q_id = str(uuid.uuid4())
         seq_num = self._get_sequence_number(receiver_id, await_ack)
