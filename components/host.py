@@ -848,12 +848,12 @@ class Host:
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
             for connection in self._data_qubit_store:
-                for qubit in self._data_qubit_store[connection]['qubits']:
-                    qubit['q'].release()
+                for q in self._data_qubit_store[connection]['qubits']:
+                    q['q'].release()
 
             for connection in self._EPR_store:
-                for qubit in self._EPR_store[connection]['qubits']:
-                    qubit['q'].release()
+                for q in self._EPR_store[connection]['qubits']:
+                    q['q'].release()
         self._stop_thread = True
 
     def start(self):
@@ -868,6 +868,20 @@ class Host:
             if message['sender'] == sender_id:
                 tmp_arr.append(message)
         return tmp_arr
+
+    def run_protocol(self, protocol, arguments=(), blocking=False):
+        """
+        Run the protocol *protocol*.
+        Args:
+            protocol (function): The protocol that the host should run.
+            arguments (tuple): The set of (ordered) arguments for the protocol
+            blocking (bool): Wait for thread to stop before proceeding
+        """
+        arguments = (self,) + arguments
+        if blocking:
+            DaemonThread(protocol, args=arguments).join()
+        else:
+            DaemonThread(protocol, args=arguments)
 
 
 def _get_qubit(store, partner_id, q_id):

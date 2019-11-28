@@ -87,8 +87,8 @@ def main():
         for h in hosts:
             network.add_host(h)
 
-        DaemonThread(generate_entanglement, args=(node_1,))
-        DaemonThread(generate_entanglement, args=(node_2,))
+        node_1.run_protocol(generate_entanglement)
+        node_2.run_protocol(generate_entanglement)
 
         print("---- BUILDING ENTANGLEMENT   ----")
         # Let the network build up entanglement

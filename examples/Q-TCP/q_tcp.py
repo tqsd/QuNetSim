@@ -413,8 +413,8 @@ def main():
         q_size = 6
         checksum_per_qubit = 2
 
-        DaemonThread(qtcp_sender, args=(host_alice, q_size, host_bob.host_id, checksum_per_qubit))
-        DaemonThread(qtcp_receiver, args=(host_bob, q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
+        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:
@@ -427,8 +427,8 @@ def main():
 
         Logger.get_instance().log('PACKET 1')
 
-        DaemonThread(qtcp_sender, args=(host_alice, q_size, host_bob.host_id, checksum_per_qubit))
-        DaemonThread(qtcp_receiver, args=(host_bob, q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
+        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:
@@ -438,8 +438,8 @@ def main():
 
         Logger.get_instance().log('PACKET 2')
 
-        DaemonThread(qtcp_sender, args=(host_alice, q_size, host_bob.host_id, checksum_per_qubit))
-        DaemonThread(qtcp_receiver, args=(host_bob, q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
+        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:
