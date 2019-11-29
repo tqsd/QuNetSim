@@ -775,7 +775,8 @@ class Host:
             return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
         else:
             cla = []
-            return process_messages()
+            process_messages()
+            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
 
     def get_epr(self, partner_id, q_id=None, wait=-1):
         """
@@ -912,4 +913,3 @@ def _get_qubit(store, partner_id, q_id):
         return get_qubit()
     else:
         return get_qubit_with_id()
-
