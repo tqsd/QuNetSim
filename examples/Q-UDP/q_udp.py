@@ -39,7 +39,7 @@ def qudp_sender(host, q_size, receiver_id):
 
     print(len(data_qubits))
     for q in data_qubits:
-        host.send_teleport(receiver_id, q, await_ack=False)
+        host.send_qubit(receiver_id, q, await_ack=False)
 
 
 def qudp_receiver(host, q_size, sender_id):
@@ -106,7 +106,7 @@ def main():
     network = Network.get_instance()
 
     nodes = ["Alice", "Bob"]
-    network.x_error_rate = 0.2
+    network.x_error_rate = 0
     network.delay = 0.5
     network.start(nodes)
     print('')

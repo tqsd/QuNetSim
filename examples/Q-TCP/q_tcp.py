@@ -17,7 +17,7 @@ thread_2_return = None
 SYN = '10'
 SYN_ACK = '11'
 ACK = '01'
-WAIT_TIME = 5
+WAIT_TIME = 15
 MAX_NUM_OF_TRANSMISSIONS = 10
 
 
@@ -385,15 +385,14 @@ def main():
     global thread_2_return
 
     network = Network.get_instance()
-    nodes = ["Alice", "Bob"]
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes)
     network.delay = 0.5
 
     print('')
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
+    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
         host_alice = Host('alice', Alice)
         host_alice.add_connection('bob')
-        host_alice.add_c_connection('eve')
         host_alice.max_ack_wait = 30
         host_alice.delay = 0.2
         host_alice.start()
@@ -402,19 +401,35 @@ def main():
         host_bob.max_ack_wait = 30
         host_bob.delay = 0.2
         host_bob.add_connection('alice')
-        host_bob.add_q_connection('dean')
+        host_bob.add_connection('eve')
         host_bob.start()
+
+        host_eve = Host('eve', Eve)
+        host_eve.max_ack_wait = 30
+        host_eve.delay = 0.2
+        host_eve.add_connection('bob')
+        host_eve.add_connection('dean')
+        host_eve.start()
+
+        host_dean = Host('dean', Dean)
+        host_dean.max_ack_wait = 30
+        host_dean.delay = 0.2
+        host_dean.add_connection('eve')
+        host_dean.start()
 
         network.add_host(host_alice)
         network.add_host(host_bob)
+        network.add_host(host_eve)
+        network.add_host(host_dean)
+
         network.x_error_rate = 0
         network.packet_drop_rate = 0
 
         q_size = 6
         checksum_per_qubit = 2
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
-        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:
@@ -427,8 +442,8 @@ def main():
 
         Logger.get_instance().log('PACKET 1')
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
-        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:
@@ -438,8 +453,8 @@ def main():
 
         Logger.get_instance().log('PACKET 2')
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_bob.host_id, checksum_per_qubit))
-        host_bob.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
         while thread_1_return is None or thread_2_return is None:
             if thread_1_return is False or thread_2_return is False:

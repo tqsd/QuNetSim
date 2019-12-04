@@ -10,7 +10,7 @@ from components.network import Network
 def main():
     network = Network.get_instance()
     network.delay = 0.2
-    network.packet_drop_rate = 0.3
+    network.packet_drop_rate = 0
     network.start()
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \
@@ -41,7 +41,7 @@ def main():
 
         time.sleep(2)
 
-        host_alice.send_superdense('00000001', '00', True)
+        host_alice.send_superdense('00000001', '01', True)
 
         nodes = [host_alice, host_bob, host_eve, host_dean]
 
