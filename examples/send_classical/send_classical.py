@@ -9,9 +9,10 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
-    network.start()
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
+    network.start(nodes)
     network.delay = 0.2
-    network.packet_drop_rate = 0.5
+    network.packet_drop_rate = 0
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, \
@@ -58,16 +59,12 @@ def main():
         bob_messages = host_bob.classical
         print(len(bob_messages))
 
-
-        nodes = [host_alice, host_bob, host_eve, host_dean]
-
         start_time = time.time()
         while time.time() - start_time < 10:
             pass
 
-        for h in nodes:
-            h.stop()
-        network.stop()
+        network.stop(True)
+        exit()
 
-
-main()
+if __name__ == '__main__':
+    main()
