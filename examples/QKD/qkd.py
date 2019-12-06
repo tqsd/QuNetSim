@@ -144,8 +144,8 @@ def qkd_receiver(host, q_size, sender_id):
 
 def main():
     network = Network.get_instance()
-    network.start()
-    network.delay = 0.4
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
+    network.start(nodes)
     print('')
 
     with CQCConnection("Alice") as A, CQCConnection("Bob") as node_1, \

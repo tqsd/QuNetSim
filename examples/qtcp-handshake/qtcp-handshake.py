@@ -21,7 +21,7 @@ WAIT_TIME = 15
 MAX_NUM_OF_TRANSMISSIONS = 10
 
 
-def handshake_sender(host, receiver_id, dummy):
+def handshake_sender(host, receiver_id):
     """
     Establishes a classical TCP-like handshake with the receiver .
     If successful starts the transmission of qubits , otherwise terminated the connection.
@@ -100,7 +100,7 @@ def handshake_sender(host, receiver_id, dummy):
         return False
 
 
-def handshake_receiver(host, sender_id, dummy):
+def handshake_receiver(host, sender_id):
     """
     Establishes a classical TCP-like handshake with the sender .
     If successful starts to receive the qubits , otherwise terminated the connection.
