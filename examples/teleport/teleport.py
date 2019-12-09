@@ -35,8 +35,7 @@ def main():
         q1 = qubit(Alice)
         q1.X()
 
-        q_id = host_alice.send_qubit('00000001', q1)
-
+        q_id = host_alice.send_teleport('00000001', q1)
         time.sleep(10)
 
         q = host_bob.get_data_qubit(host_alice.host_id, q_id)
