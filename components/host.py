@@ -2,6 +2,7 @@ from queue import Queue
 from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
+from cqc.pythonLib import qubit
 import uuid
 import time
 
@@ -179,7 +180,7 @@ class Host:
         """
         return self._quantum_connections
 
-    def _get_sequence_number(self, host):
+    def _get_sequence_number(self, host, should_not_increment=False):
         """
         Get and set the next sequence number of connection with a receiver.
 
@@ -193,8 +194,38 @@ class Host:
         if host not in self.seq_number:
             self.seq_number[host] = 0
         else:
-            self.seq_number[host] += 1
+            if not should_not_increment:
+                self.seq_number[host] += 1
         return self.seq_number[host]
+
+    def get_sequence_number(self, host):
+        """
+        Get and set the next sequence number of connection with a receiver.
+
+        Args:
+            host(string): The ID of the receiver
+
+        Returns:
+            (int): The next sequence number of connection with a receiver.
+
+        """
+        if host not in self.seq_number:
+            return 0
+
+        return self.seq_number[host]
+
+    def get_message_w_seq_num(self, sender_id, seq_num, wait=10):
+        tmp = []
+        start_time = time.time()
+        while time.time() - start_time < wait:
+            for message in self.classical:
+                if message['sender'] == sender_id:
+                    if message['sequence_number'] == seq_num:
+                        tmp.append(message)
+            if tmp:
+                return tmp
+
+        return None
 
     def _log_ack(self, protocol, receiver, seq):
         """
@@ -205,7 +236,7 @@ class Host:
             seq (int): The sequence number of the packet
         """
         Logger.get_instance().log(
-            self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq))
+            self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq + 1))
 
     def is_idle(self):
         """
@@ -306,10 +337,10 @@ class Host:
                                   protocol=protocols.SEND_CLASSICAL,
                                   payload=protocols.ACK,
                                   payload_type=protocols.SIGNAL,
-                                  sequence_num=seq_number,
+                                  sequence_num=seq_number + 1,
                                   await_ack=False)
         if receiver in self.seq_number:
-            self.seq_number[receiver] = max(self.seq_number[receiver] + 1, seq_number)
+            self.seq_number[receiver] = max(self.seq_number[receiver] + 1, seq_number + 1)
         else:
             self.seq_number[receiver] = seq_number + 1
         self._packet_queue.put(packet)
@@ -336,7 +367,7 @@ class Host:
                 messages = self.classical
                 for m in messages:
                     if str.startswith(m['message'], protocols.ACK):
-                        if m['sender'] == sender and m['sequence_number'] == sequence_number:
+                        if m['sender'] == sender and m['sequence_number'] == sequence_number + 1:
                             Logger.get_instance().log(
                                 'ACK ' + str(m['sequence_number']) + ' from ' + sender + ' arrived at ' + self.host_id)
                             did_ack = True
@@ -344,6 +375,8 @@ class Host:
 
         did_ack = False
         DaemonThread(wait).join()
+        if sender in self.seq_number:
+            self.seq_number[sender] = sequence_number + 1
         return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
@@ -358,7 +391,7 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -366,6 +399,7 @@ class Host:
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
+        self.logger.log(self.host_id + " sends CLASSICAL to " + receiver_id + " with sequence " + str(seq_num))
         self._packet_queue.put(packet)
 
         if packet[protocols.AWAIT_ACK]:
@@ -383,12 +417,11 @@ class Host:
             await_ack (bool): If sender should wait for an ACK.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
-            string: The qubit ID of the EPR pair.
-            (string, boolean): If await_ack=True, return the ID of the EPR pair and the status of the ACK
+            string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
@@ -423,7 +456,7 @@ class Host:
                                   protocol=protocols.SEND_TELEPORT,
                                   payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
                                   await_ack=await_ack)
         if payload is not None:
             packet['payload'] = payload
@@ -452,7 +485,7 @@ class Host:
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -469,16 +502,16 @@ class Host:
             q (Qubit): The qubit to send
             await_ack (bool): If sender should wait for an ACK.
         Returns:
-            boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
-            (string, boolean): If await_ack=True, return the ID of the qubit and the status of the ACK
+            string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q_id = str(uuid.uuid4())
+        seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
                                   payload=[{'q': q, 'q_id': q_id, 'blocked': True}],
                                   payload_type=protocols.QUANTUM,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=seq_num,
                                   await_ack=await_ack)
 
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
@@ -684,6 +717,30 @@ class Host:
             return None
         return q_id
 
+    def add_checksum(self, sender, qubits, size_per_qubit=2):
+        """
+        Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
+        Args:
+            sender: The sender name
+            qubits: The set of qubits to encode
+            size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+
+        Returns:
+            list: A list of qubits that are encoded for *qubits*
+        """
+        i = 0
+        check_qubits = []
+        while i < len(qubits):
+            check = qubit(sender)
+            j = 0
+            while j < size_per_qubit:
+                qubits[i + j].cnot(check)
+                j += 1
+
+            check_qubits.append(check)
+            i += size_per_qubit
+        return check_qubits
+
     def get_classical(self, partner_id, wait=-1):
         """
         Get the classical messages from partner host *partner_id*.
@@ -718,7 +775,8 @@ class Host:
             return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
         else:
             cla = []
-            return process_messages()
+            process_messages()
+            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
 
     def get_epr(self, partner_id, q_id=None, wait=-1):
         """
@@ -790,12 +848,12 @@ class Host:
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
             for connection in self._data_qubit_store:
-                for qubit in self._data_qubit_store[connection]['qubits']:
-                    qubit['q'].release()
+                for q in self._data_qubit_store[connection]['qubits']:
+                    q['q'].release()
 
             for connection in self._EPR_store:
-                for qubit in self._EPR_store[connection]['qubits']:
-                    qubit['q'].release()
+                for q in self._EPR_store[connection]['qubits']:
+                    q['q'].release()
         self._stop_thread = True
 
     def start(self):
@@ -803,6 +861,27 @@ class Host:
         Starts the host.
         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
+
+    def get_classical_with_id(self, sender_id):
+        tmp_arr = []
+        for message in self.classical:
+            if message['sender'] == sender_id:
+                tmp_arr.append(message)
+        return tmp_arr
+
+    def run_protocol(self, protocol, arguments=(), blocking=False):
+        """
+        Run the protocol *protocol*.
+        Args:
+            protocol (function): The protocol that the host should run.
+            arguments (tuple): The set of (ordered) arguments for the protocol
+            blocking (bool): Wait for thread to stop before proceeding
+        """
+        arguments = (self,) + arguments
+        if blocking:
+            DaemonThread(protocol, args=arguments).join()
+        else:
+            DaemonThread(protocol, args=arguments)
 
 
 def _get_qubit(store, partner_id, q_id):

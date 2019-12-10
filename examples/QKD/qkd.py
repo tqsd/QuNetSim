@@ -32,7 +32,7 @@ def qkd_sender(host, q_size, receiver_id):
 
     intended_message = ''
     for m in messages:
-        if m['sequence_number'] == q_size:
+        if m['sequence_number'] == q_size and m['message'] != 'ACK':
             intended_message = m['message']
             break
 
@@ -54,10 +54,9 @@ def qkd_sender(host, q_size, receiver_id):
     messages = host.get_classical(receiver_id, wait=wait_time)
     while len(messages) < q_size + 3:
         messages = host.get_classical(receiver_id, wait=wait_time)
-
     intended_message = ''
     for m in messages:
-        if m['sequence_number'] == q_size + 3:
+        if m['sequence_number'] == q_size + 2 and m['message'] != 'ACK' :
             intended_message = m['message']
             break
 
@@ -93,14 +92,20 @@ def qkd_receiver(host, q_size, sender_id):
         bit_arr.append(q['q'].measure())
 
     bit_arr = np.asarray(bit_arr[::-1])
+    while host.get_sequence_number(sender_id) != q_size:
+        pass
     host.send_classical(sender_id, str(base_arr), True)
 
     messages = host.get_classical(sender_id, wait=wait_time)
     while len(messages) < 2:
         messages = host.get_classical(sender_id, wait=wait_time)
 
-    message_2 = host.get_classical(sender_id, wait=wait_time)[0]['message']
-    message_2_edited = np.fromstring(message_2[1:-1], dtype=np.int, sep=' ')
+    message_2 = host.get_classical(sender_id, wait=wait_time)
+    for m in message_2:
+        if m['message'] != 'ACK':
+            message_2_edited = m['message']
+            break
+    message_2_edited = np.fromstring(message_2_edited[1:-1], dtype=np.int, sep=' ')
 
     reveal_arr_pos = np.random.randint(2, size=len(message_2_edited))
     reveal_bit = []
@@ -139,8 +144,8 @@ def qkd_receiver(host, q_size, sender_id):
 
 def main():
     network = Network.get_instance()
-    network.start()
-    network.delay = 0.2
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
+    network.start(nodes)
     print('')
 
     with CQCConnection("Alice") as A, CQCConnection("Bob") as node_1, \
@@ -169,14 +174,14 @@ def main():
         network.add_host(node_2)
         network.add_host(B)
 
-        q_size = 10
+        q_size = 8
 
         DaemonThread(qkd_sender, args=(A, q_size, B.host_id))
         DaemonThread(qkd_receiver, args=(B, q_size, A.host_id))
 
         nodes = [A, node_1, node_2, B]
         start_time = time.time()
-        while time.time() - start_time < 40:
+        while time.time() - start_time < 50:
             pass
 
         for h in nodes:

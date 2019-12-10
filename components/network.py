@@ -174,7 +174,6 @@ class Network:
     def x_error_rate(self):
         """
         Get the X error rate of the network.
-
         Returns:
               The *x_error_rate* of the network.
         """

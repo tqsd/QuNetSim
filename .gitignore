@@ -3,3 +3,6 @@ protocol/__pycache__/__init__.cpython-37.pyc
 protocol/__pycache__/protocols.cpython-37.pyc
 components/__pycache__/
 tests/__pycache__/*
+venv/
+
+venv2/

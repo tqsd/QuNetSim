@@ -12,17 +12,13 @@ from components.network import Network
 
 
 def main():
-    # nodes = ["Bob", "Alice"]
-    # sim_network = SimulaNetwork(nodes=nodes, force=True)
-    # sim_network.start()
 
-    # time.sleep(1)
+    network = Network.get_instance()
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
+    network.start(nodes)
+    network.delay = 0.5
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:
-
-        network = Network.get_instance()
-        network.start()
-        print('')
 
         host_alice = Host('00000000', Alice)
         host_bob = Host('00000001', Bob)
@@ -39,27 +35,19 @@ def main():
         q1 = qubit(Alice)
         q1.X()
 
-        q_id = host_alice.send_qubit('00000001', q1)
-
+        q_id = host_alice.send_teleport('00000001', q1)
         time.sleep(10)
 
         q = host_bob.get_data_qubit(host_alice.host_id, q_id)
         assert q is not None
         print(q['q'].measure())
 
-        nodes = [host_alice, host_bob]
         start_time = time.time()
 
         while time.time() - start_time < 5:
             pass
 
-        for h in nodes:
-            h.stop()
-        network.stop()
-
-        # sim_network.stop()
-        # simulaqron_settings.default_settings()
-
+        network.stop(True)
 
 if __name__ == '__main__':
     main()

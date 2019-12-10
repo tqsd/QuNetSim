@@ -107,6 +107,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         SEQUENCE_NUMBER: sequence_num,
         AWAIT_ACK: await_ack
     }
+
     return packet
 
 
@@ -329,7 +330,7 @@ def _send_ack(sender, receiver, seq_number):
         receiver (string): The receiver ID
         seq_number (string): The sequence number which to ACK
     """
-    Logger.get_instance().log('sending ACK:' + str(seq_number) + ' from ' + receiver + " to " + sender)
+    Logger.get_instance().log('sending ACK:' + str(seq_number+1) + ' from ' + receiver + " to " + sender)
     host_receiver = network.get_host(receiver)
     host_receiver.send_ack(sender, seq_number)
 
@@ -345,11 +346,13 @@ def _send_superdense(packet):
     receiver = packet[RECEIVER]
     host_sender = network.get_host(sender)
 
+    q_id = None
     if not network.shares_epr(sender, receiver):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
-        host_sender.send_epr(receiver, await_ack=True)
+        q_id, _ = host_sender.send_epr(receiver, await_ack=True, block=True)
 
-    q_superdense = host_sender.get_epr(receiver, wait=10)
+    assert q_id is not None
+    q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=10)
     if q_superdense is None:
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
         raise Exception("couldn't encode superdense")

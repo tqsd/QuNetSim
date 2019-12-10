@@ -193,7 +193,7 @@ Time-To-Live information in this layer.</p>
 
 <dl class="method">
 <dt id="components.network.Network._entanglement_swap">
-<code class="sig-name descname">_entanglement_swap</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">route</em>, <em class="sig-param">q_id</em>, <em class="sig-param">o_seq_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._entanglement_swap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_entanglement_swap</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">route</em>, <em class="sig-param">q_id</em>, <em class="sig-param">o_seq_num</em>, <em class="sig-param">blocked</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._entanglement_swap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
 between sender and receiver.</p>
 <dl class="field-list simple">
@@ -201,8 +201,9 @@ between sender and receiver.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the EPR pair</p></li>
 <li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
-<li><p><strong>route</strong> (<em>string array</em>) – Route between the sender and receiver</p></li>
+<li><p><strong>route</strong> (<em>list</em>) – Route between the sender and receiver</p></li>
 <li><p><strong>q_id</strong> (<em>string</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
 </ul>
 </dd>
 </dl>
@@ -234,7 +235,7 @@ between sender and receiver.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of qubits</p></li>
 <li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver qubits</p></li>
-<li><p><strong>qubits</strong> (<em>Array of Qubit-Dictionaries</em>) – The qubits to be sent</p></li>
+<li><p><strong>qubits</strong> (<em>List of Qubit-Dictionaries</em>) – The qubits to be sent</p></li>
 </ul>
 </dd>
 </dl>
@@ -243,8 +244,12 @@ between sender and receiver.</p>
 <dl class="method">
 <dt id="components.network.Network._update_network_graph">
 <code class="sig-name descname">_update_network_graph</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._update_network_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add host <em>host</em> to the network and update the graph representation of the network
-:param host: The host to be added</p>
+<dd><p>Add host <em>host</em> to the network and update the graph representation of the network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> – The host to be added</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -302,10 +307,10 @@ between sender and receiver.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+<dd class="field-even"><p>An ordered list of ID numbers on the shortest path from source to destination.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>route (array)</p>
+<dd class="field-odd"><p>route (list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -358,10 +363,10 @@ between sender and receiver.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An ordered array of ID numbers on the shortest path from source to destination.</p>
+<dd class="field-even"><p>An ordered list of ID numbers on the shortest path from source to destination.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>route (array)</p>
+<dd class="field-odd"><p>route (list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -470,18 +475,22 @@ between sender and receiver.</p>
 <dl class="method">
 <dt id="components.network.Network.x_error_rate">
 <em class="property">property </em><code class="sig-name descname">x_error_rate</code><a class="headerlink" href="#components.network.Network.x_error_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the X error rate of the network.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>error_rate</strong> (<em>float</em>) – Probability of a X error during a qubit transmission in the network</p>
-</dd>
-</dl>
+<dd><p>Get the X error rate of the network.
+:returns: The <em>x_error_rate</em> of the network.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.network.Network.z_error_rate">
 <em class="property">property </em><code class="sig-name descname">z_error_rate</code><a class="headerlink" href="#components.network.Network.z_error_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Z error rate of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Z error rate of the network.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

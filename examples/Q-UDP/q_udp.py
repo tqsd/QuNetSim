@@ -39,7 +39,7 @@ def qudp_sender(host, q_size, receiver_id):
 
     print(len(data_qubits))
     for q in data_qubits:
-        host.send_teleport(receiver_id, q, await_ack=False)
+        host.send_qubit(receiver_id, q, await_ack=False)
 
 
 def qudp_receiver(host, q_size, sender_id):
@@ -51,10 +51,10 @@ def qudp_receiver(host, q_size, sender_id):
     checksum_size = int(messages[0]['message'])
     checksum_per_qubit = int(q_size / checksum_size)
 
-    wait = 50
     wait_start_time = time.time()
+
     # TODO: Let's modify get_data_qubits so that it can wait t seconds for n qubits
-    while (time.time() - wait_start_time < wait):
+    while time.time() - wait_start_time < wait_time * q_size:
         if len(host.get_data_qubits(sender_id)) == (q_size + checksum_size):
             break
 
@@ -106,7 +106,7 @@ def main():
     network = Network.get_instance()
 
     nodes = ["Alice", "Bob"]
-    network.x_error_rate = 0.2
+    network.x_error_rate = 0
     network.delay = 0.5
     network.start(nodes)
     print('')

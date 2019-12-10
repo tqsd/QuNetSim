@@ -10,8 +10,9 @@ from components.network import Network
 def main():
     network = Network.get_instance()
     network.delay = 0.2
-    network.packet_drop_rate = 0.3
-    network.start()
+    nodes = ["Alice", "Bob", "Eve", "Dean"]
+    network.packet_drop_rate = 0
+    network.start(nodes)
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \
             CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
@@ -41,18 +42,14 @@ def main():
 
         time.sleep(2)
 
-        host_alice.send_superdense('00000001', '00', True)
-
-        nodes = [host_alice, host_bob, host_eve, host_dean]
+        host_alice.send_superdense('00000001', '01', True)
 
         start_time = time.time()
         while time.time() - start_time < 60:
             pass
 
-        for h in nodes:
-            h.stop()
-
-        network.stop()
+        network.stop(True)
 
 
-main()
+if __name__ == '__main__':
+    main()
