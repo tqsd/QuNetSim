@@ -178,7 +178,7 @@ def _rec_qubit(packet):
         packet (dict): The packet in which to receive.
     """
     Logger.get_instance().log(
-        packet[RECEIVER] + ' received qubit ' + packet[PAYLOAD][0]['q_id'] + ' from ' + packet[SENDER])
+        packet[RECEIVER] + ' received qubit ' + packet[PAYLOAD][0].id() + ' from ' + packet[SENDER])
     if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
@@ -220,11 +220,11 @@ def _send_teleport(packet):
         else:
             epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
     assert epr_teleport is not None
-    q.cnot(epr_teleport['q'])
+    q.cnot(epr_teleport)
     q.H()
 
     m1 = q.measure()
-    m2 = epr_teleport['q'].measure()
+    m2 = epr_teleport.measure()
     data = {
         'measurements': [m1, m2],
         'type': q_type,
@@ -233,7 +233,7 @@ def _send_teleport(packet):
     if q_type == EPR:
         data['q_id'] = packet[PAYLOAD]['q_id']
     else:
-        data['q_id'] = epr_teleport['q_id']
+        data['q_id'] = epr_teleport.id()
 
     if 'o_seq_num' in packet[PAYLOAD]:
         data['o_seq_num'] = packet[PAYLOAD]['o_seq_num']
@@ -261,7 +261,6 @@ def _rec_teleport(packet):
     if q is None:
         # TODO: what to do when fails
         return
-    q = q['q']
     a = payload['measurements'][0]
     b = payload['measurements'][1]
     epr_host = payload['node']
