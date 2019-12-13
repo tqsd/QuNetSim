@@ -510,7 +510,7 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
-                                  payload=[q],
+                                  payload=[{'q': q, 'q_id': q_id, 'blocked': True}],
                                   payload_type=protocols.QUANTUM,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -618,12 +618,12 @@ class Host:
 
         return []
 
-    def _receive_qubit(self):
+    def _receive_qubit(self, q_id=None):
         """
         Receives a Qubit from another host. Wrapper function of backend.
         """
         q = self.cqc.recvQubit()
-        q = Qubit(self, qubit=q)
+        q = Qubit(self, qubit=q, q_id=q_id)
         return q
 
 

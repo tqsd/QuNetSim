@@ -416,8 +416,8 @@ class Network:
 
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
-                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index].id())
-
+                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
+                q = q['q']
                 x_err_var = random.random()
                 z_err_var = random.random()
 
@@ -427,18 +427,18 @@ class Network:
                     q.Z()
 
                 q.send_to(self.ARP[r])
-                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index].id())
-                q = self.ARP[r]._receive_qubit()
-                Logger.get_instance().log('transfer qubits - received ' + qubits[index].id())
+                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
+                q = self.ARP[r]._receive_qubit(q_id=qubits[index]['q_id'])
+                Logger.get_instance().log('transfer qubits - received ' + qubits[index]['q_id'])
 
                 # Update the set of qubits so that they aren't pointing at inactive qubits
-                qubits[index] = q
+                qubits[index]['q'] = q
 
                 # Unblock qubits in case they were blocked
-                qubits[index].set_blocked_state(False)
+                qubits[index]['q'].set_blocked_state(False)
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, qubits[index], qubits[index].id())
+                    self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
