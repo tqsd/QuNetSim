@@ -213,7 +213,7 @@ def _send_teleport(packet):
             q_id, _ = host_sender.send_epr(packet[RECEIVER], await_ack=True, block=True)
 
     if 'q_id' in packet[PAYLOAD]:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD].id(), wait=10)
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
     else:
         if q_id is not None:
             epr_teleport = host_sender.get_epr(packet[RECEIVER], q_id, wait=10)
@@ -231,7 +231,7 @@ def _send_teleport(packet):
         'node': node
     }
     if q_type == EPR:
-        data['q_id'] = packet[PAYLOAD].id()
+        data['q_id'] = packet[PAYLOAD]['q_id']
     else:
         data['q_id'] = epr_teleport.id()
 

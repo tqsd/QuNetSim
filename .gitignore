@@ -7,3 +7,5 @@ venv/
 
 venv2/
 objects/__pycache__/
+.project
+.cproject
