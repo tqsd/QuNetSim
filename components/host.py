@@ -2,7 +2,7 @@ from queue import Queue
 from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
-from cqc.pythonLib import qubit
+from objects.qubit import Qubit
 import uuid
 import time
 
@@ -505,6 +505,7 @@ class Host:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q.set_blocked_state(True)
+        q_id = q.id()
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
@@ -616,6 +617,15 @@ class Host:
             return self._data_qubit_store[host_id]['qubits']
 
         return []
+
+    def _receive_qubit(self):
+        """
+        Receives a Qubit from another host. Wrapper function of backend.
+        """
+        q = self.cqc.recvQubit()
+        q = Qubit(self, qubit=q)
+        return q
+
 
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
@@ -735,7 +745,7 @@ class Host:
         i = 0
         check_qubits = []
         while i < len(qubits):
-            check = qubit(sender)
+            check = Qubit(sender)
             j = 0
             while j < size_per_qubit:
                 qubits[i + j].cnot(check)

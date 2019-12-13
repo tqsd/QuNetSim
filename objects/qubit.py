@@ -1,11 +1,12 @@
-from cqc.pythonLib import qubit as cqc.qubit
+import cqc.pythonLib as cqc
 import numpy as np
+import uuid
 
-def cqc_qubit_to_qubit(cqc_qubit, q_id, blocked=False):
-    cqc_qubit.q_id = q_id
-    cqc_qubit.blocked = blocked
-    cqc_qubit.__class__ = Qubit
-    return cqc_qubit
+# def cqc_qubit_to_qubit(cqc_qubit, q_id, blocked=False):
+#     cqc_qubit.q_id = q_id
+#     cqc_qubit.blocked = blocked
+#     cqc_qubit.__class__ = Qubit
+#     return cqc_qubit
 
 
 class Qubit(object):
@@ -27,7 +28,7 @@ class Qubit(object):
         else:
             self._qubit = cqc.qubit(host.cqc)
 
-    @property
+    # @property
     def host(self):
         """
         Give the host of who the qubit belongs to.
@@ -37,7 +38,7 @@ class Qubit(object):
         """
         return self._host
 
-    @property
+    # @property
     def id(self):
         """
         Give the ID of the qubit.
@@ -47,7 +48,7 @@ class Qubit(object):
         """
         return self._id
 
-    @property
+    # @property
     def blocked(self):
         """
         Give the block state of the qubit.
@@ -74,6 +75,15 @@ class Qubit(object):
             state (bool): True for blocked, False if not.
         """
         self._blocked = state
+
+    def send_to(self, receiver):
+        """
+        Sends the Qubit to another host.
+
+        Args:
+            receiver (Host): Host the qubit should be send to.
+        """
+        self._host.cqc.sendQubit(self._qubit, receiver.cqc.name)
 
     def release(self):
         """

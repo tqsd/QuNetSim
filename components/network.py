@@ -7,6 +7,7 @@ from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
 from inspect import signature
+from objects.qubit import Qubit
 
 from simulaqron.network import Network as SimulaNetwork
 from simulaqron.settings import simulaqron_settings
@@ -401,7 +402,7 @@ class Network:
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
         q2 = host_sender.get_epr(route[1], q_id=q_id)
-        host_sender.add_epr(receiver, q2['q'], q2['q_id'], blocked)
+        host_sender.add_epr(receiver, q2, q2.id(), blocked)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
@@ -415,29 +416,29 @@ class Network:
 
         def transfer_qubits(s, r, store=False, original_sender=None):
             for index, q in enumerate(qubits):
-                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
+                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index].id())
 
                 x_err_var = random.random()
                 z_err_var = random.random()
 
                 if x_err_var > (1 - self.x_error_rate):
-                    q['q'].X()
+                    q.X()
                 if z_err_var > (1 - self.z_error_rate):
-                    q['q'].Z()
+                    q.Z()
 
-                self.ARP[s].cqc.sendQubit(q['q'], self.get_host_name(r))
-                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
-                q = self.ARP[r].cqc.recvQubit()
-                Logger.get_instance().log('transfer qubits - received ' + qubits[index]['q_id'])
+                q.send_to(self.ARP[r])
+                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index].id())
+                q = self.ARP[r]._receive_qubit()
+                Logger.get_instance().log('transfer qubits - received ' + qubits[index].id())
 
                 # Update the set of qubits so that they aren't pointing at inactive qubits
-                qubits[index]['q'] = q
+                qubits[index] = q
 
                 # Unblock qubits in case they were blocked
-                qubits[index]['blocked'] = False
+                qubits[index].set_blocked_state(False)
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
+                    self.ARP[r].add_data_qubit(original_sender, qubits[index], qubits[index].id())
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
@@ -494,6 +495,7 @@ class Network:
                                 host_sender = self.get_host(sender)
                                 receiver_name = self.get_host_name(receiver)
                                 q = host_sender.cqc.createEPR(receiver_name)
+                                q = Qubit(host_sender, qubit=q)
                                 if packet['payload'] is not None:
                                     host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
                                                         packet[protocols.PAYLOAD]['block'])

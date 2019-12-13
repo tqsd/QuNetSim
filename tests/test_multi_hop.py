@@ -3,12 +3,13 @@ import time
 import sys
 import os
 
-from cqc.pythonLib import CQCConnection, qubit
+from cqc.pythonLib import CQCConnection
 from simulaqron.network import Network as SimulaNetwork
 from simulaqron.settings import simulaqron_settings
 
 sys.path.append("../..")
 from components.host import Host
+from objects.qubit import Qubit
 from components.network import Network
 
 
@@ -177,7 +178,7 @@ class TestTwoHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(q2)
-            self.assertEqual(q1['q'].measure(), q2['q'].measure())
+            self.assertEqual(q1.measure(), q2.measure())
 
     #OK
     #@unittest.skip('')
@@ -203,7 +204,7 @@ class TestTwoHop(unittest.TestCase):
             for h in hosts.values():
                 self.network.add_host(h)
 
-            q = qubit(Alice)
+            q = Qubit(hosts['alice'])
             q.X()
 
             hosts['alice'].send_teleport(hosts['eve'].host_id, q)
@@ -215,7 +216,7 @@ class TestTwoHop(unittest.TestCase):
                 time.sleep(1)
 
             self.assertIsNotNone(q2)
-            self.assertEqual(q2['q'].measure(), 1)
+            self.assertEqual(q2.measure(), 1)
 
     #OK
     #@unittest.skip('')
@@ -315,7 +316,7 @@ class TestTwoHop(unittest.TestCase):
             for h in hosts.values():
                 self.network.add_host(h)
 
-            q = qubit(Alice)
+            q = Qubit(hosts['alice'])
             q.X()
 
             q_id = hosts['alice'].send_epr(hosts['eve'].host_id)
@@ -333,7 +334,7 @@ class TestTwoHop(unittest.TestCase):
             while q1_epr is None and i < TestTwoHop.MAX_WAIT:
                 q1_epr = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
                 if q1_epr is not None:
-                    q1_epr = q1_epr['q']
+                    q1_epr = q1_epr
                 i += 1
                 time.sleep(1)
 
@@ -341,7 +342,7 @@ class TestTwoHop(unittest.TestCase):
             while q2_epr is None and i < TestTwoHop.MAX_WAIT:
                 q2_epr = hosts['eve'].get_epr(hosts['alice'].host_id, q_id)
                 if q2_epr is not None:
-                    q2_epr = q2_epr['q']
+                    q2_epr = q2_epr
                 i += 1
                 time.sleep(1)
 
@@ -349,7 +350,7 @@ class TestTwoHop(unittest.TestCase):
             while q_teleport is None and i < TestTwoHop.MAX_WAIT:
                 q_teleport = hosts['eve'].get_data_qubit(hosts['alice'].host_id)
                 if q_teleport is not None:
-                    q_teleport = q_teleport['q']
+                    q_teleport = q_teleport
                 i += 1
                 time.sleep(1)
 

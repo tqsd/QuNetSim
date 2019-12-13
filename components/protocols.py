@@ -1,4 +1,4 @@
-from cqc.pythonLib import qubit
+from objects.qubit import Qubit
 
 # DATA TYPES
 from components.logger import Logger
@@ -203,7 +203,7 @@ def _send_teleport(packet):
 
     q_id = None
 
-    q = packet[PAYLOAD]['q']
+    q = packet[PAYLOAD]
 
     host_sender = network.get_host(packet[SENDER])
     if GENERATE_EPR_IF_NONE in packet[PAYLOAD] and packet[PAYLOAD][GENERATE_EPR_IF_NONE]:
@@ -213,7 +213,7 @@ def _send_teleport(packet):
             q_id, _ = host_sender.send_epr(packet[RECEIVER], await_ack=True, block=True)
 
     if 'q_id' in packet[PAYLOAD]:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
+        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD].id(), wait=10)
     else:
         if q_id is not None:
             epr_teleport = host_sender.get_epr(packet[RECEIVER], q_id, wait=10)
@@ -231,7 +231,7 @@ def _send_teleport(packet):
         'node': node
     }
     if q_type == EPR:
-        data['q_id'] = packet[PAYLOAD]['q_id']
+        data['q_id'] = packet[PAYLOAD].id()
     else:
         data['q_id'] = epr_teleport.id()
 
@@ -312,6 +312,7 @@ def _rec_epr(packet):
     host_receiver = network.get_host(receiver)
 
     q = host_receiver.cqc.recvEPR()
+    q = Qubit(host_receiver, qubit=q)
     if payload is None:
         host_receiver.add_epr(sender, q)
     else:
@@ -356,7 +357,7 @@ def _send_superdense(packet):
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
         raise Exception("couldn't encode superdense")
 
-    _encode_superdense(packet[PAYLOAD], q_superdense['q'])
+    _encode_superdense(packet[PAYLOAD], q_superdense)
     packet[PAYLOAD] = [q_superdense]
     packet[PROTOCOL] = REC_SUPERDENSE
     packet[PAYLOAD_TYPE] = QUANTUM
@@ -379,15 +380,17 @@ def _rec_superdense(packet):
 
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'], wait=10)
-    q2 = host_receiver.get_epr(sender, payload[0]['q_id'], wait=10)
+    q1 = host_receiver.get_data_qubit(sender, payload[0].id(), wait=10)
+    q2 = host_receiver.get_epr(sender, payload[0].id(), wait=10)
 
+    print(q1)
+    print(q2)
     assert q1 is not None and q2 is not None
 
     if packet[AWAIT_ACK]:
         _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
 
-    return {'sender': packet[SENDER], 'message': _decode_superdense(q1['q'], q2['q']),
+    return {'sender': packet[SENDER], 'message': _decode_superdense(q1, q2),
             SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
 
 
@@ -405,7 +408,7 @@ def _add_checksum(sender, qubits, size_per_qubit=2):
     i = 0
     check_qubits = []
     while i < len(qubits):
-        check = qubit(sender)
+        check = Qubit(sender)
         j = 0
         while j < size_per_qubit:
             qubits[i + j].cnot(check)

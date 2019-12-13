@@ -6,3 +6,4 @@ tests/__pycache__/*
 venv/
 
 venv2/
+objects/__pycache__/
