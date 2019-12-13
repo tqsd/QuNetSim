@@ -351,6 +351,7 @@ def _send_superdense(packet):
         q_id, _ = host_sender.send_epr(receiver, await_ack=True, block=True)
         assert q_id is not None
         q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=10)
+
     else:
         q_superdense = host_sender.get_epr(receiver, wait=5)
 
@@ -359,7 +360,7 @@ def _send_superdense(packet):
         raise Exception("couldn't encode superdense")
 
     _encode_superdense(packet[PAYLOAD], q_superdense)
-    packet[PAYLOAD] = [{'q': q_superdense, 'q_id': q_superdense.id()}]
+    packet[PAYLOAD] = [q_superdense]
     packet[PROTOCOL] = REC_SUPERDENSE
     packet[PAYLOAD_TYPE] = QUANTUM
     network.send(packet)
@@ -378,11 +379,11 @@ def _rec_superdense(packet):
     receiver = packet[RECEIVER]
     sender = packet[SENDER]
     payload = packet[PAYLOAD]
-
+    
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload[0]['q_id'], wait=10)
-    q2 = host_receiver.get_epr(sender, payload[0]['q_id'], wait=10)
+    q1 = host_receiver.get_data_qubit(sender, payload[0].id(), wait=10)
+    q2 = host_receiver.get_epr(sender, payload[0].id(), wait=10)
 
     assert q1 is not None and q2 is not None
 

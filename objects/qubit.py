@@ -2,6 +2,7 @@ import cqc.pythonLib as cqc
 import numpy as np
 import uuid
 
+
 # def cqc_qubit_to_qubit(cqc_qubit, q_id, blocked=False):
 #     cqc_qubit.q_id = q_id
 #     cqc_qubit.blocked = blocked
@@ -14,7 +15,6 @@ class Qubit(object):
     A Qubit object. It is a wrapper class of qubits of different
     backends, which adds additional information needed for QuNetSim.
     """
-
 
     def __init__(self, host, qubit=None, q_id=None, blocked=False):
         self._blocked = blocked
@@ -58,12 +58,16 @@ class Qubit(object):
         """
         return self._blocked
 
+    @property
+    def qubit(self):
+        return self._qubit
+
     def set_new_id(self, new_id):
         """
         Give the qubit a new id.
 
         Args:
-            new_id (int): new id of the qubit.
+            new_id (str): new id of the qubit.
         """
         self._id = new_id
 
@@ -95,13 +99,13 @@ class Qubit(object):
         """
         Perform Identity operation on the qubit.
         """
-        self._qubit.X()
+        self._qubit.I()
 
     def X(self):
         """
         Perform pauli x gate on qubit.
         """
-        self._qubit.Y()
+        self._qubit.X()
 
     def Y(self):
         """
@@ -171,7 +175,7 @@ class Qubit(object):
         Applies a controlled x gate to the target qubit.
 
         Args:
-            target (qubit): Qubit on which the cnot gate should be applied.
+            target (Qubit): Qubit on which the cnot gate should be applied.
         """
         self._qubit.cnot(target._qubit)
 
@@ -180,7 +184,7 @@ class Qubit(object):
         Applies a controlled z gate to the target qubit.
 
         Args:
-            target (qubit): Qubit on which the cphase gate should be applied.
+            target (Qubit): Qubit on which the cphase gate should be applied.
         """
         self._qubit.cphase(target._qubit)
 

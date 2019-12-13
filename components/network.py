@@ -411,34 +411,33 @@ class Network:
         Args:
             sender (Host): Sender of qubits
             receiver (Host): Receiver qubits
-            qubits (List of Qubit-Dictionaries): The qubits to be sent
+            qubits (List of Qubits): The qubits to be sent
         """
 
         def transfer_qubits(s, r, store=False, original_sender=None):
-            for index, q in enumerate(qubits):
-                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
-                q = q['q']
+            for q in qubits:
+                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id())
+
                 x_err_var = random.random()
                 z_err_var = random.random()
-
                 if x_err_var > (1 - self.x_error_rate):
                     q.X()
                 if z_err_var > (1 - self.z_error_rate):
                     q.Z()
 
                 q.send_to(self.ARP[r])
-                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
-                q = self.ARP[r]._receive_qubit(q_id=qubits[index]['q_id'])
-                Logger.get_instance().log('transfer qubits - received ' + qubits[index]['q_id'])
+                Logger.get_instance().log('transfer qubits - waiting to receive ' + q.id())
+                q = self.ARP[r]._receive_qubit(q.id())
+                Logger.get_instance().log('transfer qubits - received ' + q.id())
 
                 # Update the set of qubits so that they aren't pointing at inactive qubits
-                qubits[index]['q'] = q
+                # qubits[index]['q'] = q.qubit
 
                 # Unblock qubits in case they were blocked
-                qubits[index]['q'].set_blocked_state(False)
+                q.set_blocked_state(False)
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
+                    self.ARP[r].add_data_qubit(original_sender, q, q.id())
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
