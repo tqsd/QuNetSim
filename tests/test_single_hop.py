@@ -336,8 +336,6 @@ class TestOneHop(unittest.TestCase):
 
             hosts['alice'].send_superdense(hosts['bob'].host_id, '01')
 
-            hosts['alice'].send_epr(hosts['bob'].host_id)
-
             messages = hosts['bob'].classical
             i = 0
             while i < TestOneHop.MAX_WAIT and len(messages) == 0:
