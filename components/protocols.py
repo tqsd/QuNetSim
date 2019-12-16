@@ -119,8 +119,8 @@ def _relay_message(packet):
         packet (dict): Packet to be relayed
 
     """
-    packet['TTL'] -= 1
-    if packet['TTL'] != 0:
+    packet.ttl -= 1
+    if packet.ttl != 0:
         network.send(packet)
     else:
         Logger.get_instance().log('TTL Expired on packet')

@@ -9,6 +9,7 @@ from components.daemon_thread import DaemonThread
 from inspect import signature
 from objects.qubit import Qubit
 
+from objects.packet import Packet
 from simulaqron.network import Network as SimulaNetwork
 from simulaqron.settings import simulaqron_settings
 
@@ -475,7 +476,7 @@ class Network:
                     if self.use_hop_by_hop:
                         route = self.get_classical_route(sender, receiver)
                     elif packet.protocol == protocols.RELAY:
-                        full_route = packet['route']
+                        full_route = packet.route
                         route = full_route[full_route.index(sender):]
                     else:
                         route = self.get_classical_route(sender, receiver)
@@ -491,6 +492,7 @@ class Network:
                     else:
                         if packet.protocol == protocols.REC_EPR:
                             # TODO: adapt to new EPR generation
+                            # update: did so, but does it work?
                             q_id = packet.payload[1]
                             blocked = packet.payload[2]
                             q_route = self.get_quantum_route(sender, receiver)
@@ -566,15 +568,18 @@ class Network:
         Returns:
             dict: Encoded RELAY packet
         """
-        if payload[protocols.PROTOCOL] != protocols.RELAY:
-            packet = {
-                'sender': route[1],
-                'payload': payload,
-                'protocol': protocols.RELAY,
-                'payload_type': protocols.SIGNAL,
-                'TTL': ttl,
-                'route': route
-            }
+        if payload.protocol != protocols.RELAY:
+            packet = Packet(route[1], None, protocols.RELAY, protocols.SIGNAL,
+                            payload, ttl=ttl)
+            packet.add_route(route)
+            # {
+            #     'sender': route[1],
+            #     'payload': payload,
+            #     'protocol': protocols.RELAY,
+            #     'payload_type': protocols.SIGNAL,
+            #     'TTL': ttl,
+            #     'route': route
+            # }
         else:
             packet = payload
             packet.sender = route[1]
