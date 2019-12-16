@@ -28,7 +28,7 @@ class Qubit(object):
         else:
             self._qubit = cqc.qubit(host.cqc)
 
-    # @property
+    @property
     def host(self):
         """
         Give the host of who the qubit belongs to.
@@ -38,7 +38,7 @@ class Qubit(object):
         """
         return self._host
 
-    # @property
+    @property
     def id(self):
         """
         Give the ID of the qubit.
@@ -48,7 +48,7 @@ class Qubit(object):
         """
         return self._id
 
-    # @property
+    @property
     def blocked(self):
         """
         Give the block state of the qubit.
@@ -130,12 +130,6 @@ class Qubit(object):
         Perform a Hadamard gate on the qubit.
         """
         self._qubit.H()
-
-    def K(self):
-        """
-        Perform a K gate on the qubit.
-        """
-        self._qubit.K()
 
     def rx(self, phi):
         """

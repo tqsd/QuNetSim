@@ -505,7 +505,7 @@ class Host:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q.set_blocked_state(True)
-        q_id = q.id()
+        q_id = q.id
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
@@ -540,7 +540,7 @@ class Host:
             return False
         blocked = 0
         for q in self._EPR_store[receiver_id]['qubits']:
-            if q.blocked():
+            if q.blocked:
                 blocked += 1
         return blocked != len(self._EPR_store[receiver_id]['qubits'])
 
@@ -557,20 +557,20 @@ class Host:
             if old_id is None:
                 q = None
                 for qubit in self._EPR_store[host_id]['qubits']:
-                    if not qubit.blocked():
+                    if not qubit.blocked:
                         q = qubit
                         q.set_blocked_state(True)
                         break
                 if q is None:
                     raise Exception('No unblocked EPR pairs')
-                old_id = q.id()
+                old_id = q.id
                 q.set_new_id(new_id)
                 self.logger.log(self.host_id + " changed EPR ID with " + host_id)
                 return old_id
             else:
                 qubits = self._EPR_store[host_id]['qubits']
                 for q in qubits:
-                    if q.id() == old_id:
+                    if q.id == old_id:
                         q.set_blocked_state(True)
                         q.set_new_id(new_id)
                         self.logger.log(self.host_id + " changed EPR ID with " + host_id)
@@ -917,13 +917,13 @@ def _get_qubit(store, partner_id, q_id):
         else:
             # If no q_id is specified, then return the first unblocked qubit
             for index, qubit in enumerate(store[partner_id]['qubits']):
-                if not qubit.blocked():
+                if not qubit.blocked:
                     del store[partner_id]['qubits'][index]
                     return qubit
 
     def get_qubit_with_id():
         for index, qubit in enumerate(store[partner_id]['qubits']):
-            if qubit.id() == q_id:
+            if qubit.id == q_id:
                 qu = store[partner_id]['qubits'][index]
                 # TODO: make deletion optional
                 del store[partner_id]['qubits'][index]

@@ -233,7 +233,7 @@ def _send_teleport(packet):
     if q_type == EPR:
         data['q_id'] = packet[PAYLOAD]['q_id']
     else:
-        data['q_id'] = epr_teleport.id()
+        data['q_id'] = epr_teleport.id
 
     if 'o_seq_num' in packet[PAYLOAD]:
         data['o_seq_num'] = packet[PAYLOAD]['o_seq_num']
@@ -379,11 +379,11 @@ def _rec_superdense(packet):
     receiver = packet[RECEIVER]
     sender = packet[SENDER]
     payload = packet[PAYLOAD]
-    
+
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload[0].id(), wait=10)
-    q2 = host_receiver.get_epr(sender, payload[0].id(), wait=10)
+    q1 = host_receiver.get_data_qubit(sender, payload[0].id, wait=10)
+    q2 = host_receiver.get_epr(sender, payload[0].id, wait=10)
 
     assert q1 is not None and q2 is not None
 
