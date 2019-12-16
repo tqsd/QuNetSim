@@ -10,13 +10,13 @@ import time
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    def __init__(self, host_id, cqc):
+    def __init__(self, host_id, backend):
         """
         Return the most important thing about a person.
 
         Args:
             host_id: The ID of the host
-            cqc: The CQC for this host
+            backend: The backend to use for this host
 
         """
         self._host_id = host_id
@@ -28,7 +28,9 @@ class Host:
         self._classical_messages = []
         self._classical_connections = []
         self._quantum_connections = []
-        self._cqc = cqc
+        self._backend = backend
+        # add this host to the backend
+        backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
@@ -49,14 +51,14 @@ class Host:
         return self._host_id
 
     @property
-    def cqc(self):
+    def backend(self):
         """
-        Get the *cqc* of the host.
+        Get the *backend* of the host.
 
         Returns:
-            (CQCConnection): The CQC of the host.
+            (Backend): The Backend of the host.
         """
-        return self._cqc
+        return self._backend
 
     @property
     def classical_connections(self):
@@ -255,7 +257,7 @@ class Host:
             packet (dict): The received packet
         """
 
-        sender = packet['sender']
+        sender = packet.sender
         result = protocols.process(packet)
         if result is not None:
             self._classical_messages.append({
@@ -264,7 +266,7 @@ class Host:
                 'sequence_number': result['sequence_number']
             })
             if result['message'] != protocols.ACK:
-                self.logger.log(self.cqc.name + ' received ' + str(result['message']) + ' with sequence number ' + str(
+                self.logger.log(self.host_id + ' received ' + str(result['message']) + ' with sequence number ' + str(
                     result['sequence_number']))
 
     def _process_queue(self):
@@ -402,9 +404,9 @@ class Host:
         self.logger.log(self.host_id + " sends CLASSICAL to " + receiver_id + " with sequence " + str(seq_num))
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
+        if packet.await_ack:
             self._log_ack('classical', receiver_id, seq_num)
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_epr(self, receiver_id, q_id=None, await_ack=False, block=False):
         """
@@ -421,18 +423,20 @@ class Host:
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
+        q, epr_func = self._backend.create_EPR_states(self.host_id, receiver_id, id=q_id, block=block)
+        self.add_epr(receiver_id, q)
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload={'q_id': q_id, 'block': block},
+                                  payload=epr_func,
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
+        if packet.await_ack:
             self._log_ack('EPR', receiver_id, seq_num)
             return q_id, self.await_ack(seq_num, receiver_id)
 
@@ -459,14 +463,14 @@ class Host:
                                   sequence_num=self._get_sequence_number(receiver_id, await_ack),
                                   await_ack=await_ack)
         if payload is not None:
-            packet['payload'] = payload
+            packet.payload = payload
 
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('TELEPORT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('TELEPORT', receiver_id, packet.seq_num)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_superdense(self, receiver_id, message, await_ack=False):
         """
@@ -490,9 +494,9 @@ class Host:
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('SUPERDENSE', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('SUPERDENSE', receiver_id, packet.seq_num)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_qubit(self, receiver_id, q, await_ack=False):
         """
@@ -510,7 +514,7 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
-                                  payload=[{'q': q, 'q_id': q_id, 'blocked': True}],
+                                  payload=q,
                                   payload_type=protocols.QUANTUM,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -518,9 +522,9 @@ class Host:
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('SEND QUBIT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return q_id, self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('SEND QUBIT', receiver_id, packet.seq_num)
+            return q_id, self.await_ack(packet.seq_num, receiver_id)
         return q_id
 
     def shares_epr(self, receiver_id):
@@ -618,14 +622,6 @@ class Host:
 
         return []
 
-    def _receive_qubit(self, q_id=None):
-        """
-        Receives a Qubit from another host. Wrapper function of backend.
-        """
-        q = self.cqc.recvQubit()
-        q = Qubit(self, qubit=q, q_id=q_id)
-        return q
-
 
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
@@ -679,11 +675,11 @@ class Host:
         if partner_id not in self._EPR_store and partner_id != self.host_id:
             self._EPR_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
 
-        if q_id is None:
-            q_id = str(uuid.uuid4())
 
         to_add = qubit
-        to_add.set_new_id(q_id)
+        if q_id is not None:
+            to_add.set_new_id(q_id)
+        q_id = to_add.id
         to_add.set_blocked_state(blocked)
 
         if self._EPR_store[partner_id]['max_limit'] == -1 or (len(self._EPR_store[partner_id]['qubits'])
@@ -697,7 +693,7 @@ class Host:
             return None
         return q_id
 
-    def add_data_qubit(self, partner_id, qubit, q_id=None, blocked=False):
+    def add_data_qubit(self, partner_id, qubit):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
@@ -705,8 +701,6 @@ class Host:
         Args:
             partner_id: The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
-            q_id (string): The ID of the qubit to be added.
-            blocked: If the qubit should be stored as blocked or not
         Returns:
              (string) *q_id*: The qubit ID
         """
@@ -714,22 +708,17 @@ class Host:
         if partner_id not in self._data_qubit_store and partner_id != self.host_id:
             self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
 
-        if q_id is None:
-            q_id = str(uuid.uuid4())
-
         to_add = qubit
-        to_add.set_new_id(q_id)
-        to_add.set_blocked_state(blocked)
 
         if self._data_qubit_store[partner_id]['max_limit'] == -1 or (len(self._data_qubit_store[partner_id]['qubits'])
                                                                      < self._data_qubit_store[partner_id]['max_limit']):
             self._data_qubit_store[partner_id]['qubits'].append(to_add)
-            self.logger.log(self.host_id + ' added data qubit ' + q_id + ' from ' + partner_id)
+            self.logger.log(self.host_id + ' added data qubit ' + to_add.id + ' from ' + partner_id)
         else:
             to_add.measure()
-            self.logger.log(self.host_id + ' could NOT add data qubit ' + q_id + ' from ' + partner_id)
+            self.logger.log(self.host_id + ' could NOT add data qubit ' + to_add.id + ' from ' + partner_id)
             return None
-        return q_id
+        return to_add.id
 
     def add_checksum(self, sender, qubits, size_per_qubit=2):
         """

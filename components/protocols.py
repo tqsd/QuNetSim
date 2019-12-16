@@ -3,6 +3,7 @@ from objects.qubit import Qubit
 # DATA TYPES
 from components.logger import Logger
 from components.network import Network
+from objects.packet import Packet
 
 # CONSTANTS
 GENERATE_EPR_IF_NONE = 'generate_epr_if_none'
@@ -40,6 +41,35 @@ RELAY = 'relay'
 SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
 
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
+    """
+    Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
+    with data and the header.
+    Args:
+        sender(string): ID of the sender
+        receiver(string): ID of the receiver
+        protocol(string): ID of the protocol of which the packet should be processed.
+        payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
+        payload_type(string): Type of the payload.
+        sequence_num(int): Sequence number of the packet.
+        await_ack(bool): If the sender should await an ACK
+    Returns:
+         dict: Encoded packet
+    """
+
+    packet = Packet(sender, receiver, protocol, payload_type, payload,
+                            sequence_number=sequence_num, await_ack=await_ack)
+    {
+        SENDER: sender,
+        RECEIVER: receiver,
+        PROTOCOL: protocol,
+        PAYLOAD_TYPE: payload_type,
+        PAYLOAD: payload,
+        SEQUENCE_NUMBER: sequence_num,
+        AWAIT_ACK: await_ack
+    }
+
+    return packet
 
 def process(packet):
     """
@@ -53,7 +83,7 @@ def process(packet):
 
     """
 
-    protocol = packet[PROTOCOL]
+    protocol = packet.protocol
     if protocol == SEND_TELEPORT:
         return _send_teleport(packet)
     elif protocol == REC_TELEPORT:
@@ -80,37 +110,6 @@ def process(packet):
         Logger.get_instance().error('protocol not defined')
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
-    """
-    Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
-    with data and the header.
-
-    Args:
-        sender(string): ID of the sender
-        receiver(string): ID of the receiver
-        protocol(string): ID of the protocol of which the packet should be processed.
-        payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
-        payload_type(string): Type of the payload.
-        sequence_num(int): Sequence number of the packet.
-        await_ack(bool): If the sender should await an ACK
-    Returns:
-         dict: Encoded packet
-
-    """
-
-    packet = {
-        SENDER: sender,
-        RECEIVER: receiver,
-        PROTOCOL: protocol,
-        PAYLOAD_TYPE: payload_type,
-        PAYLOAD: payload,
-        SEQUENCE_NUMBER: sequence_num,
-        AWAIT_ACK: await_ack
-    }
-
-    return packet
-
-
 def _relay_message(packet):
     """
     Reduce TTL of network packet and if TTL > 0, sends the message to be relayed to the next
@@ -135,7 +134,7 @@ def _send_classical(packet):
        packet (dict): The packet in which to transmit.
 
     """
-    packet[PROTOCOL] = REC_CLASSICAL
+    packet.protocol = REC_CLASSICAL
     network.send(packet)
 
 
@@ -150,14 +149,14 @@ def _rec_classical(packet):
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
-    if packet[PAYLOAD] == ACK:
-        Logger.get_instance().log(packet[RECEIVER] + " received ACK from " + packet[SENDER]
-                                  + " with sequence number " + str(packet[SEQUENCE_NUMBER]))
+    if packet.payload == ACK:
+        Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
+                                  + " with sequence number " + str(packet.seq_num))
 
-    if packet[AWAIT_ACK]:
-        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
+    if packet.await_ack:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet[SENDER], 'message': packet[PAYLOAD], 'sequence_number': packet[SEQUENCE_NUMBER]}
+    return {'sender': packet.sender, 'message': packet.payload, 'sequence_number': packet.seq_num}
 
 
 def _send_qubit(packet):
@@ -166,7 +165,7 @@ def _send_qubit(packet):
     Args:
         packet (dict): The packet in which to transmit.
     """
-    packet[PROTOCOL] = REC_QUBIT
+    packet.protocol = REC_QUBIT
     network.send(packet)
 
 
@@ -178,9 +177,9 @@ def _rec_qubit(packet):
         packet (dict): The packet in which to receive.
     """
     Logger.get_instance().log(
-        packet[RECEIVER] + ' received qubit ' + packet[PAYLOAD][0]['q_id'] + ' from ' + packet[SENDER])
-    if packet[AWAIT_ACK]:
-        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
+        packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
+    if packet.await_ack:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_teleport(packet):
@@ -191,34 +190,34 @@ def _send_teleport(packet):
         packet (dict): The packet in which to transmit.
     """
 
-    if 'node' in packet[PAYLOAD]:
-        node = packet[PAYLOAD]['node']
+    if 'node' in packet.payload:
+        node = packet.payload['node']
     else:
-        node = packet[SENDER]
+        node = packet.sender
 
-    if 'type' in packet[PAYLOAD]:
-        q_type = packet[PAYLOAD]['type']
+    if 'type' in packet.payload:
+        q_type = packet.payload['type']
     else:
         q_type = DATA
 
     q_id = None
 
-    q = packet[PAYLOAD]['q']
+    q = packet.payload['q']
 
-    host_sender = network.get_host(packet[SENDER])
-    if GENERATE_EPR_IF_NONE in packet[PAYLOAD] and packet[PAYLOAD][GENERATE_EPR_IF_NONE]:
-        if not network.shares_epr(packet[SENDER], packet[RECEIVER]):
+    host_sender = network.get_host(packet.sender)
+    if GENERATE_EPR_IF_NONE in packet.payload and packet.payload[GENERATE_EPR_IF_NONE]:
+        if not network.shares_epr(packet.sender, packet.receiver):
             Logger.get_instance().log(
-                'No shared EPRs - Generating one between ' + packet[SENDER] + " and " + packet[RECEIVER])
-            q_id, _ = host_sender.send_epr(packet[RECEIVER], await_ack=True, block=True)
+                'No shared EPRs - Generating one between ' + packet.sender + " and " + packet.receiver)
+            q_id, _ = host_sender.send_epr(packet.receiver, await_ack=True, block=True)
 
-    if 'q_id' in packet[PAYLOAD]:
-        epr_teleport = host_sender.get_epr(packet[RECEIVER], packet[PAYLOAD]['q_id'], wait=10)
+    if 'q_id' in packet.payload:
+        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['q_id'], wait=10)
     else:
         if q_id is not None:
-            epr_teleport = host_sender.get_epr(packet[RECEIVER], q_id, wait=10)
+            epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=10)
         else:
-            epr_teleport = host_sender.get_epr(packet[RECEIVER], wait=10)
+            epr_teleport = host_sender.get_epr(packet.receiver, wait=10)
     assert epr_teleport is not None
     q.cnot(epr_teleport)
     q.H()
@@ -231,17 +230,17 @@ def _send_teleport(packet):
         'node': node
     }
     if q_type == EPR:
-        data['q_id'] = packet[PAYLOAD]['q_id']
+        data['q_id'] = packet.payload['q_id']
     else:
         data['q_id'] = epr_teleport.id
 
-    if 'o_seq_num' in packet[PAYLOAD]:
-        data['o_seq_num'] = packet[PAYLOAD]['o_seq_num']
-    if 'ack' in packet[PAYLOAD]:
-        data['ack'] = packet[PAYLOAD]['ack']
+    if 'o_seq_num' in packet.payload:
+        data['o_seq_num'] = packet.payload['o_seq_num']
+    if 'ack' in packet.payload:
+        data['ack'] = packet.payload['ack']
 
-    packet[PAYLOAD] = data
-    packet[PROTOCOL] = REC_TELEPORT
+    packet.payload = data
+    packet.protocol = REC_TELEPORT
     network.send(packet)
 
 
@@ -253,11 +252,11 @@ def _rec_teleport(packet):
     Args:
         packet (dict): The packet in which to receive.
     """
-    host_receiver = network.get_host(packet[RECEIVER])
-    payload = packet[PAYLOAD]
+    host_receiver = network.get_host(packet.receiver)
+    payload = packet.payload
     q_id = payload['q_id']
 
-    q = host_receiver.get_epr(packet[SENDER], q_id, wait=10)
+    q = host_receiver.get_epr(packet.sender, q_id, wait=10)
     if q is None:
         # TODO: what to do when fails
         return
@@ -277,11 +276,11 @@ def _rec_teleport(packet):
     elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id)
 
-    if packet[AWAIT_ACK]:
+    if packet.await_ack:
         if 'o_seq_num' in payload and 'ack' in payload:
-            _send_ack(epr_host, packet[RECEIVER], payload['o_seq_num'])
+            _send_ack(epr_host, packet.receiver, payload['o_seq_num'])
 
-        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_epr(packet):
@@ -289,9 +288,9 @@ def _send_epr(packet):
     Sends an EPR to another host in the network.
 
     Args:
-        packet (dict): The packet in which to transmit.
+        packet (Packet): The packet in which to transmit.
     """
-    packet[PROTOCOL] = REC_EPR
+    packet.protocol = REC_EPR
     network.send(packet)
 
 
@@ -301,25 +300,21 @@ def _rec_epr(packet):
     receiver.
 
     Args:
-        packet (dict): The packet in which to receive.
+        packet (Packet): The packet in which to receive.
 
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
-    payload = packet[PAYLOAD]
-    receiver = packet[RECEIVER]
-    sender = packet[SENDER]
+    payload = packet.payload
+    receiver = packet.receiver
+    sender = packet.sender
     host_receiver = network.get_host(receiver)
 
-    q = host_receiver.cqc.recvEPR()
-    q = Qubit(host_receiver, qubit=q)
-    if payload is None:
-        host_receiver.add_epr(sender, q)
-    else:
-        host_receiver.add_epr(sender, q, q_id=payload['q_id'], blocked=payload['block'])
+    q = payload[0]()
+    host_receiver.add_epr(sender, q)
 
-    if packet[AWAIT_ACK]:
-        _send_ack(sender, receiver, packet[SEQUENCE_NUMBER])
+    if packet.await_ack:
+        _send_ack(sender, receiver, packet.seq_num)
 
 
 def _send_ack(sender, receiver, seq_number):
@@ -342,8 +337,8 @@ def _send_superdense(packet):
     Args:
         packet (dict): The packet in which to transmit.
     """
-    sender = packet[SENDER]
-    receiver = packet[RECEIVER]
+    sender = packet.sender
+    receiver = packet.receiver
     host_sender = network.get_host(sender)
 
     if not network.shares_epr(sender, receiver):
@@ -359,10 +354,10 @@ def _send_superdense(packet):
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
         raise Exception("couldn't encode superdense")
 
-    _encode_superdense(packet[PAYLOAD], q_superdense)
-    packet[PAYLOAD] = [q_superdense]
-    packet[PROTOCOL] = REC_SUPERDENSE
-    packet[PAYLOAD_TYPE] = QUANTUM
+    _encode_superdense(packet.payload, q_superdense)
+    packet.payload = q_superdense
+    packet.protocol = REC_SUPERDENSE
+    packet.payload_type = QUANTUM
     network.send(packet)
 
 
@@ -376,22 +371,22 @@ def _rec_superdense(packet):
     Returns:
         dict: A dictionary consisting of decoded superdense message and sequence number
     """
-    receiver = packet[RECEIVER]
-    sender = packet[SENDER]
-    payload = packet[PAYLOAD]
+    receiver = packet.receiver
+    sender = packet.sender
+    payload = packet.payload
 
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload[0].id, wait=10)
-    q2 = host_receiver.get_epr(sender, payload[0].id, wait=10)
+    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=10)
+    q2 = host_receiver.get_epr(sender, payload.id, wait=10)
 
     assert q1 is not None and q2 is not None
 
-    if packet[AWAIT_ACK]:
-        _send_ack(packet[SENDER], packet[RECEIVER], packet[SEQUENCE_NUMBER])
+    if packet.await_ack:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet[SENDER], 'message': _decode_superdense(q1, q2),
-            SEQUENCE_NUMBER: packet[SEQUENCE_NUMBER]}
+    return {'sender': packet.sender, 'message': _decode_superdense(q1, q2),
+            SEQUENCE_NUMBER: packet.seq_num}
 
 
 def _add_checksum(sender, qubits, size_per_qubit=2):

@@ -385,15 +385,15 @@ class Network:
             if q is None:
                 Logger.get_instance().error('Entanglement swap failed')
                 return
-            data = {'q': q['q'],
-                    'q_id': q_id,
+            data = {'q': q,
+                    'q_id': q.id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
-                data = {'q': q['q'],
-                        'q_id': q_id,
+                data = {'q': q,
+                        'q_id': q.id,
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
@@ -425,19 +425,14 @@ class Network:
                 if z_err_var > (1 - self.z_error_rate):
                     q.Z()
 
-                q.send_to(self.ARP[r])
-                Logger.get_instance().log('transfer qubits - waiting to receive ' + q.id)
-                q = self.ARP[r]._receive_qubit(q.id)
+                q.send_to(self.ARP[r].host_id)
                 Logger.get_instance().log('transfer qubits - received ' + q.id)
-
-                # Update the set of qubits so that they aren't pointing at inactive qubits
-                # qubits[index]['q'] = q.qubit
 
                 # Unblock qubits in case they were blocked
                 q.set_blocked_state(False)
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, q, q.id)
+                    self.ARP[r].add_data_qubit(original_sender, q)
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
@@ -471,15 +466,15 @@ class Network:
                     Logger.get_instance().log("PACKET DROPPED")
                     continue
 
-                sender, receiver = packet[protocols.SENDER], packet[protocols.RECEIVER]
+                sender, receiver = packet.sender, packet.receiver
 
-                if packet['payload_type'] == protocols.QUANTUM:
-                    self._route_quantum_info(sender, receiver, packet[protocols.PAYLOAD])
+                if packet.payload_type == protocols.QUANTUM:
+                    self._route_quantum_info(sender, receiver, [packet.payload])
 
                 try:
                     if self.use_hop_by_hop:
                         route = self.get_classical_route(sender, receiver)
-                    elif packet['protocol'] == protocols.RELAY:
+                    elif packet.protocol == protocols.RELAY:
                         full_route = packet['route']
                         route = full_route[full_route.index(sender):]
                     else:
@@ -489,29 +484,19 @@ class Network:
                         raise Exception
 
                     elif len(route) == 2:
-                        if packet['protocol'] != protocols.RELAY:
-                            if packet['protocol'] == protocols.REC_EPR:
-                                host_sender = self.get_host(sender)
-                                receiver_name = self.get_host_name(receiver)
-                                q = host_sender.cqc.createEPR(receiver_name)
-                                q = Qubit(host_sender, qubit=q)
-                                if packet['payload'] is not None:
-                                    host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
-                                                        packet[protocols.PAYLOAD]['block'])
-                                else:
-                                    host_sender.add_epr(receiver, q)
-
+                        if packet.protocol != protocols.RELAY:
                             self.ARP[receiver].rec_packet(packet)
                         else:
-                            self.ARP[receiver].rec_packet(packet[protocols.PAYLOAD])
+                            self.ARP[receiver].rec_packet(packet.payload)
                     else:
-                        if packet['protocol'] == protocols.REC_EPR:
-                            q_id = packet['payload']['q_id']
-                            blocked = packet['payload']['block']
+                        if packet.protocol == protocols.REC_EPR:
+                            # TODO: adapt to new EPR generation
+                            q_id = packet.payload[1]
+                            blocked = packet.payload[2]
                             q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
                                          args=(sender, receiver, q_route, q_id,
-                                               packet[protocols.SEQUENCE_NUMBER], blocked))
+                                               packet.seq_num, blocked))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)
@@ -528,7 +513,7 @@ class Network:
         Puts the packet to the packet queue of the network.
 
         Args:
-            packet (dict): Packet to be sent
+            packet (Packet): Packet to be sent
         """
 
         self._packet_queue.put(packet)
@@ -592,11 +577,11 @@ class Network:
             }
         else:
             packet = payload
-            packet['sender'] = route[1]
+            packet.sender = route[1]
 
         if self.use_hop_by_hop:
-            packet['receiver'] = route[-1]
+            packet.receiver = route[-1]
         else:
-            packet['receiver'] = route[2]
+            packet.receiver = route[2]
 
         return packet

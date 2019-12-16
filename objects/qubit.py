@@ -3,13 +3,6 @@ import numpy as np
 import uuid
 
 
-# def cqc_qubit_to_qubit(cqc_qubit, q_id, blocked=False):
-#     cqc_qubit.q_id = q_id
-#     cqc_qubit.blocked = blocked
-#     cqc_qubit.__class__ = Qubit
-#     return cqc_qubit
-
-
 class Qubit(object):
     """
     A Qubit object. It is a wrapper class of qubits of different
@@ -26,7 +19,7 @@ class Qubit(object):
         if qubit is not None:
             self._qubit = qubit
         else:
-            self._qubit = cqc.qubit(host.cqc)
+            self._qubit = self._host.backend.create_qubit(self._host.host_id)
 
     @property
     def host(self):
@@ -62,6 +55,12 @@ class Qubit(object):
     def qubit(self):
         return self._qubit
 
+    def set_new_qubit(self, qubit):
+        self._qubit = qubit
+
+    def set_new_host(self, host):
+        self._host = host
+
     def set_new_id(self, new_id):
         """
         Give the qubit a new id.
@@ -80,56 +79,56 @@ class Qubit(object):
         """
         self._blocked = state
 
-    def send_to(self, receiver):
+    def send_to(self, receiver_id):
         """
         Sends the Qubit to another host.
 
         Args:
-            receiver (Host): Host the qubit should be send to.
+            receiver (String): ID of Host the qubit should be send to.
         """
-        self._host.cqc.sendQubit(self._qubit, receiver.cqc.name)
+        self._host.backend.send_qubit_to(self, self._host.host_id, receiver_id)
 
     def release(self):
         """
         Releases a qubit from the system.
         """
-        self._qubit.release()
+        self._host.backend.release(self)
 
     def I(self):
         """
         Perform Identity operation on the qubit.
         """
-        self._qubit.I()
+        self._host.backend.I(self)
 
     def X(self):
         """
         Perform pauli x gate on qubit.
         """
-        self._qubit.X()
+        self._host.backend.X(self)
 
     def Y(self):
         """
         Perform pauli y gate on qubit.
         """
-        self._qubit.Y()
+        self._host.backend.Y(self)
 
     def Z(self):
         """
         Perform pauli z gate on qubit.
         """
-        self._qubit.Z()
+        self._host.backend.Z(self)
 
     def T(self):
         """
         Perform a T gate on the qubit.
         """
-        self._qubit.T()
+        self._host.backend.T(self)
 
     def H(self):
         """
         Perform a Hadamard gate on the qubit.
         """
-        self._qubit.H()
+        self._host.backend.H(self)
 
     def rx(self, phi):
         """
@@ -138,9 +137,7 @@ class Qubit(object):
         Args:
             phi (float): Rotation in rad
         """
-        # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
-        self._qubit.rot_X(steps)
+        self._host.backend.rx(self, phi)
 
     def ry(self, phi):
         """
@@ -149,9 +146,7 @@ class Qubit(object):
         Args:
             phi (float): Rotation in rad
         """
-        # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
-        self._qubit.rot_Y(steps)
+        self._host.backend.ry(self, phi)
 
     def rz(self, phi):
         """
@@ -160,9 +155,7 @@ class Qubit(object):
         Args:
             phi (float): Rotation in rad
         """
-        # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
-        self._qubit.rot_Z(steps)
+        self._host.backend.rz(self, phi)
 
     def cnot(self, target):
         """
@@ -171,7 +164,7 @@ class Qubit(object):
         Args:
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        self._qubit.cnot(target._qubit)
+        self._host.backend.cnot(self, target)
 
     def cphase(self, target):
         """
@@ -180,7 +173,7 @@ class Qubit(object):
         Args:
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        self._qubit.cphase(target._qubit)
+        self._host.backend.cphase(self, target)
 
     def measure(self):
         """
@@ -189,4 +182,4 @@ class Qubit(object):
         Returns:
             measured_value (int): 0 or 1, dependent on measurement outcome.
         """
-        return self._qubit.measure()
+        return self._host.backend.measure(self)

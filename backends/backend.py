@@ -16,30 +16,47 @@ def Backend(object):
         Args:
             host (Host): New Host which should be added.
         '''
-        raise(EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
 
-    def send_qubit_to(self, qubit, to_host):
+    def create_qubit(self, host_id):
+        '''
+        Creates a new Qubit of the type of the backend.
+
+        Args:
+            host_id (String): Id of the host to whom the qubit belongs.
+
+        Reurns:
+            Qubit of backend type.
+        '''
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
+
+    def send_qubit_to(self, qubit, from_host_id, to_host_id):
         '''
         Sends a qubit to a new host.
 
         Args:
             qubit (Qubit): Qubit to be send.
-            to_host (Host): New host of the qubit.
+            from_host_id (String): From the starting host.
+            to_host_id (String): New host of the qubit.
         '''
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
-    def create_EPR_states(self, host_a, host_b):
+    def create_EPR_states(self, host_a_id, host_b_id, id=None, block=False):
         '''
         Creates an EPR pair for two qubits and returns them.
 
         Args:
-            host_a (Host): The first host who gets the EPR state.
-            host_b (Host): The second host who gets the EPR state.
-
+            host_a_id (String): ID of the first host who gets the EPR state.
+            host_b_id (String): ID of the second host who gets the EPR state.
+            id (String): Optional id which both qubits should have.
+            block (bool): Determines if the created pair should be blocked or not.
         Returns:
-            Tuple of qubits, first qubit is EPR of host a, second of host b.
+            Tuple of a qubit and a function. The qubit belongs to host a,
+            the function has to be called by host b to get the second part
+            of the EPR state.
         '''
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
@@ -172,6 +189,16 @@ def Backend(object):
 
         Returns:
             The value which has been measured.
+        '''
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
+
+    def release(self, qubit):
+        '''
+        Releases the qubit.
+
+        Args:
+            qubit (Qubit): The qubit which should be released.
         '''
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
