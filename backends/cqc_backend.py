@@ -69,7 +69,7 @@ class CQCBackend(object):
         '''
         cqc_host_a = self.cqc_connections[host_a_id]
         cqc_host_b = self.cqc_connections[host_b_id]
-        q = cqc_host_a.createEPR(host_b_id)
+        q = cqc_host_a.createEPR(cqc_host_b.name)
         q = Qubit(self.hosts[host_a_id], qubit=q, q_id=id, blocked=block)
         id = q.id
 

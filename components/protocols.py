@@ -271,10 +271,10 @@ def _rec_teleport(packet):
         q.X()
 
     if payload['type'] == EPR:
-        host_receiver.add_epr(epr_host, q, q_id)
+        host_receiver.add_epr(epr_host, q)
 
     elif payload['type'] == DATA:
-        host_receiver.add_data_qubit(epr_host, q, q_id)
+        host_receiver.add_data_qubit(epr_host, q)
 
     if packet.await_ack:
         if 'o_seq_num' in payload and 'ack' in payload:

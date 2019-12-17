@@ -57,7 +57,7 @@ class TestOneHop(unittest.TestCase):
             self.network.remove_host(self.hosts[key])
         self.hosts = None
 
-    # @unittest.skip('')
+    #@unittest.skip('')
     def test_shares_epr(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -100,7 +100,7 @@ class TestOneHop(unittest.TestCase):
         self.assertFalse(hosts['alice'].shares_epr(hosts['bob'].host_id))
         self.assertFalse(hosts['bob'].shares_epr(hosts['alice'].host_id))
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_send_classical(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -144,7 +144,7 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(bob_messages[0]['sender'], hosts['alice'].host_id)
         self.assertEqual(bob_messages[0]['message'], 'Hello Bob')
 
-    @unittest.skip('')
+    #@unittest.skip('')
     def test_await_ack(self):
         backend = CQCBackend()
 
@@ -225,7 +225,7 @@ class TestOneHop(unittest.TestCase):
 
         self.assertTrue(saw_ack)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_max_wait_for_ack(self):
         backend = CQCBackend()
 
@@ -250,7 +250,7 @@ class TestOneHop(unittest.TestCase):
         self.assertTrue(ack_received_1)
         self.assertFalse(ack_received_2)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_epr(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -287,7 +287,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         self.assertEqual(q1.measure(), q2.measure())
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_teleport(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -320,7 +320,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         self.assertEqual(q2.measure(), 1)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_superdense(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -351,7 +351,7 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
         self.assertEqual(messages[0]['message'], '01')
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_send_qubit_alice_to_bob(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -382,7 +382,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(rec_q)
         self.assertEqual(rec_q.measure(), 1)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_send_qubit_bob_to_alice(self):
         backend = CQCBackend()
 
@@ -415,7 +415,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(rec_q)
         self.assertEqual(rec_q.measure(), 1)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_teleport_superdense_combination(self):
         backend = CQCBackend()
         hosts = {'alice': Host('Alice', backend),
@@ -460,7 +460,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         self.assertEqual(q2.measure(), 1)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_maximum_epr_qubit_limit(self):
         backend = CQCBackend()
 
@@ -501,7 +501,7 @@ class TestOneHop(unittest.TestCase):
         self.assertTrue(len(hosts['alice'].get_epr_pairs(hosts['bob'].host_id)) == 2)
         self.assertTrue(len(hosts['bob'].get_epr_pairs(hosts['alice'].host_id)) == 2)
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_maximum_data_qubit_limit(self):
         backend = CQCBackend()
 
@@ -594,7 +594,7 @@ class TestOneHop(unittest.TestCase):
         self.assertTrue(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_2).measure() == 0)
         self.assertIsNone(hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_alice_id_3))
 
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_packet_loss_classical(self):
         backend = CQCBackend()
 

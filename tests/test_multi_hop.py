@@ -62,7 +62,7 @@ class TestTwoHop(unittest.TestCase):
             self.network.remove_host(self.hosts[key])
 
     # OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_send_classical(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -99,7 +99,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['message'], 'testing123')
 
     # OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_full_network_routing(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -137,7 +137,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['message'], 'testing123')
 
     # OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_epr(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -181,7 +181,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(q1.measure(), q2.measure())
 
     #OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_teleport(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -219,7 +219,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(q2.measure(), 1)
 
     #OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_superdense(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -255,7 +255,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[0]['message'], '10')
 
     # OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_classical_superdense_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),
@@ -294,7 +294,7 @@ class TestTwoHop(unittest.TestCase):
             self.assertEqual(messages[1]['message'], '11')
 
     # OK
-    #@unittest.skip('')
+    @unittest.skip('')
     def test_epr_teleport_combination(self):
         with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection("Eve") as Eve:
             hosts = {'alice': Host('00000000', Alice),

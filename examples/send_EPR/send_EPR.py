@@ -44,7 +44,7 @@ def main():
     time.sleep(15)
 
     q1 = host_alice.get_epr('Dean', q_id1)
-    q2 = host_eve.get_epr('Alice', q_id1)
+    q2 = host_dean.get_epr('Alice', q_id1)
 
     if q1 is not None and q2 is not None:
         m1 = q1.measure()
