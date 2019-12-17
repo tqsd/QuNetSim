@@ -87,7 +87,6 @@ class CQCBackend(object):
         '''
         self.cqc_connections[host_id].flush()
 
-
     ##########################
     #   Gate definitions    #
     #########################

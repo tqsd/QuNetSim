@@ -8,10 +8,11 @@ QUANTUM = 'quantum'
 ACK = 'ACK'
 NACK = 'NACK'
 
+
 class Packet(object):
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                    sequence_number=-1, await_ack=False, ttl=None):
+                 sequence_number=-1, await_ack=False, ttl=None):
         """
         Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
         with data and the header.

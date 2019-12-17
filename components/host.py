@@ -622,7 +622,6 @@ class Host:
 
         return []
 
-
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
         Set the limit to how many EPR pair halves can be stored from partner_id, or if partner_id is not set,
@@ -674,7 +673,6 @@ class Host:
         """
         if partner_id not in self._EPR_store and partner_id != self.host_id:
             self._EPR_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
-
 
         to_add = qubit
         if q_id is not None:

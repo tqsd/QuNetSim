@@ -41,6 +41,7 @@ RELAY = 'relay'
 SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
 
+
 def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
     """
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
@@ -54,22 +55,23 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
         sequence_num(int): Sequence number of the packet.
         await_ack(bool): If the sender should await an ACK
     Returns:
-         dict: Encoded packet
+         (Packet): Encoded packet
     """
 
     packet = Packet(sender, receiver, protocol, payload_type, payload,
-                            sequence_number=sequence_num, await_ack=await_ack)
-    {
-        SENDER: sender,
-        RECEIVER: receiver,
-        PROTOCOL: protocol,
-        PAYLOAD_TYPE: payload_type,
-        PAYLOAD: payload,
-        SEQUENCE_NUMBER: sequence_num,
-        AWAIT_ACK: await_ack
-    }
+                    sequence_number=sequence_num, await_ack=await_ack)
+    # {
+    #     SENDER: sender,
+    #     RECEIVER: receiver,
+    #     PROTOCOL: protocol,
+    #     PAYLOAD_TYPE: payload_type,
+    #     PAYLOAD: payload,
+    #     SEQUENCE_NUMBER: sequence_num,
+    #     AWAIT_ACK: await_ack
+    # }
 
     return packet
+
 
 def process(packet):
     """

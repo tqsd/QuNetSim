@@ -549,7 +549,6 @@ class Network:
         """
         Draws a plot of the network.
         """
-
         nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
                          with_labels=True, hold=False)
         plt.show()
