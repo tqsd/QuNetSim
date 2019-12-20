@@ -779,13 +779,6 @@ class Host:
         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
-    def get_classical_with_id(self, sender_id):
-        tmp_arr = []
-        for message in self.classical:
-            if message['sender'] == sender_id:
-                tmp_arr.append(message)
-        return tmp_arr
-
     def run_protocol(self, protocol, arguments=(), blocking=False):
         """
         Run the protocol *protocol*.
