@@ -10,6 +10,7 @@ from inspect import signature
 from objects.qubit import Qubit
 
 from objects.packet import Packet
+from objects.routing_packet import RoutingPacket
 from simulaqron.network import Network as SimulaNetwork
 from simulaqron.settings import simulaqron_settings
 
@@ -568,17 +569,8 @@ class Network:
             dict: Encoded RELAY packet
         """
         if payload.protocol != protocols.RELAY:
-            packet = Packet(route[1], None, protocols.RELAY, protocols.SIGNAL,
-                            payload, ttl=ttl)
-            packet.add_route(route)
-            # {
-            #     'sender': route[1],
-            #     'payload': payload,
-            #     'protocol': protocols.RELAY,
-            #     'payload_type': protocols.SIGNAL,
-            #     'TTL': ttl,
-            #     'route': route
-            # }
+            packet = RoutingPacket(route[1], None, protocols.RELAY, protocols.SIGNAL,
+                            payload, ttl, route)
         else:
             packet = payload
             packet.sender = route[1]

@@ -3,6 +3,7 @@ from components import protocols
 from components.logger import Logger
 from components.daemon_thread import DaemonThread
 from objects.qubit import Qubit
+from objects.quantum_storage import QuantumStorage
 import uuid
 import time
 
@@ -23,8 +24,8 @@ class Host:
         self._packet_queue = Queue()
         self._stop_thread = False
         self._queue_processor_thread = None
-        self._data_qubit_store = {}
-        self._EPR_store = {}
+        self._data_qubit_store = QuantumStorage()
+        self._EPR_store = QuantumStorage()
         self._classical_messages = []
         self._classical_connections = []
         self._quantum_connections = []
@@ -538,15 +539,7 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        if receiver_id not in self._EPR_store:
-            return False
-        if len(self._EPR_store[receiver_id]['qubits']) == 0:
-            return False
-        blocked = 0
-        for q in self._EPR_store[receiver_id]['qubits']:
-            if q.blocked:
-                blocked += 1
-        return blocked != len(self._EPR_store[receiver_id]['qubits'])
+        return self._EPR_store.check_qubit_from_host_exists(receiver_id)
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """
@@ -557,28 +550,7 @@ class Host:
             new_id (string): The new ID to change the qubit too
             old_id (string:  The old ID of the qubit
         """
-        if host_id in self._EPR_store:
-            if old_id is None:
-                q = None
-                for qubit in self._EPR_store[host_id]['qubits']:
-                    if not qubit.blocked:
-                        q = qubit
-                        q.set_blocked_state(True)
-                        break
-                if q is None:
-                    raise Exception('No unblocked EPR pairs')
-                old_id = q.id
-                q.set_new_id(new_id)
-                self.logger.log(self.host_id + " changed EPR ID with " + host_id)
-                return old_id
-            else:
-                qubits = self._EPR_store[host_id]['qubits']
-                for q in qubits:
-                    if q.id == old_id:
-                        q.set_blocked_state(True)
-                        q.set_new_id(new_id)
-                        self.logger.log(self.host_id + " changed EPR ID with " + host_id)
-                        break
+        self._EPR_store.change_qubit_id(host_id, new_id, old_id)
 
     def get_epr_pairs(self, host_id=None):
         """
@@ -594,33 +566,23 @@ class Host:
                   Return an empty list otherwise.
         """
         if host_id is None:
-            return self._EPR_store
+            raise ValueError("Host id has to be specified!")
+        return self._EPR_store.get_all_qubits_from_host(host_id)
 
-        if host_id in self._EPR_store:
-            return self._EPR_store[host_id]['qubits']
-
-        return []
-
-    def get_data_qubits(self, host_id=None):
+    def get_data_qubits(self, host_id):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (optional): If set,
+            host_id (int): The host id from which the data qubit have been received.
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of data qubits.
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        if host_id is None:
-            return self._data_qubit_store
-
-        if host_id in self._data_qubit_store:
-            return self._data_qubit_store[host_id]['qubits']
-
-        return []
+        return self._data_qubit_store.get_all_qubits_from_host(host_id)
 
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
@@ -631,14 +593,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             partner_id (str): (optional) The partner ID to set the limit with
         """
-        if partner_id is not None:
-            if partner_id in self._EPR_store and partner_id != self.host_id:
-                self._EPR_store[partner_id]['max_limit'] = limit
-            elif partner_id != self.host_id:
-                self._EPR_store[partner_id] = {'qubits': [], 'max_limit': limit}
-        else:
-            for partner in self._EPR_store.keys():
-                self._EPR_store[partner]['max_limit'] = limit
+        self._EPR_store.set_storage_limit(limit, partner_id)
 
     def set_data_qubit_memory_limit(self, limit, partner_id=None):
         """
@@ -649,14 +604,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             partner_id (str): (optional) The partner ID to set the limit with
         """
-        if partner_id is not None:
-            if partner_id in self._data_qubit_store and partner_id != self.host_id:
-                self._data_qubit_store[partner_id]['max_limit'] = limit
-            elif partner_id != self.host_id:
-                self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': limit}
-        else:
-            for partner in self._data_qubit_store.keys():
-                self._data_qubit_store[partner]['max_limit'] = limit
+        self._data_qubit_store.set_storage_limit(limit, partner_id)
 
     def add_epr(self, partner_id, qubit, q_id=None, blocked=False):
         """
@@ -664,32 +612,18 @@ class Host:
         otherwise generates an ID for the EPR and adds the qubit with that ID.
 
         Args:
-            partner_id: The ID of the host to pair the qubit
+            partner_id (String): The ID of the host to pair the qubit
             qubit(Qubit): The data Qubit to be added.
             q_id(string): The ID of the qubit to be added.
             blocked: If the qubit should be stored as blocked or not
         Returns:
              (string) *q_id*: The qubit ID
         """
-        if partner_id not in self._EPR_store and partner_id != self.host_id:
-            self._EPR_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
-
-        to_add = qubit
         if q_id is not None:
-            to_add.set_new_id(q_id)
-        q_id = to_add.id
-        to_add.set_blocked_state(blocked)
-
-        if self._EPR_store[partner_id]['max_limit'] == -1 or (len(self._EPR_store[partner_id]['qubits'])
-                                                              < self._EPR_store[partner_id]['max_limit']):
-            self._EPR_store[partner_id]['qubits'].append(to_add)
-            self.logger.log(self.host_id + ' added EPR pair ' + q_id + ' with partner ' + partner_id)
-        else:
-            # Qubit is dropped from the system
-            to_add.measure()
-            self.logger.log(self.host_id + ' could NOT add EPR pair ' + q_id + ' with partner ' + partner_id)
-            return None
-        return q_id
+            qubit.set_new_id(q_id)
+        qubit.set_blocked_state(blocked)
+        self._EPR_store.add_qubit_from_host(qubit, partner_id)
+        return qubit.id
 
     def add_data_qubit(self, partner_id, qubit):
         """
@@ -702,21 +636,8 @@ class Host:
         Returns:
              (string) *q_id*: The qubit ID
         """
-
-        if partner_id not in self._data_qubit_store and partner_id != self.host_id:
-            self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
-
-        to_add = qubit
-
-        if self._data_qubit_store[partner_id]['max_limit'] == -1 or (len(self._data_qubit_store[partner_id]['qubits'])
-                                                                     < self._data_qubit_store[partner_id]['max_limit']):
-            self._data_qubit_store[partner_id]['qubits'].append(to_add)
-            self.logger.log(self.host_id + ' added data qubit ' + to_add.id + ' from ' + partner_id)
-        else:
-            to_add.measure()
-            self.logger.log(self.host_id + ' could NOT add data qubit ' + to_add.id + ' from ' + partner_id)
-            return None
-        return to_add.id
+        self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
+        return qubit.id
 
     def add_checksum(self, sender, qubits, size_per_qubit=2):
         """
@@ -848,13 +769,8 @@ class Host:
         """
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
-            for connection in self._data_qubit_store:
-                for q in self._data_qubit_store[connection]['qubits']:
-                    q.release()
-
-            for connection in self._EPR_store:
-                for q in self._EPR_store[connection]['qubits']:
-                    q.release()
+            self._data_qubit_store.release_storage()
+            self._EPR_store.release_storage()
         self._stop_thread = True
 
     def start(self):
@@ -897,34 +813,4 @@ def _get_qubit(store, partner_id, q_id):
     Returns:
          Qubit: Qubit received from the host with *partner_id* and *q_id*.
     """
-
-    def get_qubit():
-        if len(store[partner_id]['qubits']) == 0:
-            return None
-        else:
-            # If no q_id is specified, then return the first unblocked qubit
-            for index, qubit in enumerate(store[partner_id]['qubits']):
-                if not qubit.blocked:
-                    del store[partner_id]['qubits'][index]
-                    return qubit
-
-    def get_qubit_with_id():
-        for index, qubit in enumerate(store[partner_id]['qubits']):
-            if qubit.id == q_id:
-                qu = store[partner_id]['qubits'][index]
-                # TODO: make deletion optional
-                del store[partner_id]['qubits'][index]
-                return qu
-        return None
-
-    # check if there is a qubit in the data store from expected sender
-    if partner_id not in store:
-        # there are no qubits from the expected sender
-        return None
-
-    # If q_id is not specified, then return the last in the stack
-    # else return the qubit with q_id q_id
-    if q_id is None:
-        return get_qubit()
-    else:
-        return get_qubit_with_id()
+    return store.get_qubit_from_host(partner_id, q_id)

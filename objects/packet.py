@@ -12,7 +12,7 @@ NACK = 'NACK'
 class Packet(object):
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                 sequence_number=-1, await_ack=False, ttl=None):
+                 sequence_number=-1, await_ack=False):
         """
         Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
         with data and the header.
@@ -31,9 +31,7 @@ class Packet(object):
                 raise ValueError("For a quantum payload, the paload has to be a qubit!")
 
         if protocol == protocols.RELAY:
-            if ttl is None:
-                raise ValueError("Relay needs a ttl.")
-            self.ttl = ttl
+            raise ValueError("Use a Routing packet for the relay protocol.")
 
         self.sender = sender
         self.receiver = receiver
@@ -42,6 +40,3 @@ class Packet(object):
         self.payload = payload
         self.seq_num = sequence_number
         self.await_ack = await_ack
-
-    def add_route(self, route):
-        self.route = route
