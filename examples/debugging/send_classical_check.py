@@ -48,12 +48,12 @@ def main():
         time.sleep(1)
 
     assert len(alice_messages) > 0
-    assert alice_messages[0]['sender'] == hosts['bob'].host_id
-    assert alice_messages[0]['message'] == 'Hello Alice'
+    assert alice_messages[0].sender == hosts['bob'].host_id
+    assert alice_messages[0].content == 'Hello Alice'
 
     assert (len(bob_messages) > 0)
-    assert (bob_messages[0]['sender'] == hosts['alice'].host_id)
-    assert (bob_messages[0]['message'] == 'Hello Bob')
+    assert (bob_messages[0].sender == hosts['alice'].host_id)
+    assert (bob_messages[0].content == 'Hello Bob')
     print("All tests succesfull!")
     network.stop(True)
     exit()

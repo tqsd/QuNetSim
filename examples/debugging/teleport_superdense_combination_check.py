@@ -50,8 +50,8 @@ def main():
 
     assert messages != None
     assert len(messages) > 0
-    assert (messages[0]['sender'] == hosts['alice'].host_id)
-    assert (messages[0]['message'] == '11')
+    assert (messages[0].sender == hosts['alice'].host_id)
+    assert (messages[0].content == '11')
 
     assert q2 != None
     assert (q2.measure() == 1)

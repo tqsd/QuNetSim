@@ -4,6 +4,8 @@ from components.logger import Logger
 from components.daemon_thread import DaemonThread
 from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
+from objects.classical_storage import ClassicalStorage
+from objects.message import Message
 import uuid
 import time
 
@@ -26,7 +28,7 @@ class Host:
         self._queue_processor_thread = None
         self._data_qubit_store = QuantumStorage()
         self._EPR_store = QuantumStorage()
-        self._classical_messages = []
+        self._classical_messages = ClassicalStorage()
         self._classical_connections = []
         self._quantum_connections = []
         self._backend = backend
@@ -93,7 +95,7 @@ class Host:
         Returns:
              Array: Sorted array of classical messages.
         """
-        return sorted(self._classical_messages, key=lambda x: x['sequence_number'], reverse=True)
+        return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
 
     @property
     def delay(self):
@@ -222,8 +224,8 @@ class Host:
         start_time = time.time()
         while time.time() - start_time < wait:
             for message in self.classical:
-                if message['sender'] == sender_id:
-                    if message['sequence_number'] == seq_num:
+                if message.sender == sender_id:
+                    if message.seq_num == seq_num:
                         tmp.append(message)
             if tmp:
                 return tmp
@@ -261,11 +263,8 @@ class Host:
         sender = packet.sender
         result = protocols.process(packet)
         if result is not None:
-            self._classical_messages.append({
-                'sender': sender,
-                'message': result['message'],
-                'sequence_number': result['sequence_number']
-            })
+            msg = Message(sender, result['message'], result['sequence_number'])
+            self._classical_messages.add_msg_to_storage(msg)
             if result['message'] != protocols.ACK:
                 self.logger.log(self.host_id + ' received ' + str(result['message']) + ' with sequence number ' + str(
                     result['sequence_number']))
@@ -369,10 +368,10 @@ class Host:
                 time.sleep(0.1)
                 messages = self.classical
                 for m in messages:
-                    if str.startswith(m['message'], protocols.ACK):
-                        if m['sender'] == sender and m['sequence_number'] == sequence_number + 1:
+                    if str.startswith(m.content, protocols.ACK):
+                        if m.sender == sender and m.seq_num == sequence_number + 1:
                             Logger.get_instance().log(
-                                'ACK ' + str(m['sequence_number']) + ' from ' + sender + ' arrived at ' + self.host_id)
+                                'ACK ' + str(m.seq_num) + ' from ' + sender + ' arrived at ' + self.host_id)
                             did_ack = True
                             return
 
@@ -679,9 +678,7 @@ class Host:
 
         def process_messages():
             nonlocal cla
-            for m in self._classical_messages:
-                if m['sender'] == partner_id:
-                    cla.append(m)
+            cla = self._classical_messages.get_all_from_sender(partner_id)
 
         def _wait():
             nonlocal cla
@@ -694,11 +691,11 @@ class Host:
         if wait > 0:
             cla = []
             DaemonThread(_wait).join()
-            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
+            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
         else:
             cla = []
             process_messages()
-            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
+            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
     def get_epr(self, partner_id, q_id=None, wait=-1):
         """

@@ -40,9 +40,9 @@ def main():
     saw_ack_2 = False
     messages = hosts['alice'].classical
     for m in messages:
-        if m['message'] == protocols.ACK and m['sequence_number'] == 1:
+        if m.content == protocols.ACK and m.seq_num == 1:
             saw_ack_1 = True
-        if m['message'] == protocols.ACK and m['sequence_number'] == 2:
+        if m.content == protocols.ACK and m.seq_num == 2:
             saw_ack_2 = True
         if saw_ack_1 and saw_ack_2:
             break

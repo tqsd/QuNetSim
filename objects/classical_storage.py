@@ -43,10 +43,12 @@ class ClassicalStorage(object):
 
     def get_all_from_sender(self, sender_id, delete=False):
         """
-        Get all stored messages from a sender.
+        Get all stored messages from a sender. If delete option is set,
+        the returned messages are removed from the storage.
 
         Args:
             sender_id (String): The host id of the host.
+            delete (bool): optional, True if returned messages should be removed from storage.
 
         Returns:
             List of messages of the sender. If there are none, an empyt list is
@@ -54,7 +56,7 @@ class ClassicalStorage(object):
         """
         if delete:
             raise ValueError("delete option not implemented yet!")
-        if sender_id in self._host_to_msg_dict.keys()
+        if sender_id in self._host_to_msg_dict.keys():
             return self._host_to_msg_dict[sender_id]
         return []
 
@@ -78,4 +80,10 @@ class ClassicalStorage(object):
         return msg
 
     def get_all(self):
-        pass
+        """
+        Returns all Messages as a list.
+        """
+        ret = []
+        for id in self._host_to_msg_dict.keys():
+            ret += self._host_to_msg_dict[id]
+        return ret

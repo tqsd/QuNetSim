@@ -39,8 +39,8 @@ def main():
 
     assert messages != None
     assert len(messages) > 0
-    assert (messages[0]['sender'] == hosts['alice'].host_id)
-    assert (messages[0]['message'] == '01')
+    assert (messages[0].sender == hosts['alice'].host_id)
+    assert (messages[0].content == '01')
     print("All tests succesfull!")
     network.stop(True)
     exit()
