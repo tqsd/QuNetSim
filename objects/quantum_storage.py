@@ -25,8 +25,15 @@ class QuantumStorage(object):
         return self._storage_limit
 
     @property
+    def storage_limit_mode(self):
+        return self._storage_mode
+
+    @property
     def amount_qubits_stored(self):
         return self._amount_qubit_stored
+
+    def set_storage_limit_mode(self, new_mode):
+        self._storage_mode = new_mode
 
     def set_storage_limit(self, new_limit, host_id=None):
         '''
@@ -45,6 +52,7 @@ class QuantumStorage(object):
             self._storage_limit = new_limit
         elif self._storage_mode == STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
             if host_id is None:
+                self._default_storage_limit_per_host = new_limit
                 for id in self._storage_limits_per_host.keys():
                     self._storage_limits_per_host[id] = new_limit
             else:
@@ -55,7 +63,8 @@ class QuantumStorage(object):
     def _add_new_host(self, host_id):
         if host_id not in self._host_dict.keys():
             self._host_dict[host_id] = []
-            self._storage_limits_per_host[host_id] = self._default_storage_limit_per_host
+            if host_id not in self._storage_limits_per_host.keys():
+                self._storage_limits_per_host[host_id] = self._default_storage_limit_per_host
             self._amount_qubits_stored_per_host[host_id] = 0
 
     def _check_memory_limits(self, host_id):

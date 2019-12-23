@@ -2,7 +2,7 @@ import uuid
 import sys
 
 sys.path.append("../..")
-from objects.quantum_storage import QuantumStorage
+from objects.quantum_storage import *
 
 class FakeQubit(object):
 
@@ -11,6 +11,9 @@ class FakeQubit(object):
             self.id = id
         else:
             self.id = str(uuid.uuid4())
+
+    def release(self):
+        pass
 
 
 def test_store_and_recover():
@@ -35,5 +38,48 @@ def test_store_and_recover():
 
     print("Test store and recover was successfull!")
 
+def test_storage_limits():
+    print("Start storage limit test...")
+    storage = QuantumStorage()
+    print("Start test for STORAGE_LIMIT_ALL mode...")
+    storage.set_storage_limit_mode(STORAGE_LIMIT_ALL)
+    storage.set_storage_limit(10)
+    for c in range(15):
+        q = FakeQubit()
+        storage.add_qubit_from_host(q, str(c))
+    assert(storage.amount_qubits_stored == 10)
+    print("STORAGE_LIMIT_ALL mode was successfull!")
+
+    print("Start test for STORAGE_LIMIT_PER_HOST mode...")
+    storage = QuantumStorage()
+    storage.set_storage_limit_mode(STORAGE_LIMIT_PER_HOST)
+    storage.set_storage_limit(10)
+    for c in range(15):
+        q = FakeQubit()
+        storage.add_qubit_from_host(q, str(1))
+    for c in range(15):
+        q = FakeQubit()
+        storage.add_qubit_from_host(q, str(2))
+    assert(storage.amount_qubits_stored == 20)
+    print("STORAGE_LIMIT_PER_HOST mode was successfull!")
+
+    print("Start test for STORAGE_LIMIT_INDIVIDUALLY_PER_HOST mode...")
+    storage = QuantumStorage()
+    storage.set_storage_limit_mode(STORAGE_LIMIT_INDIVIDUALLY_PER_HOST)
+    storage.set_storage_limit(10, str(1))
+    storage.set_storage_limit(12, str(2))
+    for c in range(15):
+        q = FakeQubit()
+        storage.add_qubit_from_host(q, str(1))
+    for c in range(15):
+        q = FakeQubit()
+        storage.add_qubit_from_host(q, str(2))
+    assert(storage.amount_qubits_stored == 22)
+    print("STORAGE_LIMIT_INDIVIDUALLY_PER_HOST mode was successfull!")
+
+    print("Storage limit test was successfull!")
+
+
 
 test_store_and_recover()
+test_storage_limits()
