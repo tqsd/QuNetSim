@@ -38,8 +38,6 @@ class Host:
         # Frequency of queue processing
         self._delay = 0.1
         self.logger = Logger.get_instance()
-        # Size of quantum memories (default -1, unlimited)
-        self._memory_limit = -1
         # Packet sequence numbers per connection
         self.seq_number = {}
 
@@ -159,7 +157,7 @@ class Host:
         Returns:
             (int): The maximum number of qubits that can be held in each memory.
         """
-        return self._memory_limit
+        return self._data_qubit_store.memory_limit
 
     @memory_limit.setter
     def memory_limit(self, memory_limit):
@@ -173,7 +171,8 @@ class Host:
         if not isinstance(memory_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._memory_limit = memory_limit
+        self._EPR_store.set_storage_limit(memory_limit, None)
+        self._data_qubit_store.set_storage_limit(memory_limit, None)
 
     @property
     def quantum_connections(self):

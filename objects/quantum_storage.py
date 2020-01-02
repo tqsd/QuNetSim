@@ -1,4 +1,3 @@
-
 STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2
 STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
@@ -142,7 +141,7 @@ class QuantumStorage(object):
         usable anymore after this function has been called.
         """
         for q in self._qubit_dict.items():
-            q.release()
+            q[1].release()
 
     def check_qubit_from_host_exists(self, from_host_id):
         """
