@@ -1,7 +1,7 @@
 from queue import Queue
 from components import protocols
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
@@ -150,29 +150,52 @@ class Host:
         self._max_ack_wait = max_ack_wait
 
     @property
-    def memory_limit(self):
+    def storage_epr_limit(self):
         """
-        Get the maximum number of qubits that can be held in each memory.
+        Get the maximum number of qubits that can be held in EPR memory.
 
         Returns:
-            (int): The maximum number of qubits that can be held in each memory.
+            (int): The maximum number of qubits that can be held in EPR memory.
         """
-        return self._data_qubit_store.memory_limit
+        return self._EPR_store.storage_limit
 
-    @memory_limit.setter
-    def memory_limit(self, memory_limit):
+    @storage_epr_limit.setter
+    def storage_epr_limit(self, storage_limit):
         """
-        Set the maximum number of qubits that can be held in each memory.
+        Set the maximum number of qubits that can be held in EPR memory.
 
         Args:
-            memory_limit (int): The maximum number of qubits that can be held in each memory
+            storage_limit (int): The maximum number of qubits that can be held in EPR memory
         """
 
-        if not isinstance(memory_limit, int):
+        if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._EPR_store.set_storage_limit(memory_limit, None)
-        self._data_qubit_store.set_storage_limit(memory_limit, None)
+        self._EPR_store.set_storage_limit(storage_limit, None)
+
+    @property
+    def storage_limit(self):
+        """
+        Get the maximum number of qubits that can be held in data qubit memory.
+
+        Returns:
+            (int): The maximum number of qubits that can be held in data qubit memory.
+        """
+        return self._data_qubit_store.storage_limit
+
+    @storage_limit.setter
+    def storage_limit(self, storage_limit):
+        """
+        Set the maximum number of qubits that can be held in data qubit memory.
+
+        Args:
+            storage_limit (int): The maximum number of qubits that can be held in data qubit memory
+        """
+
+        if not isinstance(storage_limit, int):
+            raise Exception('memory limit should be an integer')
+
+        self._data_qubit_store.set_storage_limit(storage_limit, None)
 
     @property
     def quantum_connections(self):

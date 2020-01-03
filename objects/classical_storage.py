@@ -1,7 +1,6 @@
 import components.protocols as protocols
 
 
-
 class ClassicalStorage(object):
 
     def __init__(self):
@@ -20,6 +19,7 @@ class ClassicalStorage(object):
         Args:
             from_sender (String): Host id of the sender, whos ACKs should be delted.
         """
+
         def delete_all_ack_for_sender(sender):
             for c, msg in enumerate(self._host_to_msg_dict[sender]):
                 if msg.content == protocols.ACK:
@@ -37,11 +37,10 @@ class ClassicalStorage(object):
         """
         Adds a message to the storage.
         """
-        sender_id  = message.sender
+        sender_id = message.sender
         if sender_id not in self._host_to_msg_dict.keys():
             self._add_new_host_id(sender_id)
         self._host_to_msg_dict[sender_id].append(message)
-
 
     def get_all_from_sender(self, sender_id, delete=False):
         """

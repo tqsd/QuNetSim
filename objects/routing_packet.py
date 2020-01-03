@@ -3,9 +3,8 @@ from objects.packet import Packet
 
 class RoutingPacket(object):
 
-
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                    ttl, route,):
+                 ttl, route, ):
         """
         Encodes a packet into another packet, which has a ttl and route in
         addition.

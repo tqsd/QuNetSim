@@ -78,7 +78,7 @@ def process(packet):
     Decodes the packet and processes the packet according to the protocol in the packet header.
 
     Args:
-        packet (dict): Packet to be processed.
+        packet (Packet): Packet to be processed.
 
     Returns:
         Returns what protocol function returns.
@@ -118,7 +118,7 @@ def _relay_message(packet):
     node in the network and modifies the header.
 
     Args:
-        packet (dict): Packet to be relayed
+        packet (RoutingPacket): Packet to be relayed
 
     """
     packet.ttl -= 1
@@ -133,7 +133,7 @@ def _send_classical(packet):
     Sends a classical message to another host.
 
     Args:
-       packet (dict): The packet in which to transmit.
+       packet (Packet): The packet in which to transmit.
 
     """
     packet.protocol = REC_CLASSICAL
@@ -146,7 +146,7 @@ def _rec_classical(packet):
     ACK message to receiver.
 
     Args:
-        packet (dict): The packet in which to receive.
+        packet (Packet): The packet in which to receive.
 
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
@@ -165,7 +165,7 @@ def _send_qubit(packet):
     """
     Transmit the qubit
     Args:
-        packet (dict): The packet in which to transmit.
+        packet (Packet): The packet in which to transmit.
     """
     packet.protocol = REC_QUBIT
     network.send(packet)
@@ -176,7 +176,7 @@ def _rec_qubit(packet):
     Receive a packet containing qubit information (qubit is transmitted externally)
 
     Args:
-        packet (dict): The packet in which to receive.
+        packet (Packet): The packet in which to receive.
     """
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
@@ -189,7 +189,7 @@ def _send_teleport(packet):
     Does the measurements for teleportation of a qubit and sends the measurement results to another host.
 
     Args:
-        packet (dict): The packet in which to transmit.
+        packet (Packet): The packet in which to transmit.
     """
 
     if 'node' in packet.payload:
@@ -252,7 +252,7 @@ def _rec_teleport(packet):
     retrieve the teleported qubit.
 
     Args:
-        packet (dict): The packet in which to receive.
+        packet (Packet): The packet in which to receive.
     """
     host_receiver = network.get_host(packet.receiver)
     payload = packet.payload
@@ -325,7 +325,7 @@ def _send_ack(sender, receiver, seq_number):
     Args:
         sender (string): The sender ID
         receiver (string): The receiver ID
-        seq_number (string): The sequence number which to ACK
+        seq_number (int): The sequence number which to ACK
     """
     Logger.get_instance().log('sending ACK:' + str(seq_number + 1) + ' from ' + receiver + " to " + sender)
     host_receiver = network.get_host(receiver)
@@ -337,7 +337,7 @@ def _send_superdense(packet):
     Encodes and sends a qubit to send a superdense message.
 
     Args:
-        packet (dict): The packet in which to transmit.
+        packet (Packet): The packet in which to transmit.
     """
     sender = packet.sender
     receiver = packet.receiver
@@ -368,7 +368,7 @@ def _rec_superdense(packet):
     Receives a superdense qubit and decodes it.
 
     Args:
-       packet (dict): The packet in which to receive.
+       packet (Packet): The packet in which to receive.
 
     Returns:
         dict: A dictionary consisting of decoded superdense message and sequence number
@@ -397,7 +397,7 @@ def _add_checksum(sender, qubits, size_per_qubit=2):
     Args:
         sender: The sender name
         qubits: The set of qubits to encode
-        size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+        size_per_qubit: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
     Returns:
         list: A list of qubits that are encoded for *qubits*

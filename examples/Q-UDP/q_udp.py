@@ -6,7 +6,7 @@ import numpy as np
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 from components import protocols
 
 

@@ -21,14 +21,14 @@ class Packet(object):
             sender(string): ID of the sender
             receiver(string): ID of the receiver
             protocol(string): ID of the protocol of which the packet should be processed.
-            payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
+            payload (Object): The message that is intended to send with the packet. Type of payload depends on the protocol.
             payload_type(string): Type of the payload.
-            sequence_num(int): Sequence number of the packet.
+            sequence_number (int): Sequence number of the packet.
             await_ack(bool): If the sender should await an ACK
         """
         if payload_type == QUANTUM:
             if not isinstance(payload, Qubit):
-                raise ValueError("For a quantum payload, the paload has to be a qubit!")
+                raise ValueError("For a quantum payload, the payload has to be a qubit!")
 
         if protocol == protocols.RELAY:
             raise ValueError("Use a Routing packet for the relay protocol.")

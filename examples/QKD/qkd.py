@@ -7,7 +7,7 @@ sys.path.append("../..")
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 
 
 def qkd_sender(host, q_size, receiver_id):

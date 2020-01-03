@@ -2,10 +2,11 @@ STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2
 STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
 
+
 class QuantumStorage(object):
-    '''
+    """
     An object which stores qubits.
-    '''
+    """
 
     def __init__(self):
         # _host_dict stores host_id -> array with qubits of the host.
@@ -35,7 +36,7 @@ class QuantumStorage(object):
         self._storage_mode = new_mode
 
     def set_storage_limit(self, new_limit, host_id=None):
-        '''
+        """
         Set a new storage limit for the storage. The implementations depends on
         the storage mode.
 
@@ -44,7 +45,7 @@ class QuantumStorage(object):
             host_id (String): optional, if given, and the storage mode is
                             STORAGE_LIMIT_INDIVIDUALLY_PER_HOST, the limit is only
                             set for this specific host.
-        '''
+        """
         if self._storage_mode == STORAGE_LIMIT_ALL:
             self._storage_limit = new_limit
         elif self._storage_mode == STORAGE_LIMIT_PER_HOST:
@@ -130,7 +131,7 @@ class QuantumStorage(object):
             True, if the counter could be decreased, False if not.
         """
         if self._amount_qubits_stored_per_host[host_id] <= 0 or \
-            self._amount_qubit_stored <= 0:
+                self._amount_qubit_stored <= 0:
             return False
         self._amount_qubits_stored_per_host[host_id] -= 1
         self._amount_qubit_stored -= 1

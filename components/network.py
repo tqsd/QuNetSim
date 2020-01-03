@@ -5,9 +5,8 @@ import time
 import random
 from components import protocols
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 from inspect import signature
-from objects.qubit import Qubit
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
@@ -562,15 +561,15 @@ class Network:
 
         Args:
             route: route of the packet from sender to receiver
-            payload (dict): Lower layers of the packet
+            payload (Object): Lower layers of the packet
             ttl(int): Time-to-Live parameter
 
         Returns:
             dict: Encoded RELAY packet
         """
         if payload.protocol != protocols.RELAY:
-            packet = RoutingPacket(route[1], None, protocols.RELAY, protocols.SIGNAL,
-                            payload, ttl, route)
+            packet = RoutingPacket(route[1], '', protocols.RELAY, protocols.SIGNAL,
+                                   payload, ttl, route)
         else:
             packet = payload
             packet.sender = route[1]

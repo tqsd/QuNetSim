@@ -1,15 +1,13 @@
-from cqc.pythonLib import CQCConnection, qubit
+from cqc.pythonLib import CQCConnection
 import sys
 import time
 import networkx as nx
 import random
-import matplotlib.pyplot as plt
 
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
 
 network = Network.get_instance()
 

@@ -5,8 +5,6 @@ import sys
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-from components.daemon_thread import DaemonThread
-from components import protocols
 from components.logger import Logger
 from cqc.pythonLib import CQCConnection, qubit
 import sys
