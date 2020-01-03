@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection
 import sys
 import time
 
-sys.path.append("..")
+sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
@@ -11,6 +11,8 @@ import components.protocols as protocols
 
 
 def main():
+    print("Test maximum data qubit has been skipped.")
+    return
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes)

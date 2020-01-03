@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection
 import sys
 import time
 
-sys.path.append("..")
+sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network

@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection
 import sys
 import time
 
-sys.path.append("..")
+sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
@@ -28,19 +28,33 @@ def main():
     for h in hosts.values():
         network.add_host(h)
 
-    q = Qubit(hosts['alice'])
-    q.X()
+    hosts['alice'].send_superdense(hosts['bob'].host_id, '11')
 
-    q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
+    messages = hosts['bob'].classical
     i = 0
-    rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
-    while i < 5 and rec_q is None:
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+    while i < 5 and len(messages) == 0:
+        messages = hosts['bob'].classical
         i += 1
         time.sleep(1)
 
-    assert rec_q != None
-    assert rec_q.measure() == 1
+    q = Qubit(hosts['alice'])
+    q.X()
+
+    hosts['alice'].send_teleport(hosts['bob'].host_id, q)
+    q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+    i = 0
+    while q2 is None and i < 5:
+        q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+        i += 1
+        time.sleep(1)
+
+    assert messages != None
+    assert len(messages) > 0
+    assert (messages[0].sender == hosts['alice'].host_id)
+    assert (messages[0].content == '11')
+
+    assert q2 != None
+    assert (q2.measure() == 1)
     print("All tests succesfull!")
     network.stop(True)
     exit()

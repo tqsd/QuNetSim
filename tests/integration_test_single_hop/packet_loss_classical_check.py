@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection
 import sys
 import time
 
-sys.path.append("..")
+sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
@@ -15,11 +15,14 @@ def main():
     network.start(nodes)
     network.delay = 0.7
     backend = CQCBackend()
+
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 
+    network.start(nodes)
+    network.packet_drop_rate = 0.75
+    network.delay = 0
 
-    # A <-> B
     hosts['alice'].add_connection('Bob')
     hosts['bob'].add_connection('Alice')
 
@@ -29,20 +32,23 @@ def main():
     for h in hosts.values():
         network.add_host(h)
 
-    q = Qubit(hosts['alice'])
-    q.X()
+    # ACKs for 1 hop take at most 2 seconds
+    hosts['alice'].max_ack_wait = 3
+    num_acks = 0
+    num_messages = 15
+    for _ in range(num_messages):
+        ack = hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=True)
+        if ack:
+            num_acks += 1
 
-    hosts['alice'].send_teleport(hosts['bob'].host_id, q)
+    num_messages_bob_received = len(hosts['bob'].classical)
+    assert num_acks != num_messages
+    assert num_acks < num_messages
+    assert num_messages_bob_received < num_messages
 
-    q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
-    i = 0
-    while q2 is None and i < 5:
-        q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
-        i += 1
-        time.sleep(1)
-
-    assert q2 != None
-    assert q2.measure() == 1
+    # ACKs can also get dropped
+    assert num_messages_bob_received > num_acks
+    assert float(num_acks) / num_messages < 0.9
     print("All tests succesfull!")
     network.stop(True)
     exit()

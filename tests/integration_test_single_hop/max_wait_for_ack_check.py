@@ -2,7 +2,7 @@ from cqc.pythonLib import CQCConnection
 import sys
 import time
 
-sys.path.append("..")
+sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
@@ -15,6 +15,7 @@ def main():
     network.start(nodes)
     network.delay = 0.7
     backend = CQCBackend()
+
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 
@@ -29,24 +30,11 @@ def main():
     for h in hosts.values():
         network.add_host(h)
 
-    q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
-    q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
-    i = 0
-    while q1 is None and i < 5:
-        q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
-        i += 1
-        time.sleep(1)
-
-    assert q1 != None
-    i = 0
-    q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
-    while q2 is None and i < 5:
-        q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
-        i += 1
-        time.sleep(1)
-
-    assert q2 != None
-    assert (q1.measure() == q2.measure())
+    ack_received_1 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
+    hosts['alice'].max_ack_wait = 0
+    ack_received_2 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
+    assert ack_received_1
+    assert not ack_received_2
     print("All tests succesfull!")
     network.stop(True)
     exit()

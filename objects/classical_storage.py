@@ -1,4 +1,4 @@
-
+import components.protocols as protocols
 
 
 
@@ -28,8 +28,10 @@ class ClassicalStorage(object):
         if from_sender is None:
             for sender in self._host_to_msg_dict.keys():
                 delete_all_ack_for_sender(sender)
+        elif from_sender in self._host_to_msg_dict.keys():
+            delete_all_ack_for_sender(from_sender)
         else:
-            delete_all_ack_for_sender(sender)
+            return
 
     def add_msg_to_storage(self, message):
         """
