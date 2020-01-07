@@ -569,9 +569,12 @@ class Host:
         Args:
             host_id (string) : The partner ID of the EPR pair.
             new_id (string): The new ID to change the qubit too
-            old_id (string:  The old ID of the qubit
+            old_id (string):  The old ID of the qubit
+
+        Returns:
+            Old if of the qubit which has been changed.
         """
-        self._EPR_store.change_qubit_id(host_id, new_id, old_id)
+        return self._EPR_store.change_qubit_id(host_id, new_id, old_id)
 
     def get_epr_pairs(self, host_id=None):
         """

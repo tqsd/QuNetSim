@@ -13,7 +13,7 @@ class Qubit(object):
         self._blocked = blocked
         self._host = host
         if q_id is not None:
-            self._id = q_id
+            self._id = str(q_id)
         else:
             self._id = str(uuid.uuid4())
         if qubit is not None:
@@ -68,7 +68,7 @@ class Qubit(object):
         Args:
             new_id (str): new id of the qubit.
         """
-        self._id = new_id
+        self._id = str(new_id)
 
     def set_blocked_state(self, state):
         """

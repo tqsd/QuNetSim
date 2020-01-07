@@ -11,7 +11,7 @@ class QuantumStorage(object):
     def __init__(self):
         # _host_dict stores host_id -> array with qubits of the host.
         self._host_dict = {}
-        # _qubit_dict stores qubit_id -> Qubit object
+        # _qubit_dict stores qubit_id -> dict Host_id -> Qubit objects with this id.
         self._qubit_dict = {}
         self._storage_mode = STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
         self._storage_limits_per_host = {}
@@ -119,6 +119,17 @@ class QuantumStorage(object):
         self._amount_qubit_stored += 1
         return True
 
+    def __str__(self):
+        out = ""
+        out += "Quantum storage with the properties:\nstorage mode:%d\nstorage limit%d\n" % (self._storage_mode, self._storage_limit)
+        out += "Host dictionary is:\n"
+        out += "; ".join([str(key)+ ":" + str(value) for key,value in self._host_dict.items()])
+        out += "\n"
+        out += "Qubit dictionary is:\n"
+        out += "; ".join([str(key)+ ":" + str(value) for key,value in self._qubit_dict.items()])
+        out += "\n"
+        return out
+
     def _decrease_qubit_counter(self, host_id):
         """
         Checks if the qubit counter can be decreased
@@ -141,8 +152,9 @@ class QuantumStorage(object):
         Releases all qubits in this storage. The storage is not
         usable anymore after this function has been called.
         """
-        for q in self._qubit_dict.items():
-            q[1].release()
+        for q in self._qubit_dict.values():
+            for ele in q.values():
+                ele.release()
 
     def check_qubit_from_host_exists(self, from_host_id):
         """
@@ -169,24 +181,44 @@ class QuantumStorage(object):
             return self._host_dict[from_host_id]
         return []
 
+    def _pop_qubit_with_id_and_host_from_qubit_dict(self, id, from_host_id):
+        if id not in self._qubit_dict.keys():
+            return None
+        qubit = self._qubit_dict[id].pop(from_host_id, None)
+        if qubit != None:
+            if not self._qubit_dict[id]:
+                del self._qubit_dict[id]
+        return qubit
+
+    def _add_qubit_to_qubit_dict(self, qubit, from_host_id):
+        if qubit.id not in self._qubit_dict.keys():
+            self._qubit_dict[qubit.id] = {}
+        self._qubit_dict[qubit.id][from_host_id] = qubit
+
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
         Changes the ID of a qubit. If the ID is not given, a random
         qubit which is from a host is changed to the new id.
         """
+        new_id = str(new_id)
         if old_id != None:
-            qubit = self._qubit_dict.pop(old_id, None)
+            old_id = str(old_id)
+        if old_id != None:
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
             if qubit != None:
                 qubit.set_new_id(new_id)
-                self._qubit_dict[new_id] = qubit
+                self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                return old_id
         else:
             if from_host_id in self._host_dict.keys():
                 if self._host_dict[from_host_id]:
                     qubit = self._host_dict[from_host_id][0]
-                    id = qubit.id
+                    old_id = qubit.id
+                    self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
                     qubit.set_new_id(new_id)
-                    self._qubit_dict.pop(id, None)
-                    self._qubit_dict[new_id] = qubit
+                    self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                    return old_id
+        return None
 
     def add_qubit_from_host(self, qubit, from_host_id):
         """
@@ -194,7 +226,7 @@ class QuantumStorage(object):
 
         Args:
             qubit (Qubit): qubit which should be stored.
-            from_host_id (int): Id of the Host from whom the qubit has
+            from_host_id (String): Id of the Host from whom the qubit has
                              been received.
         """
         if from_host_id not in self._host_dict.keys():
@@ -203,15 +235,16 @@ class QuantumStorage(object):
             qubit.release()
             return
         self._host_dict[from_host_id].append(qubit)
-        self._qubit_dict[qubit.id] = qubit
+        self._add_qubit_to_qubit_dict(qubit, from_host_id)
 
     def get_qubit_from_host(self, from_host_id, id=None):
         """
         Returns next qubit which has been received from a host. If id is
         given, the exact qubit with the id is returned, or None if it does not exist.
+        The qubit is removed from the quantum storage.
 
         Args:
-            from_host_id (int): Host id from who the qubit has been received.
+            from_host_id (String): Host id from who the qubit has been received.
             id (String): Optional Id, to return the exact qubit with the Id.
 
         Returns:
@@ -219,8 +252,13 @@ class QuantumStorage(object):
             is returned.
         """
         if id != None:
-            qubit = self._qubit_dict.pop(id, None)
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(id, from_host_id)
             if qubit != None:
+                if from_host_id not in self._host_dict.keys() or \
+                qubit not in self._host_dict[from_host_id]:
+                    # Qubit with the ID exists, but does not belong to the host requested
+                    self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                    return None
                 self._host_dict[from_host_id].remove(qubit)
                 self._decrease_qubit_counter(from_host_id)
             return qubit
@@ -229,5 +267,5 @@ class QuantumStorage(object):
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
             self._decrease_qubit_counter(from_host_id)
-            return self._qubit_dict.pop(qubit.id, None)
+            return self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id)
         return None

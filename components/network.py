@@ -373,6 +373,7 @@ class Network:
         """
         host_sender = self.get_host(sender)
         # TODO: Multiprocess this
+        # Create EPR pairs on the route, where all EPR qubits have the id q_id
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
                 self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
@@ -384,6 +385,11 @@ class Network:
             host = self.get_host(route[i + 1])
             q = host.get_epr(route[0], q_id, wait=10)
             if q is None:
+                print("Host is %s" % host.host_id)
+                print("Search host is %s" % route[0])
+                print("Search id is %s" % q_id)
+                print("EPR storage is")
+                print(host._EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
