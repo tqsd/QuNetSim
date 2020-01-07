@@ -9,6 +9,21 @@ def Backend(object):
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
+    def start(self, **kwargs):
+        """
+        Starts Backends which have to run in an own thread or process before they
+        can be used.
+        """
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
+
+    def stop(self):
+        """
+        Stops Backends which are running in an own thread or process.
+        """
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
+
     def add_host(self, host):
         """
         Adds a host to the backend.

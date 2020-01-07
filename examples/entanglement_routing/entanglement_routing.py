@@ -56,7 +56,7 @@ def main():
     nodes = ["A", "node_1", "node_2", "B"]
     network.use_hop_by_hop = False
     network.set_delay = 0.2
-    network.start(nodes)
+    network.start(nodes, backend)
 
     with CQCConnection("A") as A, CQCConnection("node_1") as node_1, \
             CQCConnection("node_2") as node_2, CQCConnection("B") as B:

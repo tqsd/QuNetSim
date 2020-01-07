@@ -1,4 +1,6 @@
 import cqc.pythonLib as cqc
+from simulaqron.settings import simulaqron_settings
+from simulaqron.network import Network as SimulaNetwork
 from backends.backend import Backend
 from functools import partial as fp
 from objects.qubit import Qubit
@@ -12,6 +14,27 @@ class CQCBackend(object):
     def __init__(self):
         self.cqc_connections = {}
         self.hosts = {}
+        # Simulaqron comes with an own network simulator
+        self._backend_network = None
+
+    def start(self, **kwargs):
+        """
+        Starts Backends which have to run in an own thread or process before they
+        can be used.
+
+        Args:
+            nodes(List): A list of hosts in the network.
+        """
+        nodes = kwargs['nodes']
+        simulaqron_settings.default_settings()
+        self._backend_network = SimulaNetwork(nodes=nodes, force=True)
+        self._backend_network.start()
+
+    def stop(self):
+        """
+        Stops Backends which are running in an own thread or process.
+        """
+        self._backend_network.stop()
 
     def add_host(self, host):
         '''

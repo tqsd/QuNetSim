@@ -108,7 +108,7 @@ def main():
     nodes = ["Alice", "Bob"]
     network.x_error_rate = 0
     network.delay = 0.5
-    network.start(nodes)
+    network.start(nodes, backend)
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:

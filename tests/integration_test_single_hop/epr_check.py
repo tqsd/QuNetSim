@@ -10,11 +10,11 @@ from objects.qubit import Qubit
 
 
 def main():
+    backend = CQCBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
+    network.start(nodes, backend)
     network.delay = 0.7
-    backend = CQCBackend()
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 

@@ -2,6 +2,8 @@ import glob
 import os
 import subprocess
 
+ignore = [f for f in glob.glob("./tests/integration_test_multi_hop/*.py")]
+
 class cd:
     """Context manager for changing the current working directory"""
     def __init__(self, newPath):
@@ -19,6 +21,8 @@ if __name__=="__main__":
     files = [f for f in glob.glob("./tests/**/*.py")] + [f for f in glob.glob("./tests/*.py")]
     print(files)
     for f in files:
+        if f in ignore:
+            continue
         path, filename = os.path.split(f)
         with cd(path):
             exitcode = os.system("python %s" % (filename))

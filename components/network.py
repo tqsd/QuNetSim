@@ -10,8 +10,6 @@ from inspect import signature
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
-from simulaqron.network import Network as SimulaNetwork
-from simulaqron.settings import simulaqron_settings
 
 
 # Network singleton
@@ -30,7 +28,6 @@ class Network:
             self.ARP = {}
             # The directed graph for the connections
             self.classical_network = nx.DiGraph()
-            self.sim_network = None
             self.quantum_network = nx.DiGraph()
             self._quantum_routing_algo = nx.shortest_path
             self._classical_routing_algo = nx.shortest_path
@@ -537,18 +534,19 @@ class Network:
                 self.ARP[host].stop(release_qubits=True)
 
         self._stop_thread = True
-        if self.sim_network is not None:
-            self.sim_network.stop()
+        if self._backend is not None:
+            self._backend.stop()
 
-    def start(self, nodes=None):
+    def start(self, nodes=None, backend=None):
         """
         Starts the network.
 
         """
+        if backend is None:
+            raise ValueError("No backend has been chosen!")
+        self._backend = backend
         if nodes is not None:
-            simulaqron_settings.default_settings()
-            self.sim_network = SimulaNetwork(nodes=nodes, force=True)
-            self.sim_network.start()
+            backend.start(nodes=nodes)
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
     def draw_network(self):

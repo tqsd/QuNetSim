@@ -11,10 +11,10 @@ from objects.qubit import Qubit
 MAX_WAIT = 20
 
 def main():
+    backend = CQCBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
-    backend = CQCBackend()
+    network.start(nodes, backend)
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend),
              'eve': Host('Eve', backend)}

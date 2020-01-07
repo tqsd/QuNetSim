@@ -12,7 +12,7 @@ def main():
     network.delay = 0.2
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.packet_drop_rate = 0
-    network.start(nodes)
+    network.start(nodes, backend)
 
     with CQCConnection('Alice') as Alice, CQCConnection('Bob') as Bob, \
             CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
