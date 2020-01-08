@@ -10,6 +10,9 @@ NACK = 'NACK'
 
 
 class Packet(object):
+    """
+    A transport layer packet.
+    """
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
                  sequence_number=-1, await_ack=False):
@@ -33,10 +36,38 @@ class Packet(object):
         if protocol == protocols.RELAY:
             raise ValueError("Use a Routing packet for the relay protocol.")
 
-        self.sender = sender
-        self.receiver = receiver
-        self.protocol = protocol
-        self.payload_type = payload_type
-        self.payload = payload
-        self.seq_num = sequence_number
-        self.await_ack = await_ack
+        self._sender = sender
+        self._receiver = receiver
+        self._protocol = protocol
+        self._payload_type = payload_type
+        self._payload = payload
+        self._seq_num = sequence_number
+        self._await_ack = await_ack
+
+    @property
+    def sender(self):
+        return self._sender
+
+    @property
+    def receiver(self):
+        return self._receiver
+
+    @property
+    def protocol(self):
+        return self._protocol
+
+    @property
+    def payload_type(self):
+        return self._payload_type
+
+    @property
+    def payload(self):
+        return self._payload
+
+    @property
+    def seq_num(self):
+        return self._seq_num
+
+    @property
+    def await_ack(self):
+        return self._await_ack

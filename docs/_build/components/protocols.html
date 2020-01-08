@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Examples" href="../examples.html" />
+    <link rel="next" title="Network Objects" href="../objects.html" />
     <link rel="prev" title="Network" href="network.html" /> 
 </head>
 
@@ -92,6 +92,15 @@
 <li class="toctree-l2"><a class="reference internal" href="host.html">Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="network.html">Network</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -218,7 +227,7 @@ q1: the supporting entangled pair</p>
 ACK message to receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -236,7 +245,7 @@ ACK message to receiver.</p>
 receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -253,7 +262,7 @@ receiver.</p>
 <dd><p>Receive a packet containing qubit information (qubit is transmitted externally)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,7 +273,7 @@ receiver.</p>
 <dd><p>Receives a superdense qubit and decodes it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of decoded superdense message and sequence number</p>
@@ -282,7 +291,7 @@ receiver.</p>
 retrieve the teleported qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -294,7 +303,7 @@ retrieve the teleported qubit.</p>
 node in the network and modifies the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>RoutingPacket</em>) – Packet to be relayed</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/routing_packet.html#objects.routing_packet.RoutingPacket" title="objects.routing_packet.RoutingPacket"><em>RoutingPacket</em></a>) – Packet to be relayed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -317,7 +326,7 @@ node in the network and modifies the header.</p>
 <dd><p>Sends a classical message to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -328,7 +337,7 @@ node in the network and modifies the header.</p>
 <dd><p>Sends an EPR to another host in the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,7 +356,7 @@ node in the network and modifies the header.</p>
 <dd><p>Encodes and sends a qubit to send a superdense message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -358,7 +367,7 @@ node in the network and modifies the header.</p>
 <dd><p>Does the measurements for teleportation of a qubit and sends the measurement results to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -386,7 +395,7 @@ with data and the header.
 <dd class="field-odd"><p>Encoded packet</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Packet)</p>
+<dd class="field-even"><p>(<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet">Packet</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -397,7 +406,7 @@ with data and the header.
 <dd><p>Decodes the packet and processes the packet according to the protocol in the packet header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>Packet</em>) – Packet to be processed.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – Packet to be processed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Returns what protocol function returns.</p>
@@ -415,7 +424,7 @@ with data and the header.
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../objects.html" class="btn btn-neutral float-right" title="Network Objects" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="network.html" class="btn btn-neutral float-left" title="Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

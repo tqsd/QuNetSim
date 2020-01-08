@@ -337,7 +337,7 @@ class Network:
 
         Args:
             source (string): ID of the source host
-            dest (string) : ID of the destination host
+            dest (string): ID of the destination host
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
@@ -349,7 +349,7 @@ class Network:
 
         Args:
             source (string): ID of the source host
-            dest (string) : ID of the destination host
+            dest (string): ID of the destination host
 
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.

@@ -2,6 +2,9 @@ import components.protocols as protocols
 
 
 class ClassicalStorage(object):
+    """
+    A classical storage for messages.
+    """
 
     def __init__(self):
         self._host_to_msg_dict = {}
@@ -20,10 +23,10 @@ class ClassicalStorage(object):
             from_sender (String): Host id of the sender, whos ACKs should be delted.
         """
 
-        def delete_all_ack_for_sender(sender):
-            for c, msg in enumerate(self._host_to_msg_dict[sender]):
+        def delete_all_ack_for_sender(sender_id):
+            for c, msg in enumerate(self._host_to_msg_dict[sender_id]):
                 if msg.content == protocols.ACK:
-                    del self._host_to_msg_dict[sender][c]
+                    del self._host_to_msg_dict[sender_id][c]
 
         if from_sender is None:
             for sender in self._host_to_msg_dict.keys():
@@ -61,14 +64,13 @@ class ClassicalStorage(object):
             return self._host_to_msg_dict[sender_id]
         return []
 
-    def get_next_from_sender(self, sender_id, delete=False):
+    def get_next_from_sender(self, sender_id):
         """
         Gets the next, unread, message from the sender. If there isn't one,
         None is returned.
 
         Args:
             sender_id (String): The sender id of the message to get.
-
         Returns:
             Message object, if such a message exists, or none.
         """
@@ -85,6 +87,6 @@ class ClassicalStorage(object):
         Returns all Messages as a list.
         """
         ret = []
-        for id in self._host_to_msg_dict.keys():
-            ret += self._host_to_msg_dict[id]
+        for host_id in self._host_to_msg_dict.keys():
+            ret += self._host_to_msg_dict[host_id]
         return ret

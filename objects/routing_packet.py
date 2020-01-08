@@ -2,6 +2,9 @@ from objects.packet import Packet
 
 
 class RoutingPacket(object):
+    """
+    A network layer packet.
+    """
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
                  ttl, route, ):
@@ -20,10 +23,51 @@ class RoutingPacket(object):
         """
         if not isinstance(payload, Packet):
             raise ValueError("For the routing packet the payload has to be a packet.")
-        self.ttl = ttl
-        self.route = route
-        self.sender = sender
-        self.receiver = receiver
-        self.payload = payload
-        self.payload_type = payload_type
-        self.protocol = protocol
+
+        self._ttl = ttl
+        self._route = route
+        self._sender = sender
+        self._receiver = receiver
+        self._payload = payload
+        self._payload_type = payload_type
+        self._protocol = protocol
+
+    @property
+    def ttl(self):
+        return self._ttl
+
+    @ttl.setter
+    def ttl(self, ttl):
+        if ttl >= 0:
+            self._ttl = ttl
+
+    @property
+    def route(self):
+        return self._route
+
+    @property
+    def sender(self):
+        return self._sender
+
+    @property
+    def receiver(self):
+        return self._receiver
+
+    @property
+    def payload(self):
+        return self._payload
+
+    @property
+    def payload_type(self):
+        return self._payload_type
+
+    @property
+    def protocol(self):
+        return self._protocol
+
+    def decrease_ttl(self):
+        """
+        Decreases TTL by 1.
+        """
+        if self.ttl > 0:
+            self.ttl = self.ttl - 1
