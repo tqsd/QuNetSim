@@ -10,6 +10,7 @@ from inspect import signature
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
+from backends.cqc_backend import CQCBackend
 
 
 # Network singleton
@@ -537,7 +538,7 @@ class Network:
         if self._backend is not None:
             self._backend.stop()
 
-    def start(self, nodes=None, backend=None):
+    def start(self, nodes=None, backend=CQCBackend()):
         """
         Starts the network.
 

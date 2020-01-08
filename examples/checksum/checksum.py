@@ -87,6 +87,7 @@ def checksum_receiver(host, q_size, sender_id, checksum_size_per_qubit):
 
     return
 
+
 def main():
     global thread_1_return
     global thread_2_return
@@ -97,7 +98,8 @@ def main():
     network.delay = 0.5
 
     print('')
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
+    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection('Eve') as Eve, CQCConnection(
+            'Dean') as Dean:
         host_alice = Host('alice', Alice)
         host_alice.add_connection('bob')
         host_alice.max_ack_wait = 30
@@ -144,6 +146,7 @@ def main():
 
         network.stop(stop_hosts=True)
         exit()
+
 
 if __name__ == '__main__':
     main()

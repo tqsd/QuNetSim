@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Message &mdash; QuNetSim  documentation</title>
+  <title>Linux / Mac OS X &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Packet" href="packet.html" />
-    <link rel="prev" title="Classical Storage" href="classical_storage.html" /> 
+    <link rel="next" title="Windows" href="windows.html" />
+    <link rel="prev" title="Install" href="../install.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -87,26 +87,33 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../install.html">Install</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="qubit.html">Qubit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Message</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -152,17 +159,15 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../design.html">Design</a> &raquo;</li>
+          <li><a href="../install.html">Install</a> &raquo;</li>
         
-          <li><a href="../objects.html">Network Objects</a> &raquo;</li>
-        
-      <li>Message</li>
+      <li>Linux / Mac OS X</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/objects/message.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/install/linux_mac.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -175,15 +180,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-objects.message">
-<span id="message"></span><h1>Message<a class="headerlink" href="#module-objects.message" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="objects.message.Message">
-<em class="property">class </em><code class="sig-prename descclassname">objects.message.</code><code class="sig-name descname">Message</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">content</em>, <em class="sig-param">seq_num</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.message.Message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A classical message.</p>
-</dd></dl>
-
+  <div class="section" id="linux-mac-os-x">
+<h1>Linux / Mac OS X<a class="headerlink" href="#linux-mac-os-x" title="Permalink to this headline">¶</a></h1>
+<p>In Terminal run the following commands:</p>
+<p>Installation guide</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:tqsd/QuNetSim.git
+$ cd QuNetSim
+$ python3 -m venv venv
+$ source ./venv/bin/activate
+$ pip install -r requirements.txt
+</pre></div>
+</div>
+<p>To verify the installation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nose2
+</pre></div>
+</div>
 </div>
 
 
@@ -194,10 +205,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="packet.html" class="btn btn-neutral float-right" title="Packet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="windows.html" class="btn btn-neutral float-right" title="Windows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="classical_storage.html" class="btn btn-neutral float-left" title="Classical Storage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../install.html" class="btn btn-neutral float-left" title="Install" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

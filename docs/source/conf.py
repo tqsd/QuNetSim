@@ -20,10 +20,10 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Quantum Network Simulation Framework'
+project = 'QuNetSim'
 copyright = '2019, Stephen Diadamo'
 author = 'Stephen Diadamo'
-version = '0.0.1'
+version = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 

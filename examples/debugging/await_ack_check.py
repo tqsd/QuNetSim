@@ -13,9 +13,9 @@ import components.protocols as protocols
 def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
+    backend = CQCBackend()
     network.start(nodes, backend)
     network.delay = 0.7
-    backend = CQCBackend()
 
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}

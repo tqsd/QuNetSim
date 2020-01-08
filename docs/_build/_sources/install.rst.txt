@@ -1,23 +1,11 @@
 Install
 =======
 
-To install QuNetSim, we recommend running everything in Python Virtual environment.
+To install QuNetSim, we recommend using a Python Virtual environment.
+We give the instructions below on how to install the environment for each operating system.
 
-In Terminal run the following commands:
+.. toctree::
+   :maxdepth: 1
 
-Installation guide
-
-::
-
-    $ git clone git@github.com:tqsd/QuNetSim.git
-    $ cd QuNetSim
-    $ python3 -m venv venv
-    $ source ./venv/bin/activate
-    $ pip install -r requirements.txt
-
-To verify the installation:
-
-::
-
-    $ nose2
-
+   install/linux_mac
+   install/windows

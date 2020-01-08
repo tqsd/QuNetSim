@@ -6,6 +6,7 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
+from backends.cqc_backend import CQCBackend
 import uuid
 import time
 
@@ -13,7 +14,8 @@ import time
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    def __init__(self, host_id, backend):
+    # TODO: make backend a static variable
+    def __init__(self, host_id, backend=CQCBackend()):
         """
         Return the most important thing about a person.
 

@@ -1,5 +1,7 @@
-QuNetSim Documentation
-======================
+QuNetSim: A quantum network simulation framework
+================================================
+
+QuNetSim is a
 
 .. toctree::
    :caption: Contents
@@ -9,8 +11,7 @@ QuNetSim Documentation
 
    intro
    install
-   components
-   objects
+   design
    examples
 
 

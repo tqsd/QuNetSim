@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Host &mdash; Quantum Network Simulation Framework  documentation</title>
+  <title>Host &mdash; QuNetSim  documentation</title>
   
 
   
@@ -50,7 +50,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Quantum Network Simulation Framework
+            <a href="../index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -88,22 +88,28 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Host</a></li>
-<li class="toctree-l2"><a class="reference internal" href="network.html">Network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="protocols.html">Protocols</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../objects/message.html">Message</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -118,7 +124,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Quantum Network Simulation Framework</a>
+          <a href="../index.html">QuNetSim</a>
         
       </nav>
 
@@ -149,6 +155,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="../design.html">Design</a> &raquo;</li>
+        
           <li><a href="../components.html">Components</a> &raquo;</li>
         
       <li>Host</li>
@@ -174,7 +182,7 @@
 <span id="host"></span><h1>Host<a class="headerlink" href="#module-components.host" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="components.host.Host">
-<em class="property">class </em><code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">backend</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">backend=&lt;backends.cqc_backend.CQCBackend object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Host object acting as either a router node or an application host node.</p>
 <dl class="method">
@@ -353,7 +361,13 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.
 :type host_id: string
 :param new_id: The new ID to change the qubit too
 :type new_id: string
-:param old_id (string: The old ID of the qubit</p>
+:param old_id: The old ID of the qubit
+:type old_id: string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Old if of the qubit which has been changed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">

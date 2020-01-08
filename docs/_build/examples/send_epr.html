@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Send EPR &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Examples" href="../examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Send EPR</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../examples.html">Examples</a> &raquo;</li>
+        
+      <li>Send EPR</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/send_epr.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="send-epr">
+<h1>Send EPR<a class="headerlink" href="#send-epr" title="Permalink to this headline">¶</a></h1>
+<p>In this example, we’ll see how to generate a network with 4 nodes as in the figure below.
+We’ll then send an EPR pair from one end of the link to the other. The example shows
+how to build a network and a simple application.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a network</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+
+<span class="c1"># Define the host IDs in the network</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="s1">&#39;Eve&#39;</span><span class="p">,</span> <span class="s1">&#39;Dean&#39;</span><span class="p">]</span>
+
+<span class="c1"># Start the network with the defined hosts</span>
+<span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+<span class="c1"># Initialize the host Alice</span>
+<span class="n">host_alice</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add a one-way connection (classical and quantum) to Bob</span>
+<span class="n">host_alice</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
+
+<span class="c1"># Start listening</span>
+<span class="n">host_alice</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">host_bob</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
+<span class="c1"># Bob adds his own one-way connection to Alice</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">)</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">host_eve</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
+<span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
+<span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">)</span>
+<span class="n">host_eve</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">host_dean</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">)</span>
+<span class="n">host_dean</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
+<span class="n">host_dean</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># Add the hosts to the network</span>
+<span class="c1"># The network is: Alice &lt;--&gt; Bob &lt;--&gt; Eve &lt;--&gt; Dean</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_alice</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_bob</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_dean</span><span class="p">)</span>
+
+<span class="c1"># Alice generates an EPR pair with Dean and blocks (for a set time)</span>
+<span class="c1"># until she receives an ACK from Dean</span>
+<span class="n">q_id</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Alice retrieves the EPR pair she sent from her store</span>
+<span class="c1"># which has the qubit ID q_id</span>
+<span class="n">q_alice</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
+
+<span class="c1"># Dean retrieves the EPR pair Alice sent</span>
+<span class="c1"># which has the same qubit ID as Alice&#39;s half</span>
+<span class="n">q_dean</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
+
+<span class="c1"># Measure the qubits and print the outputs</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">q_alice</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">q_dean</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Results of the measurements are: (</span><span class="si">%2d</span><span class="s2">, </span><span class="si">%2d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">))</span>
+
+<span class="c1"># Stop the network and the hots</span>
+<span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">stop_hosts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen Diadamo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quantum Storage &mdash; Quantum Network Simulation Framework  documentation</title>
+  <title>Quantum Storage &mdash; QuNetSim  documentation</title>
   
 
   
@@ -50,7 +50,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Quantum Network Simulation Framework
+            <a href="../index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -88,19 +88,22 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../components/host.html">Host</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../components/network.html">Network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="qubit.html">Qubit</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="message.html">Message</a></li>
-<li class="toctree-l2"><a class="reference internal" href="packet.html">Packet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="qubit.html">Qubit</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -118,7 +121,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Quantum Network Simulation Framework</a>
+          <a href="../index.html">QuNetSim</a>
         
       </nav>
 
@@ -148,6 +151,8 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../design.html">Design</a> &raquo;</li>
         
           <li><a href="../objects.html">Network Objects</a> &raquo;</li>
         
@@ -230,7 +235,7 @@ and increases the counter.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>qubit</strong> (<a class="reference internal" href="qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – qubit which should be stored.</p></li>
-<li><p><strong>from_host_id</strong> (<em>int</em>) – Id of the Host from whom the qubit has
+<li><p><strong>from_host_id</strong> (<em>String</em>) – Id of the Host from whom the qubit has
 been received.</p></li>
 </ul>
 </dd>
@@ -269,11 +274,12 @@ These qubits are note removed from the storage!</p>
 <dt id="objects.quantum_storage.QuantumStorage.get_qubit_from_host">
 <code class="sig-name descname">get_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage.get_qubit_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns next qubit which has been received from a host. If id is
-given, the exact qubit with the id is returned, or None if it does not exist.</p>
+given, the exact qubit with the id is returned, or None if it does not exist.
+The qubit is removed from the quantum storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>from_host_id</strong> (<em>int</em>) – Host id from who the qubit has been received.</p></li>
+<li><p><strong>from_host_id</strong> (<em>String</em>) – Host id from who the qubit has been received.</p></li>
 <li><p><strong>id</strong> (<em>String</em>) – Optional Id, to return the exact qubit with the Id.</p></li>
 </ul>
 </dd>
