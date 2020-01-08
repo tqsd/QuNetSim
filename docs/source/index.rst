@@ -7,7 +7,6 @@ QuNetSim is a
    :caption: Contents
    :titlesonly:
    :glob:
-   :maxdepth: 3
 
    intro
    install

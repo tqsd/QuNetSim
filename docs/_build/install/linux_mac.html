@@ -100,11 +100,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
@@ -182,19 +182,18 @@
             
   <div class="section" id="linux-mac-os-x">
 <h1>Linux / Mac OS X<a class="headerlink" href="#linux-mac-os-x" title="Permalink to this headline">¶</a></h1>
-<p>In Terminal run the following commands:</p>
-<p>Installation guide</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:tqsd/QuNetSim.git
-$ cd QuNetSim
-$ python3 -m venv venv
-$ source ./venv/bin/activate
-$ pip install -r requirements.txt
-</pre></div>
-</div>
-<p>To verify the installation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nose2
-</pre></div>
-</div>
+<ol class="arabic">
+<li><p>Make sure you have python 3.5 or greater.</p></li>
+<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p></li>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>. Instructions for setting this up:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>hello</p></li>
+<li><p>goodbye</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
 </div>
 
 
@@ -202,15 +201,6 @@ $ pip install -r requirements.txt
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="windows.html" class="btn btn-neutral float-right" title="Windows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../install.html" class="btn btn-neutral float-left" title="Install" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
