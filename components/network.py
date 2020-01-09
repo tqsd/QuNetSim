@@ -390,14 +390,14 @@ class Network:
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
-                    'q_id': q.id,
+                    'q_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q,
-                        'q_id': q.id,
+                        'q_id': q_id,
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
@@ -405,8 +405,10 @@ class Network:
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
+        # Change in the storage that the EPR qubit is shared with the receiver
         q2 = host_sender.get_epr(route[1], q_id=q_id)
-        host_sender.add_epr(receiver, q2, q2.id, blocked)
+        host_sender.add_epr(receiver, q2, q_id, blocked)
+        Logger.get_instance().log('Entanglement swap was succesfull for pair with id ' + q_id + ' between ' + sender + ' and ' + receiver)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
@@ -421,7 +423,6 @@ class Network:
         def transfer_qubits(s, r, store=False, original_sender=None):
             for q in qubits:
                 Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
-
                 x_err_var = random.random()
                 z_err_var = random.random()
                 if x_err_var > (1 - self.x_error_rate):

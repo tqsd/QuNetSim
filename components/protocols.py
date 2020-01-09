@@ -261,6 +261,7 @@ def _rec_teleport(packet):
     q = host_receiver.get_epr(packet.sender, q_id, wait=10)
     if q is None:
         # TODO: what to do when fails
+        raise Exception
         return
     a = payload['measurements'][0]
     b = payload['measurements'][1]
