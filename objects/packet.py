@@ -48,26 +48,54 @@ class Packet(object):
     def sender(self):
         return self._sender
 
+    @sender.setter
+    def sender(self, sender):
+        self._sender = sender
+
     @property
     def receiver(self):
         return self._receiver
+
+    @receiver.setter
+    def receiver(self, receiver):
+        self._receiver = receiver
 
     @property
     def protocol(self):
         return self._protocol
 
+    @protocol.setter
+    def protocol(self, protocol):
+        self._protocol = protocol
+
     @property
     def payload_type(self):
         return self._payload_type
+
+    @payload_type.setter
+    def payload_type(self, payload_type):
+        self._payload_type = payload_type
 
     @property
     def payload(self):
         return self._payload
 
+    @payload.setter
+    def payload(self, payload):
+        self._payload = payload
+
     @property
     def seq_num(self):
         return self._seq_num
 
+    @seq_num.setter
+    def seq_num(self, seq_num):
+        self._seq_num = seq_num
+
     @property
     def await_ack(self):
         return self._await_ack
+
+    @await_ack.setter
+    def await_ack(self, await_ack):
+        self._await_ack = await_ack

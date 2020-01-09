@@ -49,21 +49,41 @@ class RoutingPacket(object):
     def sender(self):
         return self._sender
 
+    @sender.setter
+    def sender(self, sender):
+        self._sender = sender
+
     @property
     def receiver(self):
         return self._receiver
+
+    @receiver.setter
+    def receiver(self, receiver):
+        self._receiver = receiver
 
     @property
     def payload(self):
         return self._payload
 
+    @payload.setter
+    def payload(self, payload):
+        self._payload = payload
+
     @property
     def payload_type(self):
         return self._payload_type
 
+    @payload_type.setter
+    def payload_type(self, payload_type):
+        sefl._payload_type = payload_type
+
     @property
     def protocol(self):
         return self._protocol
+
+    @protocol.setter
+    def protocol(self, protocol):
+        self._protocol = protocol
 
     def decrease_ttl(self):
         """

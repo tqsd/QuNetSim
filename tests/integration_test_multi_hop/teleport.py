@@ -19,7 +19,7 @@ def main():
              'bob': Host('Bob', backend),
              'eve': Host('Eve', backend)}
 
-    network.delay = 0
+    network.delay = 0.0
 
     # A <-> B
     hosts['alice'].add_connection('Bob')
