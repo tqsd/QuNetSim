@@ -37,7 +37,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert messages != None
+    assert messages is not None
     assert len(messages) > 0
     assert (messages[0].sender == hosts['alice'].host_id)
     assert (messages[0].content == '01')

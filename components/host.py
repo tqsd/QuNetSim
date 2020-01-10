@@ -279,7 +279,7 @@ class Host:
         Processes the received packet.
 
         Args:
-            packet (dict): The received packet
+            packet (Packet): The received packet
         """
 
         sender = packet.sender
@@ -567,7 +567,7 @@ class Host:
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
         Args:
-            host_id (string) : The partner ID of the EPR pair.
+            host_id (string): The partner ID of the EPR pair.
             new_id (string): The new ID to change the qubit too
             old_id (string):  The old ID of the qubit
 
@@ -576,7 +576,7 @@ class Host:
         """
         return self._EPR_store.change_qubit_id(host_id, new_id, old_id)
 
-    def get_epr_pairs(self, host_id=None):
+    def get_epr_pairs(self, host_id):
         """
         Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_epr_pair* does.
@@ -667,9 +667,9 @@ class Host:
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
         Args:
-            sender: The sender name
+            sender (str): The sender name
             qubits: The set of qubits to encode
-            size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+            size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
         Returns:
             list: A list of qubits that are encoded for *qubits*

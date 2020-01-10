@@ -48,8 +48,8 @@ def main():
     assert hosts['bob'].shares_epr(hosts['alice'].host_id)
     q_alice = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
     q_bob = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
-    assert q_alice != None
-    assert q_bob != None
+    assert q_alice is not None
+    assert q_bob is not None
     assert q_alice.measure() == q_bob.measure()
     assert not hosts['alice'].shares_epr(hosts['bob'].host_id)
     assert not hosts['bob'].shares_epr(hosts['alice'].host_id)

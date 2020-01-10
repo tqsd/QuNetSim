@@ -74,9 +74,9 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q1_epr != None
-    assert q2_epr != None
-    assert q_teleport != None
+    assert q1_epr is not None
+    assert q2_epr is not None
+    assert q_teleport is not None
     assert q1_epr.measure() == q2_epr.measure()
     assert(q_teleport.measure() == 1)
     print("All tests succesfull!")

@@ -37,7 +37,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q1 != None
+    assert q1 is not None
     i = 0
     q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
     while q2 is None and i < 5:
@@ -45,7 +45,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q2 != None
+    assert q2 is not None
     assert (q1.measure() == q2.measure())
     print("All tests succesfull!")
     network.stop(True)

@@ -75,7 +75,7 @@ class RoutingPacket(object):
 
     @payload_type.setter
     def payload_type(self, payload_type):
-        sefl._payload_type = payload_type
+        self._payload_type = payload_type
 
     @property
     def protocol(self):

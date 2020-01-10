@@ -39,6 +39,7 @@ class Network:
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
+            self._backend = None
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -105,8 +106,9 @@ class Network:
 
         num_algo_params = len(signature(algorithm).parameters)
         if num_algo_params != 3:
-            raise Exception("The quantum routing algorithm function should take three parameters: " + \
-                            "the (nx) graph representation of the network, the sender address and the receiver address.")
+            raise Exception("The quantum routing algorithm function should take three parameters: " +
+                            "the (nx) graph representation of the network, the sender address and the " +
+                            "receiver address.")
 
         self._quantum_routing_algo = algorithm
 
@@ -146,9 +148,6 @@ class Network:
     def packet_drop_rate(self):
         """
         Get the drop rate of the network.
-
-        Args:
-             drop_rate (float): Probability of dropping a packet in the network
         """
         return self._packet_drop_rate
 
@@ -373,7 +372,7 @@ class Network:
         # Create EPR pairs on the route, where all EPR qubits have the id q_id
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
-                self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
+                self.get_host(route[i]).send_epr(route[i + 1], q_id, await_ack=True)
             else:
                 old_id = self.get_host(route[i]).change_epr_qubit_id(route[i + 1], q_id)
                 self.get_host(route[i + 1]).change_epr_qubit_id(route[i], q_id, old_id)
@@ -408,7 +407,8 @@ class Network:
         # Change in the storage that the EPR qubit is shared with the receiver
         q2 = host_sender.get_epr(route[1], q_id=q_id)
         host_sender.add_epr(receiver, q2, q_id, blocked)
-        Logger.get_instance().log('Entanglement swap was succesfull for pair with id ' + q_id + ' between ' + sender + ' and ' + receiver)
+        Logger.get_instance().log('Entanglement swap was successful for pair with id '
+                                  + q_id + ' between ' + sender + ' and ' + receiver)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """

@@ -82,7 +82,7 @@ class Qubit(object):
         Sends the Qubit to another host.
 
         Args:
-            receiver (String): ID of Host the qubit should be send to.
+            receiver_id (String): ID of Host the qubit should be send to.
         """
         self._host.backend.send_qubit_to(self, self._host.host_id, receiver_id)
 

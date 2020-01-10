@@ -4,12 +4,13 @@ from simulaqron.network import Network as SimulaNetwork
 from backends.backend import Backend
 from functools import partial as fp
 from objects.qubit import Qubit
+import numpy as np
 
 
 class CQCBackend(object):
-    '''
+    """
     The Simulaqron CQC backend
-    '''
+    """
 
     def __init__(self):
         self.cqc_connections = {}
@@ -37,18 +38,18 @@ class CQCBackend(object):
         self._backend_network.stop()
 
     def add_host(self, host):
-        '''
+        """
         Adds a host to the backend.
 
         Args:
             host (Host): New Host which should be added.
-        '''
+        """
         connection = cqc.CQCConnection(host.host_id)
         self.cqc_connections[host.host_id] = connection
         self.hosts[host.host_id] = host
 
     def create_qubit(self, host_id):
-        '''
+        """
         Creates a new Qubit of the type of the backend.
 
         Args:
@@ -56,18 +57,18 @@ class CQCBackend(object):
 
         Reurns:
             Qubit of backend type.
-        '''
+        """
         return cqc.qubit(self.cqc_connections[host_id])
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
-        '''
+        """
         Sends a qubit to a new host.
 
         Args:
             qubit (Qubit): Qubit to be send.
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
-        '''
+        """
         cqc_from_host = self.cqc_connections[from_host_id]
         cqc_to_host = self.cqc_connections[to_host_id]
         cqc_from_host.sendQubit(qubit._qubit, cqc_to_host.name)
@@ -76,7 +77,7 @@ class CQCBackend(object):
         self.hosts[to_host_id].add_data_qubit(from_host_id, qubit)
 
     def create_EPR_states(self, host_a_id, host_b_id, id=None, block=False):
-        '''
+        """
         Creates an EPR pair for two qubits and returns them.
 
         Args:
@@ -89,7 +90,7 @@ class CQCBackend(object):
             id and the blocked state.
             The qubit belongs to host a, the function has to be called by host b
             to get the second part of the EPR state.
-        '''
+        """
         cqc_host_a = self.cqc_connections[host_a_id]
         cqc_host_b = self.cqc_connections[host_b_id]
         q = cqc_host_a.createEPR(cqc_host_b.name)
@@ -105,9 +106,9 @@ class CQCBackend(object):
         return q, (func, id, block)
 
     def flush(self, host_id):
-        '''
+        """
         CQC specific function.
-        '''
+        """
         self.cqc_connections[host_id].flush()
 
     ##########################
@@ -115,91 +116,91 @@ class CQCBackend(object):
     #########################
 
     def I(self, qubit):
-        '''
+        """
         Perform Identity gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.I()
 
     def X(self, qubit):
-        '''
+        """
         Perform pauli X gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.X()
 
     def Y(self, qubit):
-        '''
+        """
         Perform pauli Y gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.Y()
 
     def Z(self, qubit):
-        '''
+        """
         Perform pauli Z gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.Z()
 
     def H(self, qubit):
-        '''
+        """
         Perform Hadamard gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.H()
 
     def T(self, qubit):
-        '''
+        """
         Perform T gate on a qubit.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-        '''
+        """
         qubit.qubit.T()
 
     def rx(self, qubit, phi):
-        '''
+        """
         Perform a rotation pauli x gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
-        '''
+            phi (float): Amount of rotation in Rad.
+        """
         # convert to cqc unit
         steps = phi * 256.0 / (2.0 * np.pi)
         qubit.qubit.rot_X(steps)
 
     def ry(self, qubit, phi):
-        '''
+        """
         Perform a rotation pauli y gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
-        '''
+            phi (float): Amount of rotation in Rad.
+        """
         # convert to cqc unit
         steps = phi * 256.0 / (2.0 * np.pi)
         qubit.qubit.rot_Y(steps)
 
-    def rz(self, phi):
-        '''
+    def rz(self, qubit, phi):
+        """
         Perform a rotation pauli z gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
-        '''
+            phi (float): Amount of rotation in Rad.
+        """
         # convert to cqc unit
         steps = phi * 256.0 / (2.0 * np.pi)
         qubit.qubit.rot_Z(steps)
@@ -225,7 +226,7 @@ class CQCBackend(object):
         qubit.qubit.cphase(target.qubit)
 
     def measure(self, qubit):
-        '''
+        """
         Perform a measurement on a qubit.
 
         Args:
@@ -233,14 +234,14 @@ class CQCBackend(object):
 
         Returns:
             The value which has been measured.
-        '''
+        """
         return qubit.qubit.measure()
 
     def release(self, qubit):
-        '''
+        """
         Releases the qubit.
 
         Args:
             qubit (Qubit): The qubit which should be released.
-        '''
+        """
         qubit.qubit.release()

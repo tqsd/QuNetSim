@@ -47,7 +47,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q2 != None
+    assert q2 is not None
     assert q2.measure() == 1
     print("All tests succesfull!")
     network.stop(True)

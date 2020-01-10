@@ -48,12 +48,12 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert messages != None
+    assert messages is not None
     assert len(messages) > 0
     assert (messages[0].sender == hosts['alice'].host_id)
     assert (messages[0].content == '11')
 
-    assert q2 != None
+    assert q2 is not None
     assert (q2.measure() == 1)
     print("All tests succesfull!")
     network.stop(True)
