@@ -75,7 +75,7 @@ class CQCBackend(object):
         qubit.set_new_qubit(cqc_to_host.recvQubit())
         qubit.set_new_host(self.hosts[to_host_id])
 
-    def create_EPR_states(self, host_a_id, host_b_id, q_id=None, block=False):
+    def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
         Creates an EPR pair for two qubits and returns them.
 
@@ -93,15 +93,15 @@ class CQCBackend(object):
         cqc_host_a = self.cqc_connections[host_a_id]
         cqc_host_b = self.cqc_connections[host_b_id]
         q = cqc_host_a.createEPR(cqc_host_b.name)
-        q = Qubit(self.hosts[host_a_id], qubit=q, q_id=q_id, blocked=block)
-        q_id = q.id
 
-        def receive_epr(cqc_host, host):
-            q_ = cqc_host.recvEPR()
-            return Qubit(host, qubit=q_, q_id=q_id, blocked=block)
+        print(q)
 
-        func = fp(receive_epr, cqc_host_b, self.hosts[host_b_id])
-        return q, (func, q_id, block)
+        return Qubit(self.hosts[host_a_id], qubit=q, q_id=q_id, blocked=block)
+
+    def receive_epr(self, host_id, q_id=None, block=False):
+        cqc_host = self.cqc_connections[host_id]
+        q = cqc_host.recvEPR()
+        return Qubit(self.hosts[host_id], qubit=q, q_id=q_id, blocked=block)
 
     def flush(self, host_id):
         """

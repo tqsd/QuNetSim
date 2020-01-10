@@ -485,19 +485,24 @@ class Network:
                         route = self.get_classical_route(sender, receiver)
 
                     if len(route) < 2:
-                        raise Exception
+                        raise Exception('No route exists')
 
                     elif len(route) == 2:
                         if packet.protocol != protocols.RELAY:
+                            if packet.protocol == protocols.REC_EPR:
+                                host_sender = self.get_host(sender)
+                                q = host_sender.backend.create_EPR(host_sender.host_id,
+                                                                   receiver,
+                                                                   q_id=packet.payload['q_id'],
+                                                                   block=packet.payload['blocked'])
+                                host_sender.add_epr(receiver, q)
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet.payload)
                     else:
                         if packet.protocol == protocols.REC_EPR:
-                            # TODO: adapt to new EPR generation
-                            # update: did so, but does it work?
-                            q_id = packet.payload[1]
-                            blocked = packet.payload[2]
+                            q_id = packet.payload['q_id']
+                            blocked = packet.payload['blocked']
                             q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
                                          args=(sender, receiver, q_route, q_id,

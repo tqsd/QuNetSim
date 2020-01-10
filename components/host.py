@@ -459,13 +459,12 @@ class Host:
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
-        q, epr_func = self._backend.create_EPR_states(self.host_id, receiver_id, id=q_id, block=block)
-        self.add_epr(receiver_id, q)
+
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload=epr_func,
+                                  payload={'q_id': q_id, 'blocked': block},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -575,6 +574,9 @@ class Host:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
         return self._EPR_store.check_qubit_from_host_exists(receiver_id)
+
+    def receive_epr(self, receiver_id):
+        pass
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """

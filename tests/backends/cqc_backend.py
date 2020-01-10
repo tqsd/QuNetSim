@@ -34,7 +34,7 @@ def test_epr_generation(backend_generator):
 
     # Test multiple times to eliminate probabilistic effects
     for _ in range(10):
-        q1, func = backend.create_EPR_states(alice.host_id, bob.host_id)
+        q1, func = backend.create_EPR(alice.host_id, bob.host_id)
         q2 = func[0]()
         assert q1.id == q2.id
         assert q1.id == func[1]

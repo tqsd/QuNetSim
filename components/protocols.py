@@ -313,9 +313,11 @@ def _rec_epr(packet):
     sender = packet.sender
     host_receiver = network.get_host(receiver)
 
-    q = payload[0]()
+    print(payload)
+    q = host_receiver.backend.receive_epr(host_receiver.host_id,
+                                          q_id=payload['q_id'],
+                                          block=payload['blocked'])
     host_receiver.add_epr(sender, q)
-
     if packet.await_ack:
         _send_ack(sender, receiver, packet.seq_num)
 
