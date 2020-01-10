@@ -4,7 +4,6 @@ import sys
 sys.path.append("../..")
 from objects.quantum_storage import *
 
-
 class FakeQubit(object):
 
     def __init__(self, id=None):
@@ -38,6 +37,9 @@ def test_store_and_recover():
     assert storage.amount_qubits_stored == 0
     assert q == q2
 
+    q2 = storage.get_qubit_from_host(host_id, id)
+    assert q2 == None
+
     storage.add_qubit_from_host(q, host_id)
     q2 = storage.get_qubit_from_host(host_id)
     assert storage.amount_qubits_stored == 0
@@ -45,6 +47,30 @@ def test_store_and_recover():
 
     print("Test store and recover was successfull!")
 
+def test_change_host():
+    storage = QuantumStorage()
+    q = FakeQubit()
+    id = q.id
+    host_id1 = "Alice"
+    host_id2 = "Bob"
+
+    print("Start test store and recover...")
+
+    assert storage.amount_qubits_stored == 0
+    storage.add_qubit_from_host(q, host_id1)
+    assert storage.amount_qubits_stored == 1
+    q2 = storage.get_qubit_from_host(host_id1, id)
+    storage.add_qubit_from_host(q2, host_id2)
+    assert storage.amount_qubits_stored == 1
+
+    q2 = storage.get_qubit_from_host(host_id1, id)
+    assert q2 == None
+
+    q2 = storage.get_qubit_from_host(host_id2)
+    assert storage.amount_qubits_stored == 0
+    assert q == q2
+
+    print("Test store and recover was successfull!")
 
 def test_storage_limits():
     print("Start storage limit test...")
@@ -55,7 +81,7 @@ def test_storage_limits():
     for c in range(15):
         q = FakeQubit()
         storage.add_qubit_from_host(q, str(c))
-    assert (storage.amount_qubits_stored == 10)
+    assert(storage.amount_qubits_stored == 10)
     print("STORAGE_LIMIT_ALL mode was successfull!")
 
     print("Start test for STORAGE_LIMIT_PER_HOST mode...")
@@ -68,7 +94,7 @@ def test_storage_limits():
     for c in range(15):
         q = FakeQubit()
         storage.add_qubit_from_host(q, str(2))
-    assert (storage.amount_qubits_stored == 20)
+    assert(storage.amount_qubits_stored == 20)
     print("STORAGE_LIMIT_PER_HOST mode was successfull!")
 
     print("Start test for STORAGE_LIMIT_INDIVIDUALLY_PER_HOST mode...")
@@ -82,10 +108,10 @@ def test_storage_limits():
     for c in range(15):
         q = FakeQubit()
         storage.add_qubit_from_host(q, str(2))
-    assert (storage.amount_qubits_stored == 22)
+    assert(storage.amount_qubits_stored == 22)
     print("STORAGE_LIMIT_INDIVIDUALLY_PER_HOST mode was successfull!")
-    print("Storage limit test was successfull!")
 
+    print("Storage limit test was successfull!")
 
 def test_change_id_of_qubits():
     print("Start change id of qubit test...")
@@ -102,24 +128,25 @@ def test_change_id_of_qubits():
     assert old_id == search_id
 
     q1 = storage.get_qubit_from_host('Bob', search_id)
-    assert q1 is None
+    assert q1 == None
 
     q2 = storage.get_qubit_from_host('Bob', new_id)
 
-    assert q2 is not None
+    assert q2 != None
 
     new_id2 = str(102)
     old_id = storage.change_qubit_id('Bob', new_id2)
     assert int(old_id) < 15
     q1 = storage.get_qubit_from_host('Bob', old_id)
-    assert q1 is None
+    assert q1 == None
     q2 = storage.get_qubit_from_host('Bob', new_id2)
-    assert q2 is not None
+    assert q2 != None
 
     print("Change id of qubit test was successfull!")
 
 
 if __name__ == "__main__":
     test_store_and_recover()
+    test_change_host()
     test_storage_limits()
     test_change_id_of_qubits()

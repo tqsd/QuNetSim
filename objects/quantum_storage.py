@@ -155,6 +155,7 @@ class QuantumStorage(object):
         """
         for q in self._qubit_dict.values():
             for ele in q.values():
+                print("release qubit with id " + str(ele.id))
                 ele.release()
 
     def check_qubit_from_host_exists(self, from_host_id):
@@ -176,7 +177,7 @@ class QuantumStorage(object):
     def get_all_qubits_from_host(self, from_host_id):
         """
         Get all Qubits from a specific host id.
-        These qubits are note removed from the storage!
+        These qubits are not removed from storage!
         """
         if from_host_id in self._host_dict.keys():
             return self._host_dict[from_host_id]
@@ -221,6 +222,15 @@ class QuantumStorage(object):
                     return old_id
         return None
 
+    def _check_qubit_in_system(self, qubit, from_host_id):
+        """
+        True if qubit with same parameters already in the systems
+        """
+        if qubit.id in self._qubit_dict and \
+            from_host_id in self._qubit_dict[qubit.id]:
+            return True
+        return False
+
     def add_qubit_from_host(self, qubit, from_host_id):
         """
         Adds a qubit which has been received from a host.
@@ -230,6 +240,8 @@ class QuantumStorage(object):
             from_host_id (String): Id of the Host from whom the qubit has
                              been received.
         """
+        if self._check_qubit_in_system(qubit, from_host_id):
+            raise ValueError("Qubit with these parameters already in storage!")
         if from_host_id not in self._host_dict.keys():
             self._add_new_host(from_host_id)
         if not self._increase_qubit_counter(from_host_id):
