@@ -12,9 +12,9 @@ def main():
     backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
-    network.delay = 0.7
+    network.delay = 0.1
 
-    print('')
+    # print('')
 
     host_alice = Host('Alice', backend)
     host_alice.add_connection('Bob')
@@ -27,37 +27,43 @@ def main():
 
     host_eve = Host('Eve', backend)
     host_eve.add_connection('Bob')
-    host_eve.add_connection('Dean')
+    # host_eve.add_connection('Dean')
     host_eve.start()
 
-    host_dean = Host('Dean', backend)
-    host_dean.add_connection('Eve')
-    host_dean.start()
+    # host_dean = Host('Dean', backend)
+    # host_dean.add_connection('Eve')
+    # host_dean.start()
 
     network.add_host(host_alice)
     network.add_host(host_bob)
     network.add_host(host_eve)
-    network.add_host(host_dean)
+    # network.add_host(host_dean)
 
-    q_id1 = host_alice.send_epr('Dean')
-    time.sleep(15)
+    print('--- DID THIS ---')
+    q_id1 = host_alice.send_epr('Eve', await_ack=True)[0]
+    print('--- ENDED THIS ---', q_id1)
 
-    q1 = host_alice.get_epr('Dean', q_id1)
-    q2 = host_dean.get_epr('Alice', q_id1)
+    print('Alice', host_alice._EPR_store)
+    print('Bob', host_bob._EPR_store)
+    print('Eve', host_eve._EPR_store)
+
+    q1 = host_alice.get_epr('Eve', q_id1)
+    q2 = host_eve.get_epr('Alice', q_id1)
+
+    print(host_eve.get_epr_pairs('Alice'))
 
     if q1 is not None and q2 is not None:
         m1 = q1.measure()
         m2 = q2.measure()
 
-        print("Results of the measurements for q_id1 are ")
+        print("Results of the measurements for q_id_1 are ")
         print(m1)
         print(m2)
     else:
-        print('failed')
-
-    start_time = time.time()
-    while time.time() - start_time < 20:
-        pass
+        if q1 is None:
+            print('q1 is none')
+        if q2 is None:
+            print('q2 is none')
 
     network.stop(True)
     exit()

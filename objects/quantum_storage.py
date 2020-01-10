@@ -211,14 +211,13 @@ class QuantumStorage(object):
                 self._add_qubit_to_qubit_dict(qubit, from_host_id)
                 return old_id
         else:
-            if from_host_id in self._host_dict.keys():
-                if self._host_dict[from_host_id]:
-                    qubit = self._host_dict[from_host_id][0]
-                    old_id = qubit.id
-                    self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
-                    qubit.set_new_id(new_id)
-                    self._add_qubit_to_qubit_dict(qubit, from_host_id)
-                    return old_id
+            if from_host_id in self._host_dict and self._host_dict[from_host_id]:
+                qubit = self._host_dict[from_host_id][0]
+                old_id = qubit.id
+                self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
+                qubit.set_new_id(new_id)
+                self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                return old_id
         return None
 
     def _check_qubit_in_system(self, qubit, from_host_id):
