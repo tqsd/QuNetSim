@@ -11,12 +11,12 @@ from components.network import Network
 def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
+    backend = CQCBackend()
     network.start(nodes, backend)
     network.delay = 0.2
     network.packet_drop_rate = 0
     print('')
 
-    backend = CQCBackend()
 
 
     host_alice = Host('Alice', backend)

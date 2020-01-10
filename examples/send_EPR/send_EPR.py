@@ -1,4 +1,3 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
@@ -10,13 +9,13 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
     network.delay = 0.7
 
     print('')
 
-    backend = CQCBackend()
     host_alice = Host('Alice', backend)
     host_alice.add_connection('Bob')
     host_alice.start()

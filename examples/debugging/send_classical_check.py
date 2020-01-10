@@ -1,4 +1,3 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
@@ -11,10 +10,10 @@ from objects.qubit import Qubit
 
 def main():
     network = Network.get_instance()
+    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
     network.delay = 0.7
-    backend = CQCBackend()
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 

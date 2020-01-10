@@ -1,13 +1,14 @@
-from cqc.pythonLib import CQCConnection, qubit
 import sys
 import time
 import numpy as np
 
 sys.path.append("../..")
 from components.host import Host
+from backends.cqc_backend import CQCBackend
 from components.network import Network
 from components.logger import Logger
 from objects.daemon_thread import DaemonThread
+from objects.qubit import Qubit
 
 
 def qkd_sender(host, q_size, receiver_id):
@@ -17,7 +18,7 @@ def qkd_sender(host, q_size, receiver_id):
 
     q_arr = []
     for i in range(q_size):
-        q_arr.append(qubit(host.cqc))
+        q_arr.append(Qubit(host))
         if bit_arr[i] == 1:
             q_arr[i].X()
         if base_arr[i] == 1:
@@ -88,8 +89,8 @@ def qkd_receiver(host, q_size, sender_id):
     for i in range(q_size):
         q = host.get_data_qubit(sender_id, wait=wait_time)
         if base_arr[i] == 1:
-            q['q'].H()
-        bit_arr.append(q['q'].measure())
+            q.H()
+        bit_arr.append(q.measure())
 
     bit_arr = np.asarray(bit_arr[::-1])
     while host.get_sequence_number(sender_id) != q_size:
@@ -102,8 +103,8 @@ def qkd_receiver(host, q_size, sender_id):
 
     message_2 = host.get_classical(sender_id, wait=wait_time)
     for m in message_2:
-        if m['message'] != 'ACK':
-            message_2_edited = m['message']
+        if m.content != 'ACK':
+            message_2_edited = m.content
             break
     message_2_edited = np.fromstring(message_2_edited[1:-1], dtype=np.int, sep=' ')
 
@@ -129,7 +130,7 @@ def qkd_receiver(host, q_size, sender_id):
     while len(messages) < 4:
         messages = host.get_classical(sender_id, wait=wait_time)
 
-    message = messages[0]['message']
+    message = messages[0].content
     if message == '':
         print('receiver failed')
         return
@@ -144,49 +145,48 @@ def qkd_receiver(host, q_size, sender_id):
 
 def main():
     network = Network.get_instance()
+    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
     print('')
 
-    with CQCConnection("Alice") as A, CQCConnection("Bob") as node_1, \
-            CQCConnection('Eve') as node_2, CQCConnection('Dean') as B:
 
-        A = Host('A', A)
-        A.add_q_connection('node_1')
-        A.add_c_connection('node_2')
-        A.start()
+    A = Host('Alice', backend)
+    A.add_q_connection('Eve')
+    A.add_c_connection('Dean')
+    A.start()
 
-        node_1 = Host('node_1', node_1)
-        node_1.add_q_connection('B')
-        node_1.start()
+    node_1 = Host('Eve', backend)
+    node_1.add_q_connection('Bob')
+    node_1.start()
 
-        node_2 = Host('node_2', node_2)
-        node_2.add_c_connection('A')
-        node_2.add_c_connection('B')
-        node_2.start()
+    node_2 = Host('Dean', backend)
+    node_2.add_c_connection('Alice')
+    node_2.add_c_connection('Bob')
+    node_2.start()
 
-        B = Host('B', B)
-        B.add_c_connection('node_2')
-        B.start()
+    B = Host('Bob', backend)
+    B.add_c_connection('Dean')
+    B.start()
 
-        network.add_host(A)
-        network.add_host(node_1)
-        network.add_host(node_2)
-        network.add_host(B)
+    network.add_host(A)
+    network.add_host(node_1)
+    network.add_host(node_2)
+    network.add_host(B)
 
-        q_size = 8
+    q_size = 8
 
-        DaemonThread(qkd_sender, args=(A, q_size, B.host_id))
-        DaemonThread(qkd_receiver, args=(B, q_size, A.host_id))
+    DaemonThread(qkd_sender, args=(A, q_size, B.host_id))
+    DaemonThread(qkd_receiver, args=(B, q_size, A.host_id))
 
-        nodes = [A, node_1, node_2, B]
-        start_time = time.time()
-        while time.time() - start_time < 50:
-            pass
+    nodes = [A, node_1, node_2, B]
+    start_time = time.time()
+    while time.time() - start_time < 50:
+        pass
 
-        for h in nodes:
-            h.stop()
-        network.stop()
+    for h in nodes:
+        h.stop()
+    network.stop()
 
 
 if __name__ == '__main__':
