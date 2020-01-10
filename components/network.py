@@ -420,7 +420,7 @@ class Network:
             qubits (List of Qubits): The qubits to be sent
         """
 
-        def transfer_qubits(s, r, store=False, original_sender=None):
+        def transfer_qubits(r, store=False, original_sender=None):
             for q in qubits:
                 Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
                 x_err_var = random.random()
@@ -443,11 +443,10 @@ class Network:
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-
             if len(route[i:]) != 2:
-                transfer_qubits(route[i], route[i + 1])
+                transfer_qubits(route[i + 1])
             else:
-                transfer_qubits(route[i], route[i + 1], True, route[0])
+                transfer_qubits(route[i + 1], store=True, original_sender=route[0])
             i += 1
 
     def _process_queue(self):

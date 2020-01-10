@@ -74,7 +74,6 @@ class CQCBackend(object):
         cqc_from_host.sendQubit(qubit._qubit, cqc_to_host.name)
         qubit.set_new_qubit(cqc_to_host.recvQubit())
         qubit.set_new_host(self.hosts[to_host_id])
-        self.hosts[to_host_id].add_data_qubit(from_host_id, qubit)
 
     def create_EPR_states(self, host_a_id, host_b_id, id=None, block=False):
         """
