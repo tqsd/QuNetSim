@@ -8,12 +8,15 @@ from objects.classical_storage import ClassicalStorage
 from objects.message import Message
 import uuid
 import time
+from backends.cqc_backend import CQCBackend
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    def __init__(self, host_id, backend):
+    backend = CQCBackend()
+
+    def __init__(self, host_id, backend=None):
         """
         Return the most important thing about a person.
 
@@ -31,7 +34,10 @@ class Host:
         self._classical_messages = ClassicalStorage()
         self._classical_connections = []
         self._quantum_connections = []
-        self._backend = backend
+        if backend is None:
+            self._backend = Host.backend
+        else:
+            self._backend = backend
         # add this host to the backend
         backend.add_host(self)
         self._max_ack_wait = None
@@ -94,6 +100,14 @@ class Host:
              Array: Sorted array of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
+
+    @property
+    def EPR_store(self):
+        return self._EPR_store
+
+    @property
+    def data_qubit_store(self):
+        return self.data_qubit_store
 
     @property
     def delay(self):

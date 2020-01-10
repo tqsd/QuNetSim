@@ -205,7 +205,6 @@ class QuantumStorage(object):
         new_id = str(new_id)
         if old_id is not None:
             old_id = str(old_id)
-        if old_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
             if qubit is not None:
                 qubit.set_new_id(new_id)
