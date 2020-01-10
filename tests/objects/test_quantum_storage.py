@@ -37,8 +37,36 @@ def test_store_and_recover():
     assert storage.amount_qubits_stored == 0
     assert q == q2
 
+    q2 = storage.get_qubit_from_host(host_id, id)
+    assert q2 == None
+
     storage.add_qubit_from_host(q, host_id)
     q2 = storage.get_qubit_from_host(host_id)
+    assert storage.amount_qubits_stored == 0
+    assert q == q2
+
+    print("Test store and recover was successfull!")
+
+def test_change_host():
+    storage = QuantumStorage()
+    q = FakeQubit()
+    id = q.id
+    host_id1 = "Alice"
+    host_id2 = "Bob"
+
+    print("Start test store and recover...")
+
+    assert storage.amount_qubits_stored == 0
+    storage.add_qubit_from_host(q, host_id1)
+    assert storage.amount_qubits_stored == 1
+    q2 = storage.get_qubit_from_host(host_id1, id)
+    storage.add_qubit_from_host(q2, host_id2)
+    assert storage.amount_qubits_stored == 1
+
+    q2 = storage.get_qubit_from_host(host_id1, id)
+    assert q2 == None
+
+    q2 = storage.get_qubit_from_host(host_id2)
     assert storage.amount_qubits_stored == 0
     assert q == q2
 
@@ -119,5 +147,6 @@ def test_change_id_of_qubits():
 
 if __name__ == "__main__":
     test_store_and_recover()
+    test_change_host()
     test_storage_limits()
     test_change_id_of_qubits()
