@@ -226,7 +226,7 @@ how to build a network and a simple application.</p>
 
 <span class="c1"># Alice generates an EPR pair with Dean and blocks (for a set time)</span>
 <span class="c1"># until she receives an ACK from Dean</span>
-<span class="n">q_id</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">q_id</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Alice retrieves the EPR pair she sent from her store</span>
 <span class="c1"># which has the qubit ID q_id</span>
@@ -239,10 +239,10 @@ how to build a network and a simple application.</p>
 <span class="c1"># Measure the qubits and print the outputs</span>
 <span class="n">m1</span> <span class="o">=</span> <span class="n">q_alice</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
 <span class="n">m2</span> <span class="o">=</span> <span class="n">q_dean</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Results of the measurements are: (</span><span class="si">%2d</span><span class="s2">, </span><span class="si">%2d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results of the measurements are: (</span><span class="si">%2d</span><span class="s2">, </span><span class="si">%2d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">))</span>
 
 <span class="c1"># Stop the network and the hots</span>
-<span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">stop_hosts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">stop_hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
