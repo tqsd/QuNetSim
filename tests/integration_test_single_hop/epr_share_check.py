@@ -6,7 +6,7 @@ sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
-
+MAX_WAIT = 10
 
 def main():
     backend = CQCBackend()
@@ -31,7 +31,7 @@ def main():
     q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
     q1 = hosts['alice'].shares_epr(hosts['bob'].host_id)
     i = 0
-    while not q1 and i < TestOneHop.MAX_WAIT:
+    while not q1 and i < MAX_WAIT:
         q1 = hosts['alice'].shares_epr(hosts['bob'].host_id)
         i += 1
         time.sleep(1)
