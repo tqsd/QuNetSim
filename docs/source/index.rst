@@ -5,11 +5,12 @@ QuNetSim Documentation
    :caption: Contents
    :titlesonly:
    :glob:
-   :maxdepth: 2
+   :maxdepth: 3
 
    intro
    install
    components
+   objects
    examples
 
 

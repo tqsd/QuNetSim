@@ -9,3 +9,8 @@ objects/__pycache__/*
 venv/
 
 venv2/
+objects/__pycache__/
+.project
+.cproject
+backends/__pycache__/
+components/__init__.pyc

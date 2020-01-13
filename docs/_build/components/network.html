@@ -94,6 +94,15 @@
 <li class="toctree-l2"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 
@@ -178,7 +187,7 @@ Time-To-Live information in this layer.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>route</strong> – route of the packet from sender to receiver</p></li>
-<li><p><strong>payload</strong> (<em>dict</em>) – Lower layers of the packet</p></li>
+<li><p><strong>payload</strong> (<em>Object</em>) – Lower layers of the packet</p></li>
 <li><p><strong>ttl</strong> (<em>int</em>) – Time-to-Live parameter</p></li>
 </ul>
 </dd>
@@ -235,7 +244,7 @@ between sender and receiver.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of qubits</p></li>
 <li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver qubits</p></li>
-<li><p><strong>qubits</strong> (<em>List of Qubit-Dictionaries</em>) – The qubits to be sent</p></li>
+<li><p><strong>qubits</strong> (<em>List of Qubits</em>) – The qubits to be sent</p></li>
 </ul>
 </dd>
 </dl>
@@ -413,7 +422,7 @@ between sender and receiver.</p>
 <dd><p>Puts the packet to the packet queue of the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<em>dict</em>) – Packet to be sent</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – Packet to be sent</p>
 </dd>
 </dl>
 </dd></dl>

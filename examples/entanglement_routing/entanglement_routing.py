@@ -1,15 +1,13 @@
-from cqc.pythonLib import CQCConnection, qubit
+from cqc.pythonLib import CQCConnection
 import sys
 import time
 import networkx as nx
 import random
-import matplotlib.pyplot as plt
 
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
 
 network = Network.get_instance()
 
@@ -58,7 +56,7 @@ def main():
     nodes = ["A", "node_1", "node_2", "B"]
     network.use_hop_by_hop = False
     network.set_delay = 0.2
-    network.start(nodes)
+    network.start(nodes, backend)
 
     with CQCConnection("A") as A, CQCConnection("node_1") as node_1, \
             CQCConnection("node_2") as node_2, CQCConnection("B") as B:

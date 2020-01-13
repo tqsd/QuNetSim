@@ -5,8 +5,6 @@ import sys
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-from components.daemon_thread import DaemonThread
-from components import protocols
 from components.logger import Logger
 from cqc.pythonLib import CQCConnection, qubit
 import sys
@@ -386,7 +384,7 @@ def main():
 
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
+    network.start(nodes, backend)
     network.delay = 0.5
 
     print('')

@@ -5,11 +5,12 @@ import time
 import random
 from components import protocols
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 from inspect import signature
 
-from simulaqron.network import Network as SimulaNetwork
-from simulaqron.settings import simulaqron_settings
+from objects.packet import Packet
+from objects.routing_packet import RoutingPacket
+from backends.cqc_backend import CQCBackend
 
 
 # Network singleton
@@ -28,7 +29,6 @@ class Network:
             self.ARP = {}
             # The directed graph for the connections
             self.classical_network = nx.DiGraph()
-            self.sim_network = None
             self.quantum_network = nx.DiGraph()
             self._quantum_routing_algo = nx.shortest_path
             self._classical_routing_algo = nx.shortest_path
@@ -40,6 +40,7 @@ class Network:
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
+            self._backend = None
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -106,8 +107,9 @@ class Network:
 
         num_algo_params = len(signature(algorithm).parameters)
         if num_algo_params != 3:
-            raise Exception("The quantum routing algorithm function should take three parameters: " + \
-                            "the (nx) graph representation of the network, the sender address and the receiver address.")
+            raise Exception("The quantum routing algorithm function should take three parameters: " +
+                            "the (nx) graph representation of the network, the sender address and the " +
+                            "receiver address.")
 
         self._quantum_routing_algo = algorithm
 
@@ -147,9 +149,6 @@ class Network:
     def packet_drop_rate(self):
         """
         Get the drop rate of the network.
-
-        Args:
-             drop_rate (float): Probability of dropping a packet in the network
         """
         return self._packet_drop_rate
 
@@ -338,7 +337,7 @@ class Network:
 
         Args:
             source (string): ID of the source host
-            dest (string) : ID of the destination host
+            dest (string): ID of the destination host
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
@@ -350,7 +349,7 @@ class Network:
 
         Args:
             source (string): ID of the source host
-            dest (string) : ID of the destination host
+            dest (string): ID of the destination host
 
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
@@ -371,9 +370,10 @@ class Network:
         """
         host_sender = self.get_host(sender)
         # TODO: Multiprocess this
+        # Create EPR pairs on the route, where all EPR qubits have the id q_id
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
-                self.get_host(route[i]).send_epr(route[i + 1], q_id, True)
+                self.get_host(route[i]).send_epr(route[i + 1], q_id, await_ack=True)
             else:
                 old_id = self.get_host(route[i]).change_epr_qubit_id(route[i + 1], q_id)
                 self.get_host(route[i + 1]).change_epr_qubit_id(route[i], q_id, old_id)
@@ -382,16 +382,21 @@ class Network:
             host = self.get_host(route[i + 1])
             q = host.get_epr(route[0], q_id, wait=10)
             if q is None:
+                print("Host is %s" % host.host_id)
+                print("Search host is %s" % route[0])
+                print("Search id is %s" % q_id)
+                print("EPR storage is")
+                print(host._EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
                 return
-            data = {'q': q['q'],
+            data = {'q': q,
                     'q_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
-                data = {'q': q['q'],
+                data = {'q': q,
                         'q_id': q_id,
                         'node': sender,
                         'ack': True,
@@ -400,8 +405,11 @@ class Network:
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
+        # Change in the storage that the EPR qubit is shared with the receiver
         q2 = host_sender.get_epr(route[1], q_id=q_id)
-        host_sender.add_epr(receiver, q2['q'], q2['q_id'], blocked)
+        host_sender.add_epr(receiver, q2, q_id, blocked)
+        Logger.get_instance().log('Entanglement swap was successful for pair with id '
+                                  + q_id + ' between ' + sender + ' and ' + receiver)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
@@ -410,44 +418,36 @@ class Network:
         Args:
             sender (Host): Sender of qubits
             receiver (Host): Receiver qubits
-            qubits (List of Qubit-Dictionaries): The qubits to be sent
+            qubits (List of Qubits): The qubits to be sent
         """
 
-        def transfer_qubits(s, r, store=False, original_sender=None):
-            for index, q in enumerate(qubits):
-                Logger.get_instance().log('transfer qubits - sending qubit ' + qubits[index]['q_id'])
-
+        def transfer_qubits(r, store=False, original_sender=None):
+            for q in qubits:
+                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
                 x_err_var = random.random()
                 z_err_var = random.random()
-
                 if x_err_var > (1 - self.x_error_rate):
-                    q['q'].X()
+                    q.X()
                 if z_err_var > (1 - self.z_error_rate):
-                    q['q'].Z()
+                    q.Z()
 
-                self.ARP[s].cqc.sendQubit(q['q'], self.get_host_name(r))
-                Logger.get_instance().log('transfer qubits - waiting to receive ' + qubits[index]['q_id'])
-                q = self.ARP[r].cqc.recvQubit()
-                Logger.get_instance().log('transfer qubits - received ' + qubits[index]['q_id'])
-
-                # Update the set of qubits so that they aren't pointing at inactive qubits
-                qubits[index]['q'] = q
+                q.send_to(self.ARP[r].host_id)
+                Logger.get_instance().log('transfer qubits - received ' + q.id)
 
                 # Unblock qubits in case they were blocked
-                qubits[index]['blocked'] = False
+                q.set_blocked_state(False)
 
                 if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, qubits[index]['q'], qubits[index]['q_id'])
+                    self.ARP[r].add_data_qubit(original_sender, q)
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-
             if len(route[i:]) != 2:
-                transfer_qubits(route[i], route[i + 1])
+                transfer_qubits(route[i + 1])
             else:
-                transfer_qubits(route[i], route[i + 1], True, route[0])
+                transfer_qubits(route[i + 1], store=True, original_sender=route[0])
             i += 1
 
     def _process_queue(self):
@@ -471,46 +471,43 @@ class Network:
                     Logger.get_instance().log("PACKET DROPPED")
                     continue
 
-                sender, receiver = packet[protocols.SENDER], packet[protocols.RECEIVER]
+                sender, receiver = packet.sender, packet.receiver
 
-                if packet['payload_type'] == protocols.QUANTUM:
-                    self._route_quantum_info(sender, receiver, packet[protocols.PAYLOAD])
+                if packet.payload_type == protocols.QUANTUM:
+                    self._route_quantum_info(sender, receiver, [packet.payload])
 
                 try:
                     if self.use_hop_by_hop:
                         route = self.get_classical_route(sender, receiver)
-                    elif packet['protocol'] == protocols.RELAY:
-                        full_route = packet['route']
+                    elif packet.protocol == protocols.RELAY:
+                        full_route = packet.route
                         route = full_route[full_route.index(sender):]
                     else:
                         route = self.get_classical_route(sender, receiver)
 
                     if len(route) < 2:
-                        raise Exception
+                        raise Exception('No route exists')
 
                     elif len(route) == 2:
-                        if packet['protocol'] != protocols.RELAY:
-                            if packet['protocol'] == protocols.REC_EPR:
+                        if packet.protocol != protocols.RELAY:
+                            if packet.protocol == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
-                                receiver_name = self.get_host_name(receiver)
-                                q = host_sender.cqc.createEPR(receiver_name)
-                                if packet['payload'] is not None:
-                                    host_sender.add_epr(receiver, q, packet[protocols.PAYLOAD]['q_id'],
-                                                        packet[protocols.PAYLOAD]['block'])
-                                else:
-                                    host_sender.add_epr(receiver, q)
-
+                                q = host_sender.backend.create_EPR(host_sender.host_id,
+                                                                   receiver,
+                                                                   q_id=packet.payload['q_id'],
+                                                                   block=packet.payload['blocked'])
+                                host_sender.add_epr(receiver, q)
                             self.ARP[receiver].rec_packet(packet)
                         else:
-                            self.ARP[receiver].rec_packet(packet[protocols.PAYLOAD])
+                            self.ARP[receiver].rec_packet(packet.payload)
                     else:
-                        if packet['protocol'] == protocols.REC_EPR:
-                            q_id = packet['payload']['q_id']
-                            blocked = packet['payload']['block']
+                        if packet.protocol == protocols.REC_EPR:
+                            q_id = packet.payload['q_id']
+                            blocked = packet.payload['blocked']
                             q_route = self.get_quantum_route(sender, receiver)
                             DaemonThread(self._entanglement_swap,
                                          args=(sender, receiver, q_route, q_id,
-                                               packet[protocols.SEQUENCE_NUMBER], blocked))
+                                               packet.seq_num, blocked))
                         else:
                             network_packet = self._encode(route, packet)
                             self.ARP[route[1]].rec_packet(network_packet)
@@ -527,7 +524,7 @@ class Network:
         Puts the packet to the packet queue of the network.
 
         Args:
-            packet (dict): Packet to be sent
+            packet (Packet): Packet to be sent
         """
 
         self._packet_queue.put(packet)
@@ -543,25 +540,26 @@ class Network:
                 self.ARP[host].stop(release_qubits=True)
 
         self._stop_thread = True
-        if self.sim_network is not None:
-            self.sim_network.stop()
+        if self._backend is not None:
+            self._backend.stop()
 
-    def start(self, nodes=None):
+    def start(self, nodes=None, backend=None):
         """
         Starts the network.
 
         """
+        if backend is None:
+            self._backend = CQCBackend()
+        else:
+            self._backend = backend
         if nodes is not None:
-            simulaqron_settings.default_settings()
-            self.sim_network = SimulaNetwork(nodes=nodes, force=True)
-            self.sim_network.start()
+            self._backend.start(nodes=nodes)
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
     def draw_network(self):
         """
         Draws a plot of the network.
         """
-
         nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
                          with_labels=True, hold=False)
         plt.show()
@@ -574,28 +572,22 @@ class Network:
 
         Args:
             route: route of the packet from sender to receiver
-            payload (dict): Lower layers of the packet
+            payload (Object): Lower layers of the packet
             ttl(int): Time-to-Live parameter
 
         Returns:
             dict: Encoded RELAY packet
         """
-        if payload[protocols.PROTOCOL] != protocols.RELAY:
-            packet = {
-                'sender': route[1],
-                'payload': payload,
-                'protocol': protocols.RELAY,
-                'payload_type': protocols.SIGNAL,
-                'TTL': ttl,
-                'route': route
-            }
+        if payload.protocol != protocols.RELAY:
+            packet = RoutingPacket(route[1], '', protocols.RELAY, protocols.SIGNAL,
+                                   payload, ttl, route)
         else:
             packet = payload
-            packet['sender'] = route[1]
+            packet.sender = route[1]
 
         if self.use_hop_by_hop:
-            packet['receiver'] = route[-1]
+            packet.receiver = route[-1]
         else:
-            packet['receiver'] = route[2]
+            packet.receiver = route[2]
 
         return packet

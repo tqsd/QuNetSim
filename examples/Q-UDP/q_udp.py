@@ -6,7 +6,7 @@ import numpy as np
 sys.path.append("../..")
 from components.host import Host
 from components.network import Network
-from components.daemon_thread import DaemonThread
+from objects.daemon_thread import DaemonThread
 from components import protocols
 
 
@@ -108,7 +108,7 @@ def main():
     nodes = ["Alice", "Bob"]
     network.x_error_rate = 0
     network.delay = 0.5
-    network.start(nodes)
+    network.start(nodes, backend)
     print('')
 
     with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob:

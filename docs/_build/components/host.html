@@ -94,6 +94,15 @@
 <li class="toctree-l2"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 
@@ -165,7 +174,7 @@
 <span id="host"></span><h1>Host<a class="headerlink" href="#module-components.host" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="components.host.Host">
-<em class="property">class </em><code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">cqc</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">backend</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Host object acting as either a router node or an application host node.</p>
 <dl class="method">
@@ -255,16 +264,14 @@
 
 <dl class="method">
 <dt id="components.host.Host.add_data_qubit">
-<code class="sig-name descname">add_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">blocked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_data_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em>, <em class="sig-param">qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_data_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
 otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>partner_id</strong> – The ID of the host to pair the qubit</p></li>
-<li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
-<li><p><strong>blocked</strong> – If the qubit should be stored as blocked or not</p></li>
+<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -284,8 +291,8 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>partner_id</strong> – The ID of the host to pair the qubit</p></li>
-<li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
+<li><p><strong>partner_id</strong> (<em>String</em>) – The ID of the host to pair the qubit</p></li>
+<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
 <li><p><strong>blocked</strong> – If the qubit should be stored as blocked or not</p></li>
 </ul>
@@ -324,6 +331,20 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.backend">
+<em class="property">property </em><code class="sig-name descname">backend</code><a class="headerlink" href="#components.host.Host.backend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the <em>backend</em> of the host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Backend of the host.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(Backend)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.change_epr_qubit_id">
 <code class="sig-name descname">change_epr_qubit_id</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">new_id</em>, <em class="sig-param">old_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.change_epr_qubit_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change an EPR pair ID to another. If <em>old_id</em> is set, then change that specific
@@ -356,20 +377,6 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>classical connections</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.host.Host.cqc">
-<em class="property">property </em><code class="sig-name descname">cqc</code><a class="headerlink" href="#components.host.Host.cqc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the <em>cqc</em> of the host.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The CQC of the host.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(CQCConnection)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -426,19 +433,19 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dd class="field-even"><p>Qubit received from the host with <em>partner_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Qubit</p>
+<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.host.Host.get_data_qubits">
-<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
 Does not remove the qubits from storage like <em>get_data_qubit</em> does.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host_id</strong> (<em>optional</em>) – If set,</p>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>int</em>) – The host id from which the data qubit have been received.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
@@ -471,7 +478,7 @@ EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dd class="field-even"><p>Qubit shared with the host with <em>partner_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Qubit</p>
+<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -554,20 +561,6 @@ Return an empty list otherwise.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.host.Host.memory_limit">
-<em class="property">property </em><code class="sig-name descname">memory_limit</code><a class="headerlink" href="#components.host.Host.memory_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the maximum number of qubits that can be held in each memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The maximum number of qubits that can be held in each memory.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,7 +712,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
-<li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
+<li><p><strong>q</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The qubit to teleport</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 <li><p><strong>payload</strong> – </p></li>
 <li><p><strong>generate_epr_if_none</strong> – Generate an EPR pair with receiver if one doesn’t exist</p></li>
@@ -799,6 +792,34 @@ with receiver with ID <em>receiver_id</em></p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="components.host.Host.storage_epr_limit">
+<em class="property">property </em><code class="sig-name descname">storage_epr_limit</code><a class="headerlink" href="#components.host.Host.storage_epr_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the maximum number of qubits that can be held in EPR memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The maximum number of qubits that can be held in EPR memory.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.storage_limit">
+<em class="property">property </em><code class="sig-name descname">storage_limit</code><a class="headerlink" href="#components.host.Host.storage_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the maximum number of qubits that can be held in data qubit memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The maximum number of qubits that can be held in data qubit memory.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -818,7 +839,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dd class="field-even"><p>Qubit received from the host with <em>partner_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Qubit</p>
+<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
 </dd>
 </dl>
 </dd></dl>

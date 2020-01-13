@@ -1,40 +1,49 @@
 from queue import Queue
 from components import protocols
 from components.logger import Logger
-from components.daemon_thread import DaemonThread
-from cqc.pythonLib import qubit
+from objects.daemon_thread import DaemonThread
+from objects.qubit import Qubit
+from objects.quantum_storage import QuantumStorage
+from objects.classical_storage import ClassicalStorage
+from objects.message import Message
 import uuid
 import time
+from backends.cqc_backend import CQCBackend
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    def __init__(self, host_id, cqc):
+    backend = CQCBackend()
+
+    def __init__(self, host_id, backend=None):
         """
         Return the most important thing about a person.
 
         Args:
             host_id: The ID of the host
-            cqc: The CQC for this host
+            backend: The backend to use for this host
 
         """
         self._host_id = host_id
         self._packet_queue = Queue()
         self._stop_thread = False
         self._queue_processor_thread = None
-        self._data_qubit_store = {}
-        self._EPR_store = {}
-        self._classical_messages = []
+        self._data_qubit_store = QuantumStorage()
+        self._EPR_store = QuantumStorage()
+        self._classical_messages = ClassicalStorage()
         self._classical_connections = []
         self._quantum_connections = []
-        self._cqc = cqc
+        if backend is None:
+            self._backend = Host.backend
+        else:
+            self._backend = backend
+        # add this host to the backend
+        self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
         self.logger = Logger.get_instance()
-        # Size of quantum memories (default -1, unlimited)
-        self._memory_limit = -1
         # Packet sequence numbers per connection
         self.seq_number = {}
 
@@ -47,16 +56,6 @@ class Host:
             (string): The host ID of the host.
         """
         return self._host_id
-
-    @property
-    def cqc(self):
-        """
-        Get the *cqc* of the host.
-
-        Returns:
-            (CQCConnection): The CQC of the host.
-        """
-        return self._cqc
 
     @property
     def classical_connections(self):
@@ -90,7 +89,15 @@ class Host:
         Returns:
              Array: Sorted array of classical messages.
         """
-        return sorted(self._classical_messages, key=lambda x: x['sequence_number'], reverse=True)
+        return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
+
+    @property
+    def EPR_store(self):
+        return self._EPR_store
+
+    @property
+    def data_qubit_store(self):
+        return self.data_qubit_store
 
     @property
     def delay(self):
@@ -147,28 +154,52 @@ class Host:
         self._max_ack_wait = max_ack_wait
 
     @property
-    def memory_limit(self):
+    def storage_epr_limit(self):
         """
-        Get the maximum number of qubits that can be held in each memory.
+        Get the maximum number of qubits that can be held in EPR memory.
 
         Returns:
-            (int): The maximum number of qubits that can be held in each memory.
+            (int): The maximum number of qubits that can be held in EPR memory.
         """
-        return self._memory_limit
+        return self._EPR_store.storage_limit
 
-    @memory_limit.setter
-    def memory_limit(self, memory_limit):
+    @storage_epr_limit.setter
+    def storage_epr_limit(self, storage_limit):
         """
-        Set the maximum number of qubits that can be held in each memory.
+        Set the maximum number of qubits that can be held in EPR memory.
 
         Args:
-            memory_limit (int): The maximum number of qubits that can be held in each memory
+            storage_limit (int): The maximum number of qubits that can be held in EPR memory
         """
 
-        if not isinstance(memory_limit, int):
+        if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._memory_limit = memory_limit
+        self._EPR_store.set_storage_limit(storage_limit, None)
+
+    @property
+    def storage_limit(self):
+        """
+        Get the maximum number of qubits that can be held in data qubit memory.
+
+        Returns:
+            (int): The maximum number of qubits that can be held in data qubit memory.
+        """
+        return self._data_qubit_store.storage_limit
+
+    @storage_limit.setter
+    def storage_limit(self, storage_limit):
+        """
+        Set the maximum number of qubits that can be held in data qubit memory.
+
+        Args:
+            storage_limit (int): The maximum number of qubits that can be held in data qubit memory
+        """
+
+        if not isinstance(storage_limit, int):
+            raise Exception('memory limit should be an integer')
+
+        self._data_qubit_store.set_storage_limit(storage_limit, None)
 
     @property
     def quantum_connections(self):
@@ -219,8 +250,8 @@ class Host:
         start_time = time.time()
         while time.time() - start_time < wait:
             for message in self.classical:
-                if message['sender'] == sender_id:
-                    if message['sequence_number'] == seq_num:
+                if message.sender == sender_id:
+                    if message.seq_num == seq_num:
                         tmp.append(message)
             if tmp:
                 return tmp
@@ -252,19 +283,16 @@ class Host:
         Processes the received packet.
 
         Args:
-            packet (dict): The received packet
+            packet (Packet): The received packet
         """
 
-        sender = packet['sender']
+        sender = packet.sender
         result = protocols.process(packet)
         if result is not None:
-            self._classical_messages.append({
-                'sender': sender,
-                'message': result['message'],
-                'sequence_number': result['sequence_number']
-            })
+            msg = Message(sender, result['message'], result['sequence_number'])
+            self._classical_messages.add_msg_to_storage(msg)
             if result['message'] != protocols.ACK:
-                self.logger.log(self.cqc.name + ' received ' + str(result['message']) + ' with sequence number ' + str(
+                self.logger.log(self.host_id + ' received ' + str(result['message']) + ' with sequence number ' + str(
                     result['sequence_number']))
 
     def _process_queue(self):
@@ -366,10 +394,10 @@ class Host:
                 time.sleep(0.1)
                 messages = self.classical
                 for m in messages:
-                    if str.startswith(m['message'], protocols.ACK):
-                        if m['sender'] == sender and m['sequence_number'] == sequence_number + 1:
+                    if str.startswith(m.content, protocols.ACK):
+                        if m.sender == sender and m.seq_num == sequence_number + 1:
                             Logger.get_instance().log(
-                                'ACK ' + str(m['sequence_number']) + ' from ' + sender + ' arrived at ' + self.host_id)
+                                'ACK ' + str(m.seq_num) + ' from ' + sender + ' arrived at ' + self.host_id)
                             did_ack = True
                             return
 
@@ -402,9 +430,9 @@ class Host:
         self.logger.log(self.host_id + " sends CLASSICAL to " + receiver_id + " with sequence " + str(seq_num))
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
+        if packet.await_ack:
             self._log_ack('classical', receiver_id, seq_num)
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_epr(self, receiver_id, q_id=None, await_ack=False, block=False):
         """
@@ -421,18 +449,19 @@ class Host:
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
+
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload={'q_id': q_id, 'block': block},
+                                  payload={'q_id': q_id, 'blocked': block},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
+        if packet.await_ack:
             self._log_ack('EPR', receiver_id, seq_num)
             return q_id, self.await_ack(seq_num, receiver_id)
 
@@ -459,14 +488,14 @@ class Host:
                                   sequence_num=self._get_sequence_number(receiver_id, await_ack),
                                   await_ack=await_ack)
         if payload is not None:
-            packet['payload'] = payload
+            packet.payload = payload
 
         self.logger.log(self.host_id + " sends TELEPORT to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('TELEPORT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('TELEPORT', receiver_id, packet.seq_num)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_superdense(self, receiver_id, message, await_ack=False):
         """
@@ -490,9 +519,9 @@ class Host:
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('SUPERDENSE', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('SUPERDENSE', receiver_id, packet.seq_num)
+            return self.await_ack(packet.seq_num, receiver_id)
 
     def send_qubit(self, receiver_id, q, await_ack=False):
         """
@@ -504,12 +533,13 @@ class Host:
         Returns:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
-        q_id = str(uuid.uuid4())
+        q.set_blocked_state(True)
+        q_id = q.id
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
-                                  payload=[{'q': q, 'q_id': q_id, 'blocked': True}],
+                                  payload=q,
                                   payload_type=protocols.QUANTUM,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -517,9 +547,9 @@ class Host:
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
         self._packet_queue.put(packet)
 
-        if packet[protocols.AWAIT_ACK]:
-            self._log_ack('SEND QUBIT', receiver_id, packet[protocols.SEQUENCE_NUMBER])
-            return q_id, self.await_ack(packet[protocols.SEQUENCE_NUMBER], receiver_id)
+        if packet.await_ack:
+            self._log_ack('SEND QUBIT', receiver_id, packet.seq_num)
+            return q_id, self.await_ack(packet.seq_num, receiver_id)
         return q_id
 
     def shares_epr(self, receiver_id):
@@ -533,49 +563,26 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        if receiver_id not in self._EPR_store:
-            return False
-        if len(self._EPR_store[receiver_id]['qubits']) == 0:
-            return False
-        blocked = 0
-        for q in self._EPR_store[receiver_id]['qubits']:
-            if q['blocked']:
-                blocked += 1
-        return blocked != len(self._EPR_store[receiver_id]['qubits'])
+        return self._EPR_store.check_qubit_from_host_exists(receiver_id)
+
+    def receive_epr(self, receiver_id):
+        pass
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
         Args:
-            host_id (string) : The partner ID of the EPR pair.
+            host_id (string): The partner ID of the EPR pair.
             new_id (string): The new ID to change the qubit too
-            old_id (string:  The old ID of the qubit
-        """
-        if host_id in self._EPR_store:
-            if old_id is None:
-                q = None
-                for qubit in self._EPR_store[host_id]['qubits']:
-                    if not qubit['blocked']:
-                        q = qubit
-                        q['blocked'] = True
-                        break
-                if q is None:
-                    raise Exception('No unblocked EPR pairs')
-                old_id = q['q_id']
-                q['q_id'] = new_id
-                self.logger.log(self.host_id + " changed EPR ID with " + host_id)
-                return old_id
-            else:
-                qubits = self._EPR_store[host_id]['qubits']
-                for q in qubits:
-                    if q['q_id'] == old_id:
-                        q['blocked'] = True
-                        q['q_id'] = new_id
-                        self.logger.log(self.host_id + " changed EPR ID with " + host_id)
-                        break
+            old_id (string):  The old ID of the qubit
 
-    def get_epr_pairs(self, host_id=None):
+        Returns:
+            Old if of the qubit which has been changed.
+        """
+        return self._EPR_store.change_qubit_id(host_id, new_id, old_id)
+
+    def get_epr_pairs(self, host_id):
         """
         Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_epr_pair* does.
@@ -589,33 +596,23 @@ class Host:
                   Return an empty list otherwise.
         """
         if host_id is None:
-            return self._EPR_store
+            raise ValueError("Host id has to be specified!")
+        return self._EPR_store.get_all_qubits_from_host(host_id)
 
-        if host_id in self._EPR_store:
-            return self._EPR_store[host_id]['qubits']
-
-        return []
-
-    def get_data_qubits(self, host_id=None):
+    def get_data_qubits(self, host_id):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (optional): If set,
+            host_id (int): The host id from which the data qubit have been received.
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of data qubits.
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        if host_id is None:
-            return self._data_qubit_store
-
-        if host_id in self._data_qubit_store:
-            return self._data_qubit_store[host_id]['qubits']
-
-        return []
+        return self._data_qubit_store.get_all_qubits_from_host(host_id)
 
     def set_epr_memory_limit(self, limit, partner_id=None):
         """
@@ -626,14 +623,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             partner_id (str): (optional) The partner ID to set the limit with
         """
-        if partner_id is not None:
-            if partner_id in self._EPR_store and partner_id != self.host_id:
-                self._EPR_store[partner_id]['max_limit'] = limit
-            elif partner_id != self.host_id:
-                self._EPR_store[partner_id] = {'qubits': [], 'max_limit': limit}
-        else:
-            for partner in self._EPR_store.keys():
-                self._EPR_store[partner]['max_limit'] = limit
+        self._EPR_store.set_storage_limit(limit, partner_id)
 
     def set_data_qubit_memory_limit(self, limit, partner_id=None):
         """
@@ -644,14 +634,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             partner_id (str): (optional) The partner ID to set the limit with
         """
-        if partner_id is not None:
-            if partner_id in self._data_qubit_store and partner_id != self.host_id:
-                self._data_qubit_store[partner_id]['max_limit'] = limit
-            elif partner_id != self.host_id:
-                self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': limit}
-        else:
-            for partner in self._data_qubit_store.keys():
-                self._data_qubit_store[partner]['max_limit'] = limit
+        self._data_qubit_store.set_storage_limit(limit, partner_id)
 
     def add_epr(self, partner_id, qubit, q_id=None, blocked=False):
         """
@@ -659,33 +642,20 @@ class Host:
         otherwise generates an ID for the EPR and adds the qubit with that ID.
 
         Args:
-            partner_id: The ID of the host to pair the qubit
+            partner_id (String): The ID of the host to pair the qubit
             qubit(Qubit): The data Qubit to be added.
             q_id(string): The ID of the qubit to be added.
             blocked: If the qubit should be stored as blocked or not
         Returns:
              (string) *q_id*: The qubit ID
         """
-        if partner_id not in self._EPR_store and partner_id != self.host_id:
-            self._EPR_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
+        if q_id is not None:
+            qubit.set_new_id(q_id)
+        qubit.set_blocked_state(blocked)
+        self._EPR_store.add_qubit_from_host(qubit, partner_id)
+        return qubit.id
 
-        if q_id is None:
-            q_id = str(uuid.uuid4())
-
-        to_add = {'q': qubit, 'q_id': q_id, 'blocked': blocked}
-
-        if self._EPR_store[partner_id]['max_limit'] == -1 or (len(self._EPR_store[partner_id]['qubits'])
-                                                              < self._EPR_store[partner_id]['max_limit']):
-            self._EPR_store[partner_id]['qubits'].append(to_add)
-            self.logger.log(self.host_id + ' added EPR pair ' + q_id + ' with partner ' + partner_id)
-        else:
-            # Qubit is dropped from the system
-            to_add['q'].measure()
-            self.logger.log(self.host_id + ' could NOT add EPR pair ' + q_id + ' with partner ' + partner_id)
-            return None
-        return q_id
-
-    def add_data_qubit(self, partner_id, qubit, q_id=None, blocked=False):
+    def add_data_qubit(self, partner_id, qubit):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
@@ -693,37 +663,19 @@ class Host:
         Args:
             partner_id: The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
-            q_id (string): The ID of the qubit to be added.
-            blocked: If the qubit should be stored as blocked or not
         Returns:
              (string) *q_id*: The qubit ID
         """
-
-        if partner_id not in self._data_qubit_store and partner_id != self.host_id:
-            self._data_qubit_store[partner_id] = {'qubits': [], 'max_limit': self.memory_limit}
-
-        if q_id is None:
-            q_id = str(uuid.uuid4())
-
-        to_add = {'q': qubit, 'q_id': q_id, 'blocked': blocked}
-
-        if self._data_qubit_store[partner_id]['max_limit'] == -1 or (len(self._data_qubit_store[partner_id]['qubits'])
-                                                                     < self._data_qubit_store[partner_id]['max_limit']):
-            self._data_qubit_store[partner_id]['qubits'].append(to_add)
-            self.logger.log(self.host_id + ' added data qubit ' + q_id + ' from ' + partner_id)
-        else:
-            qubit.measure()
-            self.logger.log(self.host_id + ' could NOT add data qubit ' + q_id + ' from ' + partner_id)
-            return None
-        return q_id
+        self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
+        return qubit.id
 
     def add_checksum(self, sender, qubits, size_per_qubit=2):
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
         Args:
-            sender: The sender name
+            sender (str): The sender name
             qubits: The set of qubits to encode
-            size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+            size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
         Returns:
             list: A list of qubits that are encoded for *qubits*
@@ -731,7 +683,7 @@ class Host:
         i = 0
         check_qubits = []
         while i < len(qubits):
-            check = qubit(sender)
+            check = Qubit(sender)
             j = 0
             while j < size_per_qubit:
                 qubits[i + j].cnot(check)
@@ -757,9 +709,7 @@ class Host:
 
         def process_messages():
             nonlocal cla
-            for m in self._classical_messages:
-                if m['sender'] == partner_id:
-                    cla.append(m)
+            cla = self._classical_messages.get_all_from_sender(partner_id)
 
         def _wait():
             nonlocal cla
@@ -772,11 +722,11 @@ class Host:
         if wait > 0:
             cla = []
             DaemonThread(_wait).join()
-            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
+            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
         else:
             cla = []
             process_messages()
-            return sorted(cla, key=lambda x: x['sequence_number'], reverse=True)
+            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
     def get_epr(self, partner_id, q_id=None, wait=-1):
         """
@@ -847,13 +797,8 @@ class Host:
         """
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
-            for connection in self._data_qubit_store:
-                for q in self._data_qubit_store[connection]['qubits']:
-                    q['q'].release()
-
-            for connection in self._EPR_store:
-                for q in self._EPR_store[connection]['qubits']:
-                    q['q'].release()
+            self._data_qubit_store.release_storage()
+            self._EPR_store.release_storage()
         self._stop_thread = True
 
     def start(self):
@@ -861,13 +806,6 @@ class Host:
         Starts the host.
         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
-
-    def get_classical_with_id(self, sender_id):
-        tmp_arr = []
-        for message in self.classical:
-            if message['sender'] == sender_id:
-                tmp_arr.append(message)
-        return tmp_arr
 
     def run_protocol(self, protocol, arguments=(), blocking=False):
         """
@@ -896,34 +834,4 @@ def _get_qubit(store, partner_id, q_id):
     Returns:
          Qubit: Qubit received from the host with *partner_id* and *q_id*.
     """
-
-    def get_qubit():
-        if len(store[partner_id]['qubits']) == 0:
-            return None
-        else:
-            # If no q_id is specified, then return the first unblocked qubit
-            for index, qubit in enumerate(store[partner_id]['qubits']):
-                if not qubit['blocked']:
-                    del store[partner_id]['qubits'][index]
-                    return qubit
-
-    def get_qubit_with_id():
-        for index, qubit in enumerate(store[partner_id]['qubits']):
-            if qubit['q_id'] == q_id:
-                qu = store[partner_id]['qubits'][index]
-                # TODO: make deletion optional
-                del store[partner_id]['qubits'][index]
-                return qu
-        return None
-
-    # check if there is a qubit in the data store from expected sender
-    if partner_id not in store:
-        # there are no qubits from the expected sender
-        return None
-
-    # If q_id is not specified, then return the last in the stack
-    # else return the qubit with q_id q_id
-    if q_id is None:
-        return get_qubit()
-    else:
-        return get_qubit_with_id()
+    return store.get_qubit_from_host(partner_id, q_id)
