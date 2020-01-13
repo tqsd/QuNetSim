@@ -39,7 +39,7 @@ class Host:
         else:
             self._backend = backend
         # add this host to the backend
-        backend.add_host(self)
+        self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
@@ -56,16 +56,6 @@ class Host:
             (string): The host ID of the host.
         """
         return self._host_id
-
-    @property
-    def backend(self):
-        """
-        Get the *backend* of the host.
-
-        Returns:
-            (Backend): The Backend of the host.
-        """
-        return self._backend
 
     @property
     def classical_connections(self):

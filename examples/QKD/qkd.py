@@ -1,6 +1,7 @@
 import sys
 import time
 import numpy as np
+import random
 
 sys.path.append("../..")
 from components.host import Host
@@ -10,181 +11,202 @@ from components.logger import Logger
 from objects.daemon_thread import DaemonThread
 from objects.qubit import Qubit
 
+wait_time = 10
 
-def qkd_sender(host, q_size, receiver_id):
-    bit_arr = np.random.randint(2, size=q_size)
-    base_arr = np.random.randint(2, size=q_size)  # 0 represents X basis , 1 represents Z basis
-    wait_time = 8
+# helper function. Used get the next message with a sequence number. It ignores ACK
+#                  messages and messages with other seq numbers.
+def get_next_classical_message(host, receive_from_id, buffer, sequence_nr):
+    buffer = buffer + host.get_classical(receive_from_id, wait=wait_time)
+    msg = "ACK"
+    while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
+        if len(buffer) == 0:
+            buffer = buffer + host.get_classical(receive_from_id, wait=wait_time)
+        ele = buffer.pop(0)
+        msg = ele.content
+    return msg
 
-    q_arr = []
-    for i in range(q_size):
-        q_arr.append(Qubit(host))
-        if bit_arr[i] == 1:
-            q_arr[i].X()
-        if base_arr[i] == 1:
-            q_arr[i].H()
+# !! Warning: this Crypto algorithm is really bad!
+# !! Warning: Do not use it as a real Crypto Algorithm!
 
-    for i in range(q_size):
-        host.send_qubit(receiver_id, q_arr[i], await_ack=True)
+# key has to be a string
+def encrypt(key, text):
+    encrypted_text = ""
+    for char in text:
+        encrypted_text += chr(ord(key)^ord(char))
+    return encrypted_text
 
-    messages = []
-    while len(messages) < q_size + 1:
-        messages = host.get_classical(receiver_id, wait=wait_time)
-
-    intended_message = ''
-    for m in messages:
-        if m['sequence_number'] == q_size and m['message'] != 'ACK':
-            intended_message = m['message']
-            break
-
-    if intended_message == '':
-        print('sender failed')
-        return
-
-    message_edited = np.fromstring(intended_message[1:-1], dtype=np.int, sep=' ')
-    check = []
-
-    for i in range(q_size):
-        # 1 means they have chosen the correct base and 0 otherwise.
-        if base_arr[i] == message_edited[i]:
-            check.append(i)
-
-    check = np.asarray(check)
-
-    host.send_classical(receiver_id, str(check), True)
-    messages = host.get_classical(receiver_id, wait=wait_time)
-    while len(messages) < q_size + 3:
-        messages = host.get_classical(receiver_id, wait=wait_time)
-    intended_message = ''
-    for m in messages:
-        if m['sequence_number'] == q_size + 2 and m['message'] != 'ACK' :
-            intended_message = m['message']
-            break
-
-    if intended_message == '':
-        print('sender failed')
-        return
-
-    message_edited = np.fromstring(intended_message[1:-1], dtype=np.int, sep=' ')
-    confirmation = True
-    for i in range(q_size):
-        if message_edited[i] == 0 or message_edited[i] == 1:
-            if message_edited[i] != bit_arr[i]:
-                confirmation = False
-
-    shared_key = []
-    if confirmation:
-        for i in range(len(check)):
-            shared_key.append(bit_arr[(check[i])])
-
-    Logger.get_instance().log("Sender's key: " + str(shared_key))
-    host.send_classical(receiver_id, str(confirmation))
+def decrypt(key, encrypted_text):
+    return encrypt(key, encrypted_text)
 
 
-def qkd_receiver(host, q_size, sender_id):
-    bit_arr = []
-    base_arr = np.random.randint(2, size=q_size)
-    wait_time = 8
+def Alice_qkd(alice, msg_buff, secret_key, hosts):
+    sequence_nr = 0
+    # iterate over all bits in the secret key.
+    for bit in secret_key:
+        ack = False
+        while not ack:
+            print("Alice sequence nr is %d." % sequence_nr)
+            # get a random base. 0 for Z base and 1 for X base.
+            base = random.randint(0, 1)
 
-    for i in range(q_size):
-        q = host.get_data_qubit(sender_id, wait=wait_time)
-        if base_arr[i] == 1:
-            q.H()
-        bit_arr.append(q.measure())
+            # create qubit
+            q_bit = Qubit(alice)
 
-    bit_arr = np.asarray(bit_arr[::-1])
-    while host.get_sequence_number(sender_id) != q_size:
-        pass
-    host.send_classical(sender_id, str(base_arr), True)
+            # Set qubit to the bit from the secret key.
+            if bit == 1:
+                q_bit.X()
 
-    messages = host.get_classical(sender_id, wait=wait_time)
-    while len(messages) < 2:
-        messages = host.get_classical(sender_id, wait=wait_time)
+            # Apply basis change to the bit if necessary.
+            if base == 1:
+                q_bit.H()
 
-    message_2 = host.get_classical(sender_id, wait=wait_time)
-    for m in message_2:
-        if m.content != 'ACK':
-            message_2_edited = m.content
-            break
-    message_2_edited = np.fromstring(message_2_edited[1:-1], dtype=np.int, sep=' ')
+            # Send Qubit to Bob
+            alice.send_qubit(hosts['Eve'].host_id, q_bit, await_ack=True)
 
-    reveal_arr_pos = np.random.randint(2, size=len(message_2_edited))
-    reveal_bit = []
-    bit_arr = bit_arr[::-1]
-    count = 0
-    for i in range(q_size):
-        if count < len(message_2_edited) and i == message_2_edited[count]:
-            if reveal_arr_pos[count] == 1:
-                reveal_bit.append(bit_arr[i])
-                count = count + 1
+            # Get measured basis of Bob
+            message = get_next_classical_message(alice, hosts['Eve'].host_id, msg_buff, sequence_nr)
+
+            # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
+            # otherwise, send 1 and repeat.
+            if message == ("%d:%d") % (sequence_nr, base):
+                ack = True
+                alice.send_classical(hosts['Eve'].host_id, ("%d:0" % sequence_nr), await_ack=True)
             else:
-                reveal_bit.append(2)
-                count = count + 1
-        else:
-            reveal_bit.append(2)
+                ack = False
+                alice.send_classical(hosts['Eve'].host_id, ("%d:1" % sequence_nr), await_ack=True)
 
-    reveal_bit = np.asarray(reveal_bit)
-    host.send_classical(sender_id, str(reveal_bit), True)
+            sequence_nr += 1
 
-    messages = host.get_classical(sender_id, wait=wait_time)
-    while len(messages) < 4:
-        messages = host.get_classical(sender_id, wait=wait_time)
+def Eve_qkd(bob, msg_buff, key_size, hosts):
+    eve_key = None
 
-    message = messages[0].content
-    if message == '':
-        print('receiver failed')
-        return
+    sequence_nr = 0
+    received_counter = 0
+    key_array = []
 
-    shared_key = []
-    if message == 'True':
-        for i in range(len(message_2_edited)):
-            shared_key.append(bit_arr[(message_2_edited[i])])
+    while received_counter < key_size:
+        print("received counter is %d." % received_counter)
+        print("Eve sequence nr is %d." % sequence_nr)
 
-    Logger.get_instance().log("Receiver's key: " + str(shared_key))
+        # decide for a measurement base
+        measurement_base = random.randint(0, 1)
 
+        # wait for the qubit
+        q_bit = bob.get_data_qubit(hosts['Alice'].host_id, wait=wait_time)
+        while q_bit is None:
+            q_bit = bob.get_data_qubit(hosts['Alice'].host_id, wait=wait_time)
+
+        # measure qubit in right measurement basis
+        if measurement_base == 1:
+            q_bit.H()
+        bit = q_bit.measure()
+
+        # Send Alice the base in which Bob has measured
+        bob.send_classical(hosts['Alice'].host_id, "%d:%d" % (sequence_nr, measurement_base) ,await_ack=True)
+
+        # get the return message from Alice, to know if the bases have matched
+        msg = get_next_classical_message(bob, hosts['Alice'].host_id, msg_buff, sequence_nr)
+
+        # Check if the bases have matched
+        if msg == ("%d:0" % sequence_nr):
+            received_counter += 1
+            key_array.append(bit)
+        sequence_nr += 1
+
+    eve_key = key_array
+
+    return eve_key
+
+# helper function, used to make your key to a string
+def key_array_to_key_string(key_array):
+    key_string_binary = ''.join([str(x) for x in key_array])
+    return ''.join(chr(int(''.join(x), 2)) for x in zip(*[iter(key_string_binary)]*8))
+
+def Alice_send_message(alice, msg_buff, secret_key, hosts):
+    msg_to_eve = "Hi Eve, I am your biggest fangirl! Unfortunately you only exist as a computer protocol :("
+
+
+    secret_key_string = key_array_to_key_string(secret_key)
+    encrypted_msg_to_eve = encrypt(secret_key_string, msg_to_eve)
+    alice.send_classical(hosts['Eve'].host_id, "-1:" + encrypted_msg_to_eve, await_ack=True)
+
+def Eve_receive_message(eve, msg_buff, eve_key, hosts):
+    decrypted_msg_from_alice = None
+
+
+    encrypted_msg_from_alice = get_next_classical_message(eve, hosts['Alice'].host_id, msg_buff, -1)
+    encrypted_msg_from_alice = encrypted_msg_from_alice.split(':')[1]
+    secret_key_string = key_array_to_key_string(eve_key)
+    decrypted_msg_from_alice = decrypt(secret_key_string, encrypted_msg_from_alice)
+
+    print("Eve: Alice told me %s I am so happy!" % decrypted_msg_from_alice)
 
 def main():
+    # Initialize a network
     network = Network.get_instance()
-    backend = CQCBackend()
-    nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
-    print('')
+
+    # Define the host IDs in the network
+    nodes = ['Alice', 'Bob', 'Eve']
+
+    network.delay = 0.0
+
+    # Start the network with the defined hosts
+    network.start(nodes)
+
+    # Initialize the host Alice
+    host_alice = Host('Alice')
+
+    # Add a one-way connection (classical and quantum) to Bob
+    host_alice.add_connection('Bob')
+
+    # Start listening
+    host_alice.start()
+
+    host_bob = Host('Bob')
+    # Bob adds his own one-way connection to Alice and Eve
+    host_bob.add_connection('Alice')
+    host_bob.add_connection('Eve')
+    host_bob.start()
+
+    host_eve = Host('Eve')
+    host_eve.add_connection('Bob')
+    host_eve.start()
+
+    # Add the hosts to the network
+    # The network is: Alice <--> Bob <--> Eve
+    network.add_host(host_alice)
+    network.add_host(host_bob)
+    network.add_host(host_eve)
+
+    # Generate random key
+    key_size = 8 # the size of the key in bit
+    secret_key = np.random.randint(2, size=key_size)
+
+    hosts = {'Alice': host_alice,
+             'Bob': host_bob,
+             'Eve': host_eve}
+
+    # Concatentate functions
+    def Alice_func(alice=host_alice):
+        msg_buff = []
+        Alice_qkd(alice, msg_buff, secret_key, hosts)
+        Alice_send_message(alice, msg_buff, secret_key, hosts)
+
+    def Eve_func(eve=host_eve):
+        msg_buff = []
+        eve_key = Eve_qkd(eve, msg_buff, key_size, hosts)
+        Eve_receive_message(eve, msg_buff, eve_key, hosts)
 
 
-    A = Host('Alice', backend)
-    A.add_q_connection('Eve')
-    A.add_c_connection('Dean')
-    A.start()
+    # Run Bob and Alice
+    thread_alice = DaemonThread(Alice_func)
+    thread_eve = DaemonThread(Eve_func)
 
-    node_1 = Host('Eve', backend)
-    node_1.add_q_connection('Bob')
-    node_1.start()
 
-    node_2 = Host('Dean', backend)
-    node_2.add_c_connection('Alice')
-    node_2.add_c_connection('Bob')
-    node_2.start()
+    thread_alice.join()
+    thread_eve.join()
 
-    B = Host('Bob', backend)
-    B.add_c_connection('Dean')
-    B.start()
-
-    network.add_host(A)
-    network.add_host(node_1)
-    network.add_host(node_2)
-    network.add_host(B)
-
-    q_size = 8
-
-    DaemonThread(qkd_sender, args=(A, q_size, B.host_id))
-    DaemonThread(qkd_receiver, args=(B, q_size, A.host_id))
-
-    nodes = [A, node_1, node_2, B]
-    start_time = time.time()
-    while time.time() - start_time < 50:
-        pass
-
-    for h in nodes:
+    for h in hosts.values():
         h.stop()
     network.stop()
 
