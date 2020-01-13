@@ -1,5 +1,5 @@
-Design
-=======
+Design Overview
+===============
 
 .. toctree::
    :maxdepth: 2

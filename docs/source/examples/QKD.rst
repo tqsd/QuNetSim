@@ -1,5 +1,5 @@
 Quantum Key Distribution
---------
+------------------------
 
 In this example, we'll see how the Quantum Key Distribution algorithm can be
 implemented using QuNetSim. First, we create a network of three different parties:
@@ -48,10 +48,10 @@ can talk to Eve.
 Alice now wants to communicate securely to Eve, without Bob beeing able to read
 their communication. To do so, Alice and Eve first want to share a secret key.
 Once they have the key, they can use a pre shared key protocol, such as AES
-(see `here <https://en.wikipedia.org/wiki/Advanced_Encryption_Standard>`_)
+(see `here <https://en.wikipedia.org/wiki/Advanced_Encryption_Standard>`__)
 to communicate securely with each other. However, sharing the key is not trivial.
 The QKD algorithm solves this problem. If you are not familiar with it yet,
-see `here <https://en.wikipedia.org/wiki/BB84>`_.
+see `here <https://en.wikipedia.org/wiki/BB84>`__.
 
 First, Alice has to create a random key which she can then share with Eve.
 
@@ -60,10 +60,9 @@ First, Alice has to create a random key which she can then share with Eve.
     key_size = 128 # the size of the key in bit
     secret_key = np.random.randint(2, size=key_size)
 
-
 We now implement the protocols used by Alice and Eve.
 Alice randomly decides in which basis she sends her bits. She either chooses
-the |0> |1> basis or the |+> |-> basis. Eve also chooses a random basis in which
+the \|0\> \|1\> basis or the \|+\> \|-\> basis. Eve also chooses a random basis in which
 she measures the qubit. She then sends a classical message to Alice, in which basis
 she has measured her qubit. Alice then checks if the basis have matched and sends the result
 to Eve. If they have matched, she continues with the next bit. Otherwise, she repeats

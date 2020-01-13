@@ -1,8 +1,6 @@
 QuNetSim: A quantum network simulation framework
 ================================================
 
-QuNetSim is a
-
 .. toctree::
    :caption: Contents
    :titlesonly:
@@ -12,7 +10,6 @@ QuNetSim is a
    install
    design
    examples
-
 
 Indices and tables
 ==================
