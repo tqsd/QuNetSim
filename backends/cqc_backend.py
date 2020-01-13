@@ -93,9 +93,6 @@ class CQCBackend(object):
         cqc_host_a = self.cqc_connections[host_a_id]
         cqc_host_b = self.cqc_connections[host_b_id]
         q = cqc_host_a.createEPR(cqc_host_b.name)
-
-        print(q)
-
         return Qubit(self.hosts[host_a_id], qubit=q, q_id=q_id, blocked=block)
 
     def receive_epr(self, host_id, q_id=None, block=False):

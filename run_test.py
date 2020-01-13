@@ -2,7 +2,8 @@ import glob
 import os
 import subprocess
 
-ignore = [f for f in glob.glob("./tests/integration_test_multi_hop/*.py")]
+ignore = []
+# ignore += [f for f in glob.glob("./tests/integration_test_multi_hop/*.py")]
 
 class cd:
     """Context manager for changing the current working directory"""

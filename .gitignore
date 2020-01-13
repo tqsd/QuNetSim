@@ -10,3 +10,4 @@ objects/__pycache__/
 .project
 .cproject
 backends/__pycache__/
+components/__init__.pyc
