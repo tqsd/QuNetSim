@@ -7,6 +7,7 @@ from components.network import Network
 from components.logger import Logger
 from objects.daemon_thread import DaemonThread
 from objects.qubit import Qubit
+import time
 
 wait_time = 10
 
@@ -55,11 +56,11 @@ def main():
              'Eve': host_eve}
 
     # Run Alice and Eve
-    thread_alice = DaemonThread(host_alice.send_key, args=(host_eve, key_size))
-    thread_eve = DaemonThread(host_eve.receive_key, args=(host_alice, key_size))
+    host_alice.send_key(host_eve, key_size)
 
-    thread_alice.join()
-    thread_eve.join()
+    start_time = time.time()
+    while time.time() - start_time < 60:
+        pass
 
     print('SENDER KEYS')
     print(host_alice.qkd_keys)

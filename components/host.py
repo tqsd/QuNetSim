@@ -836,86 +836,24 @@ class Host:
             msg = ele.content
         return msg
 
-    def send_key(self, receiver_host, key_size):
-        secret_key = np.random.randint(2, size=key_size)
-        msg_buff = []
-        self.qkd_keys[receiver_host.host_id] = secret_key.tolist()
-        sequence_nr = 0
-        # iterate over all bits in the secret key.
-        for bit in secret_key:
-            ack = False
-            while not ack:
-                print(self.host_id + " sequence nr is %d." % sequence_nr)
-                # get a random base. 0 for Z base and 1 for X base.
-                base = random.randint(0, 1)
 
-                # create qubit
-                q_bit = Qubit(self)
-                # Set qubit to the bit from the secret key.
-                if bit == 1:
-                    q_bit.X()
 
-                # Apply basis change to the bit if necessary.
-                if base == 1:
-                    q_bit.H()
+    def send_key(self, receiver_host, key_size, await_ack=True):
 
-                # Send Qubit to Receiver
-                self.send_qubit(receiver_host.host_id, q_bit, await_ack=True)
-                # Get measured basis of Receiver
-                message = self.get_next_classical_message(receiver_host.host_id, msg_buff, sequence_nr)
+        seq_num = self._get_sequence_number(receiver_host.host_id, await_ack)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_host.host_id,
+                                  protocol=protocols.SEND_KEY,
+                                  payload={'keysize': key_size},
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=seq_num,
+                                  await_ack=await_ack)
+        self.logger.log(self.host_id + " sends KEY to " + receiver_host.host_id)
+        self._packet_queue.put(packet)
 
-                # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
-                # otherwise, send 1 and repeat.
-                if message == ("%d:%d") % (sequence_nr, base):
-                    ack = True
-                    self.send_classical(receiver_host.host_id, ("%d:0" % sequence_nr), await_ack=True)
-                else:
-                    ack = False
-                    self.send_classical(receiver_host.host_id, ("%d:1" % sequence_nr), await_ack=True)
-
-                sequence_nr += 1
-
-    def receive_key(self, sender_host, key_size):
-        msg_buff = []
-        key = None
-
-        sequence_nr = 0
-        received_counter = 0
-        key_array = []
-
-        while received_counter < key_size:
-            print("received counter is %d." % received_counter)
-            print(self.host_id + " sequence nr is %d." % sequence_nr)
-
-            # decide for a measurement base
-            measurement_base = random.randint(0, 1)
-
-            # wait for the qubit
-            q_bit = self.get_data_qubit(sender_host.host_id, wait=wait_time)
-            while q_bit is None:
-                q_bit = self.get_data_qubit(sender_host.host_id, wait=wait_time)
-
-            # measure qubit in right measurement basis
-            if measurement_base == 1:
-                q_bit.H()
-            bit = q_bit.measure()
-
-            # Send sender the base in which receiver has measured
-            self.send_classical(sender_host.host_id, "%d:%d" % (sequence_nr, measurement_base), await_ack=True)
-
-            # get the return message from sender, to know if the bases have matched
-            msg = self.get_next_classical_message(sender_host.host_id, msg_buff, sequence_nr)
-
-            # Check if the bases have matched
-            if msg == ("%d:0" % sequence_nr):
-                received_counter += 1
-                key_array.append(bit)
-            sequence_nr += 1
-
-        key = key_array
-        self.qkd_keys[sender_host.host_id] = key
-
-        return key
+        # if packet.await_ack:
+        #     self._log_ack('EPR', receiver_host.host_id, seq_num)
+        #     return q_id, self.await_ack(seq_num, receiver_id)
 
 
 def _get_qubit(store, partner_id, q_id):
