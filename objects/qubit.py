@@ -51,12 +51,30 @@ class Qubit(object):
 
     @property
     def qubit(self):
+        """
+        Return the physical qubit.
+
+        Returns:
+            (backend.qubit) qubit: Return the physical qubit.
+        """
         return self._qubit
 
     def set_new_qubit(self, qubit):
+        """
+        Set the physical qubit.
+
+        Args:
+            qubit: the physical qubit.
+        """
         self._qubit = qubit
 
     def set_new_host(self, host):
+        """
+        Set the host of this qubit.
+
+        Args:
+            host (str): The host ID for the qubit.
+        """
         self._host = host
 
     def set_new_id(self, new_id):

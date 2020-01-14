@@ -10,10 +10,3 @@ QuNetSim: A quantum network simulation framework
    install
    design
    examples
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

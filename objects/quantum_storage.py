@@ -76,7 +76,7 @@ class QuantumStorage(object):
 
         Returns:
             True if no storage limit has been reached, False if a memory
-            limit has occured.
+            limit has occurred.
         """
         if self._storage_mode == STORAGE_LIMIT_ALL:
             if self._storage_limit == -1:

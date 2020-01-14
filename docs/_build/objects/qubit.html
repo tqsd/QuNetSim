@@ -92,7 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../install/windows.html">Windows</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
@@ -160,7 +160,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../design.html">Design</a> &raquo;</li>
+          <li><a href="../design.html">Design Overview</a> &raquo;</li>
         
           <li><a href="../objects.html">Network Objects</a> &raquo;</li>
         
@@ -297,6 +297,20 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.qubit.Qubit.qubit">
+<em class="property">property </em><code class="sig-name descname">qubit</code><a class="headerlink" href="#objects.qubit.Qubit.qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the physical qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return the physical qubit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(backend.qubit) qubit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.qubit.Qubit.release">
 <code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Releases a qubit from the system.</p>
@@ -358,12 +372,34 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.qubit.Qubit.set_new_host">
+<code class="sig-name descname">set_new_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the host of this qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> (<em>str</em>) – The host ID for the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.qubit.Qubit.set_new_id">
 <code class="sig-name descname">set_new_id</code><span class="sig-paren">(</span><em class="sig-param">new_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give the qubit a new id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>new_id</strong> (<em>str</em>) – new id of the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.set_new_qubit">
+<code class="sig-name descname">set_new_qubit</code><span class="sig-paren">(</span><em class="sig-param">qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the physical qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>qubit</strong> – the physical qubit.</p>
 </dd>
 </dl>
 </dd></dl>
