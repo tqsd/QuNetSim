@@ -74,6 +74,10 @@ class RoutingPacket(object):
         """
         return self._sender
 
+    @sender.setter
+    def sender(self, sender):
+        self._sender = sender
+
     @property
     def receiver(self):
         """
@@ -83,6 +87,10 @@ class RoutingPacket(object):
             receiver (str): The receiver ID of the packet.
         """
         return self._receiver
+
+    @receiver.setter
+    def receiver(self, receiver):
+        self._receiver = receiver
 
     @property
     def payload(self):
@@ -94,6 +102,10 @@ class RoutingPacket(object):
         """
         return self._payload
 
+    @payload.setter
+    def payload(self, payload):
+        self._payload = payload
+
     @property
     def payload_type(self):
         """
@@ -104,6 +116,10 @@ class RoutingPacket(object):
         """
         return self._payload_type
 
+    @payload_type.setter
+    def payload_type(self, payload_type):
+        self._payload_type = payload_type
+
     @property
     def protocol(self):
         """
@@ -113,6 +129,10 @@ class RoutingPacket(object):
             protocol (str): The protocol for the packet.
         """
         return self._protocol
+
+    @protocol.setter
+    def protocol(self, protocol):
+        self._protocol = protocol
 
     def decrease_ttl(self):
         """

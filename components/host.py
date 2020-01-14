@@ -6,16 +6,17 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
-from backends.cqc_backend import CQCBackend
 import uuid
 import time
+from backends.cqc_backend import CQCBackend
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    # TODO: make backend a static variable
-    def __init__(self, host_id, backend=CQCBackend()):
+    backend = CQCBackend()
+
+    def __init__(self, host_id, backend=None):
         """
         Return the most important thing about a person.
 
@@ -33,9 +34,12 @@ class Host:
         self._classical_messages = ClassicalStorage()
         self._classical_connections = []
         self._quantum_connections = []
-        self._backend = backend
+        if backend is None:
+            self._backend = Host.backend
+        else:
+            self._backend = backend
         # add this host to the backend
-        backend.add_host(self)
+        self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
@@ -52,16 +56,6 @@ class Host:
             (string): The host ID of the host.
         """
         return self._host_id
-
-    @property
-    def backend(self):
-        """
-        Get the *backend* of the host.
-
-        Returns:
-            (Backend): The Backend of the host.
-        """
-        return self._backend
 
     @property
     def classical_connections(self):
@@ -96,6 +90,14 @@ class Host:
              Array: Sorted array of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
+
+    @property
+    def EPR_store(self):
+        return self._EPR_store
+
+    @property
+    def data_qubit_store(self):
+        return self.data_qubit_store
 
     @property
     def delay(self):
@@ -281,7 +283,7 @@ class Host:
         Processes the received packet.
 
         Args:
-            packet (dict): The received packet
+            packet (Packet): The received packet
         """
 
         sender = packet.sender
@@ -447,13 +449,12 @@ class Host:
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
-        q, epr_func = self._backend.create_EPR_states(self.host_id, receiver_id, id=q_id, block=block)
-        self.add_epr(receiver_id, q)
+
         seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
-                                  payload=epr_func,
+                                  payload={'q_id': q_id, 'blocked': block},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
@@ -564,12 +565,15 @@ class Host:
         """
         return self._EPR_store.check_qubit_from_host_exists(receiver_id)
 
+    def receive_epr(self, receiver_id):
+        pass
+
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
         Args:
-            host_id (string) : The partner ID of the EPR pair.
+            host_id (string): The partner ID of the EPR pair.
             new_id (string): The new ID to change the qubit too
             old_id (string):  The old ID of the qubit
 
@@ -578,7 +582,7 @@ class Host:
         """
         return self._EPR_store.change_qubit_id(host_id, new_id, old_id)
 
-    def get_epr_pairs(self, host_id=None):
+    def get_epr_pairs(self, host_id):
         """
         Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_epr_pair* does.
@@ -669,9 +673,9 @@ class Host:
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
         Args:
-            sender: The sender name
+            sender (str): The sender name
             qubits: The set of qubits to encode
-            size: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+            size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
         Returns:
             list: A list of qubits that are encoded for *qubits*

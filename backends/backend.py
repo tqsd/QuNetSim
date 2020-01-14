@@ -59,14 +59,14 @@ def Backend(object):
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
-    def create_EPR_states(self, host_a_id, host_b_id, id=None, block=False):
+    def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
         Creates an EPR pair for two qubits and returns them.
 
         Args:
             host_a_id (String): ID of the first host who gets the EPR state.
             host_b_id (String): ID of the second host who gets the EPR state.
-            id (String): Optional id which both qubits should have.
+            q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
             Tuple of a qubit and a function. The qubit belongs to host a,

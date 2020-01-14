@@ -1,4 +1,3 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
@@ -10,12 +9,13 @@ from components.network import Network
 
 def main():
     network = Network.get_instance()
+    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     backend = CQCBackend()
     network.start(nodes, backend)
-    network.delay = 0.7
+    network.delay = 0.1
 
-    print('')
+    # print('')
 
     host_alice = Host('Alice', backend)
     host_alice.add_connection('Bob')
@@ -40,8 +40,7 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_dean)
 
-    q_id1 = host_alice.send_epr('Dean')
-    time.sleep(15)
+    q_id1, _ = host_alice.send_epr('Dean', await_ack=True)
 
     q1 = host_alice.get_epr('Dean', q_id1)
     q2 = host_dean.get_epr('Alice', q_id1)
@@ -50,15 +49,14 @@ def main():
         m1 = q1.measure()
         m2 = q2.measure()
 
-        print("Results of the measurements for q_id1 are ")
+        print("Results of the measurements for q_id_1 are ")
         print(m1)
         print(m2)
     else:
-        print('failed')
-
-    start_time = time.time()
-    while time.time() - start_time < 20:
-        pass
+        if q1 is None:
+            print('q1 is none')
+        if q2 is None:
+            print('q2 is none')
 
     network.stop(True)
     exit()

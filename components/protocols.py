@@ -261,6 +261,7 @@ def _rec_teleport(packet):
     q = host_receiver.get_epr(packet.sender, q_id, wait=10)
     if q is None:
         # TODO: what to do when fails
+        raise Exception
         return
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -312,9 +313,10 @@ def _rec_epr(packet):
     sender = packet.sender
     host_receiver = network.get_host(receiver)
 
-    q = payload[0]()
+    q = host_receiver.backend.receive_epr(host_receiver.host_id,
+                                          q_id=payload['q_id'],
+                                          block=payload['blocked'])
     host_receiver.add_epr(sender, q)
-
     if packet.await_ack:
         _send_ack(sender, receiver, packet.seq_num)
 

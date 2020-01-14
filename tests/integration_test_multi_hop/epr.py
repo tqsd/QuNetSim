@@ -1,9 +1,7 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
 sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
@@ -11,13 +9,12 @@ from objects.qubit import Qubit
 MAX_WAIT = 20
 
 def main():
-    backend = CQCBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
-    hosts = {'alice': Host('Alice', backend),
-             'bob': Host('Bob', backend),
-             'eve': Host('Eve', backend)}
+    network.start(nodes)
+    hosts = {'alice': Host('Alice'),
+             'bob': Host('Bob'),
+             'eve': Host('Eve')}
 
     network.delay = 0
 
@@ -36,7 +33,7 @@ def main():
     for h in hosts.values():
         network.add_host(h)
 
-    q_id = hosts['alice'].send_epr(hosts['eve'].host_id)
+    q_id, _ = hosts['alice'].send_epr(hosts['eve'].host_id, await_ack=True)
 
     i = 0
     q1 = None
@@ -46,7 +43,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q1 != None
+    assert q1 is not None
 
     i = 0
     while i < MAX_WAIT and q2 is None:
@@ -54,7 +51,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q2 != None
+    assert q2 is not None
     assert q1.measure() == q2.measure()
     print("All tests succesfull!")
     network.stop(True)

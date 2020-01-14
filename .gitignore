@@ -3,6 +3,9 @@ protocol/__pycache__/__init__.cpython-37.pyc
 protocol/__pycache__/protocols.cpython-37.pyc
 components/__pycache__/
 tests/__pycache__/*
+backends/__pycache__/*
+objects/__pycache__/*
+
 venv/
 
 venv2/
@@ -10,3 +13,4 @@ objects/__pycache__/
 .project
 .cproject
 backends/__pycache__/
+components/__init__.pyc

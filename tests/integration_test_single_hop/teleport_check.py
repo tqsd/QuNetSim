@@ -14,7 +14,7 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
-    network.delay = 0.7
+    network.delay = 0.0
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 
@@ -41,7 +41,7 @@ def main():
         i += 1
         time.sleep(1)
 
-    assert q2 != None
+    assert q2 is not None
     assert q2.measure() == 1
     print("All tests succesfull!")
     network.stop(True)
