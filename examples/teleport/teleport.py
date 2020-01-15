@@ -29,12 +29,12 @@ def main():
     q = Qubit(host_alice)
     q.X()
 
-    print('did this 1')
+    print('Qubit Teleported')
     host_alice.send_teleport('Eve', q, await_ack=True)
-    print('did this 2')
+    print('ACK Arrived')
 
+    # This sleep should not be necessary when await_ack=True
     time.sleep(2)
-    print('did this 3')
     print(host_eve.data_qubit_store)
 
     # q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
