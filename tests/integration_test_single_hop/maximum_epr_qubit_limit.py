@@ -15,7 +15,6 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
-    network.delay = 0.7
 
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
@@ -25,8 +24,8 @@ def main():
     hosts['alice'].add_connection('Bob')
     hosts['bob'].add_connection('Alice')
 
-    hosts['alice'].memory_limit = 1
-    hosts['bob'].memory_limit = 1
+    hosts['alice'].storage_epr_limit = 1
+    hosts['bob'].storage_epr_limit = 1
 
     hosts['alice'].start()
     hosts['bob'].start()

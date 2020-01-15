@@ -1,4 +1,5 @@
 import sys
+import time
 
 sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
@@ -34,27 +35,38 @@ def test_epr_generation(backend_generator):
 
     # Test multiple times to eliminate probabilistic effects
     for _ in range(10):
-        q1, func = backend.create_EPR(alice.host_id, bob.host_id)
-        q2 = func[0]()
+        q1 = backend.create_EPR(alice.host_id, bob.host_id)
+        q2 = backend.receive_epr(bob.host_id, q_id=q1.id)
         assert q1.id == q2.id
-        assert q1.id == func[1]
         assert backend.measure(q1) == backend.measure(q2)
 
     network.stop(True)
+    print("Test was successful")
 
 def test_qubit_with_backend(backend_generator):
     print("Starting backend qubit test...")
-    backend = backend_generator()
-
+    # # TODO: Write test
     print("Test was successfull!")
 
-
-
+def test_multiple_backends(backend_generator):
+    print("Starting multiple backends test...")
+    backend1 = backend_generator()
+    backend2 = backend_generator()
+    assert backend1._cqc_connections == backend2._cqc_connections
+    network = Network.get_instance()
+    network.start(["Alice", "Bob"], backend1)
+    alice = Host('Alice', backend2)
+    bob = Host('Bob', backend1)
+    assert str(backend1._cqc_connections) == str(backend2._cqc_connections)
+    assert str(backend1._hosts) == str(backend2._hosts)
+    network.stop(True)
+    print("Test was successfull!")
 
 if __name__ == "__main__":
     for backend, name in all_backends:
         print("Starting tests for the %s backend..." % name)
-        test_adding_hosts_to_backend(backend)
         test_epr_generation(backend)
+        test_adding_hosts_to_backend(backend)
+        test_multiple_backends(backend)
         test_qubit_with_backend(backend)
         print("All tests were succefull!")
