@@ -111,6 +111,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/template.html">New Example Template</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -206,6 +207,12 @@ limit has occurred.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.quantum_storage.QuantumStorage._check_qubit_in_system">
+<code class="sig-name descname">_check_qubit_in_system</code><span class="sig-paren">(</span><em class="sig-param">qubit</em>, <em class="sig-param">from_host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage._check_qubit_in_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if qubit with same parameters already in the systems</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.quantum_storage.QuantumStorage._decrease_qubit_counter">
 <code class="sig-name descname">_decrease_qubit_counter</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage._decrease_qubit_counter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the qubit counter can be decreased
@@ -263,7 +270,7 @@ qubit which is from a host is changed to the new id.</p>
 <dd><p>Check if a qubit from a host exists in this quantum storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>from_host_id</strong> (<em>int</em>) – The host id of the host from which the qubit is from.</p>
+<dd class="field-odd"><p><strong>from_host_id</strong> (<em>str</em>) – The host id of the host from which the qubit is from.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True, if such a qubit is in the storage, false if not.</p>
@@ -275,12 +282,12 @@ qubit which is from a host is changed to the new id.</p>
 <dt id="objects.quantum_storage.QuantumStorage.get_all_qubits_from_host">
 <code class="sig-name descname">get_all_qubits_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage.get_all_qubits_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all Qubits from a specific host id.
-These qubits are note removed from the storage!</p>
+These qubits are not removed from storage!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="objects.quantum_storage.QuantumStorage.get_qubit_from_host">
-<code class="sig-name descname">get_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage.get_qubit_from_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.quantum_storage.QuantumStorage.get_qubit_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns next qubit which has been received from a host. If id is
 given, the exact qubit with the id is returned, or None if it does not exist.
 The qubit is removed from the quantum storage.</p>
@@ -288,7 +295,7 @@ The qubit is removed from the quantum storage.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>from_host_id</strong> (<em>String</em>) – Host id from who the qubit has been received.</p></li>
-<li><p><strong>id</strong> (<em>String</em>) – Optional Id, to return the exact qubit with the Id.</p></li>
+<li><p><strong>q_id</strong> (<em>String</em>) – Optional Id, to return the exact qubit with the Id.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
