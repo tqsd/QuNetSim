@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Quantum Network Simulation Framework  documentation</title>
+  <title>Introduction &mdash; QuNetSim  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Install" href="install.html" />
-    <link rel="prev" title="QuNetSim Documentation" href="index.html" /> 
+    <link rel="prev" title="QuNetSim: A quantum network simulation framework" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Quantum Network Simulation Framework
+            <a href="index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -87,23 +87,34 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="components/host.html">Host</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components/network.html">Network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install/linux_mac.html">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/windows.html">Windows</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="objects.html">Network Objects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/message.html">Message</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/packet.html">Packet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -118,7 +129,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Quantum Network Simulation Framework</a>
+          <a href="index.html">QuNetSim</a>
         
       </nav>
 
@@ -170,16 +181,30 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>The goal of QuNetSim, as the name suggests, is to simulate a quantum-enabled network.
-To this end, we aim to allow for the writing and testing of robust protocols for multi-hop quantum information
-transmission with various network parameters, such as packet and qubit loss and random qubit errors.
-We allow a developer to develop protocols for network topologies where the types of connections between
-the nodes are classical, quantum, or both classically and quantumly
-and we provide built in quantum network protocols for commonly used
-tasks like teleportation and entanglement distribution.
-QuNetSim aims to contain most of the typical features one would assume
-of a quantum network such that those who are new to the field of
-quantum communication can more easily experiment with quantum protocols.</p>
+<p>QuNetSim (Quantum Network Simulator) is a Python based simulation framework for quantum networks. The intended use is
+that one can develop and test applications and protocols designed for networks <em>on the network and application layer</em> that have the ability to transmit
+and store quantum information. QuNetSim offers a framework for developing such protocols over multi-hop quantum networks
+that require potentially complicated routes.</p>
+<p>One of QuNetSim’s core features is that it comes with common networking tasks already developed. Some examples of such tasks
+are teleporting qubits, distributing entanglement, sending superdense coded messages, and generating secret keys with quantum
+key distribution. The full list of applications built into QuNetSim can be found in the <strong>[TODO: fill in]</strong> section. QuNetSim
+uses entanglement swapping to generate entanglement between distant (i.e. multi-step connections) hosts.</p>
+<p>Another feature is that we allow for routing to be customized. QuNetSim uses graph objects, specifically the Python
+library <a class="reference external" href="https://networkx.github.io/">networkx</a>, to generate its network structures (i.e. one for classical and one for quantum).In QuNetSim, one
+can establish in a sense, two networks, one for classical connections and one for quantum connections. This allows the
+user to test their own routing algorithms with lots of flexibility, based on both the classical and quantum network state.
+We provide a simple example of routing based on the amount of entanglement already generated in the Examples section <strong>[TODO: fill in]</strong>.</p>
+<p>QuNetSim is not an event-driven simulation, meaning that events are happening asynchronously at arbitrary times,
+and it is sometimes up to the user to develop robust protocols to avoid out of order arrivals at the hosts.
+We provide some features to help with this, for example, packets come with a sequence number and also one can choose to
+block a thread until an acknowledgement is returned.</p>
+<p>QuNetSim is still a work in progress and in its current state, it is more of a toy example to demonstrate and create
+quantum networking protocols at a high level that could potentially make their way into real applications for quantum networks.
+QuNetSim, presently, is not designed to accurately simulate quantum physics and therefore quantum memories and quantum states are
+generally not noisy. One has some flexibility in this regard, but it is, at the moment, very limited.</p>
+<p>The intended user of QuNetSim is mainly those who want to learn more about quantum networks but are relatively new to
+it, and generally students and instructors could use it to demonstrate some quantum networking protocols.
+The goal of QuNetSim, as the name suggests, is to simulate a quantum-enabled network. To this end, we aim to allow for the writing and testing of robust protocols for multi-hop quantum information transmission with various network parameters, such as packet and qubit loss and random qubit errors. We allow a developer to develop protocols for network topologies where the types of connections between the nodes are classical, quantum, or both classically and quantumly and we provide built in quantum network protocols for commonly used tasks like teleportation and entanglement distribution.QuNetSim aims to contain most of the typical features one would assume of a quantum network such that those who are new to the field of quantum communication can more easily experiment with quantum protocols.</p>
 </div>
 
 
@@ -187,15 +212,6 @@ quantum communication can more easily experiment with quantum protocols.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="install.html" class="btn btn-neutral float-right" title="Install" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="QuNetSim Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

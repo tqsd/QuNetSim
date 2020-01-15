@@ -1,22 +1,12 @@
-QuNetSim Documentation
-======================
+QuNetSim: A quantum network simulation framework
+================================================
 
 .. toctree::
    :caption: Contents
    :titlesonly:
    :glob:
-   :maxdepth: 3
 
    intro
    install
-   components
-   objects
+   design
    examples
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

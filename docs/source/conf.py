@@ -17,13 +17,12 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
 
-
 # -- Project information -----------------------------------------------------
 
-project = 'Quantum Network Simulation Framework'
+project = 'QuNetSim'
 copyright = '2019, Stephen Diadamo'
 author = 'Stephen Diadamo'
-version = '0.0.1'
+version = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -49,7 +48,8 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
-    "collapse_navigation" : False
+    'collapse_navigation': False,
+    'prev_next_buttons_location': None
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

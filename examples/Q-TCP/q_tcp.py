@@ -384,7 +384,7 @@ def main():
 
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
+    network.start(nodes)
     network.delay = 0.5
 
     print('')

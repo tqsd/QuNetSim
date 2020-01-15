@@ -34,19 +34,44 @@ class RoutingPacket(object):
 
     @property
     def ttl(self):
+        """
+        Time to live (TTL) of the packet. When this goes to 0 the packet is removed
+        from the network.
+
+        Returns:
+            ttl (int): The time to live of the packet.
+        """
         return self._ttl
 
     @ttl.setter
     def ttl(self, ttl):
+        """
+        Set the TTL for the packet.
+        Args:
+            ttl (int): An integer of a least 0 representing the number of hops the packet has left to live.
+
+        """
         if ttl >= 0:
             self._ttl = ttl
 
     @property
     def route(self):
+        """
+        The route the packet should take.
+
+        Returns:
+            route (list): A list of host IDs which the packet will travel.
+        """
         return self._route
 
     @property
     def sender(self):
+        """
+        The sender ID of the packet.
+
+        Returns:
+            sender (str): The sender ID of the packet.
+        """
         return self._sender
 
     @sender.setter
@@ -55,6 +80,12 @@ class RoutingPacket(object):
 
     @property
     def receiver(self):
+        """
+        The receiver ID of the packet.
+
+        Returns:
+            receiver (str): The receiver ID of the packet.
+        """
         return self._receiver
 
     @receiver.setter
@@ -63,6 +94,12 @@ class RoutingPacket(object):
 
     @property
     def payload(self):
+        """
+        The payload of the packet which is a transport layer packet.
+
+        Returns:
+            payload (Packet): The payload of the network packet.
+        """
         return self._payload
 
     @payload.setter
@@ -71,6 +108,12 @@ class RoutingPacket(object):
 
     @property
     def payload_type(self):
+        """
+        If the payload is classical of quantum (i.e. a qubit or classical data).
+
+        Returns:
+            payload_type (str): The payload type.
+        """
         return self._payload_type
 
     @payload_type.setter
@@ -79,6 +122,12 @@ class RoutingPacket(object):
 
     @property
     def protocol(self):
+        """
+        The network layer protocol for this packet.
+
+        Returns:
+            protocol (str): The protocol for the packet.
+        """
         return self._protocol
 
     @protocol.setter

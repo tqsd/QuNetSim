@@ -46,6 +46,12 @@ class Packet(object):
 
     @property
     def sender(self):
+        """
+        The sender ID of the packet.
+
+        Returns:
+            sender (str): The sender ID of the packet.
+        """
         return self._sender
 
     @sender.setter
@@ -54,6 +60,12 @@ class Packet(object):
 
     @property
     def receiver(self):
+        """
+        The receiver ID of the packet.
+
+        Returns:
+            receiver (str): The receiver ID of the packet.
+        """
         return self._receiver
 
     @receiver.setter
@@ -62,6 +74,12 @@ class Packet(object):
 
     @property
     def protocol(self):
+        """
+        The protocol constant.
+
+        Returns:
+            protocol (str): The protocol constant.
+        """
         return self._protocol
 
     @protocol.setter
@@ -70,6 +88,12 @@ class Packet(object):
 
     @property
     def payload_type(self):
+        """
+        The type of payload (e.g. classical, quantum, etc.)
+
+        Returns:
+            payload_type (str): The type of payload.
+        """
         return self._payload_type
 
     @payload_type.setter
@@ -78,6 +102,12 @@ class Packet(object):
 
     @property
     def payload(self):
+        """
+        The payload.
+
+        Returns:
+            payload (Object): The payload.
+        """
         return self._payload
 
     @payload.setter
@@ -86,6 +116,12 @@ class Packet(object):
 
     @property
     def seq_num(self):
+        """
+        The sequence number of the packet.
+
+        Returns:
+            seq_num (int): The sequence number of the packet.
+        """
         return self._seq_num
 
     @seq_num.setter
@@ -94,6 +130,12 @@ class Packet(object):
 
     @property
     def await_ack(self):
+        """
+        If the packet triggers an ACK request.
+
+        Returns:
+            await_ack (bool): If the packet triggers an ACK request.
+        """
         return self._await_ack
 
     @await_ack.setter

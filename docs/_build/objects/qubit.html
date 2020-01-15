@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Qubit &mdash; Quantum Network Simulation Framework  documentation</title>
+  <title>Qubit &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quantum Storage" href="quantum_storage.html" />
-    <link rel="prev" title="Network Objects" href="../objects.html" /> 
+    <link rel="next" title="Routing Packet" href="routing_packet.html" />
+    <link rel="prev" title="Quantum Storage" href="quantum_storage.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,7 +50,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Quantum Network Simulation Framework
+            <a href="../index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -87,23 +87,34 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../components/host.html">Host</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../components/network.html">Network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install/linux_mac.html">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install/windows.html">Windows</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Qubit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="message.html">Message</a></li>
-<li class="toctree-l2"><a class="reference internal" href="packet.html">Packet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -118,7 +129,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Quantum Network Simulation Framework</a>
+          <a href="../index.html">QuNetSim</a>
         
       </nav>
 
@@ -148,6 +159,8 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../design.html">Design Overview</a> &raquo;</li>
         
           <li><a href="../objects.html">Network Objects</a> &raquo;</li>
         
@@ -284,6 +297,20 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.qubit.Qubit.qubit">
+<em class="property">property </em><code class="sig-name descname">qubit</code><a class="headerlink" href="#objects.qubit.Qubit.qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the physical qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return the physical qubit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(backend.qubit) qubit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.qubit.Qubit.release">
 <code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Releases a qubit from the system.</p>
@@ -345,12 +372,34 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.qubit.Qubit.set_new_host">
+<code class="sig-name descname">set_new_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the host of this qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> (<em>str</em>) – The host ID for the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.qubit.Qubit.set_new_id">
 <code class="sig-name descname">set_new_id</code><span class="sig-paren">(</span><em class="sig-param">new_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give the qubit a new id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>new_id</strong> (<em>str</em>) – new id of the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.set_new_qubit">
+<code class="sig-name descname">set_new_qubit</code><span class="sig-paren">(</span><em class="sig-param">qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.set_new_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the physical qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>qubit</strong> – the physical qubit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,15 +413,6 @@ backends, which adds additional information needed for QuNetSim.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="quantum_storage.html" class="btn btn-neutral float-right" title="Quantum Storage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../objects.html" class="btn btn-neutral float-left" title="Network Objects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

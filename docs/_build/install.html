@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Install &mdash; Quantum Network Simulation Framework  documentation</title>
+  <title>Install &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Components" href="components.html" />
+    <link rel="next" title="Linux / Mac OS X" href="install/linux_mac.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
 </head>
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Quantum Network Simulation Framework
+            <a href="index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -87,23 +87,34 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="components/host.html">Host</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components/network.html">Network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install/linux_mac.html">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/windows.html">Windows</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="objects.html">Network Objects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/message.html">Message</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/packet.html">Packet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -118,7 +129,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Quantum Network Simulation Framework</a>
+          <a href="index.html">QuNetSim</a>
         
       </nav>
 
@@ -170,19 +181,34 @@
             
   <div class="section" id="install">
 <h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
-<p>To install QuNetSim, we recommend running everything in Python Virtual environment.</p>
-<p>In Terminal run the following commands:</p>
-<p>Installation guide</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:tqsd/QuNetSim.git
-$ cd QuNetSim
-$ python3 -m venv venv
-$ source ./venv/bin/activate
-$ pip install -r requirements.txt
-</pre></div>
+<p>To install QuNetSim, we recommend using a Python Virtual environment.
+We give the instructions below on how to install the environment for each operating system.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install/linux_mac.html">Linux / Mac OS X</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/windows.html">Windows</a></li>
+</ul>
 </div>
-<p>To verify the installation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nose2
-</pre></div>
+<hr class="docutils" />
+<div class="section" id="linux-mac-os-x">
+<h2>Linux / Mac OS X<a class="headerlink" href="#linux-mac-os-x" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p>Make sure you have python 3.5 or greater.</p></li>
+<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p></li>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>. Instructions for setting this up:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>hello</p></li>
+<li><p>goodbye</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<hr class="docutils" />
+<div class="section" id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
+<p>Don’t use Windows. (just kidding :-))</p>
 </div>
 </div>
 
@@ -191,15 +217,6 @@ $ pip install -r requirements.txt
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="components.html" class="btn btn-neutral float-right" title="Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

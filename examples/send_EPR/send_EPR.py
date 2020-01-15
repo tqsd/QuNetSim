@@ -11,6 +11,7 @@ def main():
     network = Network.get_instance()
     backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
+    backend = CQCBackend()
     network.start(nodes, backend)
     network.delay = 0.1
 
