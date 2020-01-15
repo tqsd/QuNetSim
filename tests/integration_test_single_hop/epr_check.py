@@ -26,6 +26,7 @@ def main():
     hosts['alice'].start()
     hosts['bob'].start()
 
+
     for h in hosts.values():
         network.add_host(h)
 
