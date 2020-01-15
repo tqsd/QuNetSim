@@ -6,11 +6,11 @@ Windows
 
     #) :code:`git clone git@github.com:tqsd/QuNetSim.git`
 
-#) Here we use a Python `virtual environment`_ located at the same level as where the project is cloned. Instructions for setting this up:
+#) Here we use a Python `virtual environment`_ located at the same directory level as where the project is cloned. Instructions for setting this up:
 
     #) :code:`python3 -m venv venv`
     #) :code:`.\venv\Scripts\activate`
-    #) :code:`pip install -r ./QuNetSim/requirements.txt`
+    #) :code:`pip install -r .\QuNetSim\requirements.txt`
 
 #) After installing, you can use our example template to get started **[In progress]**.
 

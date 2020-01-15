@@ -13,6 +13,7 @@ from objects.qubit import Qubit
 
 wait_time = 10
 
+
 # helper function. Used get the next message with a sequence number. It ignores ACK
 #                  messages and messages with other seq numbers.
 def get_next_classical_message(host, receive_from_id, buffer, sequence_nr):
@@ -25,6 +26,7 @@ def get_next_classical_message(host, receive_from_id, buffer, sequence_nr):
         msg = ele.content
     return msg
 
+
 # !! Warning: this Crypto algorithm is really bad!
 # !! Warning: Do not use it as a real Crypto Algorithm!
 
@@ -32,8 +34,9 @@ def get_next_classical_message(host, receive_from_id, buffer, sequence_nr):
 def encrypt(key, text):
     encrypted_text = ""
     for char in text:
-        encrypted_text += chr(ord(key)^ord(char))
+        encrypted_text += chr(ord(key) ^ ord(char))
     return encrypted_text
+
 
 def decrypt(key, encrypted_text):
     return encrypt(key, encrypted_text)
@@ -77,6 +80,7 @@ def Alice_qkd(alice, msg_buff, secret_key, hosts):
 
             sequence_nr += 1
 
+
 def Eve_qkd(bob, msg_buff, key_size, hosts):
     eve_key = None
 
@@ -102,7 +106,7 @@ def Eve_qkd(bob, msg_buff, key_size, hosts):
         bit = q_bit.measure()
 
         # Send Alice the base in which Bob has measured
-        bob.send_classical(hosts['Alice'].host_id, "%d:%d" % (sequence_nr, measurement_base) ,await_ack=True)
+        bob.send_classical(hosts['Alice'].host_id, "%d:%d" % (sequence_nr, measurement_base), await_ack=True)
 
         # get the return message from Alice, to know if the bases have matched
         msg = get_next_classical_message(bob, hosts['Alice'].host_id, msg_buff, sequence_nr)
@@ -117,22 +121,23 @@ def Eve_qkd(bob, msg_buff, key_size, hosts):
 
     return eve_key
 
+
 # helper function, used to make your key to a string
 def key_array_to_key_string(key_array):
     key_string_binary = ''.join([str(x) for x in key_array])
-    return ''.join(chr(int(''.join(x), 2)) for x in zip(*[iter(key_string_binary)]*8))
+    return ''.join(chr(int(''.join(x), 2)) for x in zip(*[iter(key_string_binary)] * 8))
+
 
 def Alice_send_message(alice, msg_buff, secret_key, hosts):
     msg_to_eve = "Hi Eve, I am your biggest fangirl! Unfortunately you only exist as a computer protocol :("
-
 
     secret_key_string = key_array_to_key_string(secret_key)
     encrypted_msg_to_eve = encrypt(secret_key_string, msg_to_eve)
     alice.send_classical(hosts['Eve'].host_id, "-1:" + encrypted_msg_to_eve, await_ack=True)
 
+
 def Eve_receive_message(eve, msg_buff, eve_key, hosts):
     decrypted_msg_from_alice = None
-
 
     encrypted_msg_from_alice = get_next_classical_message(eve, hosts['Alice'].host_id, msg_buff, -1)
     encrypted_msg_from_alice = encrypted_msg_from_alice.split(':')[1]
@@ -140,6 +145,7 @@ def Eve_receive_message(eve, msg_buff, eve_key, hosts):
     decrypted_msg_from_alice = decrypt(secret_key_string, encrypted_msg_from_alice)
 
     print("Eve: Alice told me %s I am so happy!" % decrypted_msg_from_alice)
+
 
 def main():
     # Initialize a network
@@ -179,7 +185,7 @@ def main():
     network.add_host(host_eve)
 
     # Generate random key
-    key_size = 8 # the size of the key in bit
+    key_size = 8  # the size of the key in bit
     secret_key = np.random.randint(2, size=key_size)
 
     hosts = {'Alice': host_alice,
@@ -197,11 +203,9 @@ def main():
         eve_key = Eve_qkd(eve, msg_buff, key_size, hosts)
         Eve_receive_message(eve, msg_buff, eve_key, hosts)
 
-
     # Run Bob and Alice
     thread_alice = DaemonThread(Alice_func)
     thread_eve = DaemonThread(Eve_func)
-
 
     thread_alice.join()
     thread_eve.join()

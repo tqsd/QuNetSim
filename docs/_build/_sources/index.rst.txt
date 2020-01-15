@@ -9,4 +9,5 @@ QuNetSim: A quantum network simulation framework
    intro
    install
    design
+   quick_start
    examples
