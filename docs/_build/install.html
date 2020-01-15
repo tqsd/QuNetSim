@@ -93,7 +93,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="components.html">Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="objects.html">Network Objects</a><ul>
@@ -191,14 +194,20 @@ We give the instructions below on how to install the environment for each operat
 <div class="section" id="linux-mac-os-x">
 <h2>Linux / Mac OS X<a class="headerlink" href="#linux-mac-os-x" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p>Make sure you have python 3.5 or greater.</p></li>
-<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p></li>
-<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>. Instructions for setting this up:</p>
+<li><p>Make sure you have python 3.5 or greater. For Mac OS users, one should have terminal commands installed.</p></li>
+<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">git&#64;github.com:tqsd/QuNetSim.git</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same level as where the project is cloned. Instructions for setting this up:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">source</span> <span class="pre">./venv/bin/activate</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">./QuNetSim/requirements.txt</span></code></p></li>
 </ol>
 </div></blockquote>
 </li>
@@ -210,17 +219,23 @@ We give the instructions below on how to install the environment for each operat
 <h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p>Make sure you have python 3.5 or greater.</p></li>
-<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p></li>
-<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a>. Instructions for setting this up:</p>
+<li><p>Download / Clone the <a class="reference external" href="https://github.com/tqsd/QuNetSim">Git repositiory</a>.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">git&#64;github.com:tqsd/QuNetSim.git</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same level as where the project is cloned. Instructions for setting this up:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">.\venv\Scripts\activate</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">./QuNetSim/requirements.txt</span></code></p></li>
 </ol>
 </div></blockquote>
 </li>
-<li><p>After installing, you can use our example template to get started.</p></li>
+<li><p>After installing, you can use our example template to get started <strong>[In progress]</strong>.</p></li>
 </ol>
 </div>
 </div>
