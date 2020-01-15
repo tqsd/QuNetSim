@@ -67,8 +67,10 @@ class SafeDict(object):
         self.lock.release_write()
 
     def get_from_dict(self, key):
+        ret = None
         self.lock.acquire_read()
-        ret = self.dict[key]
+        if key in self.dict.keys():
+            ret = self.dict[key]
         self.lock.release_read()
         return ret
 
@@ -109,6 +111,22 @@ class CQCBackend(object):
             CQCBackend.CQCConnections.__instance = self
             SafeDict.__init__(self)
 
+    class EntanglementIDs(SafeDict):
+        # There only should be one instance of Hosts
+        __instance = None
+
+        def get_instance():
+            if CQCBackend.EntanglementIDs.__instance is not None:
+                return CQCBackend.EntanglementIDs.__instance
+            else:
+                return CQCBackend.EntanglementIDs()
+
+        def __init__(self):
+            if CQCBackend.EntanglementIDs.__instance is not None:
+                raise Exception("Call get instance to get this class!")
+            CQCBackend.EntanglementIDs.__instance = self
+            SafeDict.__init__(self)
+
     # Simulaqron comes with an own network simulator
     # has to be kept in sync with QuNetSim network
     backend_network = None
@@ -117,6 +135,8 @@ class CQCBackend(object):
     def __init__(self):
         self._hosts = CQCBackend.Hosts.get_instance()
         self._cqc_connections = CQCBackend.CQCConnections.get_instance()
+        # keys are from : to, where from is the host calling create EPR
+        self._entaglement_ids = CQCBackend.EntanglementIDs.get_instance()
 
 
     def start(self, **kwargs):
@@ -197,13 +217,43 @@ class CQCBackend(object):
         cqc_host_b = self._cqc_connections.get_from_dict(host_b_id)
         host_a = self._hosts.get_from_dict(host_a_id)
         q = cqc_host_a.createEPR(cqc_host_b.name)
-        return Qubit(host_a, qubit=q, q_id=q_id, blocked=block)
+        qubit = Qubit(host_a, qubit=q, q_id=q_id, blocked=block)
+        # add the ID to a list, so the next returned qubit from recv EPR
+        # gets assigned the right id
+        key = cqc_host_a.name + ':' + cqc_host_b.name
+        list = self._entaglement_ids.get_from_dict(key)
+        if list is not None:
+            list.append(qubit.id)
+        else:
+            list = [qubit.id]
+        self._entaglement_ids.add_to_dict(key, list)
+        return qubit
 
     def receive_epr(self, host_id, q_id=None, block=False):
+        """
+        Called after create EPR in the receiver, to receive the other EPR pair.
+
+        Args:
+            host_id (String): ID of the first host who gets the EPR state.
+            q_id (String): Optional id which both qubits should have.
+            block (bool): Determines if the created pair should be blocked or not.
+        Returns:
+            Returns an EPR qubit with the other Host.
+        """
         cqc_host = self._cqc_connections.get_from_dict(host_id)
         host = self._hosts.get_from_dict(host_id)
         q = cqc_host.recvEPR()
-        return Qubit(host, qubit=q, q_id=q_id, blocked=block)
+        sender_host_name = q.get_remote_entNode()
+        key = sender_host_name + ':' + cqc_host.name
+        list = self._entaglement_ids.get_from_dict(key)
+        if list is None:
+            raise Exception("Internal Error!")
+        id = None
+        id = list.pop(0)
+        if q_id is not None and q_id != id:
+            raise ValueError("Qid doesent match id!")
+        self._entaglement_ids.add_to_dict(key, list)
+        return Qubit(host, qubit=q, q_id=id, blocked=block)
 
     def flush(self, host_id):
         """
