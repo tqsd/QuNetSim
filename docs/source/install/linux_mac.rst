@@ -12,8 +12,15 @@ Linux / Mac OS X
     #) :code:`source ./venv/bin/activate`
     #) :code:`pip install -r ./QuNetSim/requirements.txt`
 
-#) After installing, you can use our example template to get started.
+#) To set the correct path run:
 
+    #) :code:`export PYTHONPATH=$PYTHONPATH:$PWD`
+
+#) After installing, you can use the templating script to get started. It will generate a file with the common structure of a QuNetSim use.
+
+    #) :code:`python3 ./QuNetSim/templater.py`
+    #) The template will perform a small example which can be run:
+       :code:`python3 <name of your file>.py`
 
 .. _Git repositiory: https://github.com/tqsd/QuNetSim
 .. _virtual environment: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/

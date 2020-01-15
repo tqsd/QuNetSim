@@ -110,6 +110,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/template.html">New Example Template</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR</a></li>
@@ -202,7 +203,7 @@ We give the instructions below on how to install the environment for each operat
 </ol>
 </div></blockquote>
 </li>
-<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same level as where the project is cloned. Instructions for setting this up:</p>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same directory level as where the project is cloned. Instructions for setting this up:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
@@ -211,7 +212,22 @@ We give the instructions below on how to install the environment for each operat
 </ol>
 </div></blockquote>
 </li>
-<li><p>After installing, you can use our example template to get started.</p></li>
+<li><p>To set the correct path run:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYTHONPATH=$PYTHONPATH:$PWD</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>After installing, you can use the templating script to get started. It will generate a file with the common structure of a QuNetSim use.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">./QuNetSim/templater.py</span></code></p></li>
+<li><p>The template will perform a small example which can be run:
+<code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">&lt;name</span> <span class="pre">of</span> <span class="pre">your</span> <span class="pre">file&gt;.py</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
 </ol>
 </div>
 <hr class="docutils" />
@@ -226,16 +242,31 @@ We give the instructions below on how to install the environment for each operat
 </ol>
 </div></blockquote>
 </li>
-<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same level as where the project is cloned. Instructions for setting this up:</p>
+<li><p>Here we use a Python <a class="reference external" href="https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/">virtual environment</a> located at the same directory level as where the project is cloned. Instructions for setting this up:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">.\venv\Scripts\activate</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">./QuNetSim/requirements.txt</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">.\QuNetSim\requirements.txt</span></code></p></li>
 </ol>
 </div></blockquote>
 </li>
-<li><p>After installing, you can use our example template to get started <strong>[In progress]</strong>.</p></li>
+<li><p>To set the correct path run:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYTHONPATH=$PYTHONPATH:$PWD</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>After installing, you can use the templating script to get started. It will generate a file with the common structure of a QuNetSim use.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">.\QuNetSim\templater.py</span></code></p></li>
+<li><p>The template will perform a small example which can be run:
+<code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">&lt;name</span> <span class="pre">of</span> <span class="pre">your</span> <span class="pre">file&gt;.py</span></code></p></li>
+</ol>
+</div></blockquote>
+</li>
 </ol>
 </div>
 </div>
