@@ -17,8 +17,6 @@ def main():
     network.packet_drop_rate = 0
     print('')
 
-
-
     host_alice = Host('Alice', backend)
     host_alice.add_connection('Bob')
     host_alice.start()
@@ -42,7 +40,6 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_dean)
 
-
     print('alice sends message')
 
     host_alice.send_classical('Bob', 'hello1')
@@ -56,16 +53,13 @@ def main():
     host_alice.send_classical('Bob', 'hello9')
     host_alice.send_classical('Bob', 'hello10')
 
-    time.sleep(10)
-    bob_messages = host_bob.classical
-    print(len(bob_messages))
-
     start_time = time.time()
     while time.time() - start_time < 10:
         pass
 
     network.stop(True)
     exit()
+
 
 if __name__ == '__main__':
     main()

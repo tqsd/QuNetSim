@@ -1,5 +1,6 @@
-import os
 from string import ascii_uppercase
+import subprocess
+import os
 
 
 def gen_imports():
@@ -58,14 +59,15 @@ def gen_main():
 
 
 if __name__ == '__main__':
-    file_name = input("File name? (exclude file type (i.e. don't put .py)): ")
-    if file_name == "":
-        print("File name must not be empty.")
-    else:
-        file_content = gen_imports()
-        file_content += gen_protocols()
-        file_content += gen_main()
-        file_content += "if __name__ == '__main__':\n"
-        file_content += "   main()\n"
-        f = open(file_name + '.py', 'w')
-        f.write(file_content)
+    # file_name = input("File name? (exclude file type (i.e. don't put .py)): ")
+    # if file_name == "":
+    #     print("File name must not be empty.")
+    # else:
+    #     file_content = gen_imports()
+    #     file_content += gen_protocols()
+    #     file_content += gen_main()
+    #     file_content += "if __name__ == '__main__':\n"
+    #     file_content += "   main()\n"
+    #     f = open(file_name + '.py', 'w')
+    #     f.write(file_content)
+    subprocess.run("./set_path.sh")
