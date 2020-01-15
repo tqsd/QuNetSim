@@ -23,6 +23,7 @@ project = 'QuNetSim'
 copyright = '2019, Stephen Diadamo'
 author = 'Stephen Diadamo'
 version = '1.0.0'
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 

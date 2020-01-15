@@ -2,7 +2,8 @@ Linux / Mac OS X
 ----------------
 
 #) Make sure you have python 3.5 or greater. For Mac OS users, one should have terminal commands installed.
-#) Download / Clone the `Git repositiory`_.
+
+#) Download / Clone the `Git repository`_.
 
     #) :code:`git clone git@github.com:tqsd/QuNetSim.git`
 
@@ -10,10 +11,18 @@ Linux / Mac OS X
 
     #) :code:`python3 -m venv venv`
     #) :code:`source ./venv/bin/activate`
+    #) :code:`pip install --upgrade pip`
     #) :code:`pip install -r ./QuNetSim/requirements.txt`
 
-#) After installing, you can use our example template to get started.
+#) To set the correct path run:
 
+    #) :code:`export PYTHONPATH=$PYTHONPATH:$PWD/QuNetSim/`
 
-.. _Git repositiory: https://github.com/tqsd/QuNetSim
+#) After installing, you can use the templating script to get started. It will generate a file with the common structure of a QuNetSim use.
+
+    #) :code:`python3 ./QuNetSim/templater.py`
+    #) The template will perform a small example which can be run:
+       :code:`python3 <name of your file>.py`
+
+.. _Git repository: https://github.com/tqsd/QuNetSim
 .. _virtual environment: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
