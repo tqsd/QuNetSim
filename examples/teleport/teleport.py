@@ -1,53 +1,46 @@
-from simulaqron.network import Network as SimulaNetwork
-from simulaqron.settings import simulaqron_settings
-
-import sys
-import time
-
-sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
-
+import time
 
 def main():
-
     network = Network.get_instance()
-    backend = CQCBackend()
-    nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
-    network.delay = 0.5
+    nodes = ['Alice', 'Bob', 'Eve']
+    network.delay = 0.2
+    network.start(nodes)
 
-
-    host_alice = Host('Alice', backend)
-    host_bob = Host('Bob', backend)
+    host_alice = Host('Alice')
+    host_bob = Host('Bob')
+    host_eve = Host('Eve')
 
     host_alice.add_connection('Bob')
     host_bob.add_connection('Alice')
+    host_bob.add_connection('Eve')
+    host_eve.add_connection('Bob')
 
     host_alice.start()
     host_bob.start()
+    host_eve.start()
 
     network.add_host(host_alice)
     network.add_host(host_bob)
+    network.add_host(host_eve)
 
-    q1 = Qubit(host_alice)
-    q1.X()
+    q = Qubit(host_alice)
+    q.X()
 
-    q_id = host_alice.send_teleport('Bob', q1)
-    time.sleep(10)
+    print('did this 1')
+    host_alice.send_teleport('Eve', q, await_ack=True)
+    print('did this 2')
 
-    q = host_bob.get_data_qubit(host_alice.host_id, q_id)
-    assert q is not None
-    print(q.measure())
+    time.sleep(2)
+    print('did this 3')
+    print(host_eve.data_qubit_store)
 
-    start_time = time.time()
+    # q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
+    # assert q_eve is not None
+    # print('Eve measures: %d' % q_eve.measure())
 
-    while time.time() - start_time < 5:
-        pass
-
-    network.stop(True)
 
 if __name__ == '__main__':
     main()

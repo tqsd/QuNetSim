@@ -225,12 +225,12 @@ def _send_teleport(packet):
             q_id, _ = host_sender.send_epr(packet.receiver, await_ack=True, block=True)
 
     if 'q_id' in packet.payload:
-        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['q_id'], wait=10)
+        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['q_id'], wait=WAIT_TIME)
     else:
         if q_id is not None:
-            epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=10)
+            epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=WAIT_TIME)
         else:
-            epr_teleport = host_sender.get_epr(packet.receiver, wait=10)
+            epr_teleport = host_sender.get_epr(packet.receiver, wait=WAIT_TIME)
     assert epr_teleport is not None
     q.cnot(epr_teleport)
     q.H()
@@ -269,11 +269,11 @@ def _rec_teleport(packet):
     payload = packet.payload
     q_id = payload['q_id']
 
-    q = host_receiver.get_epr(packet.sender, q_id, wait=10)
+    q = host_receiver.get_epr(packet.sender, q_id, wait=WAIT_TIME)
     if q is None:
         # TODO: what to do when fails
         raise Exception
-        return
+
     a = payload['measurements'][0]
     b = payload['measurements'][1]
     epr_host = payload['node']
@@ -360,7 +360,7 @@ def _send_superdense(packet):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         q_id, _ = host_sender.send_epr(receiver, await_ack=True, block=True)
         assert q_id is not None
-        q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=10)
+        q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=WAIT_TIME)
 
     else:
         q_superdense = host_sender.get_epr(receiver, wait=5)
@@ -392,8 +392,8 @@ def _rec_superdense(packet):
 
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=10)
-    q2 = host_receiver.get_epr(sender, payload.id, wait=10)
+    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=WAIT_TIME)
+    q2 = host_receiver.get_epr(sender, payload.id, wait=WAIT_TIME)
 
     assert q1 is not None and q2 is not None
 

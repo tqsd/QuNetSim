@@ -9,16 +9,13 @@ from objects.message import Message
 import uuid
 import time
 from backends.cqc_backend import CQCBackend
-import random
-import numpy as np
-
-wait_time = 10
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
     backend = CQCBackend()
+    WAIT_TIME = 10
 
     def __init__(self, host_id, backend=None):
         """
@@ -102,7 +99,7 @@ class Host:
 
     @property
     def data_qubit_store(self):
-        return self.data_qubit_store
+        return self._data_qubit_store
 
     @property
     def delay(self):
@@ -271,8 +268,8 @@ class Host:
             receiver (string): The sender of the ACK
             seq (int): The sequence number of the packet
         """
-        Logger.get_instance().log(
-            self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq + 1))
+        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from ' +
+                        receiver + ' with sequence ' + str(seq + 1))
 
     def is_idle(self):
         """
@@ -297,8 +294,8 @@ class Host:
             msg = Message(sender, result['message'], result['sequence_number'])
             self._classical_messages.add_msg_to_storage(msg)
             if result['message'] != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message']) + ' with sequence number ' + str(
-                    result['sequence_number']))
+                self.logger.log(self.host_id + ' received ' + str(result['message']) +
+                                ' with sequence number ' + str(result['sequence_number']))
 
     def _process_queue(self):
         """
@@ -669,7 +666,7 @@ class Host:
             partner_id: The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
         Returns:
-             (string) *q_id*: The qubit ID
+            (string) *q_id*: The qubit ID
         """
         self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
@@ -827,16 +824,14 @@ class Host:
             DaemonThread(protocol, args=arguments)
 
     def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+                buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg
-
-
 
     def send_key(self, receiver_host, key_size, await_ack=True):
 

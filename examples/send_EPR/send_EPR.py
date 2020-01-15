@@ -1,37 +1,28 @@
-import sys
-import time
-
-sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 
 
 def main():
     network = Network.get_instance()
-    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    backend = CQCBackend()
-    network.start(nodes, backend)
+    network.start(nodes)
     network.delay = 0.1
 
-    # print('')
-
-    host_alice = Host('Alice', backend)
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.start()
 
-    host_bob = Host('Bob', backend)
+    host_bob = Host('Bob')
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve', backend)
+    host_eve = Host('Eve')
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.start()
 
-    host_dean = Host('Dean', backend)
+    host_dean = Host('Dean')
     host_dean.add_connection('Eve')
     host_dean.start()
 
@@ -48,10 +39,7 @@ def main():
     if q1 is not None and q2 is not None:
         m1 = q1.measure()
         m2 = q2.measure()
-
-        print("Results of the measurements for q_id_1 are ")
-        print(m1)
-        print(m2)
+        print("Results of the measurements for the entangled pair are %d %d" % (m1, m2))
     else:
         if q1 is None:
             print('q1 is none')

@@ -1,56 +1,52 @@
-import sys
-
-sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
 
 
+# In this example, we send a data qubit from
+# Alice to Dean who sits 2 hops away from Alice
+# in the network.
+
 def main():
     network = Network.get_instance()
-    backend = CQCBackend()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
+    network.start(nodes)
     network.delay = 0.1
 
-    # print('')
-
-    host_alice = Host('Alice', backend)
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.start()
 
-    host_bob = Host('Bob', backend)
+    host_bob = Host('Bob')
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve', backend)
+    host_eve = Host('Eve')
     host_eve.add_connection('Bob')
-    # host_eve.add_connection('Dean')
+    host_eve.add_connection('Dean')
     host_eve.start()
 
-    # host_dean = Host('Dean', backend)
-    # host_dean.add_connection('Eve')
-    # host_dean.start()
+    host_dean = Host('Dean')
+    host_dean.add_connection('Eve')
+    host_dean.start()
 
     network.add_host(host_alice)
     network.add_host(host_bob)
     network.add_host(host_eve)
-    # network.add_host(host_dean)
+    network.add_host(host_dean)
 
-    print('--- DID THIS ---')
+    # Create a qubit owned by Alice
     q = Qubit(host_alice)
+    # Put the qubit in the excited state
     q.X()
-    q_id, _ = host_alice.send_qubit('Eve', q, await_ack=True)
-    print('--- ENDED THIS ---', q_id)
+    # Send the qubit and await an ACK from Dean
+    q_id, _ = host_alice.send_qubit('Dean', q, await_ack=True)
 
-    # print('Alice\n', host_alice._data_qubit_store)
-    print('Bob\n', host_bob._data_qubit_store)
-    print('Eve\n', host_eve._data_qubit_store)
+    # Get the qubit on Dean's side from Alice
+    q_rec = host_dean.get_data_qubit('Alice', q_id)
 
-    q_rec = host_eve.get_data_qubit('Alice', q_id)
-
+    # Ensure the qubit arrived and then measure and print the results.
     if q_rec is not None:
         m = q_rec.measure()
         print("Results of the measurements for q_id are ", str(m))
