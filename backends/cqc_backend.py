@@ -1,7 +1,6 @@
 import cqc.pythonLib as cqc
 from simulaqron.settings import simulaqron_settings
 from simulaqron.network import Network as SimulaNetwork
-from functools import partial as fp
 from objects.qubit import Qubit
 import numpy as np
 import threading
