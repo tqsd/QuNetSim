@@ -2,6 +2,8 @@
 Introduction
 ############
 
+What is QuNetSim?
+-----------------
 QuNetSim (Quantum Network Simulator) is a Python based simulation framework for quantum networks. The intended use is
 that one can develop and test applications and protocols designed for networks *on the network and application layer* that have the ability to transmit
 and store quantum information. QuNetSim offers a framework for developing such protocols over multi-hop quantum networks
@@ -23,6 +25,8 @@ and it is sometimes up to the user to develop robust protocols to avoid out of o
 We provide some features to help with this, for example, packets come with a sequence number and also one can choose to
 block a thread until an acknowledgement is returned.
 
+Who should use QuNetSim?
+------------------------
 QuNetSim is still a work in progress and in its current state, it is more of a toy example to demonstrate and create
 quantum networking protocols at a high level that could potentially make their way into real applications for quantum networks.
 QuNetSim, presently, is not designed to accurately simulate quantum physics and therefore quantum memories and quantum states are

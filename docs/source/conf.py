@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'QuNetSim'
-copyright = '2019, Stephen Diadamo'
-author = 'Stephen Diadamo'
+copyright = '2019, Stephen DiAdamo'
+author = 'Stephen DiAdamo'
 version = '1.0.0'
 master_doc = 'index'
 

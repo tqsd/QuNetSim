@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quick Start &mdash; QuNetSim  documentation</title>
+  <title>Quick Start Guide &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples.html" />
-    <link rel="prev" title="Routing Packet" href="objects/routing_packet.html" /> 
+    <link rel="next" title="Design Overview" href="design.html" />
+    <link rel="prev" title="Windows" href="install/windows.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,6 +92,9 @@
 <li class="toctree-l2"><a class="reference internal" href="install/windows.html">Windows</a></li>
 </ul>
 </li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="components.html">Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
@@ -110,7 +113,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/template.html">New Example Template</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR</a></li>
@@ -162,7 +164,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Quick Start</li>
+      <li>Quick Start Guide</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -181,10 +183,129 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quick-start">
-<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
 <p>Here we give a quick start guide on how to get your first example running with QuNetSim. After completing the
-install instructions and ensuring the code is working, you can being to develop your first example.</p>
+install instructions and ensuring the code is working, you can being to develop your first example. To make the first
+steps simple, we include a simple template generating script. To use it, enter into your console:</p>
+<p><code class="code docutils literal notranslate"><span class="pre">python</span> <span class="pre">QuNetSim/templater.py</span></code></p>
+<p>The templating script will prompt you for a file name. This will be the file name for the example Python file.
+Here we just assume the file is called <code class="code docutils literal notranslate"><span class="pre">testing.py</span></code>, that is, “testing” was entered into the terminal.</p>
+<p>Next, the script will prompt for the number of nodes in the network. The template generator will set up
+and example file of a fully connected network (i.e. all nodes are connected) with both types of connections, namely
+classical and quantum. Opening this file assuming 4 nodes were added, we should have an new file called <code class="code docutils literal notranslate"><span class="pre">testing.py</span></code>
+with the contents:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
+<span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">objects.qubit</span> <span class="kn">import</span> <span class="n">Qubit</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">protocol_1</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
+    <span class="c1"># Here we write the protocol code for a host.</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s1">&#39;Hello!&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Message was received&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">protocol_2</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+    <span class="c1"># Here we write the protocol code for another host.</span>
+
+    <span class="c1"># Keep checking for classical messages for 10 seconds.</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">classical</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+   <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+   <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">]</span>
+   <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+   <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+   <span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+   <span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+   <span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+   <span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+   <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+   <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+   <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+   <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+   <span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+   <span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+   <span class="n">host_C</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+   <span class="n">host_C</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+   <span class="n">host_C</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+   <span class="n">host_C</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+   <span class="n">host_D</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+   <span class="n">host_D</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+   <span class="n">host_D</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+   <span class="n">host_D</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+   <span class="n">host_D</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+   <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_A</span><span class="p">)</span>
+   <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
+   <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_C</span><span class="p">)</span>
+   <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_D</span><span class="p">)</span>
+
+   <span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_1</span><span class="p">,</span> <span class="p">(</span><span class="n">host_D</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+   <span class="n">host_D</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_2</span><span class="p">,</span> <span class="p">())</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+   <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
 </div>
 
 
@@ -198,7 +319,7 @@ install instructions and ensuring the code is working, you can being to develop 
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Stephen Diadamo
+        &copy; Copyright 2019, Stephen DiAdamo
 
     </p>
   </div>

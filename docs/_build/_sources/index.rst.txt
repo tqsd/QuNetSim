@@ -1,13 +1,13 @@
 QuNetSim: A quantum network simulation framework
 ================================================
 
-.. toctree::
-   :caption: Contents
-   :titlesonly:
-   :glob:
+..  toctree::
+    :caption: Contents
+    :titlesonly:
+    :maxdepth: 2
 
-   intro
-   install
-   design
-   quick_start
-   examples
+    intro
+    install
+    quick_start
+    design
+    examples
