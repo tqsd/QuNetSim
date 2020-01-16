@@ -46,7 +46,13 @@ class Host:
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self.seq_number = {}
+        self._max_window = 10
+        # sender: host -> int
+        self._seq_number_sender = {}
+        # sender_ack: host->received_list, low_number
+        self._seq_number_sender_ack = {}
+        # receiver: host->received_list, low_number
+        self._seq_number_receiver = {}
         self.qkd_keys = {}
 
     @property
@@ -213,7 +219,7 @@ class Host:
         """
         return self._quantum_connections
 
-    def _get_sequence_number(self, host, should_not_increment=False):
+    def _get_sequence_number(self, host):
         """
         Get and set the next sequence number of connection with a receiver.
 
@@ -224,12 +230,11 @@ class Host:
             (int): The next sequence number of connection with a receiver.
 
         """
-        if host not in self.seq_number:
-            self.seq_number[host] = 0
+        if host not in self._seq_number_sender:
+            self._seq_number_sender[host] = 0
         else:
-            if not should_not_increment:
-                self.seq_number[host] += 1
-        return self.seq_number[host]
+            self._seq_number_sender[host] += 1
+        return self._seq_number_sender[host]
 
     def get_sequence_number(self, host):
         """
@@ -367,12 +372,22 @@ class Host:
                                   protocol=protocols.SEND_CLASSICAL,
                                   payload=protocols.ACK,
                                   payload_type=protocols.SIGNAL,
-                                  sequence_num=seq_number + 1,
+                                  sequence_num=seq_number,
                                   await_ack=False)
-        if receiver in self.seq_number:
-            self.seq_number[receiver] = max(self.seq_number[receiver] + 1, seq_number + 1)
+        if receiver not in self._seq_number_receiver:
+            self._seq_number_receiver[receiver] = ([], 0)
+        expected_seq = self._seq_number_receiver[receiver][1]
+        if expected_seq + self._max_window < seq_number:
+            raise Exception("Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+        elif expected_seq < seq_number:
+            self._seq_number_receiver[receiver][0].append(seq_number)
         else:
-            self.seq_number[receiver] = seq_number + 1
+            self._seq_number_receiver[receiver][1] += 1
+            expected_seq = self._seq_number_receiver[receiver][1]
+            while len(self._seq_number_receiver[receiver][0]) > 0 and expected_seq in self._seq_number_receiver[receiver][0]:
+                self._seq_number_receiver[receiver][0].remove(expected_seq)
+                 self._seq_number_receiver[receiver][1] += 1
+                 expected_seq += 1
         self._packet_queue.put(packet)
 
     def await_ack(self, sequence_number, sender):
@@ -397,16 +412,16 @@ class Host:
                 messages = self.classical
                 for m in messages:
                     if str.startswith(m.content, protocols.ACK):
-                        if m.sender == sender and m.seq_num == sequence_number + 1:
+                        if m.sender == sender and m.seq_num == sequence_number:
                             Logger.get_instance().log(
                                 'ACK ' + str(m.seq_num) + ' from ' + sender + ' arrived at ' + self.host_id)
                             did_ack = True
                             return
 
         did_ack = False
+        print('Waiting for ack with %d in host %s from %s' % ((sequence_number), self._host_id, sender))
         DaemonThread(wait).join()
-        if sender in self.seq_number:
-            self.seq_number[sender] = sequence_number + 1
+        print('Ack arrived with ' + str(did_ack) + 'and seq num ' + str(sequence_number) + ' in host ' + self._host_id)
         return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
@@ -421,7 +436,7 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -452,7 +467,7 @@ class Host:
         if q_id is None:
             q_id = str(uuid.uuid4())
 
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
@@ -487,7 +502,7 @@ class Host:
                                   protocol=protocols.SEND_TELEPORT,
                                   payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
+                                  sequence_num=self._get_sequence_number(receiver_id),
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -516,7 +531,7 @@ class Host:
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
+                                  sequence_num=self._get_sequence_number(receiver_id),
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -537,7 +552,7 @@ class Host:
         """
         q.set_blocked_state(True)
         q_id = q.id
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
@@ -835,7 +850,7 @@ class Host:
 
     def send_key(self, receiver_host, key_size, await_ack=True):
 
-        seq_num = self._get_sequence_number(receiver_host.host_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_host.host_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_host.host_id,
                                   protocol=protocols.SEND_KEY,

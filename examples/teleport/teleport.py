@@ -29,17 +29,14 @@ def main():
     q = Qubit(host_alice)
     q.X()
 
-    print('Qubit Teleported')
     host_alice.send_teleport('Eve', q, await_ack=True)
-    print('ACK Arrived')
 
-    # This sleep should not be necessary when await_ack=True
-    time.sleep(2)
     print(host_eve.data_qubit_store)
 
-    # q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
-    # assert q_eve is not None
-    # print('Eve measures: %d' % q_eve.measure())
+    q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
+    assert q_eve is not None
+    print('Eve measures: %d' % q_eve.measure())
+    network.stop(True)
 
 
 if __name__ == '__main__':
