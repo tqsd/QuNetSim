@@ -51,7 +51,6 @@ class RWLock:
 
 
 class SafeDict(object):
-
     def __init__(self):
         self.lock = RWLock()
         self.dict = {}

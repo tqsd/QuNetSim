@@ -247,7 +247,6 @@ class QuantumStorage(object):
             qubit.release()
             return
 
-        print('--- Adding qubit ---')
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, from_host_id)
 
