@@ -1,6 +1,5 @@
 from components.host import Host
 from components.network import Network
-import time
 
 
 def protocol_1(host, receiver):
