@@ -1,13 +1,11 @@
 import time
-import numpy as np
 import sys
-
-sys.path.append("../..")
+import numpy as np
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-from cqc.pythonLib import CQCConnection, qubit
-import sys
+
+from objects.qubit import Qubit
 
 thread_1_return = None
 thread_2_return = None
@@ -30,8 +28,8 @@ def handshake_sender(host, receiver_id):
     """
 
     # Create an EPR pair.
-    qa_1 = qubit(host.cqc)
-    qa_2 = qubit(host.cqc)
+    qa_1 = Qubit(host)
+    qa_2 = Qubit(host)
 
     qa_1.H()
     qa_1.cnot(qa_2)
@@ -52,19 +50,17 @@ def handshake_sender(host, receiver_id):
     qb_2 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
     if qb_2 is None:
         return False
-    qb_2 = qb_2['q']
 
     qb_3 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
     if qb_3 is None:
         return False
-    qb_3 = qb_3['q']
 
     # Receive the classical message Bob has sent for SYN-ACK.
     message_recv = host.get_message_w_seq_num(receiver_id, syn_seq_num + 2, wait=WAIT_TIME)
     if message_recv is None:
         return False
-    message_recv = message_recv[0]['message']
-    if message_recv == '11':
+
+    if message_recv.content == '11':
         Logger.get_instance().log("SYN-ACK is received by Alice")
     else:
         Logger.get_instance().log('Connection terminated - 1 ')
@@ -80,19 +76,16 @@ def handshake_sender(host, receiver_id):
     # Else report that there is something wrong.
     if qa_1_check == 0 and qb_2_check == 0:
         latest_seq_num = host.get_sequence_number(receiver_id)
-        ack_received = host.send_classical(receiver_id, ACK, True)
+        ack_received = host.send_classical(receiver_id, ACK, await_ack=True)
         if ack_received is False:
             Logger.get_instance().log('ACK is not received')
             return False
-        _, ack_received = host.send_qubit(receiver_id, qb_3, True)
+        _, ack_received = host.send_qubit(receiver_id, qb_3, await_ack=True)
         if ack_received is False:
             Logger.get_instance().log('ACK is not received')
             return False
-        start_time = time.time()
-        while time.time() - start_time < WAIT_TIME:
-            if host.get_sequence_number(receiver_id) == latest_seq_num + 2 and host.classical[0]['message'] == 'ACK':
-                return True
-        return False
+        message = host.get_message_w_seq_num(receiver_id, latest_seq_num + 2, wait=WAIT_TIME)
+        return message.content == 'ACK'
     else:
         Logger.get_instance().log("Something is wrong.")
         return False
@@ -129,8 +122,8 @@ def handshake_receiver(host, sender_id):
         return False
 
     # Create an EPR pair.
-    qb_3 = qubit(host.cqc)
-    qb_4 = qubit(host.cqc)
+    qb_3 = Qubit(host)
+    qb_4 = Qubit(host)
     qb_3.H()
     qb_3.cnot(qb_4)
 
@@ -151,23 +144,18 @@ def handshake_receiver(host, sender_id):
     latest_seq_num = host.get_sequence_number(sender_id)
 
     # Receive the ACK message.
-    start_time = time.time()
-    ack_message_received = False
-    while time.time() - start_time < WAIT_TIME and not ack_message_received:
-        latest_messages = host.get_message_w_seq_num(sender_id, latest_seq_num)
-        for messages in latest_messages:
-            if messages['message'] == '01':
-                Logger.get_instance().log('ACK is received by Bob')
-                ack_message_received = True
+    message = host.get_message_w_seq_num(sender_id, latest_seq_num, wait=WAIT_TIME)
+    if message is None:
+        Logger.get_instance().log('ACK was not received by Bob')
+        return False
 
-        if ack_message_received:
-            break
+    if message.content == '01':
+        Logger.get_instance().log('ACK was received by Bob')
 
     # Receive the qubit 3.
     qa_3 = host.get_data_qubit(sender_id, wait=WAIT_TIME)
     if qa_3 is None:
         return False
-    qa_3 = qa_3['q']
 
     # Make a Bell State measurement in qubit 3 and qubit 4.
     qa_3.cnot(qb_4)
@@ -200,7 +188,7 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
     Logger.get_instance().log('Bit array to be sent: ' + str(bit_arr))
     qubits = []
     for i in range(q_size):
-        q_tmp = qubit(host.cqc)
+        q_tmp = Qubit(host)
         if bit_arr[i] == 1:
             q_tmp.X()
         qubits.append(q_tmp)
@@ -216,31 +204,27 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
             q = qubits[q_size][checksum_cnt]
             checksum_cnt = checksum_cnt + 1
 
-        q_successful = True
-        ack_expected = True
+        q_success = False
+        got_ack = False
         number_of_retransmissions = 0
-        while ack_expected and number_of_retransmissions < MAX_NUM_OF_TRANSMISSIONS:
+
+        while not got_ack and number_of_retransmissions < MAX_NUM_OF_TRANSMISSIONS:
             Logger.get_instance().log('Alice prepares qubit')
-            err_1 = qubit(host.cqc)
+            err_1 = Qubit(host)
             # encode logical qubit
             q.cnot(err_1)
 
             host.send_qubit(receiver_id, q, await_ack=True)
-            start_time = time.time()
-            while time.time() - start_time < WAIT_TIME:
-                if len(host.classical) != 0 and host.classical[0]['message'] == 'ACK':
-                    Logger.get_instance().log('Alice: Bob received the qubit')
-                    err_1.release()
-                    ack_expected = False
-                    q_successful = False
-                    # return True
-                    break
-                    # Remove err_1 from simulqron
+            messages = host.get_classical(receiver_id, wait=WAIT_TIME)
+            if messages[0].content == 'ACK':
+                err_1.release()
+                got_ack = True
+                q_success = True
 
-            if q_successful:
+            if not q_success:
                 Logger.get_instance().log('Alice: Bob did not receive the qubit')
                 # re-introduce a qubit to the system and correct the error
-                q = qubit(host.cqc)
+                q = Qubit(host)
                 err_1.cnot(q)
 
             number_of_retransmissions += 1
@@ -387,85 +371,83 @@ def main():
     network.start(nodes)
     network.delay = 0.5
 
-    print('')
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection('Eve') as Eve, CQCConnection('Dean') as Dean:
-        host_alice = Host('alice', Alice)
-        host_alice.add_connection('bob')
-        host_alice.max_ack_wait = 30
-        host_alice.delay = 0.2
-        host_alice.start()
+    host_alice = Host('Alice')
+    host_alice.add_connection('bob')
+    host_alice.max_ack_wait = 30
+    host_alice.delay = 0.2
+    host_alice.start()
 
-        host_bob = Host('bob', Bob)
-        host_bob.max_ack_wait = 30
-        host_bob.delay = 0.2
-        host_bob.add_connection('alice')
-        host_bob.add_connection('eve')
-        host_bob.start()
+    host_bob = Host('Bob')
+    host_bob.max_ack_wait = 30
+    host_bob.delay = 0.2
+    host_bob.add_connection('Alice')
+    host_bob.add_connection('Eve')
+    host_bob.start()
 
-        host_eve = Host('eve', Eve)
-        host_eve.max_ack_wait = 30
-        host_eve.delay = 0.2
-        host_eve.add_connection('bob')
-        host_eve.add_connection('dean')
-        host_eve.start()
+    host_eve = Host('Eve')
+    host_eve.max_ack_wait = 30
+    host_eve.delay = 0.2
+    host_eve.add_connection('Bob')
+    host_eve.add_connection('Dean')
+    host_eve.start()
 
-        host_dean = Host('dean', Dean)
-        host_dean.max_ack_wait = 30
-        host_dean.delay = 0.2
-        host_dean.add_connection('eve')
-        host_dean.start()
+    host_dean = Host('Dean')
+    host_dean.max_ack_wait = 30
+    host_dean.delay = 0.2
+    host_dean.add_connection('Eve')
+    host_dean.start()
 
-        network.add_host(host_alice)
-        network.add_host(host_bob)
-        network.add_host(host_eve)
-        network.add_host(host_dean)
+    network.add_host(host_alice)
+    network.add_host(host_bob)
+    network.add_host(host_eve)
+    network.add_host(host_dean)
 
-        network.x_error_rate = 0
-        network.packet_drop_rate = 0
+    network.x_error_rate = 0
+    network.packet_drop_rate = 0
 
-        q_size = 6
-        checksum_per_qubit = 2
+    q_size = 6
+    checksum_per_qubit = 2
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
-        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+    host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+    host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
-        while thread_1_return is None or thread_2_return is None:
-            if thread_1_return is False or thread_2_return is False:
-                Logger.get_instance().log('TCP Connection not successful : EXITING')
-                sys.exit(1)
-            pass
+    while thread_1_return is None or thread_2_return is None:
+        if thread_1_return is False or thread_2_return is False:
+            Logger.get_instance().log('TCP Connection not successful : EXITING')
+            sys.exit(1)
+        pass
 
-        thread_1_return = None
-        thread_2_return = None
+    thread_1_return = None
+    thread_2_return = None
 
-        Logger.get_instance().log('PACKET 1')
+    Logger.get_instance().log('PACKET 1')
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
-        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+    host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+    host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
-        while thread_1_return is None or thread_2_return is None:
-            if thread_1_return is False or thread_2_return is False:
-                Logger.get_instance().log('TCP Connection not successful : EXITING')
-                sys.exit(1)
-            pass
+    while thread_1_return is None or thread_2_return is None:
+        if thread_1_return is False or thread_2_return is False:
+            Logger.get_instance().log('TCP Connection not successful : EXITING')
+            sys.exit(1)
+        pass
 
-        Logger.get_instance().log('PACKET 2')
+    Logger.get_instance().log('PACKET 2')
 
-        host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
-        host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+    host_alice.run_protocol(qtcp_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+    host_dean.run_protocol(qtcp_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
-        while thread_1_return is None or thread_2_return is None:
-            if thread_1_return is False or thread_2_return is False:
-                Logger.get_instance().log('TCP Connection not successful : EXITING')
-                sys.exit(1)
-            pass
+    while thread_1_return is None or thread_2_return is None:
+        if thread_1_return is False or thread_2_return is False:
+            Logger.get_instance().log('TCP Connection not successful : EXITING')
+            sys.exit(1)
+        pass
 
-        start_time = time.time()
-        while time.time() - start_time < 150:
-            pass
+    start_time = time.time()
+    while time.time() - start_time < 150:
+        pass
 
-        network.stop(stop_hosts=True)
-        exit()
+    network.stop(stop_hosts=True)
+    exit()
 
 
 if __name__ == '__main__':

@@ -247,18 +247,38 @@ class Host:
 
         return self.seq_number[host]
 
-    def get_message_w_seq_num(self, sender_id, seq_num, wait=10):
-        tmp = []
-        start_time = time.time()
-        while time.time() - start_time < wait:
-            for message in self.classical:
-                if message.sender == sender_id:
-                    if message.seq_num == seq_num:
-                        tmp.append(message)
-            if tmp:
-                return tmp
+    def get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+        """
+        Get a message from a sender with a specific sequence number.
+        Args:
+            sender_id (str): The ID of the sender
+            seq_num (int): The sequence number
+            wait (int):
 
-        return None
+        Returns:
+
+        """
+
+        def _wait():
+            nonlocal m
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and m is None:
+                filter_messages()
+
+        def filter_messages():
+            nonlocal m
+            for message in self.classical:
+                if message.sender == sender_id and message.seq_num == seq_num:
+                    m = message
+
+        m = None
+        if wait > 0:
+            DaemonThread(_wait).join()
+            return m
+        else:
+            filter_messages()
+            return m
 
     def _log_ack(self, protocol, receiver, seq):
         """
@@ -671,30 +691,6 @@ class Host:
         self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 
-    def add_checksum(self, sender, qubits, size_per_qubit=2):
-        """
-        Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
-        Args:
-            sender (str): The sender name
-            qubits: The set of qubits to encode
-            size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
-
-        Returns:
-            list: A list of qubits that are encoded for *qubits*
-        """
-        i = 0
-        check_qubits = []
-        while i < len(qubits):
-            check = Qubit(sender)
-            j = 0
-            while j < size_per_qubit:
-                qubits[i + j].cnot(check)
-                j += 1
-
-            check_qubits.append(check)
-            i += size_per_qubit
-        return check_qubits
-
     def get_classical(self, partner_id, wait=-1):
         """
         Get the classical messages from partner host *partner_id*.
@@ -824,6 +820,16 @@ class Host:
             DaemonThread(protocol, args=arguments)
 
     def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
+        """
+
+        Args:
+            receive_from_id:
+            buffer:
+            sequence_nr:
+
+        Returns:
+
+        """
         buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
@@ -833,22 +839,32 @@ class Host:
             msg = ele.content
         return msg
 
-    def send_key(self, receiver_host, key_size, await_ack=True):
+    def send_key(self, receiver_id, key_size, await_ack=True):
+        """
 
-        seq_num = self._get_sequence_number(receiver_host.host_id, await_ack)
+        Args:
+            receiver_id:
+            key_size:
+            await_ack:
+
+        Returns:
+            bool
+        """
+
+        seq_num = self._get_sequence_number(receiver_id, await_ack)
         packet = protocols.encode(sender=self.host_id,
-                                  receiver=receiver_host.host_id,
+                                  receiver=receiver_id,
                                   protocol=protocols.SEND_KEY,
                                   payload={'keysize': key_size},
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
-        self.logger.log(self.host_id + " sends KEY to " + receiver_host.host_id)
+        self.logger.log(self.host_id + " sends KEY to " + receiver_id)
         self._packet_queue.put(packet)
 
-        # if packet.await_ack:
-        #     self._log_ack('EPR', receiver_host.host_id, seq_num)
-        #     return q_id, self.await_ack(seq_num, receiver_id)
+        if packet.await_ack:
+            self._log_ack('EPR', receiver_id, seq_num)
+            return self.await_ack(seq_num, receiver_id)
 
 
 def _get_qubit(store, partner_id, q_id):

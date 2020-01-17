@@ -1,12 +1,5 @@
-import sys
-
-sys.path.append("../..")
 from components.host import Host
-from backends.cqc_backend import CQCBackend
 from components.network import Network
-from components.logger import Logger
-from objects.daemon_thread import DaemonThread
-from objects.qubit import Qubit
 import time
 
 wait_time = 10
@@ -15,21 +8,15 @@ wait_time = 10
 def main():
     # Initialize a network
     network = Network.get_instance()
-
     # Define the host IDs in the network
     nodes = ['Alice', 'Bob', 'Eve']
-
     network.delay = 0.0
-
     # Start the network with the defined hosts
     network.start(nodes)
-
     # Initialize the host Alice
     host_alice = Host('Alice')
-
     # Add a one-way connection (classical and quantum) to Bob
     host_alice.add_connection('Bob')
-
     # Start listening
     host_alice.start()
 
@@ -56,7 +43,7 @@ def main():
              'Eve': host_eve}
 
     # Run Alice and Eve
-    host_alice.send_key(host_eve, key_size)
+    host_alice.send_key(host_eve.host_id, key_size)
 
     start_time = time.time()
     while time.time() - start_time < 60:
