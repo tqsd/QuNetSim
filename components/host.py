@@ -9,6 +9,10 @@ from objects.message import Message
 import uuid
 import time
 from backends.cqc_backend import CQCBackend
+import random
+import numpy as np
+
+wait_time = 10
 
 
 class Host:
@@ -46,6 +50,7 @@ class Host:
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
         self.seq_number = {}
+        self.qkd_keys = {}
 
     @property
     def host_id(self):
@@ -820,6 +825,35 @@ class Host:
             DaemonThread(protocol, args=arguments).join()
         else:
             DaemonThread(protocol, args=arguments)
+
+    def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
+        buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+        msg = "ACK"
+        while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
+            if len(buffer) == 0:
+                buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+            ele = buffer.pop(0)
+            msg = ele.content
+        return msg
+
+
+
+    def send_key(self, receiver_host, key_size, await_ack=True):
+
+        seq_num = self._get_sequence_number(receiver_host.host_id, await_ack)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=receiver_host.host_id,
+                                  protocol=protocols.SEND_KEY,
+                                  payload={'keysize': key_size},
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=seq_num,
+                                  await_ack=await_ack)
+        self.logger.log(self.host_id + " sends KEY to " + receiver_host.host_id)
+        self._packet_queue.put(packet)
+
+        # if packet.await_ack:
+        #     self._log_ack('EPR', receiver_host.host_id, seq_num)
+        #     return q_id, self.await_ack(seq_num, receiver_id)
 
 
 def _get_qubit(store, partner_id, q_id):
