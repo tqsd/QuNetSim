@@ -9,29 +9,6 @@ from objects.qubit import Qubit
 WAIT_TIME = 10
 
 
-def add_checksum(sender, qubits, size_per_qubit=2):
-    """
-    Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
-    Args:
-        sender (str): The sender name
-        qubits: The set of qubits to encode
-        size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
-
-    Returns:
-        list: A list of qubits that are encoded for *qubits*
-    """
-    i = 0
-    check_qubits = []
-    while i < len(qubits):
-        check = Qubit(sender)
-        j = 0
-        while j < size_per_qubit:
-            qubits[i + j].cnot(check)
-            j += 1
-
-        check_qubits.append(check)
-        i += size_per_qubit
-    return check_qubits
 
 
 def checksum_sender(host, q_size, receiver_id, checksum_size_per_qubit):
@@ -44,7 +21,7 @@ def checksum_sender(host, q_size, receiver_id, checksum_size_per_qubit):
             q_tmp.X()
         qubits.append(q_tmp)
 
-    check_qubits = host.add_checksum(host, qubits, checksum_size_per_qubit)
+    check_qubits = host.add_checksum(qubits, checksum_size_per_qubit)
     checksum_size = int(q_size / checksum_size_per_qubit)
     qubits.append(check_qubits)
     checksum_cnt = 0

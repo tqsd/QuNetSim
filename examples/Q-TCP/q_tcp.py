@@ -193,7 +193,7 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
             q_tmp.X()
         qubits.append(q_tmp)
 
-    check_qubits = host.add_checksum(host.cqc, qubits, checksum_size_per_qubit)
+    check_qubits = host.add_checksum(qubits, checksum_size_per_qubit)
     checksum_size = int(q_size / checksum_size_per_qubit)
     qubits.append(check_qubits)
     checksum_cnt = 0

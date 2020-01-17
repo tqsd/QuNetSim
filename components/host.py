@@ -691,6 +691,29 @@ class Host:
         self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 
+    def add_checksum(self, qubits, size_per_qubit=2):
+        """
+        Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
+        Args:
+            qubits: The set of qubits to encode
+            size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
+
+        Returns:
+            list: A list of qubits that are encoded for *qubits*
+        """
+        i = 0
+        check_qubits = []
+        while i < len(qubits):
+            check = Qubit(self.host_id)
+            j = 0
+            while j < size_per_qubit:
+                qubits[i + j].cnot(check)
+                j += 1
+
+            check_qubits.append(check)
+            i += size_per_qubit
+        return check_qubits
+
     def get_classical(self, partner_id, wait=-1):
         """
         Get the classical messages from partner host *partner_id*.
