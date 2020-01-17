@@ -1,4 +1,3 @@
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 
