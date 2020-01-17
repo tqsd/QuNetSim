@@ -84,6 +84,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.Hosts.__instance is not None:
                 return CQCBackend.Hosts.__instance
@@ -100,6 +101,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.CQCConnections.__instance is not None:
                 return CQCBackend.CQCConnections.__instance
@@ -116,6 +118,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.EntanglementIDs.__instance is not None:
                 return CQCBackend.EntanglementIDs.__instance

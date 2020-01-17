@@ -543,7 +543,7 @@ class Network:
         if self._backend is not None:
             self._backend.stop()
 
-    def start(self, nodes=None, backend=CQCBackend()):
+    def start(self, nodes=None, backend=None):
         """
         Starts the network.
 

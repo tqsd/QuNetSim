@@ -26,14 +26,12 @@ def main():
 
     host_A = Host('A')
     host_A.add_connection('B')
-    host_A.add_connection('C')
     host_A.start()
     host_B = Host('B')
     host_B.add_connection('A')
     host_B.add_connection('C')
     host_B.start()
     host_C = Host('C')
-    host_C.add_connection('A')
     host_C.add_connection('B')
     host_C.start()
 

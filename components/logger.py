@@ -1,7 +1,7 @@
 import logging
 
-FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.INFO)
+FORMAT = '%(asctime)s: %(message)s'
+logging.basicConfig(format=FORMAT)
 
 
 class Logger:
@@ -15,7 +15,8 @@ class Logger:
 
     def __init__(self):
         if Logger.__instance is None:
-            self.logger = logging.getLogger('log')
+            self.logger = logging.getLogger('qu_net_sim')
+            self.logger.setLevel(logging.INFO)
             Logger.__instance = self
         else:
             raise Exception('this is a singleton class')

@@ -6,15 +6,14 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
+from backends.cqc_backend import CQCBackend
 import uuid
 import time
-from backends.cqc_backend import CQCBackend
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    backend = CQCBackend()
     WAIT_TIME = 10
 
     def __init__(self, host_id, backend=None):
@@ -36,10 +35,11 @@ class Host:
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = Host.backend
+            self._backend = CQCBackend()
         else:
             self._backend = backend
         # add this host to the backend
+
         self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
@@ -58,6 +58,10 @@ class Host:
             (string): The host ID of the host.
         """
         return self._host_id
+
+    @property
+    def backend(self):
+        return self._backend
 
     @property
     def classical_connections(self):
