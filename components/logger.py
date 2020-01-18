@@ -6,6 +6,7 @@ logging.basicConfig(format=FORMAT)
 
 class Logger:
     __instance = None
+    DISABLED = False
 
     @staticmethod
     def get_instance():
@@ -22,13 +23,17 @@ class Logger:
             raise Exception('this is a singleton class')
 
     def warn(self, message):
-        self.logger.warning(message)
+        if not Logger.DISABLED:
+            self.logger.warning(message)
 
     def error(self, message):
-        self.logger.error(message)
+        if not Logger.DISABLED:
+            self.logger.error(message)
 
     def log(self, message):
-        self.logger.info(message)
+        if not Logger.DISABLED:
+            self.logger.info(message)
 
     def debug(self, message):
-        self.logger.debug(message)
+        if not Logger.DISABLED:
+            self.logger.debug(message)
