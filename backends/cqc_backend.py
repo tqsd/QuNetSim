@@ -1,7 +1,6 @@
 import cqc.pythonLib as cqc
 from simulaqron.settings import simulaqron_settings
 from simulaqron.network import Network as SimulaNetwork
-from functools import partial as fp
 from objects.qubit import Qubit
 import numpy as np
 import threading
@@ -52,7 +51,6 @@ class RWLock:
 
 
 class SafeDict(object):
-
     def __init__(self):
         self.lock = RWLock()
         self.dict = {}
@@ -86,6 +84,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.Hosts.__instance is not None:
                 return CQCBackend.Hosts.__instance
@@ -102,6 +101,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.CQCConnections.__instance is not None:
                 return CQCBackend.CQCConnections.__instance
@@ -118,6 +118,7 @@ class CQCBackend(object):
         # There only should be one instance of Hosts
         __instance = None
 
+        @staticmethod
         def get_instance():
             if CQCBackend.EntanglementIDs.__instance is not None:
                 return CQCBackend.EntanglementIDs.__instance

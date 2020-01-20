@@ -60,7 +60,7 @@ class ClassicalStorage(object):
         """
         if delete:
             raise ValueError("delete option not implemented yet!")
-        if sender_id in self._host_to_msg_dict.keys():
+        if sender_id in self._host_to_msg_dict:
             return self._host_to_msg_dict[sender_id]
         return []
 

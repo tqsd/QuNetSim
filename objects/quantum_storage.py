@@ -155,7 +155,7 @@ class QuantumStorage(object):
         """
         for q in self._qubit_dict.values():
             for ele in q.values():
-                print("release qubit with id " + str(ele.id))
+                # print("release qubit with id " + str(ele.id))
                 ele.release()
 
     def check_qubit_from_host_exists(self, from_host_id):
@@ -247,7 +247,6 @@ class QuantumStorage(object):
             qubit.release()
             return
 
-        print('--- Adding qubit ---')
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, from_host_id)
 

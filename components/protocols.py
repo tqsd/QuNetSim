@@ -497,31 +497,6 @@ def _rec_key(packet):
     receiver.qkd_keys[sender.host_id] = key
 
 
-def _add_checksum(sender, qubits, size_per_qubit=2):
-    """
-    Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
-    Args:
-        sender: The sender name
-        qubits: The set of qubits to encode
-        size_per_qubit: The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
-
-    Returns:
-        list: A list of qubits that are encoded for *qubits*
-    """
-    i = 0
-    check_qubits = []
-    while i < len(qubits):
-        check = Qubit(sender)
-        j = 0
-        while j < size_per_qubit:
-            qubits[i + j].cnot(check)
-            j += 1
-
-        check_qubits.append(check)
-        i += size_per_qubit
-    return check_qubits
-
-
 def _encode_superdense(message, q):
     """
     Encode qubit q with the 2 bit message.
