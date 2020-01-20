@@ -16,64 +16,6 @@ class Host:
 
     WAIT_TIME = 10
 
-    class AckReceiver:
-
-        def __init__(self, ack_receive_dict, messages, handle):
-            self._seq_number_sender_ack = ack_receive_dict
-            self._classical = messages
-            self.queue = handle
-
-        def check_task(self, thread, sender, seq_num, timeout, start_time):
-            if sender not in self._seq_number_sender_ack.keys():
-                return False
-            if seq_num < self._seq_number_sender_ack[sender][1]:
-                thread.put(True)
-                return True
-            if seq_num in self._seq_number_sender_ack[sender][0]:
-                thread.put(True)
-                return True
-            if timeout is not None and time.time() - timeout > start_time:
-                thread.put(False)
-                return True
-            return False
-
-        def run(self):
-            waiting_tasks = []
-            while True:
-                time.sleep(0.1)
-                while not self.queue.empty():
-                    thread, sender, seq_num, timeout = self.queue.get()
-                    start_time = None
-                    if timeout is not None:
-                        start_time = time.time()
-                    waiting_tasks.append((thread, sender, seq_num, timeout, start_time))
-                messages = self._classical
-                for m in messages:
-                    if str.startswith(m.content, protocols.ACK):
-                        sender = m.sender
-                        if sender not in self._seq_number_sender_ack.keys():
-                            self._seq_number_sender_ack[sender] = [[], 0]
-                        seq_num = m.seq_num
-                        expected_seq = self._seq_number_sender_ack[sender][1]
-                        if seq_num == expected_seq:
-                            self._seq_number_sender_ack[sender][1] += 1
-                            expected_seq = self._seq_number_sender_ack[receiver][1]
-                            while len(self._seq_number_sender_ack[receiver][0]) > 0 \
-                                    and expected_seq in self._seq_number_sender_ack[receiver][0]:
-                                self._seq_number_sender_ack[receiver][0].remove(expected_seq)
-                                self._seq_number_sender_ack[receiver][1] += 1
-                                expected_seq += 1
-                        elif seq_num > expected_seq:
-                            self._seq_number_sender_ack[sender][0].append(seq_num)
-                        else:
-                            raise Exception("Should never happen!")
-                for t in waiting_tasks:
-                    print("Check for sender %s" % t[1])
-                    res = self.check_task(*t)
-                    if res is True:
-                        waiting_tasks.remove(t)
-
-
     def __init__(self, host_id, backend=None):
         """
         Return the most important thing about a person.
@@ -377,6 +319,9 @@ class Host:
             packet (Packet): The received packet
         """
         def check_task(q, sender, seq_num, timeout, start_time):
+            if timeout is not None and time.time() - timeout > start_time:
+                q.put(False)
+                return True
             if sender not in self._seq_number_sender_ack.keys():
                 return False
             if seq_num < self._seq_number_sender_ack[sender][1]:
@@ -384,9 +329,6 @@ class Host:
                 return True
             if seq_num in self._seq_number_sender_ack[sender][0]:
                 q.put(True)
-                return True
-            if timeout is not None and time.time() - timeout > start_time:
-                q.put(False)
                 return True
             return False
 
@@ -523,8 +465,8 @@ class Host:
 
         def wait():
             nonlocal did_ack
-            q = Queue()
             start_time = time.time()
+            q = Queue()
             task = (q, sender, sequence_number, self.max_ack_wait, start_time)
             self._ack_receiver_queue.append(task)
             res = q.get()
