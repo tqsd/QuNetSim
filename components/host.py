@@ -318,6 +318,7 @@ class Host:
         Args:
             packet (Packet): The received packet
         """
+
         def check_task(q, sender, seq_num, timeout, start_time):
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
@@ -446,7 +447,8 @@ class Host:
         else:
             self._seq_number_receiver[receiver][1] += 1
             expected_seq = self._seq_number_receiver[receiver][1]
-            while len(self._seq_number_receiver[receiver][0]) > 0 and expected_seq in self._seq_number_receiver[receiver][0]:
+            while len(self._seq_number_receiver[receiver][0]) > 0 and expected_seq in \
+                    self._seq_number_receiver[receiver][0]:
                 self._seq_number_receiver[receiver][0].remove(expected_seq)
                 self._seq_number_receiver[receiver][1] += 1
                 expected_seq += 1
@@ -473,7 +475,7 @@ class Host:
             return
 
         did_ack = False
-        DaemonThread(wait).join()
+        wait()
         return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
@@ -724,7 +726,7 @@ class Host:
         self._EPR_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 
-    def add_data_qubit(self, partner_id, qubit):
+    def add_data_qubit(self, partner_id, qubit, q_id=None):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
@@ -735,6 +737,9 @@ class Host:
         Returns:
             (string) *q_id*: The qubit ID
         """
+        if q_id is not None:
+            qubit.set_new_id(q_id)
+
         self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 

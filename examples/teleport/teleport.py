@@ -1,7 +1,7 @@
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
-import time
+
 
 def main():
     network = Network.get_instance()
@@ -30,13 +30,10 @@ def main():
     q.X()
 
     host_alice.send_teleport('Eve', q, await_ack=True)
-
-    print(host_eve.data_qubit_store)
-
     q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
+
     assert q_eve is not None
     print('Eve measures: %d' % q_eve.measure())
-    network.stop(True)
 
 
 if __name__ == '__main__':

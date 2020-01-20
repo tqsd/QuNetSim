@@ -213,35 +213,36 @@ def _send_teleport(packet):
     else:
         q_type = DATA
 
-    q_id = None
-
     q = packet.payload['q']
+    q_id = q.id
 
     host_sender = network.get_host(packet.sender)
     if GENERATE_EPR_IF_NONE in packet.payload and packet.payload[GENERATE_EPR_IF_NONE]:
         if not network.shares_epr(packet.sender, packet.receiver):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet.sender + " and " + packet.receiver)
-            q_id, _ = host_sender.send_epr(packet.receiver, await_ack=True, block=True)
+            host_sender.send_epr(packet.receiver, q_id=q_id, await_ack=True, block=True)
 
     if 'q_id' in packet.payload:
         epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['q_id'], wait=WAIT_TIME)
     else:
-        if q_id is not None:
-            epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=WAIT_TIME)
-        else:
-            epr_teleport = host_sender.get_epr(packet.receiver, wait=WAIT_TIME)
+        epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=WAIT_TIME)
+
     assert epr_teleport is not None
     q.cnot(epr_teleport)
     q.H()
 
     m1 = q.measure()
     m2 = epr_teleport.measure()
+
+    print(q_type)
+
     data = {
         'measurements': [m1, m2],
         'type': q_type,
         'node': node
     }
+
     if q_type == EPR:
         data['q_id'] = packet.payload['q_id']
     else:
@@ -288,7 +289,7 @@ def _rec_teleport(packet):
         host_receiver.add_epr(epr_host, q)
 
     elif payload['type'] == DATA:
-        host_receiver.add_data_qubit(epr_host, q)
+        host_receiver.add_data_qubit(epr_host, q, q_id=q_id)
 
     if packet.await_ack:
         if 'o_seq_num' in payload and 'ack' in payload:
