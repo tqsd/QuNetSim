@@ -1,4 +1,4 @@
-New Example Template
---------------------
+Entanglement Based Routing
+--------------------------
 
-In this file we provide a template to write your own examples.
+

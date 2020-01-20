@@ -16,6 +16,9 @@ class Message(object):
         self._content = content
         self._seq_num = seq_num
 
+    def __str__(self):
+        return "Sender: " + self.sender + "\nContent: " + self.content + "\nSequence number: " + str(self.seq_num)
+
     @property
     def sender(self):
         """

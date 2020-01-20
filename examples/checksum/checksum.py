@@ -1,18 +1,14 @@
-import sys
-
-sys.path.append("../..")
-
 import time
 import numpy as np
-import sys
 
-sys.path.append("../..")
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-from cqc.pythonLib import CQCConnection, qubit
+from objects.qubit import Qubit
 
 WAIT_TIME = 10
+
+
 
 
 def checksum_sender(host, q_size, receiver_id, checksum_size_per_qubit):
@@ -20,12 +16,12 @@ def checksum_sender(host, q_size, receiver_id, checksum_size_per_qubit):
     Logger.get_instance().log('Bit array to be sent: ' + str(bit_arr))
     qubits = []
     for i in range(q_size):
-        q_tmp = qubit(host.cqc)
+        q_tmp = Qubit(host)
         if bit_arr[i] == 1:
             q_tmp.X()
         qubits.append(q_tmp)
 
-    check_qubits = host.add_checksum(host.cqc, qubits, checksum_size_per_qubit)
+    check_qubits = host.add_checksum(qubits, checksum_size_per_qubit)
     checksum_size = int(q_size / checksum_size_per_qubit)
     qubits.append(check_qubits)
     checksum_cnt = 0
@@ -37,8 +33,6 @@ def checksum_sender(host, q_size, receiver_id, checksum_size_per_qubit):
             checksum_cnt = checksum_cnt + 1
 
         host.send_qubit(receiver_id, q, await_ack=True)
-
-    return
 
 
 def checksum_receiver(host, q_size, sender_id, checksum_size_per_qubit):
@@ -89,63 +83,57 @@ def checksum_receiver(host, q_size, sender_id, checksum_size_per_qubit):
 
 
 def main():
-    global thread_1_return
-    global thread_2_return
-
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes, backend)
+    network.start(nodes)
     network.delay = 0.5
 
-    print('')
-    with CQCConnection("Alice") as Alice, CQCConnection("Bob") as Bob, CQCConnection('Eve') as Eve, CQCConnection(
-            'Dean') as Dean:
-        host_alice = Host('alice', Alice)
-        host_alice.add_connection('bob')
-        host_alice.max_ack_wait = 30
-        host_alice.delay = 0.2
-        host_alice.start()
+    host_alice = Host('Alice')
+    host_alice.add_connection('Bob')
+    host_alice.max_ack_wait = 30
+    host_alice.delay = 0.2
+    host_alice.start()
 
-        host_bob = Host('bob', Bob)
-        host_bob.max_ack_wait = 30
-        host_bob.delay = 0.2
-        host_bob.add_connection('alice')
-        host_bob.add_connection('eve')
-        host_bob.start()
+    host_bob = Host('Bob')
+    host_bob.max_ack_wait = 30
+    host_bob.delay = 0.2
+    host_bob.add_connection('Alice')
+    host_bob.add_connection('Eve')
+    host_bob.start()
 
-        host_eve = Host('eve', Eve)
-        host_eve.max_ack_wait = 30
-        host_eve.delay = 0.2
-        host_eve.add_connection('bob')
-        host_eve.add_connection('dean')
-        host_eve.start()
+    host_eve = Host('Eve')
+    host_eve.max_ack_wait = 30
+    host_eve.delay = 0.2
+    host_eve.add_connection('Bob')
+    host_eve.add_connection('Dean')
+    host_eve.start()
 
-        host_dean = Host('dean', Dean)
-        host_dean.max_ack_wait = 30
-        host_dean.delay = 0.2
-        host_dean.add_connection('eve')
-        host_dean.start()
+    host_dean = Host('Dean')
+    host_dean.max_ack_wait = 30
+    host_dean.delay = 0.2
+    host_dean.add_connection('Eve')
+    host_dean.start()
 
-        network.add_host(host_alice)
-        network.add_host(host_bob)
-        network.add_host(host_eve)
-        network.add_host(host_dean)
+    network.add_host(host_alice)
+    network.add_host(host_bob)
+    network.add_host(host_eve)
+    network.add_host(host_dean)
 
-        network.x_error_rate = 0
-        network.packet_drop_rate = 0
+    network.x_error_rate = 0
+    network.packet_drop_rate = 0
 
-        q_size = 6
-        checksum_per_qubit = 2
+    q_size = 6
+    checksum_per_qubit = 2
 
-        host_alice.run_protocol(checksum_sender, (q_size, host_dean.host_id, checksum_per_qubit))
-        host_dean.run_protocol(checksum_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
+    host_alice.run_protocol(checksum_sender, (q_size, host_dean.host_id, checksum_per_qubit))
+    host_dean.run_protocol(checksum_receiver, (q_size, host_alice.host_id, checksum_per_qubit))
 
-        start_time = time.time()
-        while time.time() - start_time < 150:
-            pass
+    start_time = time.time()
+    while time.time() - start_time < 150:
+        pass
 
-        network.stop(stop_hosts=True)
-        exit()
+    network.stop(stop_hosts=True)
+    exit()
 
 
 if __name__ == '__main__':

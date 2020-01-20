@@ -6,19 +6,15 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
+from backends.cqc_backend import CQCBackend
 import uuid
 import time
-from backends.cqc_backend import CQCBackend
-import random
-import numpy as np
-
-wait_time = 10
 
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
-    backend = CQCBackend()
+    WAIT_TIME = 10
 
     def __init__(self, host_id, backend=None):
         """
@@ -39,17 +35,26 @@ class Host:
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = Host.backend
+            self._backend = CQCBackend()
         else:
             self._backend = backend
         # add this host to the backend
+
         self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self.seq_number = {}
+        self._max_window = 10
+        # [Queue, sender, seq_num, timeout, start_time]
+        self._ack_receiver_queue = []
+        # sender: host -> int
+        self._seq_number_sender = {}
+        # sender_ack: host->[received_list, low_number]
+        self._seq_number_sender_ack = {}
+        # receiver: host->[received_list, low_number]
+        self._seq_number_receiver = {}
         self.qkd_keys = {}
 
     @property
@@ -61,6 +66,10 @@ class Host:
             (string): The host ID of the host.
         """
         return self._host_id
+
+    @property
+    def backend(self):
+        return self._backend
 
     @property
     def classical_connections(self):
@@ -102,7 +111,7 @@ class Host:
 
     @property
     def data_qubit_store(self):
-        return self.data_qubit_store
+        return self._data_qubit_store
 
     @property
     def delay(self):
@@ -216,7 +225,7 @@ class Host:
         """
         return self._quantum_connections
 
-    def _get_sequence_number(self, host, should_not_increment=False):
+    def _get_sequence_number(self, host):
         """
         Get and set the next sequence number of connection with a receiver.
 
@@ -227,12 +236,11 @@ class Host:
             (int): The next sequence number of connection with a receiver.
 
         """
-        if host not in self.seq_number:
-            self.seq_number[host] = 0
+        if host not in self._seq_number_sender:
+            self._seq_number_sender[host] = 0
         else:
-            if not should_not_increment:
-                self.seq_number[host] += 1
-        return self.seq_number[host]
+            self._seq_number_sender[host] += 1
+        return self._seq_number_sender[host]
 
     def get_sequence_number(self, host):
         """
@@ -250,18 +258,38 @@ class Host:
 
         return self.seq_number[host]
 
-    def get_message_w_seq_num(self, sender_id, seq_num, wait=10):
-        tmp = []
-        start_time = time.time()
-        while time.time() - start_time < wait:
-            for message in self.classical:
-                if message.sender == sender_id:
-                    if message.seq_num == seq_num:
-                        tmp.append(message)
-            if tmp:
-                return tmp
+    def get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+        """
+        Get a message from a sender with a specific sequence number.
+        Args:
+            sender_id (str): The ID of the sender
+            seq_num (int): The sequence number
+            wait (int):
 
-        return None
+        Returns:
+
+        """
+
+        def _wait():
+            nonlocal m
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and m is None:
+                filter_messages()
+
+        def filter_messages():
+            nonlocal m
+            for message in self.classical:
+                if message.sender == sender_id and message.seq_num == seq_num:
+                    m = message
+
+        m = None
+        if wait > 0:
+            DaemonThread(_wait).join()
+            return m
+        else:
+            filter_messages()
+            return m
 
     def _log_ack(self, protocol, receiver, seq):
         """
@@ -271,8 +299,8 @@ class Host:
             receiver (string): The sender of the ACK
             seq (int): The sequence number of the packet
         """
-        Logger.get_instance().log(
-            self.host_id + ' awaits ' + protocol + ' ACK from ' + receiver + ' with sequence ' + str(seq + 1))
+        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from ' +
+                        receiver + ' with sequence ' + str(seq))
 
     def is_idle(self):
         """
@@ -291,14 +319,51 @@ class Host:
             packet (Packet): The received packet
         """
 
+        def check_task(q, sender, seq_num, timeout, start_time):
+            if timeout is not None and time.time() - timeout > start_time:
+                q.put(False)
+                return True
+            if sender not in self._seq_number_sender_ack.keys():
+                return False
+            if seq_num < self._seq_number_sender_ack[sender][1]:
+                q.put(True)
+                return True
+            if seq_num in self._seq_number_sender_ack[sender][0]:
+                q.put(True)
+                return True
+            return False
+
         sender = packet.sender
         result = protocols.process(packet)
         if result is not None:
             msg = Message(sender, result['message'], result['sequence_number'])
             self._classical_messages.add_msg_to_storage(msg)
-            if result['message'] != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message']) + ' with sequence number ' + str(
-                    result['sequence_number']))
+            if msg.content != protocols.ACK:
+                self.logger.log(self.host_id + ' received ' + str(result['message']) +
+                                ' with sequence number ' + str(result['sequence_number']))
+            else:
+                # Is ack msg
+                sender = msg.sender
+                if sender not in self._seq_number_sender_ack.keys():
+                    self._seq_number_sender_ack[sender] = [[], 0]
+                seq_num = msg.seq_num
+                expected_seq = self._seq_number_sender_ack[sender][1]
+                if seq_num == expected_seq:
+                    self._seq_number_sender_ack[sender][1] += 1
+                    expected_seq = self._seq_number_sender_ack[sender][1]
+                    while len(self._seq_number_sender_ack[sender][0]) > 0 \
+                            and expected_seq in self._seq_number_sender_ack[sender][0]:
+                        self._seq_number_sender_ack[sender][0].remove(expected_seq)
+                        self._seq_number_sender_ack[sender][1] += 1
+                        expected_seq += 1
+                elif seq_num > expected_seq:
+                    self._seq_number_sender_ack[sender][0].append(seq_num)
+                else:
+                    raise Exception("Should never happen!")
+                for t in self._ack_receiver_queue:
+                    res = check_task(*t)
+                    if res is True:
+                        self._ack_receiver_queue.remove(t)
 
     def _process_queue(self):
         """
@@ -370,12 +435,23 @@ class Host:
                                   protocol=protocols.SEND_CLASSICAL,
                                   payload=protocols.ACK,
                                   payload_type=protocols.SIGNAL,
-                                  sequence_num=seq_number + 1,
+                                  sequence_num=seq_number,
                                   await_ack=False)
-        if receiver in self.seq_number:
-            self.seq_number[receiver] = max(self.seq_number[receiver] + 1, seq_number + 1)
+        if receiver not in self._seq_number_receiver:
+            self._seq_number_receiver[receiver] = [[], 0]
+        expected_seq = self._seq_number_receiver[receiver][1]
+        if expected_seq + self._max_window < seq_number:
+            raise Exception("Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+        elif expected_seq < seq_number:
+            self._seq_number_receiver[receiver][0].append(seq_number)
         else:
-            self.seq_number[receiver] = seq_number + 1
+            self._seq_number_receiver[receiver][1] += 1
+            expected_seq = self._seq_number_receiver[receiver][1]
+            while len(self._seq_number_receiver[receiver][0]) > 0 and expected_seq in \
+                    self._seq_number_receiver[receiver][0]:
+                self._seq_number_receiver[receiver][0].remove(expected_seq)
+                self._seq_number_receiver[receiver][1] += 1
+                expected_seq += 1
         self._packet_queue.put(packet)
 
     def await_ack(self, sequence_number, sender):
@@ -390,26 +466,16 @@ class Host:
 
         def wait():
             nonlocal did_ack
-            ack_start_time = time.time()
-            while True:
-                if self.max_ack_wait is not None and time.time() - ack_start_time > self.max_ack_wait:
-                    did_ack = False
-                    return
-
-                time.sleep(0.1)
-                messages = self.classical
-                for m in messages:
-                    if str.startswith(m.content, protocols.ACK):
-                        if m.sender == sender and m.seq_num == sequence_number + 1:
-                            Logger.get_instance().log(
-                                'ACK ' + str(m.seq_num) + ' from ' + sender + ' arrived at ' + self.host_id)
-                            did_ack = True
-                            return
+            start_time = time.time()
+            q = Queue()
+            task = (q, sender, sequence_number, self.max_ack_wait, start_time)
+            self._ack_receiver_queue.append(task)
+            res = q.get()
+            did_ack = res
+            return
 
         did_ack = False
-        DaemonThread(wait).join()
-        if sender in self.seq_number:
-            self.seq_number[sender] = sequence_number + 1
+        wait()
         return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
@@ -424,7 +490,7 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -455,7 +521,7 @@ class Host:
         if q_id is None:
             q_id = str(uuid.uuid4())
 
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
@@ -490,7 +556,7 @@ class Host:
                                   protocol=protocols.SEND_TELEPORT,
                                   payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
+                                  sequence_num=self._get_sequence_number(receiver_id),
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -519,7 +585,7 @@ class Host:
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id, await_ack),
+                                  sequence_num=self._get_sequence_number(receiver_id),
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -540,7 +606,7 @@ class Host:
         """
         q.set_blocked_state(True)
         q_id = q.id
-        seq_num = self._get_sequence_number(receiver_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
@@ -660,7 +726,7 @@ class Host:
         self._EPR_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 
-    def add_data_qubit(self, partner_id, qubit):
+    def add_data_qubit(self, partner_id, qubit, q_id=None):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
@@ -669,16 +735,18 @@ class Host:
             partner_id: The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
         Returns:
-             (string) *q_id*: The qubit ID
+            (string) *q_id*: The qubit ID
         """
+        if q_id is not None:
+            qubit.set_new_id(q_id)
+
         self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
         return qubit.id
 
-    def add_checksum(self, sender, qubits, size_per_qubit=2):
+    def add_checksum(self, qubits, size_per_qubit=2):
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
         Args:
-            sender (str): The sender name
             qubits: The set of qubits to encode
             size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
@@ -688,7 +756,7 @@ class Host:
         i = 0
         check_qubits = []
         while i < len(qubits):
-            check = Qubit(sender)
+            check = Qubit(self.host_id)
             j = 0
             while j < size_per_qubit:
                 qubits[i + j].cnot(check)
@@ -827,33 +895,51 @@ class Host:
             DaemonThread(protocol, args=arguments)
 
     def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+        """
+
+        Args:
+            receive_from_id:
+            buffer:
+            sequence_nr:
+
+        Returns:
+
+        """
+        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + self.get_classical(receive_from_id, wait=wait_time)
+                buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg
 
+    def send_key(self, receiver_id, key_size, await_ack=True):
+        """
 
+        Args:
+            receiver_id:
+            key_size:
+            await_ack:
 
-    def send_key(self, receiver_host, key_size, await_ack=True):
+        Returns:
+            bool
+        """
 
-        seq_num = self._get_sequence_number(receiver_host.host_id, await_ack)
+        seq_num = self._get_sequence_number(receiver_host.host_id)
         packet = protocols.encode(sender=self.host_id,
-                                  receiver=receiver_host.host_id,
+                                  receiver=receiver_id,
                                   protocol=protocols.SEND_KEY,
                                   payload={'keysize': key_size},
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
-        self.logger.log(self.host_id + " sends KEY to " + receiver_host.host_id)
+        self.logger.log(self.host_id + " sends KEY to " + receiver_id)
         self._packet_queue.put(packet)
 
-        # if packet.await_ack:
-        #     self._log_ack('EPR', receiver_host.host_id, seq_num)
-        #     return q_id, self.await_ack(seq_num, receiver_id)
+        if packet.await_ack:
+            self._log_ack('EPR', receiver_id, seq_num)
+            return self.await_ack(seq_num, receiver_id)
 
 
 def _get_qubit(store, partner_id, q_id):

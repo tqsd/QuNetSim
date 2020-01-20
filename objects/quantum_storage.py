@@ -155,7 +155,7 @@ class QuantumStorage(object):
         """
         for q in self._qubit_dict.values():
             for ele in q.values():
-                print("release qubit with id " + str(ele.id))
+                # print("release qubit with id " + str(ele.id))
                 ele.release()
 
     def check_qubit_from_host_exists(self, from_host_id):
@@ -193,7 +193,7 @@ class QuantumStorage(object):
         return qubit
 
     def _add_qubit_to_qubit_dict(self, qubit, from_host_id):
-        if qubit.id not in self._qubit_dict.keys():
+        if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
         self._qubit_dict[qubit.id][from_host_id] = qubit
 
@@ -225,7 +225,7 @@ class QuantumStorage(object):
         True if qubit with same parameters already in the systems
         """
         if qubit.id in self._qubit_dict and \
-            from_host_id in self._qubit_dict[qubit.id]:
+                from_host_id in self._qubit_dict[qubit.id]:
             return True
         return False
 
@@ -238,13 +238,15 @@ class QuantumStorage(object):
             from_host_id (String): Id of the Host from whom the qubit has
                              been received.
         """
+
         if self._check_qubit_in_system(qubit, from_host_id):
             raise ValueError("Qubit with these parameters already in storage!")
-        if from_host_id not in self._host_dict.keys():
+        if from_host_id not in self._host_dict:
             self._add_new_host(from_host_id)
         if not self._increase_qubit_counter(from_host_id):
             qubit.release()
             return
+
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, from_host_id)
 

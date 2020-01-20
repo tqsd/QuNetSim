@@ -5,9 +5,7 @@ import random
 
 sys.path.append("../..")
 from components.host import Host
-from backends.cqc_backend import CQCBackend
 from components.network import Network
-from components.logger import Logger
 from objects.daemon_thread import DaemonThread
 from objects.qubit import Qubit
 

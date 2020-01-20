@@ -31,7 +31,7 @@ def main():
         network.add_host(h)
 
     ack_received_1 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
-    hosts['alice'].max_ack_wait = 0
+    hosts['alice'].max_ack_wait = 0.0
     ack_received_2 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
     assert ack_received_1
     assert not ack_received_2

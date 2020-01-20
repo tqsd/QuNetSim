@@ -1,13 +1,10 @@
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
+Send EPR
+--------
 
+In this example, we send a data qubit from Alice to Dean who sits 2 hops away from Alice in the network.
 
-# In this example, we send a data qubit from
-# Alice to Dean who sits 2 hops away from Alice
-# in the network.
+..  code-block:: python
 
-def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes)
@@ -53,9 +50,3 @@ def main():
     else:
         print('q_rec is none')
 
-    network.stop(True)
-    exit()
-
-
-if __name__ == '__main__':
-    main()
