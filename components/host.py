@@ -360,7 +360,6 @@ class Host:
                 else:
                     raise Exception("Should never happen!")
                 for t in self._ack_receiver_queue:
-                    print("Check for sender %s" % t[1])
                     res = check_task(*t)
                     if res is True:
                         self._ack_receiver_queue.remove(t)
@@ -474,9 +473,7 @@ class Host:
             return
 
         did_ack = False
-        print('Waiting for ack with %d in host %s from %s' % ((sequence_number), self._host_id, sender))
         DaemonThread(wait).join()
-        print('Ack arrived with ' + str(did_ack) + ' and seq num ' + str(sequence_number) + ' in host ' + self._host_id)
         return did_ack
 
     def send_classical(self, receiver_id, message, await_ack=False):
