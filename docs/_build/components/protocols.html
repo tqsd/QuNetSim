@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.0.0
+                0.0.1
               </div>
             
           
@@ -114,8 +114,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/template.html">New Example Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
 </li>
@@ -189,23 +190,6 @@
             
   <div class="section" id="module-components.protocols">
 <span id="protocols"></span><h1>Protocols<a class="headerlink" href="#module-components.protocols" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="components.protocols._add_checksum">
-<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_add_checksum</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">qubits</em>, <em class="sig-param">size_per_qubit=2</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._add_checksum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a set of qubits that represent a quantum checksum for the set of qubits <em>qubits</em>
-:param sender: The sender name
-:param qubits: The set of qubits to encode
-:param size_per_qubit: The size of the checksum per qubit (i.e. 1 qubit encoded into <em>size</em>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A list of qubits that are encoded for <em>qubits</em></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="function">
 <dt id="components.protocols._decode_superdense">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_decode_superdense</code><span class="sig-paren">(</span><em class="sig-param">q1</em>, <em class="sig-param">q2</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._decode_superdense" title="Permalink to this definition">¶</a></dt>

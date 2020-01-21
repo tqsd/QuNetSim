@@ -1,6 +1,4 @@
 from string import ascii_uppercase
-import subprocess
-import os
 
 
 def gen_imports():
@@ -8,7 +6,8 @@ def gen_imports():
     imports += "from components.host import Host\n"
     imports += "from components.network import Network\n"
     imports += "from objects.qubit import Qubit\n"
-    imports += "import time\n\n"
+    imports += "from components.logger import Logger\n"
+    imports += "Logger.DISABLED = True\n\n\n"
     return imports
 
 
@@ -16,16 +15,19 @@ def gen_protocols():
     content = ""
     content += "def protocol_1(host, receiver):" + "\n"
     content += "    " + "# Here we write the protocol code for a host.\n"
-    content += "    " + "host.send_classical(receiver, 'Hello!', await_ack=True)\n"
-    content += "    " + "print('Message was received')" + "\n\n"
+    content += "    " + "for i in range(5):\n"
+    content += "        " + "q = Qubit(host)\n"
+    content += "        " + "q.H()\n"
+    content += "        " + "print('Sending qubit %d.' % (i+1))\n"
+    content += "        " + "host.send_qubit(receiver, q, await_ack=True)\n"
+    content += "        " + "print('Qubit %d was received by %s.' % (i+1, receiver))" + "\n\n\n"
 
-    content += "def protocol_2(host):" + "\n"
-    content += "    " + "# Here we write the protocol code for another host.\n\n"
-    content += "    " + "# Keep checking for classical messages for 10 seconds.\n"
-    content += "    " + "for _ in range(10):" + "\n"
-    content += "        " + "time.sleep(1)" + "\n"
-    content += "        " + "print(host.classical[0].content)" + "\n\n"
-
+    content += "def protocol_2(host, sender):" + "\n"
+    content += "    " + "# Here we write the protocol code for another host.\n"
+    content += "    " + "for _ in range(5):\n"
+    content += "        " + "# Wait for a qubit from Alice for 10 seconds.\n"
+    content += "        " + "q = host.get_data_qubit(sender, wait=10)\n"
+    content += "        " + "print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))\n\n\n"
     return content
 
 
@@ -54,7 +56,8 @@ def gen_main():
     main_content += "\n"
     main_content += "   " + "host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
                     + nodes[-1] + ".host_id,))\n"
-    main_content += "   " + "host_" + nodes[-1] + ".run_protocol(protocol_2, ())\n\n"
+    main_content += "   " + "host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
+                    + nodes[0] + ".host_id,))\n\n"
     return main_content
 
 

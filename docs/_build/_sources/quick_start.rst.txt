@@ -27,20 +27,27 @@ with the contents:
     from components.host import Host
     from components.network import Network
     from objects.qubit import Qubit
-    import time
+    from components.logger import Logger
+    Logger.DISABLED = True
+
 
     def protocol_1(host, receiver):
         # Here we write the protocol code for a host.
-        host.send_classical(receiver, 'Hello!', await_ack=True)
-        print('Message was received')
+        for i in range(5):
+            q = Qubit(host)
+            q.H()
+            print('Sending qubit %d.' % (i+1))
+            host.send_qubit(receiver, q, await_ack=True)
+            print('Qubit %d was received by %s.' % (i+1, receiver))
 
-    def protocol_2(host):
+
+    def protocol_2(host, sender):
         # Here we write the protocol code for another host.
+        for _ in range(5):
+            # Wait for a qubit from Alice for 10 seconds.
+            q = host.get_data_qubit(sender, wait=10)
+            print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))
 
-        # Keep checking for classical messages for 10 seconds.
-        for _ in range(10):
-            time.sleep(1)
-            print(host.classical[0].content)
 
     def main():
        network = Network.get_instance()
@@ -74,9 +81,7 @@ with the contents:
        network.add_host(host_D)
 
        host_A.run_protocol(protocol_1, (host_D.host_id,))
-       host_D.run_protocol(protocol_2, ())
+       host_D.run_protocol(protocol_2, (host_A.host_id,))
 
     if __name__ == '__main__':
        main()
-
-

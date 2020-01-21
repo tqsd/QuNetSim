@@ -36,7 +36,7 @@ class Network:
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
-            self._delay = 0.5
+            self._delay = 0.2
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
@@ -460,9 +460,10 @@ class Network:
                 break
 
             if not self._packet_queue.empty():
-                # To keep things from behaving well with simulaqron, we add a small
-                # delay for packet queries
-                time.sleep(self.delay)
+                # Artificially delay the network
+                if self.delay > 0:
+                    time.sleep(self.delay)
+
                 packet = self._packet_queue.get()
 
                 # Simulate packet loss
@@ -477,13 +478,14 @@ class Network:
                     self._route_quantum_info(sender, receiver, [packet.payload])
 
                 try:
-                    if self.use_hop_by_hop:
-                        route = self.get_classical_route(sender, receiver)
-                    elif packet.protocol == protocols.RELAY:
+                    if packet.protocol == protocols.RELAY and not self.use_hop_by_hop:
                         full_route = packet.route
                         route = full_route[full_route.index(sender):]
                     else:
-                        route = self.get_classical_route(sender, receiver)
+                        if packet.protocol == protocols.REC_EPR:
+                            route = self.get_quantum_route(sender, receiver)
+                        else:
+                            route = self.get_classical_route(sender, receiver)
 
                     if len(route) < 2:
                         raise Exception('No route exists')
@@ -492,10 +494,12 @@ class Network:
                         if packet.protocol != protocols.RELAY:
                             if packet.protocol == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
-                                q = host_sender.backend.create_EPR(host_sender.host_id,
-                                                                   receiver,
-                                                                   q_id=packet.payload['q_id'],
-                                                                   block=packet.payload['blocked'])
+                                q = host_sender \
+                                    .backend \
+                                    .create_EPR(host_sender.host_id,
+                                                receiver,
+                                                q_id=packet.payload['q_id'],
+                                                block=packet.payload['blocked'])
                                 host_sender.add_epr(receiver, q)
                             self.ARP[receiver].rec_packet(packet)
                         else:

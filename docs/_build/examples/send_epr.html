@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Send EPR &mdash; QuNetSim  documentation</title>
+  <title>Send EPR Pairs &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quantum Key Distribution" href="QKD.html" />
-    <link rel="prev" title="New Example Template" href="template.html" /> 
+    <link rel="next" title="Routing with Entanglement" href="entanglement_routing.html" />
+    <link rel="prev" title="Send Data Qubits" href="send_data.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.0.0
+                0.0.1
               </div>
             
           
@@ -114,8 +114,9 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="template.html">New Example Template</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Send EPR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
 </ul>
 </li>
@@ -166,7 +167,7 @@
         
           <li><a href="../examples.html">Examples</a> &raquo;</li>
         
-      <li>Send EPR</li>
+      <li>Send EPR Pairs</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -185,72 +186,306 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="send-epr">
-<h1>Send EPR<a class="headerlink" href="#send-epr" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="send-epr-pairs">
+<h1>Send EPR Pairs<a class="headerlink" href="#send-epr-pairs" title="Permalink to this headline">¶</a></h1>
 <p>In this example, we’ll see how to generate a network with 4 nodes as in the figure below.
 We’ll then send an EPR pair from one end of the link to the other. The example shows
 how to build a network and a simple application.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a network</span>
-<span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
-
-<span class="c1"># Define the host IDs in the network</span>
-<span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="s1">&#39;Eve&#39;</span><span class="p">,</span> <span class="s1">&#39;Dean&#39;</span><span class="p">]</span>
-
-<span class="c1"># Start the network with the defined hosts</span>
+<p>We, as always, first set up the network. Here we form a square grid where classical information
+is routed through Host B, and quantum information is routed through Host C. We do this
+by specifying the connection type when adding connections to a Host, that is, using methods
+<em>add_c_connection</em> and <em>add_q_connection</em>.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]</span>
 <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
 
-<span class="c1"># Initialize the host Alice</span>
-<span class="n">host_alice</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">)</span>
+<span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-<span class="c1"># Add a one-way connection (classical and quantum) to Bob</span>
-<span class="n">host_alice</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
+<span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-<span class="c1"># Start listening</span>
-<span class="n">host_alice</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">host_C</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">host_C</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-<span class="n">host_bob</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
-<span class="c1"># Bob adds his own one-way connection to Alice</span>
-<span class="n">host_bob</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">)</span>
-<span class="n">host_bob</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
-<span class="n">host_bob</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_A</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
+<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_C</span><span class="p">)</span>
 
-<span class="n">host_eve</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
-<span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
-<span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">)</span>
-<span class="n">host_eve</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-<span class="n">host_dean</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">)</span>
-<span class="n">host_dean</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
-<span class="n">host_dean</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-<span class="c1"># Add the hosts to the network</span>
-<span class="c1"># The network is: Alice &lt;--&gt; Bob &lt;--&gt; Eve &lt;--&gt; Dean</span>
-<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_alice</span><span class="p">)</span>
-<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_bob</span><span class="p">)</span>
-<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
-<span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_dean</span><span class="p">)</span>
-
-<span class="c1"># Alice generates an EPR pair with Dean and blocks (for a set time)</span>
-<span class="c1"># until she receives an ACK from Dean</span>
-<span class="n">q_id</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-<span class="c1"># Alice retrieves the EPR pair she sent from her store</span>
-<span class="c1"># which has the qubit ID q_id</span>
-<span class="n">q_alice</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
-
-<span class="c1"># Dean retrieves the EPR pair Alice sent</span>
-<span class="c1"># which has the same qubit ID as Alice&#39;s half</span>
-<span class="n">q_dean</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
-
-<span class="c1"># Measure the qubits and print the outputs</span>
-<span class="n">m1</span> <span class="o">=</span> <span class="n">q_alice</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-<span class="n">m2</span> <span class="o">=</span> <span class="n">q_dean</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Results of the measurements are: (</span><span class="si">%2d</span><span class="s2">, </span><span class="si">%2d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">))</span>
-
-<span class="c1"># Stop the network and the hots</span>
-<span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">stop_hosts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># Network is A&lt;==&gt;B&lt;==&gt;C;</span>
+<span class="c1"># Note: we use &#39;A&lt;==&gt;B&#39; to represent a classical and quantum connection</span>
+<span class="c1">#       we use &#39;A&lt;--&gt;B&#39; to represent a classical only connection</span>
+<span class="c1">#       we use &#39;A&lt;~~&gt;B&#39; to represent a quantum only connection</span>
+<span class="c1">#       All connections are added uni-directionally, so &#39;&lt;&#39; and &#39;&gt;&#39;</span>
+<span class="c1">#       represent the direction of the flow of traffic.</span>
 </pre></div>
-</div>
+</td></tr></table></div>
+<p>Now we define the protocols that should run in the network.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># Protocols always need to have the full host as the first parameter.</span>
+<span class="k">def</span> <span class="nf">protocol_1</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sender protocol for sending 5 EPR pairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        host (Host): The sender Host.</span>
+<span class="sd">        receiver (str): The ID of the receiver of the EPR pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ack_arrived</span><span class="p">:</span>
+            <span class="c1"># Receiver got the EPR pair and ACK came back</span>
+            <span class="c1"># safe to use the EPR pair.</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
+
+
+
+<span class="k">def</span> <span class="nf">protocol_2</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Receiver protocol for receiving 5 EPR pairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        host (Host): The sender Host.</span>
+<span class="sd">        sender (str): The ID of the sender of the EPR pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="c1"># Waits 5 seconds for the EPR to arrive.</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="c1"># q is None if the wait time expired.</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Now, we instruct the hosts to run their protocols.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_1</span><span class="p">,</span> <span class="p">(</span><span class="n">host_C</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+<span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_2</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+</pre></div>
+</td></tr></table></div>
+<p>The full example is below.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
+<span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+
+<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">protocol_1</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
+    <span class="c1"># Here we write the protocol code for a host.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ack_arrived</span><span class="p">:</span>
+            <span class="c1"># Receiver got the EPR pair and ACK came back</span>
+            <span class="c1"># safe to use the EPR pair.</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">protocol_2</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Receiver protocol for receiving 5 EPR pairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        host (Host): The sender Host.</span>
+<span class="sd">        sender (str): The ID of the sender of the EPR pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Host 2 waits 5 seconds for the EPR to arrive.</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="c1"># q is None if the wait time expired.</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+    <span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+    <span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+    <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+    <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_A</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_C</span><span class="p">)</span>
+
+    <span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_1</span><span class="p">,</span> <span class="p">(</span><span class="n">host_C</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">protocol_2</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
 </div>
 
 

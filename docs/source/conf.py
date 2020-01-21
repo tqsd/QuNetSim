@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 project = 'QuNetSim'
 copyright = '2019, Stephen DiAdamo'
-author = 'Stephen DiAdamo'
-version = '1.0.0'
+author = 'TQSD'
+version = '0.0.1'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------

@@ -7,6 +7,7 @@ Alice, Bob, and Eve. In the topology of the network, Alice can talk to Bob and B
 can talk to Eve.
 
 ..  code-block:: python
+    :linenos:
 
     import numpy as np
 
@@ -56,6 +57,7 @@ see `here <https://en.wikipedia.org/wiki/BB84>`__.
 First, Alice has to create a random key which she can then share with Eve.
 
 ..  code-block:: python
+    :linenos:
 
     key_size = 128 # the size of the key in bit
     secret_key = np.random.randint(2, size=key_size)
@@ -69,6 +71,7 @@ to Eve. If they have matched, she continues with the next bit. Otherwise, she re
 the same bit again, till the transmission works.
 
 ..  code-block:: python
+    :linenos:
 
     # helper function. Used get the next message with a sequence number. It ignores ACK
     #                  messages and messages with other seq numbers.
@@ -165,6 +168,7 @@ encryption and decryption function to encrypt and decrypt their messages. Becaus
 our key is too small to use a real encryption function, we will define our own one:
 
 ..  code-block:: python
+    :linenos:
 
     # !! Warning: this Crypto algorithm is really bad!
     # !! Warning: Do not use it as a real Crypto Algorithm!
@@ -185,6 +189,7 @@ our key is too small to use a real encryption function, we will define our own o
 Alice can finally send her message to Eve, without beeing disturbed by Bob!
 
 ..  code-block:: python
+    :linenos:
 
     # helper function, use it to make your key to a string
     def key_array_to_key_string(key_array):
@@ -213,8 +218,9 @@ Alice can finally send her message to Eve, without beeing disturbed by Bob!
 We can now concatenate the two actions of Alice and Eve and let them each run in their own thread.
 
 ..  code-block:: python
+    :linenos:
 
-    # Concatentate functions
+    # Concatenate functions
     def Alice_func(alice=hosts['Alice']):
         msg_buff = []
         Alice_qkd(alice, msg_buff)
