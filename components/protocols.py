@@ -235,8 +235,6 @@ def _send_teleport(packet):
     m1 = q.measure()
     m2 = epr_teleport.measure()
 
-    print(q_type)
-
     data = {
         'measurements': [m1, m2],
         'type': q_type,
@@ -409,8 +407,6 @@ def _send_key(packet):
     receiver = network.get_host(packet.receiver)
     sender = network.get_host(packet.sender)
     key_size = packet.payload['keysize']
-    print('KEYSIZE')
-    print(key_size)
 
     packet.protocol = REC_KEY
     network.send(packet)
@@ -423,7 +419,6 @@ def _send_key(packet):
     for bit in secret_key:
         ack = False
         while not ack:
-            print(sender.host_id + " sequence nr is %d." % sequence_nr)
             # get a random base. 0 for Z base and 1 for X base.
             base = random.randint(0, 1)
 
@@ -466,9 +461,6 @@ def _rec_key(packet):
     key_array = []
 
     while received_counter < key_size:
-        print("received counter is %d." % received_counter)
-        print(receiver.host_id + " sequence nr is %d." % sequence_nr)
-
         # decide for a measurement base
         measurement_base = random.randint(0, 1)
 

@@ -872,6 +872,8 @@ class Host:
         if release_qubits:
             self._data_qubit_store.release_storage()
             self._EPR_store.release_storage()
+
+        self._backend.stop()
         self._stop_thread = True
 
     def start(self):
