@@ -8,8 +8,9 @@ Quick Start Guide
 
 
 Here we give a quick start guide on how to get your first example running with QuNetSim. After completing the
-install instructions and ensuring the code is working, you can being to develop your first example. To make the first
-steps simple, we include a simple template generating script. To use it, enter into your console:
+install instructions and ensuring the code is working with the correct :code:`PYTHONPATH` configured, you can being to
+develop your first example. To make the first steps simple, we include a simple template generating script.
+To use it, enter into your console:
 
 :code:`python QuNetSim/templater.py`
 
@@ -19,7 +20,24 @@ Here we just assume the file is called :code:`testing.py`, that is, "testing" wa
 Next, the script will prompt for the number of nodes in the network. The template generator will set up
 and example file of a fully connected network (i.e. all nodes are connected) with both types of connections, namely
 classical and quantum. Opening this file assuming 4 nodes were added, we should have an new file called :code:`testing.py`
-with the contents:
+with the contents as in the code-block below.
+
+The function :code:`protocol_1` is a protocol that would run on a specific host. In the template, only two hosts
+are running protocols, but one can write more protocols for so that all nodes are running some protocol.
+A requirement of any protocol function is that the first parameter is the host object that will be running the protocol.
+The remaining parameters are arbitrary, there can be many parameters if needed of any type. Function :code:`protocol_2`
+follows the same principles and is ran on at receiving party host.
+
+The :code:`main` function establishes the network and initiates all the hosts to begin listening for packets.
+Finally the :code:`run_protocol` method is called. This method takes the defined protocol along with
+the parameters to the protocol as a tuple. One should note, a single element tuple needs a comma, that is,
+if we want to have a variable :code:`a` as a single element tuple, then we need to write :code:`(a,)`. For tuples with more than
+one item, one simple writes the tuple normally.
+
+By default, this template will generate a protocol can sends 5 qubits from the sender and received 5 qubits
+at the receiver. Here we leave it to the developers to get creative with their protocols. For a full list
+of commands that are built into hosts, see the Design Overview section.
+
 
 ..  code-block:: python
     :linenos:

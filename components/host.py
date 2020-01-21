@@ -580,6 +580,9 @@ class Host:
         Returns:
            boolean: If await_ack=True, return the status of the ACK
         """
+        if message not in ['00', '01', '10', '11']:
+            raise ValueError("Can only sent one of '00', '01', '10', or '11' as a superdense message")
+
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_SUPERDENSE,
@@ -659,7 +662,7 @@ class Host:
         Does not remove the qubits from storage like *get_epr_pair* does.
 
         Args:
-            host_id (optional): If set,
+            host_id (str): Get the EPR pairs established with host with *host_id*
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of EPR pairs.
@@ -685,35 +688,35 @@ class Host:
         """
         return self._data_qubit_store.get_all_qubits_from_host(host_id)
 
-    def set_epr_memory_limit(self, limit, partner_id=None):
+    def set_epr_memory_limit(self, limit, host_id=None):
         """
-        Set the limit to how many EPR pair halves can be stored from partner_id, or if partner_id is not set,
+        Set the limit to how many EPR pair halves can be stored from host_id, or if host_id is not set,
         use the limit for all connections.
 
         Args:
             limit (int): The maximum number of qubits for the memory
-            partner_id (str): (optional) The partner ID to set the limit with
+            host_id (str): (optional) The partner ID to set the limit with
         """
-        self._EPR_store.set_storage_limit(limit, partner_id)
+        self._EPR_store.set_storage_limit(limit, host_id)
 
-    def set_data_qubit_memory_limit(self, limit, partner_id=None):
+    def set_data_qubit_memory_limit(self, limit, host_id=None):
         """
-        Set the limit to how many data qubits can be stored from partner_id, or if partner_id is not set,
+        Set the limit to how many data qubits can be stored from host_id, or if host_id is not set,
         use the limit for all connections.
 
         Args:
             limit (int): The maximum number of qubits for the memory
-            partner_id (str): (optional) The partner ID to set the limit with
+            host_id (str): (optional) The partner ID to set the limit with
         """
-        self._data_qubit_store.set_storage_limit(limit, partner_id)
+        self._data_qubit_store.set_storage_limit(limit, host_id)
 
-    def add_epr(self, partner_id, qubit, q_id=None, blocked=False):
+    def add_epr(self, host_id, qubit, q_id=None, blocked=False):
         """
         Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
         otherwise generates an ID for the EPR and adds the qubit with that ID.
 
         Args:
-            partner_id (String): The ID of the host to pair the qubit
+            host_id (String): The ID of the host to pair the qubit
             qubit(Qubit): The data Qubit to be added.
             q_id(string): The ID of the qubit to be added.
             blocked: If the qubit should be stored as blocked or not
@@ -723,24 +726,25 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
         qubit.set_blocked_state(blocked)
-        self._EPR_store.add_qubit_from_host(qubit, partner_id)
+        self._EPR_store.add_qubit_from_host(qubit, host_id)
         return qubit.id
 
-    def add_data_qubit(self, partner_id, qubit, q_id=None):
+    def add_data_qubit(self, host_id, qubit, q_id=None):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
 
         Args:
-            partner_id: The ID of the host to pair the qubit
+            host_id: The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
+            q_id (str): the ID to set the qubit ID to
         Returns:
             (string) *q_id*: The qubit ID
         """
         if q_id is not None:
             qubit.set_new_id(q_id)
 
-        self._data_qubit_store.add_qubit_from_host(qubit, partner_id)
+        self._data_qubit_store.add_qubit_from_host(qubit, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
@@ -766,23 +770,23 @@ class Host:
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, partner_id, wait=-1):
+    def get_classical(self, host_id, wait=-1):
         """
-        Get the classical messages from partner host *partner_id*.
+        Get the classical messages from partner host *host_id*.
 
         Args:
-            partner_id (string): The ID of the partner who sent the clasical messages
+            host_id (string): The ID of the partner who sent the clasical messages
             wait (float): How long in seconds to wait for the messages if none are set.
 
         Returns:
-            A list of classical messages from Host with ID *partner_id*.
+            A list of classical messages from Host with ID *host_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
         def process_messages():
             nonlocal cla
-            cla = self._classical_messages.get_all_from_sender(partner_id)
+            cla = self._classical_messages.get_all_from_sender(host_id)
 
         def _wait():
             nonlocal cla
@@ -801,17 +805,17 @@ class Host:
             process_messages()
             return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
-    def get_epr(self, partner_id, q_id=None, wait=-1):
+    def get_epr(self, host_id, q_id=None, wait=-1):
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
         EPR with that ID is returned, else, the last EPR added is returned.
 
         Args:
-            partner_id (string): The ID of the host that returned EPR is entangled to.
+            host_id (string): The ID of the host that returned EPR is entangled to.
             q_id (string): The qubit ID of the EPR to get.
             wait (float): the amount of time to wait
         Returns:
-             Qubit: Qubit shared with the host with *partner_id* and *q_id*.
+             Qubit: Qubit shared with the host with *host_id* and *q_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
@@ -821,7 +825,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._EPR_store, partner_id, q_id)
+                q = _get_qubit(self._EPR_store, host_id, q_id)
             return q
 
         if wait > 0:
@@ -829,19 +833,19 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._EPR_store, partner_id, q_id)
+            return _get_qubit(self._EPR_store, host_id, q_id)
 
-    def get_data_qubit(self, partner_id, q_id=None, wait=-1):
+    def get_data_qubit(self, host_id, q_id=None, wait=-1):
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified,
         qubit with that ID is returned, else, the last qubit received is returned.
 
         Args:
-            partner_id (string): The ID of the host that data qubit to be returned is received from.
+            host_id (string): The ID of the host that data qubit to be returned is received from.
             q_id (string): The qubit ID of the data qubit to get.
             wait (float): The amount of time to wait for the a qubit to arrive
         Returns:
-             Qubit: Qubit received from the host with *partner_id* and *q_id*.
+             Qubit: Qubit received from the host with *host_id* and *q_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
@@ -851,7 +855,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._data_qubit_store, partner_id, q_id)
+                q = _get_qubit(self._data_qubit_store, host_id, q_id)
             return q
 
         if wait > 0:
@@ -859,7 +863,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._data_qubit_store, partner_id, q_id)
+            return _get_qubit(self._data_qubit_store, host_id, q_id)
 
     def stop(self, release_qubits=True):
         """
@@ -918,17 +922,16 @@ class Host:
 
     def send_key(self, receiver_id, key_size, await_ack=True):
         """
-
+        Send a secret key via QKD of length *key_size* to host with ID *receiver_id*.
         Args:
-            receiver_id:
-            key_size:
-            await_ack:
-
+            receiver_id (str):
+            key_size (int):
+            await_ack (bool):
         Returns:
             bool
         """
 
-        seq_num = self._get_sequence_number(receiver_host.host_id)
+        seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_KEY,
@@ -944,16 +947,16 @@ class Host:
             return self.await_ack(seq_num, receiver_id)
 
 
-def _get_qubit(store, partner_id, q_id):
+def _get_qubit(store, host_id, q_id):
     """
     Gets the data qubit received from another host in the network. If qubit ID is specified,
     qubit with that ID is returned, else, the last qubit received is returned.
 
     Args:
         store: The qubit storage to retrieve the qubit
-        partner_id (string): The ID of the host that data qubit to be returned is received from.
+        host_id (string): The ID of the host that data qubit to be returned is received from.
         q_id (string): The qubit ID of the data qubit to get.
     Returns:
-         Qubit: Qubit received from the host with *partner_id* and *q_id*.
+         Qubit: Qubit received from the host with *host_id* and *q_id*.
     """
-    return store.get_qubit_from_host(partner_id, q_id)
+    return store.get_qubit_from_host(host_id, q_id)
