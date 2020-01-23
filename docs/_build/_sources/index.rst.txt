@@ -3,7 +3,7 @@ QuNetSim: A quantum network simulation framework
 
 ..  toctree::
     :caption: Contents
-    :titlesonly:
+    :includehidden:
     :maxdepth: 2
 
     intro

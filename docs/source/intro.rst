@@ -2,8 +2,13 @@
 Introduction
 ############
 
+.. contents::
+   :local:
+
+
 What is QuNetSim?
 -----------------
+
 QuNetSim (Quantum Network Simulator) is a Python based simulation framework for quantum networking simulations. The intended use is that one can develop and test applications and protocols designed for quantum networks *on the network and application layer* that can transmit and store quantum information. QuNetSim offers a framework for developing such protocols that use typical quantum network features such as teleportation and EPR generation over multi-hop quantum networks that may require potentially complicated routes.
 
 One of QuNetSim's core features is that it comes with common networking tasks already developed. Some examples of such tasks
@@ -33,6 +38,7 @@ In the below image, we see how QuNetSim routes packets. A packet initiated at Ho
 
 Who should use QuNetSim?
 ------------------------
+
 QuNetSim is still a work in progress and in its current state, it is more of a toy example to demonstrate and create quantum networking protocols at a high level that could potentially make their way into real applications for quantum networks. QuNetSim, presently, is not designed to accurately simulate quantum physics and therefore we make some assumptions and use potentially unrealistic methods for achieving the things we want to do with quantum network simulations. The intended user of QuNetSim is therefore mainly those who want to learn more about quantum networks but are relatively new to it. Generally students and instructors could use it to demonstrate some quantum networking protocols at a high level. QuNetSim gives detailed logs regarding protocols that are built in, and one can trace step by step what is happening when, for example, one host teleports a qubit to another.
 
 Although we do inspire to develop QuNetSim to be as realistic as possible in future iterations, at the moment, we consider QuNetSim an educational tool and not a full blown quantum network simulator.

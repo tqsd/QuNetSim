@@ -86,10 +86,16 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="install/linux_mac.html">Linux / Mac OS X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install/windows.html">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start Guide</a><ul class="simple">
@@ -189,11 +195,6 @@
             
   <div class="section" id="network-objects">
 <h1>Network Objects<a class="headerlink" href="#network-objects" title="Permalink to this headline">¶</a></h1>
-<p>Network Objects in QuNetSim represent the objects that are used by the network components. The use of the word “objects” is quite general, but as further iterations of QuNetSim are made, we plan to categorize these better.</p>
-<p>Below we see the current list of network objects. Not all of the network components use all of the network objects,
-for example, the <em>Network</em> component does not have a quantum storage, where hosts do. Hosts never access packets directly, but the key piece of the protocol component is to create and manipulate packets. As QuNetSim develops, we hope to use various models to better model the physics in the simulation. In the Backends
-section of the Design Overview, we detail how we have structured QuNetSim so that we can replace the underlying
-network components and qubit objects. We also plan to integrate the ability to add models for the quantum storage object so that it can better simulate decoherence of the stored qubits.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
@@ -204,6 +205,11 @@ network components and qubit objects. We also plan to integrate the ability to a
 <li class="toctree-l1"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </div>
+<p>Network Objects in QuNetSim represent the objects that are used by the network components. The use of the word “objects” is quite general, but as further iterations of QuNetSim are made, we plan to categorize these better.</p>
+<p>Below we see the current list of network objects. Not all of the network components use all of the network objects,
+for example, the <em>Network</em> component does not have a quantum storage, where hosts do. Hosts never access packets directly, but the key piece of the protocol component is to create and manipulate packets. As QuNetSim develops, we hope to use various models to better model the physics in the simulation. In the Backends
+section of the Design Overview, we detail how we have structured QuNetSim so that we can replace the underlying
+network components and qubit objects. We also plan to integrate the ability to add models for the quantum storage object so that it can better simulate decoherence of the stored qubits.</p>
 </div>
 
 
