@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
@@ -111,6 +111,7 @@
 <li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
@@ -188,9 +189,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-objects.packet">
-<span id="packet"></span><h1>Packet<a class="headerlink" href="#module-objects.packet" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+  <div class="section" id="packet">
+<h1>Packet<a class="headerlink" href="#packet" title="Permalink to this headline">¶</a></h1>
+<p><em>Packet</em> objects are created by the Protocol component. They are analogous to transport layer
+packets in the Internet. They encode the sender and receiver of the packet along with
+the other properties listed below. Generally, users will not need to interact with
+<em>Packet</em> objects directly.</p>
+<span class="target" id="module-objects.packet"></span><dl class="class">
 <dt id="objects.packet.Packet">
 <em class="property">class </em><code class="sig-prename descclassname">objects.packet.</code><code class="sig-name descname">Packet</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload_type</em>, <em class="sig-param">payload</em>, <em class="sig-param">sequence_number=-1</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.packet.Packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>

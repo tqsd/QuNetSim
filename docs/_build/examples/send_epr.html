@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../design.html">Design Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
@@ -111,6 +111,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
@@ -413,7 +414,14 @@ by specifying the connection type when adding connections to a Host, that is, us
 68
 69
 70
-71</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
+71
+72
+73
+74
+75
+76
+77
+78</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
 <span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
 <span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 
@@ -421,6 +429,13 @@ by specifying the connection type when adding connections to a Host, that is, us
 
 
 <span class="k">def</span> <span class="nf">protocol_1</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sender protocol for sending 5 EPR pairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        host (Host): The sender Host.</span>
+<span class="sd">        receiver (str): The ID of the receiver of the EPR pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Here we write the protocol code for a host.</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>

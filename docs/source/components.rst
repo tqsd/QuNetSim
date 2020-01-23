@@ -1,8 +1,6 @@
-##########
-Components
-##########
-
-
+##################
+Network Components
+##################
 
 ..  toctree::
     :maxdepth: 2

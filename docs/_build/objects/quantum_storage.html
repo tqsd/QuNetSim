@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
@@ -111,6 +111,7 @@
 <li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
@@ -188,9 +189,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-objects.quantum_storage">
-<span id="quantum-storage"></span><h1>Quantum Storage<a class="headerlink" href="#module-objects.quantum_storage" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+  <div class="section" id="quantum-storage">
+<h1>Quantum Storage<a class="headerlink" href="#quantum-storage" title="Permalink to this headline">¶</a></h1>
+<p><em>Quantum Storage</em> objects are used by the <em>Host</em> components. Each <em>Host</em> has two <em>Quantum Storage</em> objects,
+one for EPR pairs and the other for data qubits, but in both cases, they store <em>Qubit</em> objects. As
+more interations of QuNetSim are made, we plan to add parameters such that we can better simulate
+quantum memories.</p>
+<span class="target" id="module-objects.quantum_storage"></span><dl class="class">
 <dt id="objects.quantum_storage.QuantumStorage">
 <em class="property">class </em><code class="sig-prename descclassname">objects.quantum_storage.</code><code class="sig-name descname">QuantumStorage</code><a class="headerlink" href="#objects.quantum_storage.QuantumStorage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>

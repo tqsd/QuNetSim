@@ -115,6 +115,13 @@ The full example is below.
 
 
     def protocol_1(host, receiver):
+        """
+        Sender protocol for sending 5 EPR pairs.
+
+        Args:
+            host (Host): The sender Host.
+            receiver (str): The ID of the receiver of the EPR pairs.
+        """
         # Here we write the protocol code for a host.
         for i in range(5):
             print('Sending EPR pair %d' % (i + 1))

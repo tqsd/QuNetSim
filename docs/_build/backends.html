@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Network Components &mdash; QuNetSim  documentation</title>
+  <title>Backends &mdash; QuNetSim  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Host" href="components/host.html" />
-    <link rel="prev" title="Design Overview" href="design.html" /> 
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Routing Packet" href="objects/routing_packet.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="design.html">Design Overview</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Network Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
@@ -111,7 +111,7 @@
 <li class="toctree-l3"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="backends.html">Backends</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
@@ -168,13 +168,13 @@
         
           <li><a href="design.html">Design Overview</a> &raquo;</li>
         
-      <li>Network Components</li>
+      <li>Backends</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/components.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/backends.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -187,27 +187,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="network-components">
-<h1>Network Components<a class="headerlink" href="#network-components" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="components/host.html">Host</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/network.html">Network</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
-</ul>
-</div>
-<p>The key components are QuNetSim are the following: Host, Protocols, and  Network. Each component represents a layer in
-the network. The Host component represents the application layer, the Protocols component the transport layer, and the
-Network the network layer.</p>
-<p>The Host object has two roles: to run applications and to relay packets in the network. Hosts come programmed with
-a set of features that can be used to write network applications. Users of QuNetSim will interact mostly with the Host
-components.</p>
-<p>The Protocols component is our version of the transport layer in a network. Here, we perform the necessary encoding and
-decoding procedures so that information can be packetized and put into the network. It is also responsible for generating
-entanglement ahead of time when it is needed by certain applications. The Protocols component only has
-private access, and users will never need to interact with the Protocols component directly.</p>
-<p>The Network component is the key part of QuNetSim. It is responsible for routing and generating distant entanglement
-when it is needed.</p>
+  <div class="section" id="backends">
+<h1>Backends<a class="headerlink" href="#backends" title="Permalink to this headline">¶</a></h1>
+<p>As quantum networking and quantum internet becomes a more popular field, we expect to see
+a rise in the number of quantum network simulation tools as we see now with quantum computing simulation
+software. In QuNetSim, we have prepared for this by structuring the network backend so that it is modular. With this,
+one can simply import their own network and qubit backends, implement the necessary methods and it (<em>hopefully</em>) will work
+right out of the box.</p>
+<p>Currently we are working with two backends: <a class="reference external" href="http://www.simulaqron.org/">SimulaQron</a> and another version that has
+been developed by the TQSD team.</p>
+<p>To select the backend for the simulation, <strong>[continue]</strong></p>
 </div>
 
 

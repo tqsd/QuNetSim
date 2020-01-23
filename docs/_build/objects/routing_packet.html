@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Examples" href="../examples.html" />
+    <link rel="next" title="Backends" href="../backends.html" />
     <link rel="prev" title="Qubit" href="qubit.html" /> 
 </head>
 
@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../components.html">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
@@ -111,6 +111,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Routing Packet</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
@@ -188,9 +189,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-objects.routing_packet">
-<span id="routing-packet"></span><h1>Routing Packet<a class="headerlink" href="#module-objects.routing_packet" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+  <div class="section" id="routing-packet">
+<h1>Routing Packet<a class="headerlink" href="#routing-packet" title="Permalink to this headline">¶</a></h1>
+<p>The <em>Routing Packet</em> object is simular to the <em>Packet</em> object with the difference that it is analogous
+to a network layer packet from the Internet. The main difference in our implementation is that these
+packets have a TTL (time to live) property such that they are eliminated from the network after
+some number of relays or “hops” in the network.</p>
+<span class="target" id="module-objects.routing_packet"></span><dl class="class">
 <dt id="objects.routing_packet.RoutingPacket">
 <em class="property">class </em><code class="sig-prename descclassname">objects.routing_packet.</code><code class="sig-name descname">RoutingPacket</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload_type</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl</em>, <em class="sig-param">route</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.routing_packet.RoutingPacket" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
