@@ -1,5 +1,4 @@
-Windows
--------
+
 
 #) Download / Clone the `Git repository`_.
 

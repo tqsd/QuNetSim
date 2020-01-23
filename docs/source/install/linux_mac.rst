@@ -1,6 +1,3 @@
-Linux / Mac OS X
-----------------
-
 #) Make sure you have python 3.5 or greater. For Mac OS users, one should have terminal commands installed.
 
 #) Download / Clone the `Git repository`_.
