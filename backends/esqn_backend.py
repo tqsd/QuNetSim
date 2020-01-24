@@ -2,6 +2,8 @@ import eqsn
 import uuid
 from objects.qubit import Qubit
 import threading
+from queue import Queue
+
 
 # From O'Reilly Python Cookbook by David Ascher, Alex Martelli
 # with some smaller adaptions
@@ -66,15 +68,17 @@ class SafeDict(object):
     def get_from_dict(self, key):
         ret = None
         self.lock.acquire_read()
-        if key in self.dict.keys():
+        if key in self.dict:
             ret = self.dict[key]
         self.lock.release_read()
         return ret
+
 
 class EQSNBackend(object):
     """
     Definition of how a backend has to look and behave like.
     """
+
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
         __instance = None
@@ -183,16 +187,21 @@ class EQSNBackend(object):
         eqsn.new_qubit(uid2)
         eqsn.H_gate(uid1)
         eqsn.cnot_gate(uid2, uid1)
-        q1 = Qubit(host_a, qubit=uid1, q_id=q_id, blocked=blocked)
-        q2 = Qubit(host_b, qubit=uid2, q_id=q1.id, blocked=blocked)
-        key = host_a_id + ':' + host_b_id
-        list = self._entaglement_qubits.get_from_dict(key)
-        if list is not None:
-            list.append(q2)
-        else:
-            list = [q2]
-        self._entaglement_qubits.add_to_dict(key, list)
+        q1 = Qubit(host_a, qubit=uid1, q_id=q_id, blocked=block)
+        q2 = Qubit(host_b, qubit=uid2, q_id=q1.id, blocked=block)
+        self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
         return q1
+
+    def store_ent_pair(self, host_a, host_b, qubit):
+        key = host_a + ':' + host_b
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
+
+        if ent_queue is not None:
+            ent_queue.put(qubit)
+        else:
+            ent_queue = Queue()
+            ent_queue.put(qubit)
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
@@ -206,15 +215,14 @@ class EQSNBackend(object):
             Returns an EPR qubit with the other Host.
         """
         key = sender_id + ':' + host_id
-        list = self._entaglement_qubits.get_from_dict(key)
-        if list is None:
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
+        if ent_queue is None:
             raise Exception("Internal Error!")
-        q = list.pop(0)
-        self._entaglement_qubits.add_to_dict(key, list)
-        if q_id is not None and q_id != id:
+        q = ent_queue.get()
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
+        if q_id is not None and q_id != q.id:
             raise ValueError("Qid doesent match id!")
         return q
-
 
     ##########################
     #   Gate definitions    #
@@ -294,7 +302,7 @@ class EQSNBackend(object):
         """
         eqsn.RY_gate(qubit.qubit, phi)
 
-    def rz(self, phi):
+    def rz(self, qubit, phi):
         """
         Perform a rotation pauli z gate with an angle of phi.
 

@@ -53,7 +53,7 @@ class QuantumStorage(object):
         elif self._storage_mode == STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
             if host_id is None:
                 self._default_storage_limit_per_host = new_limit
-                for id_ in self._storage_limits_per_host:
+                for id_ in list(self._storage_limits_per_host):
                     self._storage_limits_per_host[id_] = new_limit
             else:
                 self._storage_limits_per_host[host_id] = new_limit
@@ -267,7 +267,7 @@ class QuantumStorage(object):
         if q_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id)
             if qubit is not None:
-                if from_host_id not in self._host_dict.keys() or \
+                if from_host_id not in self._host_dict or \
                         qubit not in self._host_dict[from_host_id]:
                     # Qubit with the ID exists, but does not belong to the host requested
                     self._add_qubit_to_qubit_dict(qubit, from_host_id)

@@ -18,7 +18,7 @@ class ProjectQBackend(object):
 
     def __del__(self):
         pass
-        # self.engine.flush()
+        self.engine.flush()
 
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
@@ -121,8 +121,8 @@ class ProjectQBackend(object):
         host_a = self._hosts.get_from_dict(host_a_id)
         host_b = self._hosts.get_from_dict(host_b_id)
         qubit_b = Qubit(host_b, qubit=q2, q_id=q_id, blocked=block)
-        self.store_ent_pair(host_a.host_id, host_b.host_id, qubit_b)
         qubit = Qubit(host_a, qubit=q1, q_id=q_id, blocked=block)
+        self.store_ent_pair(host_a.host_id, host_b.host_id, qubit_b)
         return qubit
 
     def store_ent_pair(self, host_a, host_b, qubit):
@@ -136,7 +136,7 @@ class ProjectQBackend(object):
             ent_queue.put(qubit)
         self._entaglement_pairs.add_to_dict(key, ent_queue)
 
-    def receive_epr(self, host_id, sender=None, q_id=None, block=False):
+    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
         Called after create EPR in the receiver, to receive the other EPR pair.
 
@@ -148,7 +148,7 @@ class ProjectQBackend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        key = sender + ':' + host_id
+        key = sender_id + ':' + host_id
         ent_queue = self._entaglement_pairs.get_from_dict(key)
         if ent_queue is None:
             raise Exception("Internal Error!")
