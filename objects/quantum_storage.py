@@ -53,7 +53,7 @@ class QuantumStorage(object):
         elif self._storage_mode == STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
             if host_id is None:
                 self._default_storage_limit_per_host = new_limit
-                for id_ in self._storage_limits_per_host.keys():
+                for id_ in self._storage_limits_per_host:
                     self._storage_limits_per_host[id_] = new_limit
             else:
                 self._storage_limits_per_host[host_id] = new_limit
@@ -61,9 +61,9 @@ class QuantumStorage(object):
             raise ValueError("Internal Value Error, this storage mode does not exist.")
 
     def _add_new_host(self, host_id):
-        if host_id not in self._host_dict.keys():
+        if host_id not in self._host_dict:
             self._host_dict[host_id] = []
-            if host_id not in self._storage_limits_per_host.keys():
+            if host_id not in self._storage_limits_per_host:
                 self._storage_limits_per_host[host_id] = self._default_storage_limit_per_host
             self._amount_qubits_stored_per_host[host_id] = 0
 
@@ -168,7 +168,7 @@ class QuantumStorage(object):
         Returns:
             True, if such a qubit is in the storage, false if not.
         """
-        if from_host_id not in self._host_dict.keys():
+        if from_host_id not in self._host_dict:
             return False
         if self._host_dict[from_host_id]:
             return True
@@ -179,12 +179,12 @@ class QuantumStorage(object):
         Get all Qubits from a specific host id.
         These qubits are not removed from storage!
         """
-        if from_host_id in self._host_dict.keys():
+        if from_host_id in self._host_dict:
             return self._host_dict[from_host_id]
         return []
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id):
-        if q_id not in self._qubit_dict.keys():
+        if q_id not in self._qubit_dict:
             return None
         qubit = self._qubit_dict[q_id].pop(from_host_id, None)
         if qubit is not None:
@@ -276,7 +276,7 @@ class QuantumStorage(object):
                 self._decrease_qubit_counter(from_host_id)
             return qubit
 
-        if from_host_id not in self._host_dict.keys():
+        if from_host_id not in self._host_dict:
             return None
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)

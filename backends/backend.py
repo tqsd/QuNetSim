@@ -159,7 +159,7 @@ def Backend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
@@ -170,7 +170,7 @@ def Backend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
@@ -181,7 +181,7 @@ def Backend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
@@ -230,3 +230,4 @@ def Backend(object):
         """
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
+

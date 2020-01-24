@@ -246,6 +246,18 @@ class Network:
         if host.host_id in self.ARP:
             del self.ARP[host.host_id]
 
+    def update_host(self, host):
+        """
+        Update the connections of a host in the network.
+        Args:
+            host:
+
+        Returns:
+
+        """
+        self.remove_host(host)
+        self.add_host(host)
+
     def _remove_network_node(self, host):
         """
         Removes the host from the ARP table.

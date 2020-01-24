@@ -1,78 +1,10 @@
 import cqc.pythonLib as cqc
 from simulaqron.settings import simulaqron_settings
 from simulaqron.network import Network as SimulaNetwork
+
+from backends.RWLock import RWLock
+from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
-import numpy as np
-import threading
-
-
-# From O'Reilly Python Cookbook by David Ascher, Alex Martelli
-# with some smaller adaptions
-class RWLock:
-    def __init__(self):
-        self._read_ready = threading.Condition(threading.RLock())
-        self._num_reader = 0
-        self._num_writer = 0
-        self._readerList = []
-        self._writerList = []
-
-    def acquire_read(self):
-        self._read_ready.acquire()
-        try:
-            while self._num_writer > 0:
-                self._read_ready.wait()
-            self._num_reader += 1
-        finally:
-            self._readerList.append(threading.get_ident())
-            self._read_ready.release()
-
-    def release_read(self):
-        self._read_ready.acquire()
-        try:
-            self._num_reader -= 1
-            if not self._num_reader:
-                self._read_ready.notifyAll()
-        finally:
-            self._readerList.remove(threading.get_ident())
-            self._read_ready.release()
-
-    def acquire_write(self):
-        self._read_ready.acquire()
-        self._num_writer += 1
-        self._writerList.append(threading.get_ident())
-        while self._num_reader > 0:
-            self._read_ready.wait()
-
-    def release_write(self):
-        self._num_writer -= 1
-        self._writerList.remove(threading.get_ident())
-        self._read_ready.notifyAll()
-        self._read_ready.release()
-
-
-class SafeDict(object):
-    def __init__(self):
-        self.lock = RWLock()
-        self.dict = {}
-
-    def __str__(self):
-        self.lock.acquire_read()
-        ret = str(self.dict)
-        self.lock.release_read()
-        return ret
-
-    def add_to_dict(self, key, value):
-        self.lock.acquire_write()
-        self.dict[key] = value
-        self.lock.release_write()
-
-    def get_from_dict(self, key):
-        ret = None
-        self.lock.acquire_read()
-        if key in self.dict.keys():
-            ret = self.dict[key]
-        self.lock.release_read()
-        return ret
 
 
 class CQCBackend(object):
@@ -183,7 +115,7 @@ class CQCBackend(object):
         Args:
             host_id (String): Id of the host to whom the qubit belongs.
 
-        Reurns:
+        Returns:
             Qubit of backend type.
         """
         return cqc.qubit(self._cqc_connections.get_from_dict(host_id))
@@ -223,21 +155,25 @@ class CQCBackend(object):
         qubit = Qubit(host_a, qubit=q, q_id=q_id, blocked=block)
         # add the ID to a list, so the next returned qubit from recv EPR
         # gets assigned the right id
-        key = cqc_host_a.name + ':' + cqc_host_b.name
-        list = self._entaglement_ids.get_from_dict(key)
-        if list is not None:
-            list.append(qubit.id)
-        else:
-            list = [qubit.id]
-        self._entaglement_ids.add_to_dict(key, list)
+        self.store_ent_id(cqc_host_a, cqc_host_b, qubit)
         return qubit
 
-    def receive_epr(self, host_id, q_id=None, block=False):
+    def store_ent_id(self, cqc_host_a, cqc_host_b, qubit):
+        key = cqc_host_a.name + ':' + cqc_host_b.name
+        ent_list = self._entaglement_ids.get_from_dict(key)
+        if ent_list is not None:
+            ent_list.append(qubit.id)
+        else:
+            ent_list = [qubit.id]
+        self._entaglement_ids.add_to_dict(key, ent_list)
+
+    def receive_epr(self, host_id, sender, q_id=None, block=False):
         """
         Called after create EPR in the receiver, to receive the other EPR pair.
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
+            sender (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
@@ -246,16 +182,15 @@ class CQCBackend(object):
         cqc_host = self._cqc_connections.get_from_dict(host_id)
         host = self._hosts.get_from_dict(host_id)
         q = cqc_host.recvEPR()
-        sender_host_name = q.get_remote_entNode()
-        key = sender_host_name + ':' + cqc_host.name
-        list = self._entaglement_ids.get_from_dict(key)
-        if list is None:
+        key = sender + ':' + cqc_host.name
+        ent_list = self._entaglement_ids.get_from_dict(key)
+        if ent_list is None:
             raise Exception("Internal Error!")
         id = None
-        id = list.pop(0)
+        id = ent_list.pop(0)
         if q_id is not None and q_id != id:
-            raise ValueError("Qid doesent match id!")
-        self._entaglement_ids.add_to_dict(key, list)
+            raise ValueError("q_id doesn't match id!")
+        self._entaglement_ids.add_to_dict(key, ent_list)
         return Qubit(host, qubit=q, q_id=id, blocked=block)
 
     def flush(self, host_id):
@@ -322,31 +257,43 @@ class CQCBackend(object):
         """
         qubit.qubit.T()
 
-    def rx(self, qubit, phi):
+    def K(self, qubit):
+        """
+        Perform K gate on a qubit.
+
+        Args:
+            qubit (Qubit): Qubit on which gate should be applied to.
+        """
+        qubit.qubit.K()
+
+    def rx(self, qubit, steps):
         """
         Perform a rotation pauli x gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of rotation in Rad.
+            steps (int): Amount of rotation in Rad.
         """
         # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
+        if steps < 0:
+            steps = 256 + steps
         qubit.qubit.rot_X(steps)
 
-    def ry(self, qubit, phi):
+    def ry(self, qubit, steps):
         """
         Perform a rotation pauli y gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of rotation in Rad.
+            steps (int): Amount of rotation in Rad.
         """
         # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
+        # steps = phi * 256.0 / (2.0 * np.pi)
+        if steps < 0:
+            steps = 256 + steps
         qubit.qubit.rot_Y(steps)
 
-    def rz(self, qubit, phi):
+    def rz(self, qubit, steps):
         """
         Perform a rotation pauli z gate with an angle of phi.
 
@@ -355,7 +302,9 @@ class CQCBackend(object):
             phi (float): Amount of rotation in Rad.
         """
         # convert to cqc unit
-        steps = phi * 256.0 / (2.0 * np.pi)
+        # steps = phi * 256.0 / (2.0 * np.pi)
+        if steps < 0:
+            steps = 256 + steps
         qubit.qubit.rot_Z(steps)
 
     def cnot(self, qubit, target):

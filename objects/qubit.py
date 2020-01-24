@@ -140,6 +140,12 @@ class Qubit(object):
         """
         self._host.backend.T(self)
 
+    def K(self):
+        """
+        Perform a K gate on the qubit.
+        """
+        self._host.backend.K(self)
+
     def H(self):
         """
         Perform a Hadamard gate on the qubit.

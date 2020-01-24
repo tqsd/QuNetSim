@@ -323,7 +323,7 @@ class Host:
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
                 return True
-            if sender not in self._seq_number_sender_ack.keys():
+            if sender not in self._seq_number_sender_ack:
                 return False
             if seq_num < self._seq_number_sender_ack[sender][1]:
                 q.put(True)
@@ -344,7 +344,7 @@ class Host:
             else:
                 # Is ack msg
                 sender = msg.sender
-                if sender not in self._seq_number_sender_ack.keys():
+                if sender not in self._seq_number_sender_ack:
                     self._seq_number_sender_ack[sender] = [[], 0]
                 seq_num = msg.seq_num
                 expected_seq = self._seq_number_sender_ack[sender][1]
@@ -419,6 +419,41 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
+
+    def remove_connection(self, receiver_id):
+        """
+        Remove a classical and quantum connection from a host.
+        Args:
+            receiver_id (str): The ID of the connection to remove
+
+        Returns:
+            list: a two element array of the status of the removals.
+        """
+        c = self.remove_c_connection(receiver_id)
+        q = self.remove_q_connection(receiver_id)
+        return [c, q]
+
+    def remove_c_connection(self, receiver_id):
+        """
+
+        Args:
+            receiver_id:
+
+        Returns:
+
+        """
+        c_index = self.classical_connections.index(receiver_id)
+        if c_index > -1:
+            del self.classical_connections[c_index]
+            return True
+        return False
+
+    def remove_q_connection(self, receiver_id):
+        q_index = self.quantum_connections.index(receiver_id)
+        if q_index > -1:
+            del self.classical_connections[q_index]
+            return True
+        return False
 
     def send_ack(self, receiver, seq_number):
         """
