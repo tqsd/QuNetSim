@@ -1,4 +1,5 @@
 alabaster==0.7.12
+anytree==2.8.0
 appnope==0.1.0
 attrs==19.3.0
 Automat==0.8.0
@@ -18,7 +19,9 @@ decorator==4.4.1
 defusedxml==0.6.0
 docutils==0.15.2
 entrypoints==0.3
+EQSN==0.0.1
 flake8==3.7.9
+future==0.18.2
 hyperlink==19.0.0
 idna==2.8
 imagesize==1.1.0
@@ -52,15 +55,20 @@ pandocfilters==1.4.2
 parso==0.5.1
 pexpect==4.7.0
 pickleshare==0.7.5
+pluggy==0.13.1
+projectq==0.4.2
 prometheus-client==0.7.1
 prompt-toolkit==3.0.2
 ptyprocess==0.6.0
+py==1.8.1
+pybind11==2.4.3
 pycodestyle==2.5.0
 pyflakes==2.1.1
 Pygments==2.4.2
 PyHamcrest==2.0.0
 pyparsing==2.4.1.1
 pyrsistent==0.15.6
+pytest==5.3.4
 python-dateutil==2.8.0
 pytz==2019.2
 pyzmq==18.1.1

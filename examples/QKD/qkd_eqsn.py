@@ -12,6 +12,10 @@ from backends.esqn_backend import EQSNBackend
 
 wait_time = 10
 
+from components.logger import Logger
+
+Logger.DISABLED = True
+
 
 # helper function. Used get the next message with a sequence number. It ignores ACK
 #                  messages and messages with other seq numbers.

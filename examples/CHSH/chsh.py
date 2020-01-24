@@ -1,18 +1,40 @@
 import math
-
+import random
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
-# from backends.esqn_backend import EQSNBackend
 from backends.projectq_backend import ProjectQBackend
-import random
 
 Logger.DISABLED = True
 
 PLAYS = 10
+# strategy = 'CLASSICAL'
+strategy = 'QUANTUM'
+
+
+def alice_classical(alice_host, referee_id):
+    """
+    Alice's classical strategy.
+
+    Args:
+        alice_host:
+        referee_id:
+    """
+    # Here we write the protocol code for a host.
+    for i in range(PLAYS):
+        _ = alice_host.get_message_w_seq_num(referee_id, i, wait=5)
+        alice_host.send_classical(referee_id, "0")
 
 
 def alice_quantum(alice_host, referee_id, bob_id):
+    """
+    Alice's quantum protocol for the CHSH game.
+
+    Args:
+        alice_host (Host): Alice's Host object
+        referee_id (str): Referee's Host ID
+        bob_id (str): Bob's Host ID (only for accessing shared EPR pairs)
+    """
     for i in range(PLAYS):
         referee_message = alice_host.get_message_w_seq_num(referee_id, i, wait=5)
         x = int(referee_message.content)
@@ -27,7 +49,23 @@ def alice_quantum(alice_host, referee_id, bob_id):
             alice_host.send_classical(referee_id, str(res))
 
 
+def bob_classical(bob_host, referee_id):
+    # Here we write the protocol code for another host.
+    for i in range(PLAYS):
+        _ = bob_host.get_message_w_seq_num(referee_id, i, wait=5)
+        bob_host.send_classical(referee_id, "0")
+
+
 def bob_quantum(bob_host, referee_id, alice_id):
+    """
+       Bob's quantum protocol for the CHSH game.
+
+       Args:
+           bob_host (Host): Bob's Host object
+           referee_id (str): Referee's Host ID
+           alice_id (str): Alice's Host ID (only for accessing shared EPR pairs)
+    """
+
     for i in range(PLAYS):
         referee_message = bob_host.get_message_w_seq_num(referee_id, i, wait=5)
 
@@ -45,7 +83,15 @@ def bob_quantum(bob_host, referee_id, alice_id):
 
 
 def referee(ref, alice_id, bob_id):
-    # Here we write the protocol code for a host.
+    """
+    Referee protocol for CHSH game.
+    Args:
+        ref (Host): Referee host object
+        alice_id (str): Alice's host ID
+        bob_id (str): Bob's host ID
+
+    """
+
     wins = 0
     for i in range(PLAYS):
         x = random.choice([0, 1])
@@ -67,20 +113,6 @@ def referee(ref, alice_id, bob_id):
             print('Losers!')
 
     print("Win ratio: %.2f" % (100. * wins / PLAYS))
-
-
-def alice_classical(alice_host, referee_id):
-    # Here we write the protocol code for a host.
-    for i in range(PLAYS):
-        _ = alice_host.get_message_w_seq_num(referee_id, i, wait=5)
-        alice_host.send_classical(referee_id, "0")
-
-
-def bob_classical(bob_host, referee_id):
-    # Here we write the protocol code for another host.
-    for i in range(PLAYS):
-        _ = bob_host.get_message_w_seq_num(referee_id, i, wait=5)
-        bob_host.send_classical(referee_id, "0")
 
 
 def main():
@@ -111,9 +143,6 @@ def main():
 
     network.add_host(host_A)
     network.add_host(host_B)
-
-    strategy = 'QUANTUM'
-    # strategy = 'CLASSICAL'
 
     if strategy == 'QUANTUM':
         print('Generating initial entanglement')

@@ -733,6 +733,33 @@ Return an empty list otherwise.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.remove_c_connection">
+<code class="sig-name descname">remove_c_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.remove_c_connection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver_id</strong> – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.remove_connection">
+<code class="sig-name descname">remove_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.remove_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a classical and quantum connection from a host.
+:param receiver_id: The ID of the connection to remove
+:type receiver_id: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a two element array of the status of the removals.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.run_protocol">
 <code class="sig-name descname">run_protocol</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">arguments=()</em>, <em class="sig-param">blocking=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.run_protocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the protocol <em>protocol</em>.
