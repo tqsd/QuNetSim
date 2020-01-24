@@ -1,6 +1,6 @@
 
 
-def Backend(object):
+class Backend(object):
     """
     Definition of how a backend has to look and behave like.
     """
