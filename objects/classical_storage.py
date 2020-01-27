@@ -29,9 +29,9 @@ class ClassicalStorage(object):
                     del self._host_to_msg_dict[sender_id][c]
 
         if from_sender is None:
-            for sender in self._host_to_msg_dict.keys():
+            for sender in list(self._host_to_msg_dict):
                 delete_all_ack_for_sender(sender)
-        elif from_sender in self._host_to_msg_dict.keys():
+        elif from_sender in self._host_to_msg_dict:
             delete_all_ack_for_sender(from_sender)
         else:
             return
@@ -41,7 +41,7 @@ class ClassicalStorage(object):
         Adds a message to the storage.
         """
         sender_id = message.sender
-        if sender_id not in self._host_to_msg_dict.keys():
+        if sender_id not in list(self._host_to_msg_dict):
             self._add_new_host_id(sender_id)
         self._host_to_msg_dict[sender_id].append(message)
 
@@ -60,7 +60,7 @@ class ClassicalStorage(object):
         """
         if delete:
             raise ValueError("delete option not implemented yet!")
-        if sender_id in self._host_to_msg_dict:
+        if sender_id in list(self._host_to_msg_dict):
             return self._host_to_msg_dict[sender_id]
         return []
 
@@ -74,7 +74,7 @@ class ClassicalStorage(object):
         Returns:
             Message object, if such a message exists, or none.
         """
-        if sender_id not in self._host_to_msg_dict.keys():
+        if sender_id not in list(self._host_to_msg_dict):
             return None
         if len(self._host_to_msg_dict[sender_id]) <= self._host_to_read_index[sender_id]:
             return None
@@ -87,6 +87,6 @@ class ClassicalStorage(object):
         Returns all Messages as a list.
         """
         ret = []
-        for host_id in self._host_to_msg_dict.keys():
+        for host_id in list(self._host_to_msg_dict):
             ret += self._host_to_msg_dict[host_id]
         return ret

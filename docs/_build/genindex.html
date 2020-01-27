@@ -26,6 +26,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -120,6 +121,7 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -199,6 +201,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -229,6 +232,8 @@
       <li><a href="components/protocols.html#components.protocols._encode_superdense">_encode_superdense() (in module components.protocols)</a>
 </li>
       <li><a href="components/network.html#components.network.Network._entanglement_swap">_entanglement_swap() (components.network.Network method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host._get_message_w_seq_num">_get_message_w_seq_num() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host._get_qubit">_get_qubit() (in module components.host)</a>
 </li>
@@ -412,8 +417,6 @@
 </li>
       <li><a href="components/network.html#components.network.Network.get_host_name">get_host_name() (components.network.Network method)</a>
 </li>
-      <li><a href="components/host.html#components.host.Host.get_message_w_seq_num">get_message_w_seq_num() (components.host.Host method)</a>
-</li>
       <li><a href="components/host.html#components.host.Host.get_next_classical_message">get_next_classical_message() (components.host.Host method)</a>
 </li>
       <li><a href="objects/classical_storage.html#objects.classical_storage.ClassicalStorage.get_next_from_sender">get_next_from_sender() (objects.classical_storage.ClassicalStorage method)</a>
@@ -453,6 +456,14 @@
       <li><a href="objects/qubit.html#objects.qubit.Qubit.id">id() (objects.qubit.Qubit property)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.is_idle">is_idle() (components.host.Host method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="objects/qubit.html#objects.qubit.Qubit.K">K() (objects.qubit.Qubit method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -566,8 +577,12 @@
 </li>
       <li><a href="objects/classical_storage.html#objects.classical_storage.ClassicalStorage.remove_all_ack">remove_all_ack() (objects.classical_storage.ClassicalStorage method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.remove_c_connection">remove_c_connection() (components.host.Host method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#components.host.Host.remove_connection">remove_connection() (components.host.Host method)</a>
+</li>
       <li><a href="components/network.html#components.network.Network.remove_host">remove_host() (components.network.Network method)</a>
 </li>
       <li><a href="objects/routing_packet.html#objects.routing_packet.RoutingPacket.route">route() (objects.routing_packet.RoutingPacket property)</a>
@@ -677,6 +692,10 @@
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/network.html#components.network.Network.update_host">update_host() (components.network.Network method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#components.network.Network.use_hop_by_hop">use_hop_by_hop() (components.network.Network property)</a>
 </li>

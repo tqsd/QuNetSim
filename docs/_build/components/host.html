@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -121,6 +122,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -298,6 +300,19 @@ users will run specific protocols on the nodes. Below we see all the functions i
 <em class="property">class </em><code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">backend=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Host object acting as either a router node or an application host node.</p>
+<dl class="method">
+<dt id="components.host.Host._get_message_w_seq_num">
+<code class="sig-name descname">_get_message_w_seq_num</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">seq_num</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._get_message_w_seq_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a message from a sender with a specific sequence number.
+:param sender_id: The ID of the sender
+:type sender_id: str
+:param seq_num: The sequence number
+:type seq_num: int
+:param wait:
+:type wait: int</p>
+<p>Returns:</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="components.host.Host._get_sequence_number">
 <code class="sig-name descname">_get_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._get_sequence_number" title="Permalink to this definition">¶</a></dt>
@@ -508,12 +523,13 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.
 
 <dl class="method">
 <dt id="components.host.Host.get_classical">
-<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">seq_num=-1</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the classical messages from partner host <em>host_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>host_id</strong> (<em>string</em>) – The ID of the partner who sent the clasical messages</p></li>
+<li><p><strong>seq_num</strong> (<em>int</em>) – The sequence number of the message</p></li>
 <li><p><strong>wait</strong> (<em>float</em>) – How long in seconds to wait for the messages if none are set.</p></li>
 </ul>
 </dd>
@@ -621,19 +637,6 @@ Return an empty list otherwise.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="components.host.Host.get_message_w_seq_num">
-<code class="sig-name descname">get_message_w_seq_num</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">seq_num</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_message_w_seq_num" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a message from a sender with a specific sequence number.
-:param sender_id: The ID of the sender
-:type sender_id: str
-:param seq_num: The sequence number
-:type seq_num: int
-:param wait:
-:type wait: int</p>
-<p>Returns:</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="components.host.Host.get_next_classical_message">
 <code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param">receive_from_id</em>, <em class="sig-param">buffer</em>, <em class="sig-param">sequence_nr</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -728,6 +731,33 @@ Return an empty list otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>packet</strong> – Received packet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.remove_c_connection">
+<code class="sig-name descname">remove_c_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.remove_c_connection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver_id</strong> – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.remove_connection">
+<code class="sig-name descname">remove_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.remove_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a classical and quantum connection from a host.
+:param receiver_id: The ID of the connection to remove
+:type receiver_id: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a two element array of the status of the removals.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
 </dd>
 </dl>
 </dd></dl>

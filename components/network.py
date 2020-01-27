@@ -36,7 +36,7 @@ class Network:
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
-            self._delay = 0.2
+            self._delay = 0.0
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
@@ -245,6 +245,18 @@ class Network:
 
         if host.host_id in self.ARP:
             del self.ARP[host.host_id]
+
+    def update_host(self, host):
+        """
+        Update the connections of a host in the network.
+        Args:
+            host:
+
+        Returns:
+
+        """
+        self.remove_host(host)
+        self.add_host(host)
 
     def _remove_network_node(self, host):
         """

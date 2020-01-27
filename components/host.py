@@ -43,7 +43,7 @@ class Host:
         self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
-        self._delay = 0.1
+        self._delay = 0.0
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
         self._max_window = 10
@@ -258,7 +258,7 @@ class Host:
 
         return self.seq_number[host]
 
-    def get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+    def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
         """
         Get a message from a sender with a specific sequence number.
         Args:
@@ -323,7 +323,7 @@ class Host:
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
                 return True
-            if sender not in self._seq_number_sender_ack.keys():
+            if sender not in self._seq_number_sender_ack:
                 return False
             if seq_num < self._seq_number_sender_ack[sender][1]:
                 q.put(True)
@@ -344,7 +344,7 @@ class Host:
             else:
                 # Is ack msg
                 sender = msg.sender
-                if sender not in self._seq_number_sender_ack.keys():
+                if sender not in self._seq_number_sender_ack:
                     self._seq_number_sender_ack[sender] = [[], 0]
                 seq_num = msg.seq_num
                 expected_seq = self._seq_number_sender_ack[sender][1]
@@ -419,6 +419,41 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
+
+    def remove_connection(self, receiver_id):
+        """
+        Remove a classical and quantum connection from a host.
+        Args:
+            receiver_id (str): The ID of the connection to remove
+
+        Returns:
+            list: a two element array of the status of the removals.
+        """
+        c = self.remove_c_connection(receiver_id)
+        q = self.remove_q_connection(receiver_id)
+        return [c, q]
+
+    def remove_c_connection(self, receiver_id):
+        """
+
+        Args:
+            receiver_id:
+
+        Returns:
+
+        """
+        c_index = self.classical_connections.index(receiver_id)
+        if c_index > -1:
+            del self.classical_connections[c_index]
+            return True
+        return False
+
+    def remove_q_connection(self, receiver_id):
+        q_index = self.quantum_connections.index(receiver_id)
+        if q_index > -1:
+            del self.classical_connections[q_index]
+            return True
+        return False
 
     def send_ack(self, receiver, seq_number):
         """
@@ -770,12 +805,13 @@ class Host:
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, host_id, wait=-1):
+    def get_classical(self, host_id, seq_num=-1, wait=-1):
         """
         Get the classical messages from partner host *host_id*.
 
         Args:
             host_id (string): The ID of the partner who sent the clasical messages
+            seq_num (int): The sequence number of the message
             wait (float): How long in seconds to wait for the messages if none are set.
 
         Returns:
@@ -795,6 +831,9 @@ class Host:
             while time.time() - wait_start_time < wait and len(cla) == 0:
                 process_messages()
             return cla
+
+        if seq_num > -1:
+            return self._get_message_w_seq_num(host_id, seq_num, wait)
 
         if wait > 0:
             cla = []

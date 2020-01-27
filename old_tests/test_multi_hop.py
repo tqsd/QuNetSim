@@ -56,7 +56,7 @@ class TestTwoHop(unittest.TestCase):
             os.system('rm -rf ./tests/__pycache__/')
 
     def tearDown(self):
-        for key in self.hosts.keys():
+        for key in self.hosts:
             self.hosts[key].cqc.flush()
             self.hosts[key].stop()
             self.network.remove_host(self.hosts[key])

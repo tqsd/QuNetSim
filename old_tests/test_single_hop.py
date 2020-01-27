@@ -44,7 +44,7 @@ class TestOneHop(unittest.TestCase):
         global network
         global hosts
 
-        for key in hosts.keys():
+        for key in hosts:
             hosts[key].backend.flush(hosts[key].host_id)
             network.remove_host(hosts[key])
         network.stop()

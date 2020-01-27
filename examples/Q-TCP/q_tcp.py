@@ -56,7 +56,7 @@ def handshake_sender(host, receiver_id):
         return False
 
     # Receive the classical message Bob has sent for SYN-ACK.
-    message_recv = host.get_message_w_seq_num(receiver_id, syn_seq_num + 2, wait=WAIT_TIME)
+    message_recv = host.get_classical(receiver_id, syn_seq_num + 2, wait=WAIT_TIME)
     if message_recv is None:
         return False
 
@@ -84,7 +84,7 @@ def handshake_sender(host, receiver_id):
         if ack_received is False:
             Logger.get_instance().log('ACK is not received')
             return False
-        message = host.get_message_w_seq_num(receiver_id, latest_seq_num + 2, wait=WAIT_TIME)
+        message = host.get_classical(receiver_id, latest_seq_num + 2, wait=WAIT_TIME)
         return message.content == 'ACK'
     else:
         Logger.get_instance().log("Something is wrong.")
@@ -109,7 +109,7 @@ def handshake_receiver(host, sender_id):
         return False
     qb_2 = qb_2['q']
 
-    message_recv = host.get_message_w_seq_num(sender_id, (latest_seq_num + 1), wait=WAIT_TIME)
+    message_recv = host.get_classical(sender_id, (latest_seq_num + 1), wait=WAIT_TIME)
     if not message_recv:
         Logger.get_instance().log('No message has arrived')
         return False
@@ -144,7 +144,7 @@ def handshake_receiver(host, sender_id):
     latest_seq_num = host.get_sequence_number(sender_id)
 
     # Receive the ACK message.
-    message = host.get_message_w_seq_num(sender_id, latest_seq_num, wait=WAIT_TIME)
+    message = host.get_classical(sender_id, latest_seq_num, wait=WAIT_TIME)
     if message is None:
         Logger.get_instance().log('ACK was not received by Bob')
         return False
