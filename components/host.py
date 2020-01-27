@@ -258,7 +258,7 @@ class Host:
 
         return self.seq_number[host]
 
-    def get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+    def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
         """
         Get a message from a sender with a specific sequence number.
         Args:
@@ -805,12 +805,13 @@ class Host:
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, host_id, wait=-1):
+    def get_classical(self, host_id, seq_num=-1, wait=-1):
         """
         Get the classical messages from partner host *host_id*.
 
         Args:
             host_id (string): The ID of the partner who sent the clasical messages
+            seq_num (int): The sequence number of the message
             wait (float): How long in seconds to wait for the messages if none are set.
 
         Returns:
@@ -830,6 +831,9 @@ class Host:
             while time.time() - wait_start_time < wait and len(cla) == 0:
                 process_messages()
             return cla
+
+        if seq_num > -1:
+            return self._get_message_w_seq_num(host_id, seq_num, wait)
 
         if wait > 0:
             cla = []
