@@ -117,7 +117,7 @@ Classically, Bob does uses the exact same strategy. Quantumly Bob has a similar 
             referee_id (str): Referee's Host ID
         """
         for i in range(PLAYS):
-            _ = bob_host.get_message_w_seq_num(referee_id, seq_num=i, wait=5)
+            _ = bob_host.get_classical(referee_id, seq_num=i, wait=5)
             bob_host.send_classical(referee_id, "0")
 
 
@@ -221,7 +221,7 @@ of those here. The full example is below, with the backends imported and set.
             referee_id (str): Referee's Host ID
         """
         for i in range(PLAYS):
-            _ = bob_host.get_message_w_seq_num(referee_id, i, wait=5)
+            _ = bob_host.get_classical(referee_id, seq_num=i, wait=5)
             bob_host.send_classical(referee_id, "0")
 
 
