@@ -8,7 +8,7 @@ from components.host import Host
 from components.network import Network
 from objects.daemon_thread import DaemonThread
 from objects.qubit import Qubit
-from backends.esqn_backend import EQSNBackend
+from backends.eqsn_backend import EQSNBackend
 
 wait_time = 10
 

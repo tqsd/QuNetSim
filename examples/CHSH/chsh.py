@@ -4,6 +4,7 @@ from components.host import Host
 from components.network import Network
 from components.logger import Logger
 from backends.projectq_backend import ProjectQBackend
+from backends.eqsn_backend import EQSNBackend
 
 Logger.DISABLED = True
 
@@ -118,6 +119,7 @@ def referee(ref, alice_id, bob_id):
 def main():
     network = Network.get_instance()
     backend = ProjectQBackend()
+    # backend = EQSNBackend()
     nodes = ['A', 'B', 'C']
     network.delay = 0.2
     network.start(nodes, backend)
