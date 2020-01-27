@@ -89,7 +89,7 @@ and :math:`X` basis.
             bob_id (str): Bob's Host ID (only for accessing shared EPR pairs)
         """
         for i in range(PLAYS):
-            referee_message = alice_host.get_classical(referee_id, i, wait=5)
+            referee_message = alice_host.get_classical(referee_id, seq_num=i, wait=5)
             x = int(referee_message.content)
             epr = alice_host.get_epr(bob_id)
 
@@ -117,7 +117,7 @@ Classically, Bob does uses the exact same strategy. Quantumly Bob has a similar 
             referee_id (str): Referee's Host ID
         """
         for i in range(PLAYS):
-            _ = bob_host.get_message_w_seq_num(referee_id, seq_num=i, wait=5)
+            _ = bob_host.get_classical(referee_id, seq_num=i, wait=5)
             bob_host.send_classical(referee_id, "0")
 
 
@@ -132,7 +132,7 @@ Classically, Bob does uses the exact same strategy. Quantumly Bob has a similar 
         """
 
         for i in range(PLAYS):
-            referee_message = bob_host.get_classical(referee_id, i, wait=5)
+            referee_message = bob_host.get_classical(referee_id, seq_num=i, wait=5)
 
             y = int(referee_message.content)
             epr = bob_host.get_epr(alice_id)
@@ -185,7 +185,7 @@ of those here. The full example is below, with the backends imported and set.
             referee_id (str): Referee's Host ID
         """
         for i in range(PLAYS):
-            _ = alice_host.get_classical(referee_id, i, wait=5)
+            _ = alice_host.get_classical(referee_id, seq_num=i, wait=5)
             alice_host.send_classical(referee_id, "0")
 
 
@@ -199,7 +199,7 @@ of those here. The full example is below, with the backends imported and set.
             bob_id (str): Bob's Host ID (only for accessing shared EPR pairs)
         """
         for i in range(PLAYS):
-            referee_message = alice_host.get_classical(referee_id, i, wait=5)
+            referee_message = alice_host.get_classical(referee_id, seq_num=i, wait=5)
             x = int(referee_message.content)
             epr = alice_host.get_epr(bob_id)
 
@@ -221,7 +221,7 @@ of those here. The full example is below, with the backends imported and set.
             referee_id (str): Referee's Host ID
         """
         for i in range(PLAYS):
-            _ = bob_host.get_message_w_seq_num(referee_id, i, wait=5)
+            _ = bob_host.get_classical(referee_id, seq_num=i, wait=5)
             bob_host.send_classical(referee_id, "0")
 
 
@@ -235,7 +235,7 @@ of those here. The full example is below, with the backends imported and set.
                alice_id (str): Alice's Host ID (only for accessing shared EPR pairs)
         """
         for i in range(PLAYS):
-            referee_message = bob_host.get_classical(referee_id, i, wait=5)
+            referee_message = bob_host.get_classical(referee_id, seq_num=i, wait=5)
 
             y = int(referee_message.content)
             epr = bob_host.get_epr(alice_id)
@@ -266,8 +266,8 @@ of those here. The full example is below, with the backends imported and set.
             y = random.choice([0, 1])
             ref.send_classical(bob_id, str(y))
 
-            alice_response = ref.get_classical(alice_id, i, wait=5)
-            bob_response = ref.get_classical(bob_id, i, wait=5)
+            alice_response = ref.get_classical(alice_id, seq_num=i, wait=5)
+            bob_response = ref.get_classical(bob_id, seq_num=i, wait=5)
 
             a = int(alice_response.content)
             b = int(bob_response.content)

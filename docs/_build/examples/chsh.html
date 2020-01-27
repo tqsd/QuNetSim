@@ -332,7 +332,7 @@ and <span class="math notranslate nohighlight">\(X\)</span> basis.</p>
 <span class="sd">        bob_id (str): Bob&#39;s Host ID (only for accessing shared EPR pairs)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">referee_message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">epr</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">bob_id</span><span class="p">)</span>
 
@@ -391,7 +391,7 @@ and <span class="math notranslate nohighlight">\(X\)</span> basis.</p>
 <span class="sd">        referee_id (str): Referee&#39;s Host ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_message_w_seq_num</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">bob_host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
 
 
@@ -406,7 +406,7 @@ and <span class="math notranslate nohighlight">\(X\)</span> basis.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">referee_message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">epr</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">alice_id</span><span class="p">)</span>
@@ -639,7 +639,7 @@ of those here. The full example is below, with the backends imported and set.</p
 <span class="sd">        referee_id (str): Referee&#39;s Host ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">alice_host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
 
 
@@ -653,7 +653,7 @@ of those here. The full example is below, with the backends imported and set.</p
 <span class="sd">        bob_id (str): Bob&#39;s Host ID (only for accessing shared EPR pairs)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">referee_message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">epr</span> <span class="o">=</span> <span class="n">alice_host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">bob_id</span><span class="p">)</span>
 
@@ -675,7 +675,7 @@ of those here. The full example is below, with the backends imported and set.</p
 <span class="sd">        referee_id (str): Referee&#39;s Host ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_message_w_seq_num</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">bob_host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
 
 
@@ -689,7 +689,7 @@ of those here. The full example is below, with the backends imported and set.</p
 <span class="sd">           alice_id (str): Alice&#39;s Host ID (only for accessing shared EPR pairs)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">referee_message</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">referee_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">referee_message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">epr</span> <span class="o">=</span> <span class="n">bob_host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">alice_id</span><span class="p">)</span>
@@ -720,8 +720,8 @@ of those here. The full example is below, with the backends imported and set.</p
         <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="n">ref</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">bob_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
 
-        <span class="n">alice_response</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">alice_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-        <span class="n">bob_response</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">bob_id</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">alice_response</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">alice_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">bob_response</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">bob_id</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">alice_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bob_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
