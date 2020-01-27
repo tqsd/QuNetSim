@@ -43,7 +43,7 @@ class Host:
         self._backend.add_host(self)
         self._max_ack_wait = None
         # Frequency of queue processing
-        self._delay = 0.0
+        self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
         self._max_window = 10
