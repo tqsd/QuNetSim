@@ -96,10 +96,7 @@ def eve_qkd(eve, msg_buff, key_size, sender):
             print("Eve received %d key bits." % received_counter)
             key_array.append(bit)
         sequence_nr += 1
-
-    eve_key = key_array
-
-    return eve_key
+    return key_array
 
 
 # helper function, used to make the key to a string
