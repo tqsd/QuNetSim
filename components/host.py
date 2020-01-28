@@ -932,12 +932,15 @@ class Host:
             protocol (function): The protocol that the host should run.
             arguments (tuple): The set of (ordered) arguments for the protocol
             blocking (bool): Wait for thread to stop before proceeding
+
+        Returns:
+            DaemonThread: The thread the protocol is running on
         """
         arguments = (self,) + arguments
         if blocking:
             DaemonThread(protocol, args=arguments).join()
         else:
-            DaemonThread(protocol, args=arguments)
+            return DaemonThread(protocol, args=arguments)
 
     def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
         """
