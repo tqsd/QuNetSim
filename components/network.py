@@ -113,15 +113,6 @@ class Network:
 
         self._quantum_routing_algo = algorithm
 
-    def set_routing_algo(self, algorithm):
-        """
-        Set the routing algorithm for the network.
-
-        Args:
-             algorithm (function): The routing function. Should return a list of host_ids which represents the route
-        """
-        self._classical_routing_algo = algorithm
-
     @property
     def delay(self):
         """
@@ -572,11 +563,19 @@ class Network:
             self._backend.start(nodes=nodes)
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
-    def draw_network(self):
+    def draw_classical_network(self):
         """
         Draws a plot of the network.
         """
         nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
+                         with_labels=True, hold=False)
+        plt.show()
+
+    def draw_quantum_network(self):
+        """
+        Draws a plot of the network.
+        """
+        nx.draw_networkx(self.quantum_network, pos=nx.spring_layout(self.quantum_network),
                          with_labels=True, hold=False)
         plt.show()
 
