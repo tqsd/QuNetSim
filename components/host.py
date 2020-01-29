@@ -56,6 +56,10 @@ class Host:
         # receiver: host->[received_list, low_number]
         self._seq_number_receiver = {}
         self.qkd_keys = {}
+        self._relay_sniffing = False
+        self._relay_sniffing_function = None
+        self._quantum_relay_sniffing = False
+        self._quantum_relay_sniffing_function = None
 
     @property
     def host_id(self):
@@ -224,6 +228,34 @@ class Host:
             (list): The quantum connections for the host.
         """
         return self._quantum_connections
+
+    @property
+    def relay_sniffing(self):
+        return self._relay_sniffing
+
+    @relay_sniffing.setter
+    def relay_sniffing(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Relay sniffing has to be a boolean.")
+        self._relay_sniffing = value
+
+    def relay_sniffing_function(self, msg):
+        if self._relay_sniffing_function is not None:
+            self._relay_sniffing_function(msg)
+
+    @property
+    def quantum_relay_sniffing(self):
+        return self._quantum_relay_sniffing
+
+    @quantum_relay_sniffing.setter
+    def quantum_relay_sniffing(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Quantum Relay sniffing has to be a boolean.")
+        self._quantum_relay_sniffing = value
+
+    def quantum_relay_sniffing_function(self, msg):
+        if self._quantum_relay_sniffing_function is not None:
+            self._quantum_relay_sniffing_function(msg)
 
     def _get_sequence_number(self, host):
         """

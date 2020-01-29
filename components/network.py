@@ -449,15 +449,19 @@ class Network:
                 # Unblock qubits in case they were blocked
                 q.set_blocked_state(False)
 
+                if not store and self.ARP[r].quantum_relay_sniffing:
+                    self.ARP[r].quantum_relay_sniffing()
+
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)
+
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
             if len(route[i:]) != 2:
-                transfer_qubits(route[i + 1])
+                transfer_qubits(route[i + 1], original_sender=route[0])
             else:
                 transfer_qubits(route[i + 1], store=True, original_sender=route[0])
             i += 1
