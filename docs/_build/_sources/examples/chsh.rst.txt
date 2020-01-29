@@ -9,7 +9,7 @@ During the game, Alice and Bob cannot communicate with each other, but to win th
 the referee such that the equation :math:`x` **and**  :math:`y = a` **xor**  :math:`b`, where :math:`a` and :math:`b` are the bits Alice and Bob send to the referee.
 
 Before the game, Alice and Bob can devise a strategy and distribute resources that they can use during the game, as long as the resource is not a method of communication. The optical strategy for winning the game classically is that no matter
-what the referee sends them, Alice and Bob both send a math:`0`. With this strategy, they can win :math:`75\%` of the time. If they instead use a quantum strategy, before the game starts, they can distribute amongst themselves entangled pairs
+what the referee sends them, Alice and Bob both send a :math:`0`. With this strategy, they can win :math:`75\%` of the time. If they instead use a quantum strategy, before the game starts, they can distribute amongst themselves entangled pairs
 of qubits. Then, depending on the bit that the referee sends then, they perform  a specific measurement on their half of the
 qubits. With this strategy, they can win roughly :math:`85\%` of the time.
 
