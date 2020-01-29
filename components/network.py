@@ -450,7 +450,7 @@ class Network:
                 q.set_blocked_state(False)
 
                 if not store and self.ARP[r].quantum_relay_sniffing:
-                    self.ARP[r].quantum_relay_sniffing()
+                    self.ARP[r].quantum_relay_sniffing_function(q, original_sender)
 
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)

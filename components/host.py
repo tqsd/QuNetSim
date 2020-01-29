@@ -253,9 +253,9 @@ class Host:
             raise ValueError("Quantum Relay sniffing has to be a boolean.")
         self._quantum_relay_sniffing = value
 
-    def quantum_relay_sniffing_function(self, msg):
+    def quantum_relay_sniffing_function(self, qubit, from_host):
         if self._quantum_relay_sniffing_function is not None:
-            self._quantum_relay_sniffing_function(msg)
+            self._quantum_relay_sniffing_function(qubit, from_host)
 
     def _get_sequence_number(self, host):
         """
