@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
   
   
 
@@ -196,9 +198,116 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-components.network">
-<span id="network"></span><h1>Network<a class="headerlink" href="#module-components.network" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+  <div class="section" id="network">
+<h1>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h1>
+<p>The Network component plays an important role in QuNetSim. In each simulation, one must configure a
+network with hosts. Each host defines its classical and quantum connections and when
+the host is added to the network, the network builds on the two graph objects for each type
+of connection it maintains. With these two network graphs, one can define their own routing algorithms for
+each type of network (e.g. there can be different routing algorithms for quantum and classical information).
+The default routing algorithm is set to the shortest path route between the two hosts.</p>
+<p>The most commonly used methods for Network are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">add_host(host)</span></code></dt><dd><ul>
+<li><p>Add a host to the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">remove_host(host)</span></code></dt><dd><ul>
+<li><p>Remove a host from the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">update_host(host)</span></code></dt><dd><ul>
+<li><p>Updates the network graph when the connections of a host change</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">get_host(host_id)</span></code></dt><dd><ul>
+<li><p>Get the host object given the host_id</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">get_APR()</span></code></dt><dd><ul>
+<li><p>Get the information for all the hosts in the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">quantum_routing_algo(function)</span></code></dt><dd><ul>
+<li><p>Property for the quantum routing algorithm. It should be a function with parameters that take a source ID and a destination ID and returns an ordered list which represents the route.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">classical_routing_algo(function)</span></code></dt><dd><ul>
+<li><p>Property for the classical routing algorithm. It should be a function with parameters that take a source ID and a destination ID and returns an ordered list which represents the route.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">use_hop_by_hop(bool)</span></code></dt><dd><ul>
+<li><p>If the network should recalculate the route at each node in the route (set to True) or just once at the beginning (set to False)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">delay(float)</span></code></dt><dd><ul>
+<li><p>the amount of delay the network should have. The network has the ability to throttle packet transmissions which is sometimes neccessary for different types of qubit / network backends.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">packet_drop_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a packet is dropped on transmission in the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">x_error_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a qubit has an <span class="math notranslate nohighlight">\(X\)</span> gate applied to in at each host in the route</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">z_error_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a qubit has an <span class="math notranslate nohighlight">\(Z\)</span> gate applied to in at each host in the route</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">draw_classical_network</span></code></dt><dd><ul>
+<li><p>Generate a depiction of the classical network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">draw_quantum_network</span></code></dt><dd><ul>
+<li><p>Generate a depiction of the quantum network (via matplotlib)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<span class="target" id="module-components.network"></span><dl class="class">
 <dt id="components.network.Network">
 <em class="property">class </em><code class="sig-prename descclassname">components.network.</code><code class="sig-name descname">Network</code><a class="headerlink" href="#components.network.Network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -311,8 +420,14 @@ between sender and receiver.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="components.network.Network.draw_network">
-<code class="sig-name descname">draw_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.draw_network" title="Permalink to this definition">¶</a></dt>
+<dt id="components.network.Network.draw_classical_network">
+<code class="sig-name descname">draw_classical_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.draw_classical_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a plot of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network.draw_quantum_network">
+<code class="sig-name descname">draw_quantum_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.draw_quantum_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws a plot of the network.</p>
 </dd></dl>
 
@@ -444,17 +559,6 @@ between sender and receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – Packet to be sent</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.network.Network.set_routing_algo">
-<code class="sig-name descname">set_routing_algo</code><span class="sig-paren">(</span><em class="sig-param">algorithm</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.set_routing_algo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the routing algorithm for the network.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>algorithm</strong> (<em>function</em>) – The routing function. Should return a list of host_ids which represents the route</p>
 </dd>
 </dl>
 </dd></dl>
