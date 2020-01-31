@@ -4,7 +4,12 @@ Host
 The Host component is analogous to a host, or node in a classical network. Hosts in QuNetSim act either as a routing
 node that can relay packets through the network, or they can act as a node that runs a specific protocol. It is up
 to the protocol developer to configure how the nodes behave. In most cases, once the network is established,
-users will run specific protocols on the nodes. Below we see all the functions in the Host component.
+users will run specific protocols on the nodes. In the examples we see how to accomplish this.
+
+One other feature of a host is that they can also sniff packets, or eavesdrop on channels to manipulate the payload
+of the packet. For example, they can apply random noise to any qubit or change the classical messages that are routed
+through them. We see an example of that in the examples section.
+
 
 The most commonly used methods for Hosts are:
 

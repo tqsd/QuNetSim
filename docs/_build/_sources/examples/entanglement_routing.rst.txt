@@ -2,6 +2,7 @@ Routing with Entanglement
 -------------------------
 
 ..  code-block:: python
+    :linenos:
 
     def generate_entanglement(host):
         """
