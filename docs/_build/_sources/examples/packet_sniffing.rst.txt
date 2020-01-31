@@ -76,8 +76,7 @@ that he saw that message.
 
     def bob_sniffing_classical(sender, receiver, msg):
         # Bob modifies the message content of all classical messages routed through him
-        if isinstance(msg, Message):
-            msg.content = "** Bob was here :) ** " + msg.content
+        msg.content = "** Bob was here :) ** " + msg.content
 
 
 We set these protocols to the hosts via the following code:

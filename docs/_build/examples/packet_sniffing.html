@@ -306,16 +306,14 @@ that he saw that message.</p>
 5
 6
 7
-8
-9</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bob_sniffing_quantum</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bob_sniffing_quantum</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
     <span class="c1"># Bob applies an X operation to all qubits that are routed through him</span>
     <span class="n">qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">bob_sniffing_classical</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
     <span class="c1"># Bob modifies the message content of all classical messages routed through him</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">Message</span><span class="p">):</span>
-        <span class="n">msg</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;** Bob was here :) ** &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="o">.</span><span class="n">content</span>
+    <span class="n">msg</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;** Bob was here :) ** &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="o">.</span><span class="n">content</span>
 </pre></div>
 </td></tr></table></div>
 <p>We set these protocols to the hosts via the following code:</p>

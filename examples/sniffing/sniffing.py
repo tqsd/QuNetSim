@@ -29,8 +29,7 @@ def bob_sniffing_quantum(sender, receiver, qubit):
 
 def bob_sniffing_classical(sender, receiver, msg):
     # Bob modifies the message content of all classical messages routed through him
-    if isinstance(msg, Message):
-        msg.content = "** Bob was here :) ** " + msg.content
+    msg.content = "** Bob was here :) ** " + msg.content
 
 
 def eve(host):
