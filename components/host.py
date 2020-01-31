@@ -609,6 +609,17 @@ class Host:
             self.send_qubit(receiver, qubit, await_ack=await_ack)
         return q_id, own_qubit
 
+    def receive_ghz(self, sender, wait=-1):
+        """
+        Receives a GHZ state which was created by the sender.
+
+        Args:
+            sender (str): Host id of the sender of the wanted GHZ state.
+        Returns:
+            Qubit: Qubit which is part of the GHZ state.
+        """
+        pass
+
     def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*

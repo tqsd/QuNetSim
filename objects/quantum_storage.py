@@ -13,6 +13,9 @@ class QuantumStorage(object):
         self._host_dict = {}
         # _qubit_dict stores qubit_id -> dict Host_id -> Qubit objects with this id.
         self._qubit_dict = {}
+        # _purpose_dict stores qubit_id -> dict Host_id -> Purpose belonging to
+        # the Qubit with the same Host and ID.
+        self._purpose_dict = {}
         self._storage_mode = STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
         self._storage_limits_per_host = {}
         self._amount_qubits_stored_per_host = {}
@@ -58,7 +61,8 @@ class QuantumStorage(object):
             else:
                 self._storage_limits_per_host[host_id] = new_limit
         else:
-            raise ValueError("Internal Value Error, this storage mode does not exist.")
+            raise ValueError(
+                "Internal Value Error, this storage mode does not exist.")
 
     def _add_new_host(self, host_id):
         if host_id not in self._host_dict:
@@ -100,7 +104,8 @@ class QuantumStorage(object):
             else:
                 return True
         else:
-            raise ValueError("Internal Value Error, this storage mode does not exist.")
+            raise ValueError(
+                "Internal Value Error, this storage mode does not exist.")
 
     def _increase_qubit_counter(self, host_id):
         """
@@ -124,10 +129,12 @@ class QuantumStorage(object):
         out += "Quantum storage with the properties:\nstorage mode: %d\nstorage limit: %d\n" % (
             self._storage_mode, self._storage_limit)
         out += "Host dictionary is:\n"
-        out += "; ".join([str(key) + ":" + str([v.id for v in value]) for key, value in self._host_dict.items()])
+        out += "; ".join([str(key) + ":" + str([v.id for v in value])
+                         for key, value in self._host_dict.items()])
         out += "\n"
         out += "Qubit dictionary is:\n"
-        out += "; ".join([str(key) + ":" + str(value) for key, value in self._qubit_dict.items()])
+        out += "; ".join([str(key) + ":" + str(value)
+                         for key, value in self._qubit_dict.items()])
         out += "\n"
         return out
 
@@ -197,6 +204,27 @@ class QuantumStorage(object):
             self._qubit_dict[qubit.id] = {}
         self._qubit_dict[qubit.id][from_host_id] = qubit
 
+    def get_purpose_with_id_and_host_from_purpose_dict(self, q_id, from_host_id):
+        if q_id not in self._purpose_dict:
+            return None
+        if from_host_id not in self._purpose_dict[q_id]:
+            return None
+        purpose = self._purpose_dict[q_id][from_host_id]
+        return purpose
+
+    def _delete_purpose_with_id_and_host_from_purpose_dict(self, q_id, from_host_id):
+        if q_id not in self._purpose_dict:
+            return None
+        purpose = self._purpose_dict[q_id].pop(from_host_id, None)
+        if purpose is not None:
+            if not self._purpose_dict[q_id]:
+                del self._purpose_dict[q_id]
+
+    def _add_purpose_to_purpose_dict(self, purpose, id, from_host_id):
+        if id not in self._purpose_dict:
+            self._purpose_dict[id] = {}
+        self._purpose_dict[id][from_host_id] = purpose
+
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
         Changes the ID of a qubit. If the ID is not given, a random
@@ -205,7 +233,8 @@ class QuantumStorage(object):
         new_id = str(new_id)
         if old_id is not None:
             old_id = str(old_id)
-            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                old_id, from_host_id)
             if qubit is not None:
                 qubit.set_new_id(new_id)
                 self._add_qubit_to_qubit_dict(qubit, from_host_id)
@@ -214,7 +243,8 @@ class QuantumStorage(object):
             if from_host_id in self._host_dict and self._host_dict[from_host_id]:
                 qubit = self._host_dict[from_host_id][0]
                 old_id = qubit.id
-                self._pop_qubit_with_id_and_host_from_qubit_dict(old_id, from_host_id)
+                self._pop_qubit_with_id_and_host_from_qubit_dict(
+                    old_id, from_host_id)
                 qubit.set_new_id(new_id)
                 self._add_qubit_to_qubit_dict(qubit, from_host_id)
                 return old_id
@@ -265,7 +295,8 @@ class QuantumStorage(object):
             is returned.
         """
         if q_id is not None:
-            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id)
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                q_id, from_host_id)
             if qubit is not None:
                 if from_host_id not in self._host_dict or \
                         qubit not in self._host_dict[from_host_id]:
