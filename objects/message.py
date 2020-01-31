@@ -29,6 +29,16 @@ class Message(object):
         """
         return self._sender
 
+    @sender.setter
+    def sender(self, sender):
+        """
+        Set the sender of the message.
+
+        Args:
+            sender (str): Sender ID.
+        """
+        self._sender = sender
+
     @property
     def content(self):
         """
@@ -39,6 +49,16 @@ class Message(object):
         """
         return self._content
 
+    @content.setter
+    def content(self, message):
+        """
+        Set the content of the message.
+
+        Args:
+            message (str): The message content to set
+        """
+        self._content = message
+
     @property
     def seq_num(self):
         """
@@ -48,3 +68,14 @@ class Message(object):
             seq_num (int): The sequence number of the message.
         """
         return self._seq_num
+
+    @seq_num.setter
+    def seq_num(self, seq_num):
+        """
+        Set the sequence number of the message.
+
+        Args:
+            seq_num (int):
+
+        """
+        self._seq_num = seq_num

@@ -1,3 +1,4 @@
+from objects.message import Message
 from objects.qubit import Qubit
 
 # DATA TYPES
@@ -162,14 +163,16 @@ def _rec_classical(packet):
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
+    message = packet.payload
     if packet.payload == ACK:
+        message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
 
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet.sender, 'message': packet.payload, 'sequence_number': packet.seq_num}
+    return message
 
 
 def _send_qubit(packet):
