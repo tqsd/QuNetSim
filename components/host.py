@@ -239,9 +239,21 @@ class Host:
             raise ValueError("Relay sniffing has to be a boolean.")
         self._relay_sniffing = value
 
-    def relay_sniffing_function(self, msg):
+    def set_relay_sniffing_function(self, func):
+        """
+        Set a custom function which handles messages which are routed
+        through this host. Functions parameter have to be **sender, receiver,
+        msg**. ACK messages are not passed to the function.
+
+        Args:
+            func (function): Function with sender, receiver, msg args.
+        """
+        self._relay_sniffing_function = func
+
+    def relay_sniffing_function(self, sender, receiver, msg):
         if self._relay_sniffing_function is not None:
-            self._relay_sniffing_function(msg)
+            msg = Message(sender, msg.payload, msg.seq_num)
+            self._relay_sniffing_function(sender, receiver, msg)
 
     @property
     def quantum_relay_sniffing(self):
@@ -253,9 +265,22 @@ class Host:
             raise ValueError("Quantum Relay sniffing has to be a boolean.")
         self._quantum_relay_sniffing = value
 
-    def quantum_relay_sniffing_function(self, qubit, from_host):
+    def set_quantum_relay_sniffing_function(self, func):
+        """
+        Set a custom function which handles qubits which are routes through this
+        host. Functions parameter have to be **sender, receiver, qubit**.
+
+        Args:
+            func (function): Function with sender, receiver, qubit args.
+        """
+        self._quantum_relay_sniffing_function = func
+
+    def quantum_relay_sniffing_function(self, sender, receiver, qubit):
+        """
+        Calls the quantum relay sniffing function if one is set.
+        """
         if self._quantum_relay_sniffing_function is not None:
-            self._quantum_relay_sniffing_function(qubit, from_host)
+            self._quantum_relay_sniffing_function(sender, receiver, qubit)
 
     def _get_sequence_number(self, host):
         """
@@ -331,8 +356,8 @@ class Host:
             receiver (string): The sender of the ACK
             seq (int): The sequence number of the packet
         """
-        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from ' +
-                        receiver + ' with sequence ' + str(seq))
+        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from '
+                        + receiver + ' with sequence ' + str(seq))
 
     def is_idle(self):
         """
@@ -365,14 +390,23 @@ class Host:
                 return True
             return False
 
-        sender = packet.sender
+        if self._relay_sniffing:
+            # if it is a classical relay message, sniff it
+            if packet.protocol == protocols.RELAY:
+                msg = packet.payload
+                if msg.protocol == protocols.REC_CLASSICAL:
+                    receiver = packet.receiver
+                    sender = packet.sender
+                    self.relay_sniffing_function(sender, receiver, msg)
+
         result = protocols.process(packet)
-        if result is not None:
+        if result is not None:  # classical message if not None
+            sender = packet.sender
             msg = Message(sender, result['message'], result['sequence_number'])
             self._classical_messages.add_msg_to_storage(msg)
             if msg.content != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message']) +
-                                ' with sequence number ' + str(result['sequence_number']))
+                self.logger.log(self.host_id + ' received ' + str(result['message'])
+                                + ' with sequence number ' + str(result['sequence_number']))
             else:
                 # Is ack msg
                 sender = msg.sender
@@ -385,7 +419,8 @@ class Host:
                     expected_seq = self._seq_number_sender_ack[sender][1]
                     while len(self._seq_number_sender_ack[sender][0]) > 0 \
                             and expected_seq in self._seq_number_sender_ack[sender][0]:
-                        self._seq_number_sender_ack[sender][0].remove(expected_seq)
+                        self._seq_number_sender_ack[sender][0].remove(
+                            expected_seq)
                         self._seq_number_sender_ack[sender][1] += 1
                         expected_seq += 1
                 elif seq_num > expected_seq:
@@ -508,7 +543,8 @@ class Host:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
         if expected_seq + self._max_window < seq_number:
-            raise Exception("Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+            raise Exception(
+                "Message with seq number %d did not come before the receiver window closed!" % expected_seq)
         elif expected_seq < seq_number:
             self._seq_number_receiver[receiver][0].append(seq_number)
         else:
@@ -565,7 +601,8 @@ class Host:
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
-        self.logger.log(self.host_id + " sends CLASSICAL to " + receiver_id + " with sequence " + str(seq_num))
+        self.logger.log(self.host_id + " sends CLASSICAL to "
+                        + receiver_id + " with sequence " + str(seq_num))
         self._packet_queue.put(packet)
 
         if packet.await_ack:
@@ -621,9 +658,11 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
-                                  payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
+                                  payload={
+                                      'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(
+                                      receiver_id),
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -648,14 +687,16 @@ class Host:
            boolean: If await_ack=True, return the status of the ACK
         """
         if message not in ['00', '01', '10', '11']:
-            raise ValueError("Can only sent one of '00', '01', '10', or '11' as a superdense message")
+            raise ValueError(
+                "Can only sent one of '00', '01', '10', or '11' as a superdense message")
 
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(
+                                      receiver_id),
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -985,11 +1026,13 @@ class Host:
         Returns:
 
         """
-        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+        buffer = buffer + \
+            self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                buffer = buffer + \
+                    self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg

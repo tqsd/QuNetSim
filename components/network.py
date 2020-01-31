@@ -450,11 +450,10 @@ class Network:
                 q.set_blocked_state(False)
 
                 if not store and self.ARP[r].quantum_relay_sniffing:
-                    self.ARP[r].quantum_relay_sniffing_function(q, original_sender)
+                    self.ARP[r].quantum_relay_sniffing_function(original_sender, receiver, q)
 
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)
-
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
@@ -596,7 +595,7 @@ class Network:
             ttl(int): Time-to-Live parameter
 
         Returns:
-            dict: Encoded RELAY packet
+            RoutingPacket: Encoded RELAY packet
         """
         if payload.protocol != protocols.RELAY:
             packet = RoutingPacket(route[1], '', protocols.RELAY, protocols.SIGNAL,

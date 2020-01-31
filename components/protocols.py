@@ -4,6 +4,7 @@ from objects.qubit import Qubit
 from components.logger import Logger
 from components.network import Network
 from objects.packet import Packet
+from copy import deepcopy
 import numpy as np
 import random
 
