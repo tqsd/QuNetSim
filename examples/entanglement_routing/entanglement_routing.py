@@ -24,6 +24,19 @@ def generate_entanglement(host):
 
 
 def routing_algorithm(di_graph, source, target):
+    """
+    Entanglement based routing function. Note: any custom routing function must
+    have exactly these three parameters and must return a list ordered by the steps
+    in the route.
+
+    Args:
+        di_graph (networkx DiGraph): The directed graph representation of the network.
+        source (str): The sender ID
+        target (str: The receiver ID
+    Returns:
+        (list): The route ordered by the steps in the route.
+    """
+
     # Generate entanglement network
     entanglement_network = nx.DiGraph()
     nodes = di_graph.nodes()
