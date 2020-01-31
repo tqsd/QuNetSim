@@ -299,8 +299,8 @@ class Host:
             receiver (string): The sender of the ACK
             seq (int): The sequence number of the packet
         """
-        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from ' +
-                        receiver + ' with sequence ' + str(seq))
+        self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from '
+                        + receiver + ' with sequence ' + str(seq))
 
     def is_idle(self):
         """
@@ -339,8 +339,8 @@ class Host:
             msg = Message(sender, result['message'], result['sequence_number'])
             self._classical_messages.add_msg_to_storage(msg)
             if msg.content != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message']) +
-                                ' with sequence number ' + str(result['sequence_number']))
+                self.logger.log(self.host_id + ' received ' + str(result['message'])
+                                + ' with sequence number ' + str(result['sequence_number']))
             else:
                 # Is ack msg
                 sender = msg.sender
@@ -353,7 +353,8 @@ class Host:
                     expected_seq = self._seq_number_sender_ack[sender][1]
                     while len(self._seq_number_sender_ack[sender][0]) > 0 \
                             and expected_seq in self._seq_number_sender_ack[sender][0]:
-                        self._seq_number_sender_ack[sender][0].remove(expected_seq)
+                        self._seq_number_sender_ack[sender][0].remove(
+                            expected_seq)
                         self._seq_number_sender_ack[sender][1] += 1
                         expected_seq += 1
                 elif seq_num > expected_seq:
@@ -476,7 +477,8 @@ class Host:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
         if expected_seq + self._max_window < seq_number:
-            raise Exception("Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+            raise Exception(
+                "Message with seq number %d did not come before the receiver window closed!" % expected_seq)
         elif expected_seq < seq_number:
             self._seq_number_receiver[receiver][0].append(seq_number)
         else:
@@ -513,6 +515,15 @@ class Host:
         wait()
         return did_ack
 
+    def await_remaining_acks(self, sender=None):
+        """
+        Awaits all remaining ACKs of one or all sender.
+
+        Args:
+            sender (str): Optional, sender for which to wait for all acks.
+        """
+        pass
+
     def send_classical(self, receiver_id, message, await_ack=False):
         """
         Sends the classical message to the receiver host with
@@ -533,7 +544,8 @@ class Host:
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
-        self.logger.log(self.host_id + " sends CLASSICAL to " + receiver_id + " with sequence " + str(seq_num))
+        self.logger.log(self.host_id + " sends CLASSICAL to "
+                        + receiver_id + " with sequence " + str(seq_num))
         self._packet_queue.put(packet)
 
         if packet.await_ack:
@@ -573,6 +585,30 @@ class Host:
 
         return q_id
 
+    def send_ghz(self, receiver_list, q_id=None, await_ack=False):
+        """
+        Share GHZ state with all receiver ids in the list. GHZ state is generated
+        locally.
+
+        Args:
+            receiver_list (List): A List of all Host IDs with which a GHZ state
+                                  should be shared.
+        Returns:
+            Q_id, Qubit: Qubit which belongs to the host and is part of the
+                        GHZ state and ID which all Qubits will have.
+        """
+        own_qubit = Qubit(self, q_id=q_id)
+        q_id = own_qubit.id
+        own_qubit.H()
+        q_list = []
+        for _ in receiver_list:
+            new_qubit = Qubit(self, q_id=q_id)
+            own_qubit.cnot(new_qubit)
+            q_list.append(new_qubit)
+        for receiver, qubit in zip(receiver_list, q_list):
+            self.send_qubit(receiver, qubit, await_ack=await_ack)
+        return q_id, own_qubit
+
     def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
@@ -589,9 +625,11 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
-                                  payload={'q': q, 'generate_epr_if_none': generate_epr_if_none},
+                                  payload={
+                                      'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(
+                                      receiver_id),
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -616,14 +654,16 @@ class Host:
            boolean: If await_ack=True, return the status of the ACK
         """
         if message not in ['00', '01', '10', '11']:
-            raise ValueError("Can only sent one of '00', '01', '10', or '11' as a superdense message")
+            raise ValueError(
+                "Can only sent one of '00', '01', '10', or '11' as a superdense message")
 
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(receiver_id),
+                                  sequence_num=self._get_sequence_number(
+                                      receiver_id),
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -953,11 +993,13 @@ class Host:
         Returns:
 
         """
-        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+        buffer = buffer + \
+            self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                buffer = buffer + \
+                    self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg
