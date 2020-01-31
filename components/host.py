@@ -56,6 +56,7 @@ class Host:
         # receiver: host->[received_list, low_number]
         self._seq_number_receiver = {}
         self.qkd_keys = {}
+        self._sniff_full_packet = False
         self._relay_sniffing = False
         self._relay_sniffing_function = None
         self._quantum_relay_sniffing = False
@@ -250,10 +251,36 @@ class Host:
         """
         self._relay_sniffing_function = func
 
-    def relay_sniffing_function(self, sender, receiver, msg):
+    def relay_sniffing_function(self, sender, receiver, transport_packet):
         if self._relay_sniffing_function is not None:
-            msg = Message(sender, msg.payload, msg.seq_num)
-            self._relay_sniffing_function(sender, receiver, msg)
+            if self._sniff_full_packet:
+                self._relay_sniffing_function(sender, receiver, transport_packet)
+            else:
+                self._relay_sniffing_function(sender, receiver, transport_packet.payload)
+
+    @property
+    def sniff_full_packet(self):
+        """
+        If the eavesdropper should get the whole packet or just the
+        payload.
+
+        Returns:
+            (bool): If the eavesdropper should get the whole packet or just the
+                    payload.
+        """
+        return self._sniff_full_packet
+
+    @sniff_full_packet.setter
+    def sniff_full_packet(self, should_sniff_full_packet):
+        """
+        Set if the eavesdropper should get the whole packet or just the
+        payload.
+
+        Args:
+            should_sniff_full_packet (bool): If the eavesdropper should get the whole packet or just the
+                                            payload.
+        """
+        self._sniff_full_packet = should_sniff_full_packet
 
     @property
     def quantum_relay_sniffing(self):
@@ -376,16 +403,16 @@ class Host:
             packet (Packet): The received packet
         """
 
-        def check_task(q, sender, seq_num, timeout, start_time):
+        def check_task(q, _sender, _seq_num, timeout, start_time):
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
                 return True
-            if sender not in self._seq_number_sender_ack:
+            if _sender not in self._seq_number_sender_ack:
                 return False
-            if seq_num < self._seq_number_sender_ack[sender][1]:
+            if _seq_num < self._seq_number_sender_ack[_sender][1]:
                 q.put(True)
                 return True
-            if seq_num in self._seq_number_sender_ack[sender][0]:
+            if _seq_num in self._seq_number_sender_ack[_sender][0]:
                 q.put(True)
                 return True
             return False
@@ -393,20 +420,21 @@ class Host:
         if self._relay_sniffing:
             # if it is a classical relay message, sniff it
             if packet.protocol == protocols.RELAY:
-                msg = packet.payload
-                if msg.protocol == protocols.REC_CLASSICAL:
+                # RELAY is a network layer protocol, the transport layer packet
+                # is in the payload
+                transport_packet = packet.payload
+                if transport_packet.protocol == protocols.REC_CLASSICAL:
                     receiver = packet.receiver
                     sender = packet.sender
-                    self.relay_sniffing_function(sender, receiver, msg)
+                    self.relay_sniffing_function(sender, receiver, transport_packet)
 
         result = protocols.process(packet)
         if result is not None:  # classical message if not None
-            sender = packet.sender
-            msg = Message(sender, result['message'], result['sequence_number'])
+            msg = result
             self._classical_messages.add_msg_to_storage(msg)
             if msg.content != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message'])
-                                + ' with sequence number ' + str(result['sequence_number']))
+                self.logger.log(self.host_id + ' received ' + str(msg.content)
+                                + ' with sequence number ' + str(msg.seq_num))
             else:
                 # Is ack msg
                 sender = msg.sender
@@ -594,6 +622,7 @@ class Host:
             boolean: If await_ack=True, return the status of the ACK
         """
         seq_num = self._get_sequence_number(receiver_id)
+        message = Message(sender=self.host_id, content=message, seq_num=seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -1027,12 +1056,12 @@ class Host:
 
         """
         buffer = buffer + \
-            self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                 self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
                 buffer = buffer + \
-                    self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                         self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg

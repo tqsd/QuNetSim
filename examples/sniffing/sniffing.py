@@ -1,36 +1,47 @@
 from components.host import Host
 from components.network import Network
+from objects.message import Message
 from objects.qubit import Qubit
+from components.logger import Logger
 
-amount_transmit = 10
+Logger.DISABLED = True
+
+amount_transmit = 5
 
 
-def Alice(host):
+def alice(host):
     for _ in range(amount_transmit):
+        s = 'Hi Eve.'
+        print("Alice sends: %s" % s)
+        host.send_classical('Eve', s, await_ack=True)
+
+    for _ in range(amount_transmit):
+        print("Alice sends qubit in the |1> state")
         q = Qubit(host)
-        q.H()
-        print("Alice prepared a qubit 0 in Hadamard basis.")
-        host.send_classical('Eve', "I will send a qubit now.", await_ack=True)
+        q.X()
         host.send_qubit('Eve', q, await_ack=True)
 
 
-def Bob_sniffing_quantum(sender, receiver, qubit):
-    m = qubit.measure(non_destructive=True)
-    print("Bob measured sniffed qubit and measured %d." % m)
+def bob_sniffing_quantum(sender, receiver, qubit):
+    # Bob applies an X operation to all qubits that are routed through him
+    qubit.X()
 
 
-def Bob_sniffing_classical(sender, receiver, msg):
-    print("%s sends a message to %s with the content %s." %
-          (sender, receiver, msg.content))
+def bob_sniffing_classical(sender, receiver, msg):
+    # Bob modifies the message content of all classical messages routed through him
+    if isinstance(msg, Message):
+        msg.content = "** Bob was here :) ** " + msg.content
 
 
-def Eve(host):
-    for _ in range(amount_transmit):
-        _ = host.get_classical('Alice', wait=10)
+def eve(host):
+    for i in range(amount_transmit):
+        alice_message = host.get_classical('Alice', wait=5, seq_num=i)
+        print("Eve Received classical: %s." % alice_message.content)
+
+    for i in range(amount_transmit):
         q = host.get_data_qubit('Alice', wait=10)
-        q.H()
         m = q.measure()
-        print("Eve measured %d." % m)
+        print("Eve measured: %d." % m)
 
 
 def main():
@@ -50,6 +61,7 @@ def main():
 
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
+    host_eve.delay = 0.2
     host_eve.start()
 
     network.add_host(host_alice)
@@ -57,13 +69,13 @@ def main():
     network.add_host(host_eve)
 
     host_bob.quantum_relay_sniffing = True
-    host_bob.set_quantum_relay_sniffing_function(Bob_sniffing_quantum)
+    host_bob.set_quantum_relay_sniffing_function(bob_sniffing_quantum)
 
     host_bob.relay_sniffing = True
-    host_bob.set_relay_sniffing_function(Bob_sniffing_classical)
+    host_bob.set_relay_sniffing_function(bob_sniffing_classical)
 
-    t1 = host_alice.run_protocol(Alice)
-    t2 = host_eve.run_protocol(Eve)
+    t1 = host_alice.run_protocol(alice)
+    t2 = host_eve.run_protocol(eve)
 
     t1.join()
     t2.join()

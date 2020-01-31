@@ -308,14 +308,18 @@ backends, which adds additional information needed for QuNetSim.</p>
 
 <dl class="method">
 <dt id="objects.qubit.Qubit.measure">
-<code class="sig-name descname">measure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param">non_destructive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Measures the state of a qubit.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>0 or 1, dependent on measurement outcome.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>non_destructive</strong> (<em>bool</em>) – Determines if the qubit should stay in the
+system or be eliminated.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>measured_value (int)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>0 or 1, dependent on measurement outcome.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>measured_value (int)</p>
 </dd>
 </dl>
 </dd></dl>
