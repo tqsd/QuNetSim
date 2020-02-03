@@ -16,7 +16,7 @@ def main():
              'bob': Host('Bob'),
              'eve': Host('Eve')}
 
-    network.delay = 0.0
+    network.delay = 0.1
 
     # A <-> B
     hosts['alice'].add_connection('Bob')

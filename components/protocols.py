@@ -271,6 +271,7 @@ def _rec_teleport(packet):
     q = host_receiver.get_epr(packet.sender, q_id, wait=WAIT_TIME)
     if q is None:
         # TODO: what to do when fails
+        print(host_receiver.qubit_storage)
         raise Exception
 
     a = payload['measurements'][0]
@@ -370,6 +371,8 @@ def _send_superdense(packet):
         raise Exception("couldn't encode superdense")
 
     _encode_superdense(packet.payload, q_superdense)
+    # change id, so that at receiving they are not the same
+    q_superdense.set_new_id("E" + q_superdense.id)
     packet.payload = q_superdense
     packet.protocol = REC_SUPERDENSE
     packet.payload_type = QUANTUM
@@ -393,7 +396,8 @@ def _rec_superdense(packet):
     host_receiver = network.get_host(receiver)
 
     q1 = host_receiver.get_data_qubit(sender, payload.id, wait=WAIT_TIME)
-    q2 = host_receiver.get_epr(sender, payload.id, wait=WAIT_TIME)
+    # the shared EPR id is the DATA id without the first letter.
+    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=WAIT_TIME)
 
     assert q1 is not None and q2 is not None
 

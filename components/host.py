@@ -11,6 +11,10 @@ import uuid
 import time
 
 
+DATA_QUBIT = "data"
+EPR_QUBIT = "EPR"
+
+
 class Host:
     """ Host object acting as either a router node or an application host node. """
 
@@ -29,9 +33,7 @@ class Host:
         self._packet_queue = Queue()
         self._stop_thread = False
         self._queue_processor_thread = None
-        # self._qubit_storage = QuantumStorage()
-        self._data_qubit_store = QuantumStorage()
-        self._EPR_store = QuantumStorage()
+        self._qubit_storage = QuantumStorage()
         self._classical_messages = ClassicalStorage()
         self._classical_connections = []
         self._quantum_connections = []
@@ -107,12 +109,8 @@ class Host:
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
 
     @property
-    def EPR_store(self):
-        return self._EPR_store
-
-    @property
-    def data_qubit_store(self):
-        return self._data_qubit_store
+    def qubit_storage(self):
+        return self._qubit_storage
 
     @property
     def delay(self):
@@ -176,7 +174,7 @@ class Host:
         Returns:
             (int): The maximum number of qubits that can be held in EPR memory.
         """
-        return self._EPR_store.storage_limit
+        return self._qubit_storage.storage_limit
 
     @storage_epr_limit.setter
     def storage_epr_limit(self, storage_limit):
@@ -190,7 +188,7 @@ class Host:
         if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._EPR_store.set_storage_limit(storage_limit, None)
+        self._qubit_storage.set_storage_limit(storage_limit, None)
 
     @property
     def storage_limit(self):
@@ -200,7 +198,7 @@ class Host:
         Returns:
             (int): The maximum number of qubits that can be held in data qubit memory.
         """
-        return self._data_qubit_store.storage_limit
+        return self._qubit_storage.storage_limit
 
     @storage_limit.setter
     def storage_limit(self, storage_limit):
@@ -214,7 +212,7 @@ class Host:
         if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._data_qubit_store.set_storage_limit(storage_limit, None)
+        self._qubit_storage.set_storage_limit(storage_limit, None)
 
     @property
     def quantum_connections(self):
@@ -724,10 +722,7 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        return self._EPR_store.check_qubit_from_host_exists(receiver_id)
-
-    def receive_epr(self, receiver_id):
-        pass
+        return self._qubit_storage.check_qubit_from_host_exists(receiver_id, EPR_QUBIT)
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """
@@ -741,7 +736,7 @@ class Host:
         Returns:
             Old if of the qubit which has been changed.
         """
-        return self._EPR_store.change_qubit_id(host_id, new_id, old_id)
+        return self._qubit_storage.change_qubit_id(host_id, new_id, old_id)
 
     def get_epr_pairs(self, host_id):
         """
@@ -758,7 +753,7 @@ class Host:
         """
         if host_id is None:
             raise ValueError("Host id has to be specified!")
-        return self._EPR_store.get_all_qubits_from_host(host_id)
+        return self._qubit_storage.get_all_qubits_from_host(host_id, EPR_QUBIT)
 
     def get_data_qubits(self, host_id):
         """
@@ -773,7 +768,7 @@ class Host:
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        return self._data_qubit_store.get_all_qubits_from_host(host_id)
+        return self._qubit_storage.get_all_qubits_from_host(host_id, DATA_QUBIT)
 
     def set_epr_memory_limit(self, limit, host_id=None):
         """
@@ -784,7 +779,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             host_id (str): (optional) The partner ID to set the limit with
         """
-        self._EPR_store.set_storage_limit(limit, host_id)
+        self._qubit_storage.set_storage_limit(limit, host_id)
 
     def set_data_qubit_memory_limit(self, limit, host_id=None):
         """
@@ -795,7 +790,7 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             host_id (str): (optional) The partner ID to set the limit with
         """
-        self._data_qubit_store.set_storage_limit(limit, host_id)
+        self._qubit_storage.set_storage_limit(limit, host_id)
 
     def add_epr(self, host_id, qubit, q_id=None, blocked=False):
         """
@@ -813,7 +808,7 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
         qubit.set_blocked_state(blocked)
-        self._EPR_store.add_qubit_from_host(qubit, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, EPR_QUBIT, host_id)
         return qubit.id
 
     def add_data_qubit(self, host_id, qubit, q_id=None):
@@ -831,7 +826,7 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
 
-        self._data_qubit_store.add_qubit_from_host(qubit, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, DATA_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
@@ -916,7 +911,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._EPR_store, host_id, q_id)
+                q = _get_qubit(self._qubit_storage, host_id, q_id, EPR_QUBIT)
             return q
 
         if wait > 0:
@@ -924,7 +919,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._EPR_store, host_id, q_id)
+            return _get_qubit(self._qubit_storage, host_id, q_id, EPR_QUBIT)
 
     def get_data_qubit(self, host_id, q_id=None, wait=-1):
         """
@@ -946,7 +941,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._data_qubit_store, host_id, q_id)
+                q = _get_qubit(self._qubit_storage, host_id, q_id, DATA_QUBIT)
             return q
 
         if wait > 0:
@@ -954,7 +949,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._data_qubit_store, host_id, q_id)
+            return _get_qubit(self._qubit_storage, host_id, q_id, DATA_QUBIT)
 
     def stop(self, release_qubits=True):
         """
@@ -965,8 +960,7 @@ class Host:
         """
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
-            self._data_qubit_store.release_storage()
-            self._EPR_store.release_storage()
+            self._qubit_storage.release_storage()
 
         self._backend.stop()
         self._stop_thread = True
@@ -1043,7 +1037,7 @@ class Host:
             return self.await_ack(seq_num, receiver_id)
 
 
-def _get_qubit(store, host_id, q_id):
+def _get_qubit(store, host_id, q_id, purpose):
     """
     Gets the data qubit received from another host in the network. If qubit ID is specified,
     qubit with that ID is returned, else, the last qubit received is returned.
@@ -1055,4 +1049,4 @@ def _get_qubit(store, host_id, q_id):
     Returns:
          Qubit: Qubit received from the host with *host_id* and *q_id*.
     """
-    return store.get_qubit_from_host(host_id, q_id)
+    return store.get_qubit_from_host(host_id, q_id, purpose)

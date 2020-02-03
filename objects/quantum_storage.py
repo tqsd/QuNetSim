@@ -1,3 +1,5 @@
+from backends.RWLock import RWLock
+
 STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2
 STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
@@ -22,6 +24,8 @@ class QuantumStorage(object):
         self._default_storage_limit_per_host = -1
         self._storage_limit = -1
         self._amount_qubit_stored = 0
+        # read write lock, for threaded access
+        self.lock = RWLock()
 
     @property
     def storage_limit(self):
@@ -136,6 +140,10 @@ class QuantumStorage(object):
         out += "; ".join([str(key) + ":" + str(value)
                          for key, value in self._qubit_dict.items()])
         out += "\n"
+        out += "Purpose dictionary is:\n"
+        out += "; ".join([str(key) + ":" + str(value)
+                         for key, value in self._purpose_dict.items()])
+        out += "\n"
         return out
 
     def _decrease_qubit_counter(self, host_id):
@@ -160,25 +168,33 @@ class QuantumStorage(object):
         Releases all qubits in this storage. The storage is not
         usable anymore after this function has been called.
         """
+        self.lock.acquire_write()
         for q in self._qubit_dict.values():
             for ele in q.values():
                 # print("release qubit with id " + str(ele.id))
                 ele.release()
+        # do not release write, storage not usable anymore
 
-    def check_qubit_from_host_exists(self, from_host_id):
+    def check_qubit_from_host_exists(self, from_host_id, purpose=None):
         """
         Check if a qubit from a host exists in this quantum storage.
 
         Args:
             from_host_id (str): The host id of the host from which the qubit is from.
+            purpose (String): Optional, purpose of the qubit which should exist.
 
         Returns:
             True, if such a qubit is in the storage, false if not.
         """
+        self.lock.acquire_write()
         if from_host_id not in self._host_dict:
+            self.lock.release_write()
             return False
-        if self._host_dict[from_host_id]:
-            return True
+        for q in self._host_dict[from_host_id]:
+            if self._check_qubit_in_system(q, from_host_id, purpose):
+                self.lock.release_write()
+                return True
+        self.lock.release_write()
         return False
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
@@ -218,6 +234,7 @@ class QuantumStorage(object):
         qubit which is from a host is changed to the new id.
         """
         new_id = str(new_id)
+        self.lock.acquire_write()
         if old_id is not None:
             old_id = str(old_id)
             qubit, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
@@ -225,6 +242,7 @@ class QuantumStorage(object):
             if qubit is not None:
                 qubit.set_new_id(new_id)
                 self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
+                self.lock.release_write()
                 return old_id
         else:
             if from_host_id in self._host_dict and self._host_dict[from_host_id]:
@@ -234,7 +252,9 @@ class QuantumStorage(object):
                     old_id, from_host_id)
                 qubit.set_new_id(new_id)
                 self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
+                self.lock.release_write()
                 return old_id
+        self.lock.release_write()
         return None
 
     def _check_qubit_in_system(self, qubit, from_host_id, purpose=None):
@@ -259,16 +279,20 @@ class QuantumStorage(object):
             purpose (String): Purpose of the Qubit, for example EPR or data.
         """
 
+        self.lock.acquire_write()
         if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
+            print(self)
             raise ValueError("Qubit with these parameters already in storage!")
         if from_host_id not in self._host_dict:
             self._add_new_host(from_host_id)
         if not self._increase_qubit_counter(from_host_id):
             qubit.release()
+            self.lock.release_write()
             return
 
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
+        self.lock.release_write()
 
     def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None):
         """
@@ -285,6 +309,7 @@ class QuantumStorage(object):
             If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
+        self.lock.acquire_write()
         if q_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id, purpose=purpose)
             if qubit is not None:
@@ -296,21 +321,34 @@ class QuantumStorage(object):
                     return None
                 self._host_dict[from_host_id].remove(qubit)
                 self._decrease_qubit_counter(from_host_id)
+            self.lock.release_write()
             return qubit
 
         if from_host_id not in self._host_dict:
+            self.lock.release_write()
             return None
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
             self._decrease_qubit_counter(from_host_id)
-            return self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)[0]
+            out = self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)
+            if out is not None:
+                self.lock.release_write()
+                return out[0]
+        self.lock.release_write()
         return None
 
-    def get_all_qubits_from_host(self, from_host_id):
+    def get_all_qubits_from_host(self, from_host_id, purpose=None):
         """
         Get all Qubits from a specific host id.
         These qubits are not removed from storage!
         """
+        out = []
+        self.lock.acquire_write()
         if from_host_id in self._host_dict:
-            return self._host_dict[from_host_id]
+            for q in self._host_dict:
+                if self._check_qubit_in_system(q, from_host_id, purpose):
+                    out.append(q)
+            self.lock.release_write()
+            return out
+        self.lock.release_write()
         return []

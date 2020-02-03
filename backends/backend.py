@@ -75,12 +75,13 @@ class Backend(object):
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
-    def receive_epr(self, host_id, q_id=None, block=False):
+    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
         Called after create EPR in the receiver, to receive the other EPR pair.
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
+            sender_id (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
@@ -230,4 +231,3 @@ class Backend(object):
         """
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
-
