@@ -29,6 +29,7 @@ class Host:
         self._packet_queue = Queue()
         self._stop_thread = False
         self._queue_processor_thread = None
+        # self._qubit_storage = QuantumStorage()
         self._data_qubit_store = QuantumStorage()
         self._EPR_store = QuantumStorage()
         self._classical_messages = ClassicalStorage()

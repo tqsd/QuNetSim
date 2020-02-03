@@ -181,49 +181,36 @@ class QuantumStorage(object):
             return True
         return False
 
-    def get_all_qubits_from_host(self, from_host_id):
-        """
-        Get all Qubits from a specific host id.
-        These qubits are not removed from storage!
-        """
-        if from_host_id in self._host_dict:
-            return self._host_dict[from_host_id]
-        return []
-
-    def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id):
-        if q_id not in self._qubit_dict:
+    def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
+        def _pop_purpose_from_purpose_dict(q_id, from_host_id):
+            if q_id not in self._purpose_dict:
+                return None
+            purpose = self._purpose_dict[q_id].pop(from_host_id, None)
+            if purpose is not None:
+                if not self._purpose_dict[q_id]:
+                    del self._purpose_dict[q_id]
+                return purpose
             return None
-        qubit = self._qubit_dict[q_id].pop(from_host_id, None)
-        if qubit is not None:
-            if not self._qubit_dict[q_id]:
-                del self._qubit_dict[q_id]
-        return qubit
 
-    def _add_qubit_to_qubit_dict(self, qubit, from_host_id):
+        purp = _pop_purpose_from_purpose_dict(q_id, from_host_id)
+        if purp is not None and (purpose is None or purpose==purp):
+            qubit = self._qubit_dict[q_id].pop(from_host_id, None)
+            if qubit is not None:
+                if not self._qubit_dict[q_id]:
+                    del self._qubit_dict[q_id]
+            return qubit, purp
+        return None
+
+    def _add_qubit_to_qubit_dict(self, qubit, purpose, from_host_id):
+        def _add_purpose_to_purpose_dict(purpose, id, from_host_id):
+            if id not in self._purpose_dict:
+                self._purpose_dict[id] = {}
+            self._purpose_dict[id][from_host_id] = purpose
+
         if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
         self._qubit_dict[qubit.id][from_host_id] = qubit
-
-    def get_purpose_with_id_and_host_from_purpose_dict(self, q_id, from_host_id):
-        if q_id not in self._purpose_dict:
-            return None
-        if from_host_id not in self._purpose_dict[q_id]:
-            return None
-        purpose = self._purpose_dict[q_id][from_host_id]
-        return purpose
-
-    def _delete_purpose_with_id_and_host_from_purpose_dict(self, q_id, from_host_id):
-        if q_id not in self._purpose_dict:
-            return None
-        purpose = self._purpose_dict[q_id].pop(from_host_id, None)
-        if purpose is not None:
-            if not self._purpose_dict[q_id]:
-                del self._purpose_dict[q_id]
-
-    def _add_purpose_to_purpose_dict(self, purpose, id, from_host_id):
-        if id not in self._purpose_dict:
-            self._purpose_dict[id] = {}
-        self._purpose_dict[id][from_host_id] = purpose
+        _add_purpose_to_purpose_dict(purpose, qubit.id, from_host_id)
 
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
@@ -233,33 +220,35 @@ class QuantumStorage(object):
         new_id = str(new_id)
         if old_id is not None:
             old_id = str(old_id)
-            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
+            qubit, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
                 old_id, from_host_id)
             if qubit is not None:
                 qubit.set_new_id(new_id)
-                self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
                 return old_id
         else:
             if from_host_id in self._host_dict and self._host_dict[from_host_id]:
                 qubit = self._host_dict[from_host_id][0]
                 old_id = qubit.id
-                self._pop_qubit_with_id_and_host_from_qubit_dict(
+                _, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
                     old_id, from_host_id)
                 qubit.set_new_id(new_id)
-                self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
                 return old_id
         return None
 
-    def _check_qubit_in_system(self, qubit, from_host_id):
+    def _check_qubit_in_system(self, qubit, from_host_id, purpose=None):
         """
         True if qubit with same parameters already in the systems
         """
         if qubit.id in self._qubit_dict and \
                 from_host_id in self._qubit_dict[qubit.id]:
-            return True
+            if purpose is None or (qubit.id in self._purpose_dict and \
+                                  from_host_id in self._purpose_dict[qubit.id]):
+                return True
         return False
 
-    def add_qubit_from_host(self, qubit, from_host_id):
+    def add_qubit_from_host(self, qubit, purpose, from_host_id):
         """
         Adds a qubit which has been received from a host.
 
@@ -267,9 +256,10 @@ class QuantumStorage(object):
             qubit (Qubit): qubit which should be stored.
             from_host_id (String): Id of the Host from whom the qubit has
                              been received.
+            purpose (String): Purpose of the Qubit, for example EPR or data.
         """
 
-        if self._check_qubit_in_system(qubit, from_host_id):
+        if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
             raise ValueError("Qubit with these parameters already in storage!")
         if from_host_id not in self._host_dict:
             self._add_new_host(from_host_id)
@@ -278,9 +268,9 @@ class QuantumStorage(object):
             return
 
         self._host_dict[from_host_id].append(qubit)
-        self._add_qubit_to_qubit_dict(qubit, from_host_id)
+        self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
 
-    def get_qubit_from_host(self, from_host_id, q_id=None):
+    def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None):
         """
         Returns next qubit which has been received from a host. If id is
         given, the exact qubit with the id is returned, or None if it does not exist.
@@ -289,19 +279,20 @@ class QuantumStorage(object):
         Args:
             from_host_id (String): Host id from who the qubit has been received.
             q_id (String): Optional Id, to return the exact qubit with the Id.
+            purpose (String): Optional, purpose of the Qubit.
 
         Returns:
             If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
         if q_id is not None:
-            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
-                q_id, from_host_id)
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id, purpose=purpose)
             if qubit is not None:
+                qubit, purp = qubit
                 if from_host_id not in self._host_dict or \
                         qubit not in self._host_dict[from_host_id]:
                     # Qubit with the ID exists, but does not belong to the host requested
-                    self._add_qubit_to_qubit_dict(qubit, from_host_id)
+                    self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
                     return None
                 self._host_dict[from_host_id].remove(qubit)
                 self._decrease_qubit_counter(from_host_id)
@@ -312,5 +303,14 @@ class QuantumStorage(object):
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
             self._decrease_qubit_counter(from_host_id)
-            return self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id)
+            return self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)[0]
         return None
+
+    def get_all_qubits_from_host(self, from_host_id):
+        """
+        Get all Qubits from a specific host id.
+        These qubits are not removed from storage!
+        """
+        if from_host_id in self._host_dict:
+            return self._host_dict[from_host_id]
+        return []
