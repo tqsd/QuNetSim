@@ -201,20 +201,25 @@ class QuantumStorage(object):
         def _pop_purpose_from_purpose_dict(q_id, from_host_id):
             if q_id not in self._purpose_dict:
                 return None
-            purpose = self._purpose_dict[q_id].pop(from_host_id, None)
-            if purpose is not None:
+            pur = self._purpose_dict[q_id].pop(from_host_id, None)
+            if pur is not None:
                 if not self._purpose_dict[q_id]:
                     del self._purpose_dict[q_id]
-                return purpose
+                return pur
             return None
 
         purp = _pop_purpose_from_purpose_dict(q_id, from_host_id)
-        if purp is not None and (purpose is None or purpose==purp):
-            qubit = self._qubit_dict[q_id].pop(from_host_id, None)
-            if qubit is not None:
-                if not self._qubit_dict[q_id]:
-                    del self._qubit_dict[q_id]
-            return qubit, purp
+        if purp is not None:
+            if purpose is None or purpose==purp:
+                qubit = self._qubit_dict[q_id].pop(from_host_id, None)
+                if qubit is not None:
+                    if not self._qubit_dict[q_id]:
+                        del self._qubit_dict[q_id]
+                return qubit, purp
+            else:
+                if q_id not in self._purpose_dict:
+                    self._purpose_dict[q_id] = {}
+                self._purpose_dict[q_id][from_host_id] = purp
         return None
 
     def _add_qubit_to_qubit_dict(self, qubit, purpose, from_host_id):
@@ -263,8 +268,7 @@ class QuantumStorage(object):
         """
         if qubit.id in self._qubit_dict and \
                 from_host_id in self._qubit_dict[qubit.id]:
-            if purpose is None or (qubit.id in self._purpose_dict and \
-                                  from_host_id in self._purpose_dict[qubit.id]):
+            if purpose is None or (purpose == self._purpose_dict[qubit.id][from_host_id]):
                 return True
         return False
 
@@ -329,11 +333,12 @@ class QuantumStorage(object):
             return None
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
-            self._decrease_qubit_counter(from_host_id)
             out = self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)
             if out is not None:
+                self._decrease_qubit_counter(from_host_id)
                 self.lock.release_write()
                 return out[0]
+            self._host_dict[from_host_id].append(qubit)
         self.lock.release_write()
         return None
 
