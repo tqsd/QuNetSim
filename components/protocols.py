@@ -164,7 +164,7 @@ def _rec_classical(packet):
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
     message = packet.payload
-    if packet.payload == ACK:
+    if packet.payload.content == ACK:
         message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))

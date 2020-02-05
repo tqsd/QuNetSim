@@ -1,6 +1,5 @@
 from components.host import Host
 from components.network import Network
-from objects.message import Message
 from objects.qubit import Qubit
 from components.logger import Logger
 
@@ -19,7 +18,7 @@ def alice(host):
         print("Alice sends qubit in the |1> state")
         q = Qubit(host)
         q.X()
-        host.send_qubit('Eve', q, await_ack=True)
+        host.send_qubit('Eve', q, await_ack=False)
 
 
 def bob_sniffing_quantum(sender, receiver, qubit):
@@ -38,7 +37,7 @@ def eve(host):
         print("Eve Received classical: %s." % alice_message.content)
 
     for i in range(amount_transmit):
-        q = host.get_data_qubit('Alice', wait=10)
+        q = host.get_data_qubit('Alice', wait=5)
         m = q.measure()
         print("Eve measured: %d." % m)
 
@@ -47,20 +46,22 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve"]
     network.start(nodes)
-    network.delay = 0.0
+    network.delay = 0.1
 
     host_alice = Host('Alice')
     host_alice.add_connection('Bob')
+    host_alice.delay = 0.1
     host_alice.start()
 
     host_bob = Host('Bob')
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
+    host_bob.delay = 0.1
     host_bob.start()
 
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
-    host_eve.delay = 0.2
+    host_eve.delay = 0.1
     host_eve.start()
 
     network.add_host(host_alice)

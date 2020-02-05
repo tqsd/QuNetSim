@@ -2,11 +2,12 @@ from queue import Queue
 from components import protocols
 from components.logger import Logger
 from objects.daemon_thread import DaemonThread
+from objects.packet import Packet
 from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
-from backends.cqc_backend import CQCBackend
+from backends.projectq_backend import ProjectQBackend
 import uuid
 import time
 
@@ -35,7 +36,7 @@ class Host:
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = ProjectQBackend()
         else:
             self._backend = backend
         # add this host to the backend
@@ -57,6 +58,7 @@ class Host:
         self._seq_number_receiver = {}
         self.qkd_keys = {}
         self._sniff_full_packet = False
+        self._sniff_exclude_ACKs = True
         self._relay_sniffing = False
         self._relay_sniffing_function = None
         self._quantum_relay_sniffing = False
@@ -252,11 +254,15 @@ class Host:
         self._relay_sniffing_function = func
 
     def relay_sniffing_function(self, sender, receiver, transport_packet):
-        if self._relay_sniffing_function is not None:
-            if self._sniff_full_packet:
-                self._relay_sniffing_function(sender, receiver, transport_packet)
-            else:
-                self._relay_sniffing_function(sender, receiver, transport_packet.payload)
+        if self._relay_sniffing_function is not None \
+                and isinstance(transport_packet, Packet) \
+                and isinstance(transport_packet.payload, Message):
+            if not self._sniff_exclude_ACKs or \
+                    (self._sniff_exclude_ACKs and transport_packet.payload.content != protocols.ACK):
+                if self._sniff_full_packet:
+                    self._relay_sniffing_function(sender, receiver, transport_packet)
+                else:
+                    self._relay_sniffing_function(sender, receiver, transport_packet.payload)
 
     @property
     def sniff_full_packet(self):
@@ -337,10 +343,10 @@ class Host:
             (int): The next sequence number of connection with a receiver.
 
         """
-        if host not in self.seq_number:
+        if host not in self._seq_number_sender[host]:
             return 0
 
-        return self.seq_number[host]
+        return self._seq_number_sender[host]
 
     def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
         """
@@ -563,10 +569,11 @@ class Host:
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=protocols.SEND_CLASSICAL,
-                                  payload=protocols.ACK,
+                                  payload=Message(sender=self.host_id, content=protocols.ACK, seq_num=seq_number),
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
+
         if receiver not in self._seq_number_receiver:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
@@ -601,8 +608,7 @@ class Host:
             q = Queue()
             task = (q, sender, sequence_number, self.max_ack_wait, start_time)
             self._ack_receiver_queue.append(task)
-            res = q.get()
-            did_ack = res
+            did_ack = q.get()
             return
 
         did_ack = False
@@ -1055,8 +1061,7 @@ class Host:
         Returns:
 
         """
-        buffer = buffer + \
-                 self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:

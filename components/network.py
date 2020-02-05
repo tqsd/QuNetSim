@@ -10,7 +10,7 @@ from inspect import signature
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
-from backends.cqc_backend import CQCBackend
+from backends.projectq_backend import ProjectQBackend
 
 
 # Network singleton
@@ -389,7 +389,7 @@ class Network:
                 print("Search host is %s" % route[0])
                 print("Search id is %s" % q_id)
                 print("EPR storage is")
-                print(host._EPR_store)
+                print(host.EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
@@ -559,7 +559,7 @@ class Network:
 
         """
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = ProjectQBackend()
         else:
             self._backend = backend
         if nodes is not None:
