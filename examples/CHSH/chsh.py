@@ -8,10 +8,7 @@ from backends.projectq_backend import ProjectQBackend
 
 Logger.DISABLED = True
 
-PLAYS = 5
-strategy = 'CLASSICAL'
-# strategy = 'QUANTUM'
-
+PLAYS = 20
 
 def alice_classical(alice_host, referee_id):
     """
@@ -148,11 +145,21 @@ def main():
     network.add_host(host_A)
     network.add_host(host_B)
 
+    strategy = 'CLASSICAL'
+    # strategy = 'QUANTUM'
+
+    host_A.delay = 0.0
+    host_B.delay = 0.0
+    host_C.delay = 0.0
+
+    print('Starting game. Strategy: %s' % strategy)
     if strategy == 'QUANTUM':
-        print('Generating initial entanglement')
+        print('Generating initial entanglement...')
         for i in range(PLAYS):
             host_A.send_epr('B', await_ack=True)
         print('Done generating initial entanglement')
+    else:
+        network.delay = 0.0
 
     # Remove the connection from Alice and Bob
     host_A.remove_connection('B')
@@ -160,7 +167,7 @@ def main():
     network.update_host(host_A)
     network.update_host(host_B)
 
-    print('Starting game. Strategy: %s' % strategy)
+
 
     # Play the game classically
     if strategy == 'CLASSICAL':
