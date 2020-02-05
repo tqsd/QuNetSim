@@ -6,6 +6,7 @@ from components.logger import Logger
 Logger.DISABLED = True
 
 amount_transmit = 5
+WAIT_TIME = 10
 
 
 def alice(host):
@@ -28,12 +29,15 @@ def bob_sniffing_quantum(sender, receiver, qubit):
 
 def bob_sniffing_classical(sender, receiver, msg):
     # Bob modifies the message content of all classical messages routed through him
-    msg.content = "** Bob was here :) ** " + msg.content
+    print('MESSAGE')
+    print(msg)
+    if msg.content != 'ACK':
+        msg.content = "** Bob was here :) ** " + msg.content
 
 
 def eve(host):
     for i in range(amount_transmit):
-        alice_message = host.get_classical('Alice', wait=5, seq_num=i)
+        alice_message = host.get_classical('Alice', wait = WAIT_TIME, seq_num=i)
         print("Eve Received classical: %s." % alice_message.content)
 
     for i in range(amount_transmit):

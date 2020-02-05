@@ -566,6 +566,7 @@ class Host:
             seq_number (int): Sequence number of the acknowleged packet.
 
         """
+        message = Message(sender=self.host_id, content='ACK', seq_num=seq_number)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=protocols.SEND_CLASSICAL,
