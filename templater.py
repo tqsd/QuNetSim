@@ -54,10 +54,13 @@ def gen_main():
         main_content += "   network.add_host(" + "host_" + n + ") \n"
 
     main_content += "\n"
-    main_content += "   " + "host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
+    main_content += "   " + "t1 = host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
                     + nodes[-1] + ".host_id,))\n"
-    main_content += "   " + "host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
-                    + nodes[0] + ".host_id,))\n\n"
+    main_content += "   " + "t2 = host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
+                    + nodes[0] + ".host_id,))\n"
+    main_content += "   " + "t1.join()\n"
+    main_content += "   " + "t2.join()\n"
+    main_content += "   " + "network.stop(True)\n\n"
     return main_content
 
 

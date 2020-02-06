@@ -4,11 +4,11 @@ from components.host import Host
 from components.network import Network
 from components.logger import Logger
 from backends.projectq_backend import ProjectQBackend
-# from backends.esqn_backend import EQSNBackend
 
 Logger.DISABLED = True
 
 PLAYS = 20
+
 
 def alice_classical(alice_host, referee_id):
     """
@@ -166,8 +166,6 @@ def main():
     host_B.remove_connection('A')
     network.update_host(host_A)
     network.update_host(host_B)
-
-
 
     # Play the game classically
     if strategy == 'CLASSICAL':
