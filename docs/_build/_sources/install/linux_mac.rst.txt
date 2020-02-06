@@ -4,7 +4,8 @@
 
     #) :code:`git clone git@github.com:tqsd/QuNetSim.git`
 
-#) Here we use a Python `virtual environment`_ located at the same directory level as where the project is cloned. Instructions for setting this up:
+#) Here we use a Python `virtual environment`_ located at the same directory level as where the project is cloned (i.e. dont
+change directories after running step 1). Instructions for setting this up:
 
     #) :code:`python3 -m venv venv`
     #) :code:`source ./venv/bin/activate`
