@@ -20,7 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with flake8      
+    - name: Building docs      
       run: |
         rm -rf ./docs/_build
         mkdir ./docs/_build
