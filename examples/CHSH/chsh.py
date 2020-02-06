@@ -177,7 +177,10 @@ def main():
         host_A.run_protocol(alice_quantum, (host_C.host_id, host_B.host_id))
         host_B.run_protocol(bob_quantum, (host_C.host_id, host_A.host_id))
 
-    host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
+    t3 = host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
+
+    t3.join()
+    network.stop(True)
 
 
 if __name__ == '__main__':

@@ -64,8 +64,12 @@ def main():
     network.add_host(host_B)
     network.add_host(host_C)
 
-    host_A.run_protocol(protocol_1, (host_C.host_id,))
-    host_C.run_protocol(protocol_2, (host_A.host_id,))
+    t1 = host_A.run_protocol(protocol_1, (host_C.host_id,))
+    t2 = host_C.run_protocol(protocol_2, (host_A.host_id,))
+
+    t1.join()
+    t2.join()
+    network.stop(True)
 
 
 if __name__ == '__main__':

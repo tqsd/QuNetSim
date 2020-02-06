@@ -327,7 +327,7 @@ def _rec_epr(packet):
     host_receiver = network.get_host(receiver)
 
     q = host_receiver.backend.receive_epr(host_receiver.host_id,
-                                          sender_id=sender,
+                                          sender=sender,
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
