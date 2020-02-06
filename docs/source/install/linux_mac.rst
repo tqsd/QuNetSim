@@ -12,7 +12,13 @@ change directories after running step 1). Instructions for setting this up:
     #) :code:`pip install --upgrade pip`
     #) :code:`pip install -r ./QuNetSim/requirements.txt`
 
-#) To set the correct path run:
+.. note::
+    We include ProjectQ as a standard package which may not install properly without a C++ compiler. See ProjectQ
+    documentation for how to install ProjectQ with just the Python version. Alternatively, you can edit the
+    :code:`requirements.txt` file and remove the ProjectQ requirement since it is optional.
+
+
+#) To set the correct Python path run:
 
     #) :code:`export PYTHONPATH=$PYTHONPATH:$PWD/QuNetSim/`
 

@@ -208,15 +208,27 @@ change directories after running step 1). Instructions for setting this up:</p>
 <div><ol class="arabic simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">.\venv\Scripts\activate</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">.\QuNetSim\requirements.txt</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">.\QuNetSim\requirements.txt</span></code></p></li>
 </ol>
 </div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We include ProjectQ as a standard package which may not install properly without a C++ compiler. See ProjectQ
+documentation for how to install ProjectQ with just the Python version. Alternatively, you can edit the
+<code class="code docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and remove the ProjectQ requirement since it is optional.</p>
+</div>
 <ol class="arabic">
-<li><p>To set the correct path run:</p>
+<li><p>To set the correct Python path we need to set the <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> system variable:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYTHONPATH=$PYTHONPATH:$PWD/QuNetSim/</span></code></p></li>
+<li><p>Open System Properties -&gt; Advanced</p></li>
+<li><p>Click “Environment Variables”</p></li>
+<li><p>In the System Variable area (the bottom part)</p></li>
+<li><p>If the <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> variable already exists then add <code class="code docutils literal notranslate"><span class="pre">C:\&lt;PATH_TO_QUNETSIM&gt;\QuNetSim</span></code> to the path,
+replacing <code class="code docutils literal notranslate"><span class="pre">&lt;PATH_TO_QUNETSIM&gt;</span></code> with the path to where QuNetSim is located.</p></li>
+<li><p>Otherwise, click New and add a variable <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> with value <code class="code docutils literal notranslate"><span class="pre">C:\&lt;PATH_TO_QUNETSIM&gt;\QuNetSim</span></code>,
+replacing <code class="code docutils literal notranslate"><span class="pre">&lt;PATH_TO_QUNETSIM&gt;</span></code> with the path to where QuNetSim is located.</p></li>
 </ol>
 </div></blockquote>
 </li>

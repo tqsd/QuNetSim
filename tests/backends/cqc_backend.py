@@ -4,9 +4,7 @@ import time
 sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
-from objects.qubit import Qubit
 from components.network import Network
-
 all_backends = [(CQCBackend, "Simulaqron")]
 
 def test_adding_hosts_to_backend(backend_generator):

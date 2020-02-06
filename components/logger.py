@@ -6,7 +6,7 @@ logging.basicConfig(format=FORMAT)
 
 class Logger:
     __instance = None
-    DISABLED = False
+    DISABLED = True
 
     @staticmethod
     def get_instance():

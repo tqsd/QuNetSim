@@ -8,8 +8,8 @@ software. In QuNetSim, we have prepared for this by structuring the network back
 one can simply import their own network and qubit backends, implement the necessary methods and it (*hopefully*) will work
 right out of the box.
 
-Currently we are working with two backends: `SimulaQron <http://www.simulaqron.org/>`__ and
-`EQSN <https://github.com/tqsd/EQSN_python>`__, a simulator that has
+Currently we are working with three backends: `SimulaQron <http://www.simulaqron.org/>`__,
+`ProjectQ <https://projectq.ch/>`__ and `EQSN <https://github.com/tqsd/EQSN_python>`__, a simulator that has
 been developed by the TQSD team.
 
 If you do not chose a backend, the default backend will be SimulaQron. However, you can chose the backend explicitly,
