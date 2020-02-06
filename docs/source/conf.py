@@ -20,7 +20,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'QuNetSim'
-copyright = '2019, Stephen DiAdamo'
+copyright = '2019, Stephen DiAdamo, Janis Nötzel'
 author = 'TQSD'
 version = '0.0.1'
 master_doc = 'index'
