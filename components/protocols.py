@@ -327,7 +327,7 @@ def _rec_epr(packet):
     host_receiver = network.get_host(receiver)
 
     q = host_receiver.backend.receive_epr(host_receiver.host_id,
-                                          sender_id=sender,
+                                          sender=sender,
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
@@ -403,8 +403,7 @@ def _rec_superdense(packet):
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet.sender, 'message': _decode_superdense(q1, q2),
-            SEQUENCE_NUMBER: packet.seq_num}
+    return Message(packet.sender,  _decode_superdense(q1, q2), packet.seq_num)
 
 
 def _send_key(packet):

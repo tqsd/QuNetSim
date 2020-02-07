@@ -53,8 +53,10 @@ of commands that are built into hosts, see the Design Overview section.
         # Here we write the protocol code for a host.
         for i in range(5):
             q = Qubit(host)
+            # Apply Hadamard gate to the qubit
             q.H()
             print('Sending qubit %d.' % (i+1))
+            # Send qubit and wait for an acknowledgement
             host.send_qubit(receiver, q, await_ack=True)
             print('Qubit %d was received by %s.' % (i+1, receiver))
 
@@ -64,6 +66,7 @@ of commands that are built into hosts, see the Design Overview section.
         for _ in range(5):
             # Wait for a qubit from Alice for 10 seconds.
             q = host.get_data_qubit(sender, wait=10)
+            # Measure the qubit and print the result.
             print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))
 
 

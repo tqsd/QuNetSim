@@ -4,13 +4,10 @@ from components.host import Host
 from components.network import Network
 from components.logger import Logger
 from backends.projectq_backend import ProjectQBackend
-# from backends.esqn_backend import EQSNBackend
 
 Logger.DISABLED = True
 
-PLAYS = 5
-strategy = 'CLASSICAL'
-# strategy = 'QUANTUM'
+PLAYS = 20
 
 
 def alice_classical(alice_host, referee_id):
@@ -148,19 +145,27 @@ def main():
     network.add_host(host_A)
     network.add_host(host_B)
 
+    strategy = 'CLASSICAL'
+    # strategy = 'QUANTUM'
+
+    host_A.delay = 0.0
+    host_B.delay = 0.0
+    host_C.delay = 0.0
+
+    print('Starting game. Strategy: %s' % strategy)
     if strategy == 'QUANTUM':
-        print('Generating initial entanglement')
+        print('Generating initial entanglement...')
         for i in range(PLAYS):
             host_A.send_epr('B', await_ack=True)
         print('Done generating initial entanglement')
+    else:
+        network.delay = 0.0
 
     # Remove the connection from Alice and Bob
     host_A.remove_connection('B')
     host_B.remove_connection('A')
     network.update_host(host_A)
     network.update_host(host_B)
-
-    print('Starting game. Strategy: %s' % strategy)
 
     # Play the game classically
     if strategy == 'CLASSICAL':
@@ -172,7 +177,10 @@ def main():
         host_A.run_protocol(alice_quantum, (host_C.host_id, host_B.host_id))
         host_B.run_protocol(bob_quantum, (host_C.host_id, host_A.host_id))
 
-    host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
+    t3 = host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
+
+    t3.join()
+    network.stop(True)
 
 
 if __name__ == '__main__':

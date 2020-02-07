@@ -34,6 +34,7 @@ def main():
 
     assert q_eve is not None
     print('Eve measures: %d' % q_eve.measure())
+    network.stop(True)
 
 
 if __name__ == '__main__':

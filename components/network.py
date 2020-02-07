@@ -10,7 +10,7 @@ from inspect import signature
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
-from backends.projectq_backend import ProjectQBackend
+from backends.cqc_backend import CQCBackend
 
 
 # Network singleton
@@ -559,7 +559,7 @@ class Network:
 
         """
         if backend is None:
-            self._backend = ProjectQBackend()
+            self._backend = CQCBackend()
         else:
             self._backend = backend
         if nodes is not None:
