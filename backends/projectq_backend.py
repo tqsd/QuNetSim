@@ -1,6 +1,8 @@
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
+from components.logger import Logger
+from projectq.meta import Uncompute
 
 try:
     import projectq
@@ -15,10 +17,8 @@ class ProjectQBackend(object):
         self._hosts = ProjectQBackend.Hosts.get_instance()
         self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
         self.engine = projectq.MainEngine()
-
-    def __del__(self):
-        pass
-        self.engine.flush()
+        self._qubits = []
+        self._stopped = False
 
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
@@ -65,7 +65,15 @@ class ProjectQBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        pass
+        Logger.get_instance().log('ProjectQ backend is stopping')
+        if self._stopped:
+            return
+
+        for q in self._qubits:
+            projectq.ops.Measure | q
+
+        Logger.get_instance().log('ProjectQ backend stopped')
+        self._stopped = True
 
     def add_host(self, host):
         """
@@ -86,7 +94,8 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        self._qubits.append(self.engine.allocate_qubit())
+        return self._qubits[-1]
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
