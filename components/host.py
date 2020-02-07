@@ -343,7 +343,7 @@ class Host:
             (int): The next sequence number of connection with a receiver.
 
         """
-        if host not in self._seq_number_sender[host]:
+        if host not in self._seq_number_sender:
             return 0
 
         return self._seq_number_sender[host]
