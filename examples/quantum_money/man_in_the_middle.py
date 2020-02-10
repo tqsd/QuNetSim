@@ -22,10 +22,8 @@ def banker_protocol(host, customer):
     """
     bank_bits = [[] for _ in range(NO_OF_SERIALS)]
     bank_basis = [[] for _ in range(NO_OF_SERIALS)]
-    seq_num = 0
 
     def preparation_and_distribution():
-        nonlocal seq_num
         for serial in range(NO_OF_SERIALS):
             for bit_no in range(QUBITS_PER_MONEY):
                 random_bit = randint(0, 1)
@@ -45,7 +43,6 @@ def banker_protocol(host, customer):
         Function to check if qubits representing the money are correct.
         :return: Prints out if the money is valid or if teh customer is cheating.
         """
-        nonlocal seq_num
         cheat_alert = False
         print('Banker waiting for serial')
         message = host.get_classical(customer, seq_num=0, wait=10)
