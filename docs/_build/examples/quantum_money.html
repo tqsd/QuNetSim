@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quantum Money with the Man-in-the-Middle Attack &mdash; QuNetSim  documentation</title>
+  <title>Quantum Money with a Man-in-the-Middle Attack &mdash; QuNetSim  documentation</title>
   
 
   
@@ -127,7 +127,7 @@
 <li class="toctree-l2"><a class="reference internal" href="send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="packet_sniffing.html">Eavesdropping on channels</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Money with the Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -179,7 +179,7 @@
         
           <li><a href="../examples.html">Examples</a> &raquo;</li>
         
-      <li>Quantum Money with the Man-in-the-Middle Attack</li>
+      <li>Quantum Money with a Man-in-the-Middle Attack</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -198,8 +198,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quantum-money-with-the-man-in-the-middle-attack">
-<h1>Quantum Money with the Man-in-the-Middle Attack<a class="headerlink" href="#quantum-money-with-the-man-in-the-middle-attack" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="quantum-money-with-a-man-in-the-middle-attack">
+<h1>Quantum Money with a Man-in-the-Middle Attack<a class="headerlink" href="#quantum-money-with-a-man-in-the-middle-attack" title="Permalink to this headline">¶</a></h1>
 <p>In this example, we’ll see how the Wiesner Quantum Money can be
 implemented using QuNetSim. First, we create a network of three different parties:
 Alice, Bob, and Eve. In the topology of the network, Alice can talk to Bob and Bob
@@ -275,11 +275,11 @@ can talk to Eve. Bob, being the attacker, can modify the qubits to perform an at
 <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>In this protocol, aim of the bank is to create unforgeable bank notes
+<p>In this protocol, the aim of the bank is to create unforgeable bank notes
 and distribute it to the customers. To achieve this, for every bank note,
-bank assigns a classical serial number and qubits that are polarized in random bases
+the bank assigns a classical serial number and qubits that are polarized in random bases
 and random directions. These bases and distributions are recorded
-by bank for later use. In the first part of this example, bank creates the money
+by the bank for later use. In the first part of this example, the bank creates the money
 and distributes it to the customer and the customer receives the qubits and the serial numbers:</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -338,7 +338,7 @@ and distributes it to the customer and the customer receives the qubits and the 
                 <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>After distributing the money, now the customer possesses the money. To use this money, customer
+<p>After distributing the money, the customer possesses the money. To use this money, the customer
 has to get it verified by the bank. To do this, he sends the serial number of the banknote that
 he wants to use along with the qubits assigned to the banknote:</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
@@ -354,9 +354,9 @@ he wants to use along with the qubits assigned to the banknote:</p>
         <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial_of_money_to_be_used</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">],</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>After receiving the qubits associated with the serial number, bank measures the qubits to check
-if measurement results match with the data in bank’s database. If there is a mismatch, bank realizes
-that there is a cheating attempt. If measurement results are correct, bank verifies the money.</p>
+<p>After receiving the qubits associated with the serial number, the bank measures the qubits to check
+if measurement results match with the data in bank’s database. If there is a mismatch, the bank realizes
+that there is a cheating attempt. If measurement results are correct, the bank verifies the money.</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -400,7 +400,7 @@ that there is a cheating attempt. If measurement results are correct, bank verif
 the money as he doesn’t know the polarization bases. Therefore, the money is unforgeable. Also, if
 he measures the qubits in a non-destructive way, he can disturb the state of the qubits, therefore
 invalidating the money. In this example, an example attack is shown. Bob measures the qubits in a
-non-destructive way, causing the money transferred to the customer to be invalid. This attack is
+while relaying the qubits causing the money that is transferred to the customer to be invalid. This attack is
 shown below:</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
