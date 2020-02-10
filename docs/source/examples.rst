@@ -7,5 +7,7 @@ Examples
     examples/send_epr
     examples/chsh
     examples/packet_sniffing
+    examples/quantum_money
     examples/entanglement_routing
     examples/QKD
+
