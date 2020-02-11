@@ -209,12 +209,14 @@ class Backend(object):
         raise(EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
-    def measure(self, qubit):
+    def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.
 
         Args:
             qubit (Qubit): Qubit which should be measured.
+            non_destructive (bool): Determines if the Qubit should stay in the
+                                    system or be eliminated.
 
         Returns:
             The value which has been measured.

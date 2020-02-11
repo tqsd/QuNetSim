@@ -2,6 +2,7 @@ from queue import Queue
 from components import protocols
 from components.logger import Logger
 from objects.daemon_thread import DaemonThread
+from objects.packet import Packet
 from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
@@ -59,6 +60,12 @@ class Host:
         # receiver: host->[received_list, low_number]
         self._seq_number_receiver = {}
         self.qkd_keys = {}
+        self._sniff_full_packet = False
+        self._sniff_exclude_ACKs = True
+        self._relay_sniffing = False
+        self._relay_sniffing_function = None
+        self._quantum_relay_sniffing = False
+        self._quantum_relay_sniffing_function = None
 
     @property
     def host_id(self):
@@ -224,6 +231,89 @@ class Host:
         """
         return self._quantum_connections
 
+    @property
+    def relay_sniffing(self):
+        return self._relay_sniffing
+
+    @relay_sniffing.setter
+    def relay_sniffing(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Relay sniffing has to be a boolean.")
+        self._relay_sniffing = value
+
+    def set_relay_sniffing_function(self, func):
+        """
+        Set a custom function which handles messages which are routed
+        through this host. Functions parameter have to be **sender, receiver,
+        msg**. ACK messages are not passed to the function.
+
+        Args:
+            func (function): Function with sender, receiver, msg args.
+        """
+        self._relay_sniffing_function = func
+
+    def relay_sniffing_function(self, sender, receiver, transport_packet):
+        if self._relay_sniffing_function is not None \
+                and isinstance(transport_packet, Packet) \
+                and isinstance(transport_packet.payload, Message):
+            if not self._sniff_exclude_ACKs or \
+                    (self._sniff_exclude_ACKs and transport_packet.payload.content != protocols.ACK):
+                if self._sniff_full_packet:
+                    self._relay_sniffing_function(sender, receiver, transport_packet)
+                else:
+                    self._relay_sniffing_function(sender, receiver, transport_packet.payload)
+
+    @property
+    def sniff_full_packet(self):
+        """
+        If the eavesdropper should get the whole packet or just the
+        payload.
+
+        Returns:
+            (bool): If the eavesdropper should get the whole packet or just the
+                    payload.
+        """
+        return self._sniff_full_packet
+
+    @sniff_full_packet.setter
+    def sniff_full_packet(self, should_sniff_full_packet):
+        """
+        Set if the eavesdropper should get the whole packet or just the
+        payload.
+
+        Args:
+            should_sniff_full_packet (bool): If the eavesdropper should get the whole packet or just the
+                                            payload.
+        """
+        self._sniff_full_packet = should_sniff_full_packet
+
+    @property
+    def quantum_relay_sniffing(self):
+        return self._quantum_relay_sniffing
+
+    @quantum_relay_sniffing.setter
+    def quantum_relay_sniffing(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Quantum Relay sniffing has to be a boolean.")
+        self._quantum_relay_sniffing = value
+
+    def set_quantum_relay_sniffing_function(self, func):
+        """
+        Set a custom function which handles qubits which are routes through this
+        host. Functions parameter have to be **sender, receiver, qubit**.
+
+        Args:
+            func (function): Function with sender, receiver, qubit args.
+        """
+        self._quantum_relay_sniffing_function = func
+
+    def quantum_relay_sniffing_function(self, sender, receiver, qubit):
+        """
+        Calls the quantum relay sniffing function if one is set.
+        """
+        if self._quantum_relay_sniffing_function is not None:
+            self._quantum_relay_sniffing_function(sender, receiver, qubit)
+
     def _get_sequence_number(self, host):
         """
         Get and set the next sequence number of connection with a receiver.
@@ -252,10 +342,10 @@ class Host:
             (int): The next sequence number of connection with a receiver.
 
         """
-        if host not in self.seq_number:
+        if host not in self._seq_number_sender:
             return 0
 
-        return self.seq_number[host]
+        return self._seq_number_sender[host]
 
     def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
         """
@@ -318,28 +408,38 @@ class Host:
             packet (Packet): The received packet
         """
 
-        def check_task(q, sender, seq_num, timeout, start_time):
+        def check_task(q, _sender, _seq_num, timeout, start_time):
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
                 return True
-            if sender not in self._seq_number_sender_ack:
+            if _sender not in self._seq_number_sender_ack:
                 return False
-            if seq_num < self._seq_number_sender_ack[sender][1]:
+            if _seq_num < self._seq_number_sender_ack[_sender][1]:
                 q.put(True)
                 return True
-            if seq_num in self._seq_number_sender_ack[sender][0]:
+            if _seq_num in self._seq_number_sender_ack[_sender][0]:
                 q.put(True)
                 return True
             return False
 
-        sender = packet.sender
+        if self._relay_sniffing:
+            # if it is a classical relay message, sniff it
+            if packet.protocol == protocols.RELAY:
+                # RELAY is a network layer protocol, the transport layer packet
+                # is in the payload
+                transport_packet = packet.payload
+                if transport_packet.protocol == protocols.REC_CLASSICAL:
+                    receiver = packet.receiver
+                    sender = packet.sender
+                    self.relay_sniffing_function(sender, receiver, transport_packet)
+
         result = protocols.process(packet)
-        if result is not None:
-            msg = Message(sender, result['message'], result['sequence_number'])
+        if result is not None:  # classical message if not None
+            msg = result
             self._classical_messages.add_msg_to_storage(msg)
             if msg.content != protocols.ACK:
-                self.logger.log(self.host_id + ' received ' + str(result['message'])
-                                + ' with sequence number ' + str(result['sequence_number']))
+                self.logger.log(self.host_id + ' received ' + str(msg.content)
+                                + ' with sequence number ' + str(msg.seq_num))
             else:
                 # Is ack msg
                 sender = msg.sender
@@ -465,13 +565,15 @@ class Host:
             seq_number (int): Sequence number of the acknowleged packet.
 
         """
+        message = Message(sender=self.host_id, content='ACK', seq_num=seq_number)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=protocols.SEND_CLASSICAL,
-                                  payload=protocols.ACK,
+                                  payload=Message(sender=self.host_id, content=protocols.ACK, seq_num=seq_number),
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
+
         if receiver not in self._seq_number_receiver:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
@@ -506,8 +608,7 @@ class Host:
             q = Queue()
             task = (q, sender, sequence_number, self.max_ack_wait, start_time)
             self._ack_receiver_queue.append(task)
-            res = q.get()
-            did_ack = res
+            did_ack = q.get()
             return
 
         did_ack = False
@@ -536,6 +637,7 @@ class Host:
             boolean: If await_ack=True, return the status of the ACK
         """
         seq_num = self._get_sequence_number(receiver_id)
+        message = Message(sender=self.host_id, content=message, seq_num=seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -1005,7 +1107,7 @@ class Host:
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
                 buffer = buffer + \
-                    self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                         self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
             ele = buffer.pop(0)
             msg = ele.content
         return msg

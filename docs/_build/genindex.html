@@ -125,6 +125,8 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -552,6 +554,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#components.host.Host.quantum_connections">quantum_connections() (components.host.Host property)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.quantum_relay_sniffing_function">quantum_relay_sniffing_function() (components.host.Host method)</a>
+</li>
       <li><a href="components/network.html#components.network.Network.quantum_routing_algo">quantum_routing_algo() (components.network.Network property)</a>
 </li>
   </ul></td>
@@ -640,12 +644,12 @@
         <li><a href="objects/packet.html#objects.packet.Packet.seq_num">(objects.packet.Packet property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_blocked_state">set_blocked_state() (objects.qubit.Qubit method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.set_data_qubit_memory_limit">set_data_qubit_memory_limit() (components.host.Host method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#components.host.Host.set_epr_memory_limit">set_epr_memory_limit() (components.host.Host method)</a>
 </li>
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_new_host">set_new_host() (objects.qubit.Qubit method)</a>
@@ -653,6 +657,10 @@
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_new_id">set_new_id() (objects.qubit.Qubit method)</a>
 </li>
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_new_qubit">set_new_qubit() (objects.qubit.Qubit method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.set_quantum_relay_sniffing_function">set_quantum_relay_sniffing_function() (components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.set_relay_sniffing_function">set_relay_sniffing_function() (components.host.Host method)</a>
 </li>
       <li><a href="objects/quantum_storage.html#objects.quantum_storage.QuantumStorage.set_storage_limit">set_storage_limit() (objects.quantum_storage.QuantumStorage method)</a>
 </li>
@@ -662,6 +670,8 @@
         <li><a href="components/network.html#components.network.Network.shares_epr">(components.network.Network method)</a>
 </li>
       </ul></li>
+      <li><a href="components/host.html#components.host.Host.sniff_full_packet">sniff_full_packet() (components.host.Host property)</a>
+</li>
       <li><a href="components/host.html#components.host.Host.start">start() (components.host.Host method)</a>
 
       <ul>
@@ -749,7 +759,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Stephen DiAdamo
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
 
     </p>
   </div>

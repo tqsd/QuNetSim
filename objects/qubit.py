@@ -197,11 +197,15 @@ class Qubit(object):
         """
         self._host.backend.cphase(self, target)
 
-    def measure(self):
+    def measure(self, non_destructive=False):
         """
         Measures the state of a qubit.
+
+        Args:
+            non_destructive (bool): Determines if the qubit should stay in the
+                                    system or be eliminated.
 
         Returns:
             measured_value (int): 0 or 1, dependent on measurement outcome.
         """
-        return self._host.backend.measure(self)
+        return self._host.backend.measure(self, non_destructive)

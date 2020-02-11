@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Quantum Key Distribution" href="QKD.html" />
-    <link rel="prev" title="CHSH Game" href="chsh.html" /> 
+    <link rel="prev" title="Quantum Money with the Man-in-the-Middle Attack" href="quantum_money.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -126,6 +126,8 @@
 <li class="toctree-l2"><a class="reference internal" href="send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum_money.html">Quantum Money with the Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -198,7 +200,303 @@
             
   <div class="section" id="routing-with-entanglement">
 <h1>Routing with Entanglement<a class="headerlink" href="#routing-with-entanglement" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_entanglement</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+<p>In this example, we see how to add a custom routing function that considers the entanglement in the network.</p>
+<p>We configure the network as follows:</p>
+<div class="highlight-bash notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>A &lt;<span class="o">==</span>&gt; node_1<span class="p">;</span> A &lt;<span class="o">==</span>&gt; node_2
+B &lt;<span class="o">==</span>&gt; node_1<span class="p">;</span> B &lt;<span class="o">==</span>&gt; node_2
+</pre></div>
+</td></tr></table></div>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;node_1&#39;</span><span class="p">,</span> <span class="s1">&#39;node_2&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+<span class="n">network</span><span class="o">.</span><span class="n">use_hop_by_hop</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">network</span><span class="o">.</span><span class="n">set_delay</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;node_1&#39;</span><span class="p">)</span>
+<span class="n">A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;node_2&#39;</span><span class="p">)</span>
+<span class="n">A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">node_1</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;node_1&#39;</span><span class="p">)</span>
+<span class="n">node_1</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">node_1</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">node_1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">node_2</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;node_2&#39;</span><span class="p">)</span>
+<span class="n">node_2</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">node_2</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">node_2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;node_1&#39;</span><span class="p">)</span>
+<span class="n">B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;node_2&#39;</span><span class="p">)</span>
+<span class="n">B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">B</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hosts</span><span class="p">:</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>We add a protocol for a Host to constantly generate entanglement.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_entanglement</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate entanglement if the host has nothing to process (i.e. is idle).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">host</span><span class="o">.</span><span class="n">is_idle</span><span class="p">():</span>
+            <span class="n">host_connections</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">host_connections</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">connection</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;quantum&#39;</span><span class="p">:</span>
+                    <span class="n">num_epr_pairs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">get_epr_pairs</span><span class="p">(</span><span class="n">connection</span><span class="p">[</span><span class="s1">&#39;connection&#39;</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">num_epr_pairs</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">connection</span><span class="p">[</span><span class="s1">&#39;connection&#39;</span><span class="p">],</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The routing algorithm works as follows.</p>
+<ol class="arabic simple">
+<li><p>Build a graph with the vertices the Hosts and the edges the connections</p></li>
+<li><p>The weight of each edge is the inverse of the amount of entanglement shared on that link (using a shortest path works best with networkx)</p></li>
+<li><p>When there is no entanglement then add a large weight to that edge</p></li>
+<li><p>Compute the shortest path on this newly generated graph from sender to receiver and return the route</p></li>
+</ol>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">routing_algorithm</span><span class="p">(</span><span class="n">di_graph</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Entanglement based routing function. Note: any custom routing function must</span>
+<span class="sd">    have exactly these three parameters and must return a list ordered by the steps</span>
+<span class="sd">    in the route.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        di_graph (networkx DiGraph): The directed graph representation of the network.</span>
+<span class="sd">        source (str): The sender ID</span>
+<span class="sd">        target (str: The receiver ID</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (list): The route ordered by the steps in the route.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">entanglement_network</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">di_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+    <span class="c1"># Generate entanglement network</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">get_host</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">host_connections</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">host_connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">connection</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;quantum&#39;</span><span class="p">:</span>
+                <span class="n">num_epr_pairs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">get_epr_pairs</span><span class="p">(</span><span class="n">connection</span><span class="p">[</span><span class="s1">&#39;connection&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">num_epr_pairs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">entanglement_network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">connection</span><span class="p">[</span><span class="s1">&#39;connection&#39;</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">entanglement_network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">connection</span><span class="p">[</span><span class="s1">&#39;connection&#39;</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">num_epr_pairs</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_path</span><span class="p">(</span><span class="n">entanglement_network</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;-------&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">route</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-------&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">route</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">Logger</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>To test the routing, we send superdense messages from A to B after we allow the network to build up some entanglement</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">node_1</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">generate_entanglement</span><span class="p">)</span>
+<span class="n">node_2</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">generate_entanglement</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;---- BUILDING ENTANGLEMENT   ----&#39;</span><span class="p">)</span>
+<span class="c1"># Let the network build up entanglement</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;---- DONE BUILDING ENTANGLEMENT   ----&#39;</span><span class="p">)</span>
+
+<span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;00&#39;</span><span class="p">,</span> <span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;01&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;----  sending superdense  ----&#39;</span><span class="p">)</span>
+    <span class="n">A</span><span class="o">.</span><span class="n">send_superdense</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">choices</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The full example is below.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_entanglement</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate entanglement if the host has nothing to process (i.e. is idle).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -214,6 +512,18 @@
 
 
 <span class="k">def</span> <span class="nf">routing_algorithm</span><span class="p">(</span><span class="n">di_graph</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Entanglement based routing function. Note: any custom routing function must</span>
+<span class="sd">    have exactly these three parameters and must return a list ordered by the steps</span>
+<span class="sd">    in the route.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        di_graph (networkx DiGraph): The directed graph representation of the network.</span>
+<span class="sd">        source (str): The sender ID</span>
+<span class="sd">        target (str: The receiver ID</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (list): The route ordered by the steps in the route.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Generate entanglement network</span>
     <span class="n">entanglement_network</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">di_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
@@ -239,7 +549,6 @@
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
     <span class="n">network</span><span class="o">.</span><span class="n">quantum_routing_algo</span> <span class="o">=</span> <span class="n">routing_algorithm</span>
-    <span class="c1"># network.classical_routing_algo = routing_algorithm</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;node_1&#39;</span><span class="p">,</span> <span class="s1">&#39;node_2&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
     <span class="n">network</span><span class="o">.</span><span class="n">use_hop_by_hop</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">network</span><span class="o">.</span><span class="n">set_delay</span> <span class="o">=</span> <span class="mf">0.2</span>
@@ -288,7 +597,7 @@
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping&#39;</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">stop_hosts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
-</div>
+</td></tr></table></div>
 </div>
 
 
@@ -302,7 +611,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Stephen DiAdamo
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
 
     </p>
   </div>

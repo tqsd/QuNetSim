@@ -327,17 +327,19 @@ class CQCBackend(object):
         """
         qubit.qubit.cphase(target.qubit)
 
-    def measure(self, qubit):
+    def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.
 
         Args:
             qubit (Qubit): Qubit which should be measured.
+            non_destructive (bool): Determines if the Qubit should stay in the
+                                    system or be eliminated.
 
         Returns:
             The value which has been measured.
         """
-        return qubit.qubit.measure()
+        return qubit.qubit.measure(inplace=non_destructive)
 
     def release(self, qubit):
         """

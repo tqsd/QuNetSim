@@ -1,3 +1,4 @@
+from objects.message import Message
 from objects.qubit import Qubit
 
 # DATA TYPES
@@ -162,14 +163,16 @@ def _rec_classical(packet):
     Returns:
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
-    if packet.payload == ACK:
+    message = packet.payload
+    if packet.payload.content == ACK:
+        message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
 
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet.sender, 'message': packet.payload, 'sequence_number': packet.seq_num}
+    return message
 
 
 def _send_qubit(packet):
@@ -325,7 +328,7 @@ def _rec_epr(packet):
     host_receiver = network.get_host(receiver)
 
     q = host_receiver.backend.receive_epr(host_receiver.host_id,
-                                          sender_id=sender,
+                                          sender=sender,
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
@@ -404,8 +407,7 @@ def _rec_superdense(packet):
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return {'sender': packet.sender, 'message': _decode_superdense(q1, q2),
-            SEQUENCE_NUMBER: packet.seq_num}
+    return Message(packet.sender,  _decode_superdense(q1, q2), packet.seq_num)
 
 
 def _send_key(packet):

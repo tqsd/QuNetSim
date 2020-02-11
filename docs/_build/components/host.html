@@ -126,6 +126,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -203,7 +205,10 @@
 <p>The Host component is analogous to a host, or node in a classical network. Hosts in QuNetSim act either as a routing
 node that can relay packets through the network, or they can act as a node that runs a specific protocol. It is up
 to the protocol developer to configure how the nodes behave. In most cases, once the network is established,
-users will run specific protocols on the nodes. Below we see all the functions in the Host component.</p>
+users will run specific protocols on the nodes. In the examples we see how to accomplish this.</p>
+<p>One other feature of a host is that they can also sniff packets, or eavesdrop on channels to manipulate the payload
+of the packet. For example, they can apply random noise to any qubit or change the classical messages that are routed
+through them. We see an example of that in the examples section.</p>
 <p>The most commonly used methods for Hosts are:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -728,6 +733,12 @@ Return an empty list otherwise.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.quantum_relay_sniffing_function">
+<code class="sig-name descname">quantum_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.quantum_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the quantum relay sniffing function if one is set.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.rec_packet">
 <code class="sig-name descname">rec_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.rec_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Puts the packet into the packet queue of the host.</p>
@@ -958,6 +969,31 @@ use the limit for all connections.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.set_quantum_relay_sniffing_function">
+<code class="sig-name descname">set_quantum_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_quantum_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a custom function which handles qubits which are routes through this
+host. Functions parameter have to be <strong>sender, receiver, qubit</strong>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – Function with sender, receiver, qubit args.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.set_relay_sniffing_function">
+<code class="sig-name descname">set_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a custom function which handles messages which are routed
+through this host. Functions parameter have to be <strong>sender, receiver,
+msg</strong>. ACK messages are not passed to the function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – Function with sender, receiver, msg args.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.shares_epr">
 <code class="sig-name descname">shares_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.shares_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns boolean value dependent on if the host shares an EPR pair
@@ -971,6 +1007,25 @@ with receiver with ID <em>receiver_id</em></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.sniff_full_packet">
+<em class="property">property </em><code class="sig-name descname">sniff_full_packet</code><a class="headerlink" href="#components.host.Host.sniff_full_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the eavesdropper should get the whole packet or just the
+payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>If the eavesdropper should get the whole packet or just the</dt><dd><p>payload.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1057,7 +1112,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Stephen DiAdamo
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
 
     </p>
   </div>

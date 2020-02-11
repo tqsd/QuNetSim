@@ -389,7 +389,7 @@ class Network:
                 print("Search host is %s" % route[0])
                 print("Search id is %s" % q_id)
                 print("EPR storage is")
-                print(host._EPR_store)
+                print(host.EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
@@ -440,6 +440,9 @@ class Network:
                 # Unblock qubits in case they were blocked
                 q.set_blocked_state(False)
 
+                if not store and self.ARP[r].quantum_relay_sniffing:
+                    self.ARP[r].quantum_relay_sniffing_function(original_sender, receiver, q)
+
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)
 
@@ -448,7 +451,7 @@ class Network:
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
             if len(route[i:]) != 2:
-                transfer_qubits(route[i + 1])
+                transfer_qubits(route[i + 1], original_sender=route[0])
             else:
                 transfer_qubits(route[i + 1], store=True, original_sender=route[0])
             i += 1
@@ -591,7 +594,7 @@ class Network:
             ttl(int): Time-to-Live parameter
 
         Returns:
-            dict: Encoded RELAY packet
+            RoutingPacket: Encoded RELAY packet
         """
         if payload.protocol != protocols.RELAY:
             packet = RoutingPacket(route[1], '', protocols.RELAY, protocols.SIGNAL,

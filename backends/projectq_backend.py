@@ -1,6 +1,8 @@
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
+from components.logger import Logger
+from projectq.meta import Uncompute
 
 try:
     import projectq
@@ -15,10 +17,8 @@ class ProjectQBackend(object):
         self._hosts = ProjectQBackend.Hosts.get_instance()
         self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
         self.engine = projectq.MainEngine()
-
-    def __del__(self):
-        pass
-        self.engine.flush()
+        self._qubits = []
+        self._stopped = False
 
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
@@ -65,7 +65,15 @@ class ProjectQBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        pass
+        Logger.get_instance().log('ProjectQ backend is stopping')
+        if self._stopped:
+            return
+
+        for q in self._qubits:
+            projectq.ops.Measure | q
+
+        Logger.get_instance().log('ProjectQ backend stopped')
+        self._stopped = True
 
     def add_host(self, host):
         """
@@ -86,7 +94,8 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        self._qubits.append(self.engine.allocate_qubit())
+        return self._qubits[-1]
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -136,7 +145,7 @@ class ProjectQBackend(object):
             ent_queue.put(qubit)
         self._entaglement_pairs.add_to_dict(key, ent_queue)
 
-    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
+    def receive_epr(self, host_id, sender, q_id=None, block=False):
         """
         Called after create EPR in the receiver, to receive the other EPR pair.
 
@@ -148,7 +157,7 @@ class ProjectQBackend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        key = sender_id + ':' + host_id
+        key = sender + ':' + host_id
         ent_queue = self._entaglement_pairs.get_from_dict(key)
         if ent_queue is None:
             raise Exception("Internal Error!")
@@ -277,12 +286,14 @@ class ProjectQBackend(object):
         """
         projectq.ops.CZ | (control.qubit, target.qubit)
 
-    def measure(self, qubit):
+    def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.
 
         Args:
             qubit (Qubit): Qubit which should be measured.
+            non_destructive (bool): Determines if the Qubit should stay in the
+                                    system or be eliminated.
 
         Returns:
             The value which has been measured.
