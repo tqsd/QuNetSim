@@ -48,6 +48,8 @@ SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
 SEND_KEY = 'send_key'
 REC_KEY = 'rec_key'
+SEND_GHZ = 'send_ghz'
+REC_GHZ = 'rec_ghz'
 
 
 def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
@@ -120,6 +122,10 @@ def process(packet):
         return _send_key(packet)
     elif protocol == REC_KEY:
         return _rec_key(packet)
+    elif protocol == SEND_GHZ:
+        return _send_ghz(packet)
+    elif protocol == REC_GHZ:
+        return _rec_ghz(packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
@@ -326,7 +332,6 @@ def _rec_epr(packet):
     receiver = packet.receiver
     sender = packet.sender
     host_receiver = network.get_host(receiver)
-
     q = host_receiver.backend.receive_epr(host_receiver.host_id,
                                           sender=sender,
                                           q_id=payload['q_id'],
@@ -495,6 +500,43 @@ def _rec_key(packet):
 
     key = key_array
     receiver.qkd_keys[sender.host_id] = key
+
+def _send_ghz(packet):
+    """
+    Gets GHZ qubits and distributes the to all hosts.
+    One qubit is stored in own storage.
+    """
+    host_list = packet.payload['hosts']
+    qubits = packet.payload['qubits']
+    sender = packet.sender
+    await_ack = packet.await_ack
+    seq_num_list = packet.seq_num
+
+    for host, qubit, seq_num in zip(host_list, qubits, seq_num_list):
+        new_packet = Packet(sender=sender,
+                            receiver=host,
+                            protocol=REC_GHZ,
+                            payload=qubit,
+                            payload_type=QUANTUM,
+                            sequence_number=seq_num,
+                            await_ack=await_ack)
+        network.send(new_packet)
+
+
+
+def _rec_ghz(packet):
+    """
+    Receives a GHZ state and stores it in quantum storage.
+    """
+    from_host = packet.sender
+    receiver = packet.receiver
+    qubit = packet.payload
+    receiver = network.get_host(receiver)
+    receiver.add_ghz_qubit(from_host, qubit)
+
+    if packet.await_ack:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+
 
 
 def _encode_superdense(message, q):

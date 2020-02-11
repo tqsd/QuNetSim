@@ -14,6 +14,7 @@ import time
 
 DATA_QUBIT = "data"
 EPR_QUBIT = "EPR"
+GHZ_QUBIT = "GHZ"
 
 
 class Host:
@@ -706,20 +707,57 @@ class Host:
             new_qubit = Qubit(self, q_id=q_id)
             own_qubit.cnot(new_qubit)
             q_list.append(new_qubit)
-        for receiver, qubit in zip(receiver_list, q_list):
-            self.send_qubit(receiver, qubit, await_ack=await_ack)
-        return q_id, own_qubit
+        self.add_ghz_qubit(self.host_id, own_qubit)
+        seq_num_list = []
+        for receiver_id in receiver_list:
+            seq_num = self._get_sequence_number(receiver_id)
+            seq_num_list.append(seq_num)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=None,
+                                  protocol=protocols.SEND_GHZ,
+                                  payload={'qubits': q_list, 'hosts': receiver_list},
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=seq_num_list,
+                                  await_ack=await_ack)
+        self.logger.log(self.host_id + " sends GHZ to " + str(receiver_list))
+        self._packet_queue.put(packet)
 
-    def receive_ghz(self, sender, wait=-1):
+        # TODO: Wait for all ACKs
+        # if packet.await_ack:
+        #     self._log_ack('EPR', receiver_id, seq_num)
+        #     return q_id, self.await_ack(seq_num, receiver_id)
+
+        return q_id
+
+    def get_ghz(self, host_id, q_id=None, wait=-1):
         """
-        Receives a GHZ state which was created by the sender.
+        Gets the GHZ qubit whih has been created by the host with the host id.
+        It is not necessary to know with whom the states are shared.
 
         Args:
-            sender (str): Host id of the sender of the wanted GHZ state.
+            host_id (string): The ID of the host that creates the GHZ state.
+            q_id (string): The qubit ID of the GHZ to get.
+            wait (float): the amount of time to wait
         Returns:
-            Qubit: Qubit which is part of the GHZ state.
+             Qubit: Qubit shared with the host with *host_id* and *q_id*.
         """
-        pass
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        def _wait():
+            nonlocal q
+            nonlocal wait
+            wait_start_time = time.time()
+            while time.time() - wait_start_time < wait and q is None:
+                q = _get_qubit(self._qubit_storage, host_id, q_id, GHZ_QUBIT)
+            return q
+
+        if wait > 0:
+            q = None
+            DaemonThread(_wait).join()
+            return q
+        else:
+            return _get_qubit(self._qubit_storage, host_id, q_id, GHZ_QUBIT)
 
     def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -929,6 +967,24 @@ class Host:
             qubit.set_new_id(q_id)
 
         self._qubit_storage.add_qubit_from_host(qubit, DATA_QUBIT, host_id)
+        return qubit.id
+
+    def add_ghz_qubit(self, host_id, qubit, q_id=None):
+        """
+        Adds the GHZ qubit to the storage of the host. The host id corresponds
+        to the generator of the GHZ state.
+
+        Args:
+            host_id: The ID of the host to pair the qubit
+            qubit (Qubit): The data Qubit to be added.
+            q_id (str): the ID to set the qubit ID to
+        Returns:
+            (string) *q_id*: The qubit ID
+        """
+        if q_id is not None:
+            qubit.set_new_id(q_id)
+
+        self._qubit_storage.add_qubit_from_host(qubit, GHZ_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
