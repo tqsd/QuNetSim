@@ -1,3 +1,4 @@
+from cqc.pythonLib import CQCConnection
 import sys
 import time
 
@@ -5,6 +6,7 @@ sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
+from objects.qubit import Qubit
 all_backends = [(CQCBackend, "Simulaqron")]
 
 def test_adding_hosts_to_backend(backend_generator):
@@ -36,7 +38,7 @@ def test_epr_generation(backend_generator):
         q1 = backend.create_EPR(alice.host_id, bob.host_id)
         q2 = backend.receive_epr(bob.host_id, alice.host_id, q_id=q1.id)
         assert q1.id == q2.id
-        assert backend.measure(q1) == backend.measure(q2)
+        assert backend.measure(q1, False) == backend.measure(q2, False)
 
     network.stop(True)
     print("Test was successful")
