@@ -32,7 +32,9 @@ def main():
     network.add_host(host_dean)
 
     share_list = ["Bob", "Eve", "Dean"]
-    q_id1 = host_alice.send_ghz(share_list, await_ack=False)
+    q_id1, ack_received = host_alice.send_ghz(share_list, await_ack=True)
+
+    print("ack received is " + str(ack_received))
 
     q1 = host_alice.get_ghz('Alice', q_id1, wait=10)
     q2 = host_bob.get_ghz('Alice', q_id1, wait=10)

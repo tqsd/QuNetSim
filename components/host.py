@@ -722,10 +722,13 @@ class Host:
         self.logger.log(self.host_id + " sends GHZ to " + str(receiver_list))
         self._packet_queue.put(packet)
 
-        # TODO: Wait for all ACKs
-        # if packet.await_ack:
-        #     self._log_ack('EPR', receiver_id, seq_num)
-        #     return q_id, self.await_ack(seq_num, receiver_id)
+        if packet.await_ack:
+            ret = True
+            for receiver_id, seq_num in zip(receiver_list, seq_num_list):
+                self._log_ack('GHZ', receiver_id, seq_num)
+                if self.await_ack(seq_num, receiver_id) is False:
+                    ret = False
+            return q_id, ret
 
         return q_id
 
