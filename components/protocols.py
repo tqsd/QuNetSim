@@ -48,6 +48,8 @@ SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
 SEND_KEY = 'send_key'
 REC_KEY = 'rec_key'
+SEND_GHZ = 'send_ghz'
+REC_GHZ = 'rec_ghz'
 
 
 def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
@@ -120,6 +122,10 @@ def process(packet):
         return _send_key(packet)
     elif protocol == REC_KEY:
         return _rec_key(packet)
+    elif protocol == SEND_GHZ:
+        return _send_ghz(packet)
+    elif protocol == REC_GHZ:
+        return _rec_ghz(packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
@@ -274,6 +280,7 @@ def _rec_teleport(packet):
     q = host_receiver.get_epr(packet.sender, q_id, wait=WAIT_TIME)
     if q is None:
         # TODO: what to do when fails
+        print(host_receiver.qubit_storage)
         raise Exception
 
     a = payload['measurements'][0]
@@ -325,9 +332,8 @@ def _rec_epr(packet):
     receiver = packet.receiver
     sender = packet.sender
     host_receiver = network.get_host(receiver)
-
     q = host_receiver.backend.receive_epr(host_receiver.host_id,
-                                          sender=sender,
+                                          sender_id=sender,
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
@@ -373,6 +379,8 @@ def _send_superdense(packet):
         raise Exception("couldn't encode superdense")
 
     _encode_superdense(packet.payload, q_superdense)
+    # change id, so that at receiving they are not the same
+    q_superdense.set_new_id("E" + q_superdense.id)
     packet.payload = q_superdense
     packet.protocol = REC_SUPERDENSE
     packet.payload_type = QUANTUM
@@ -396,7 +404,8 @@ def _rec_superdense(packet):
     host_receiver = network.get_host(receiver)
 
     q1 = host_receiver.get_data_qubit(sender, payload.id, wait=WAIT_TIME)
-    q2 = host_receiver.get_epr(sender, payload.id, wait=WAIT_TIME)
+    # the shared EPR id is the DATA id without the first letter.
+    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=WAIT_TIME)
 
     assert q1 is not None and q2 is not None
 
@@ -491,6 +500,43 @@ def _rec_key(packet):
 
     key = key_array
     receiver.qkd_keys[sender.host_id] = key
+
+def _send_ghz(packet):
+    """
+    Gets GHZ qubits and distributes the to all hosts.
+    One qubit is stored in own storage.
+    """
+    host_list = packet.payload['hosts']
+    qubits = packet.payload['qubits']
+    sender = packet.sender
+    await_ack = packet.await_ack
+    seq_num_list = packet.seq_num
+
+    for host, qubit, seq_num in zip(host_list, qubits, seq_num_list):
+        new_packet = Packet(sender=sender,
+                            receiver=host,
+                            protocol=REC_GHZ,
+                            payload=qubit,
+                            payload_type=QUANTUM,
+                            sequence_number=seq_num,
+                            await_ack=await_ack)
+        network.send(new_packet)
+
+
+
+def _rec_ghz(packet):
+    """
+    Receives a GHZ state and stores it in quantum storage.
+    """
+    from_host = packet.sender
+    receiver = packet.receiver
+    qubit = packet.payload
+    receiver = network.get_host(receiver)
+    receiver.add_ghz_qubit(from_host, qubit)
+
+    if packet.await_ack:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+
 
 
 def _encode_superdense(message, q):

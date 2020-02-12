@@ -167,13 +167,13 @@ class CQCBackend(object):
             ent_list = [qubit.id]
         self._entaglement_ids.add_to_dict(key, ent_list)
 
-    def receive_epr(self, host_id, sender, q_id=None, block=False):
+    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
         Called after create EPR in the receiver, to receive the other EPR pair.
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
-            sender (String): ID of the sender of the EPR pair.
+            sender_id (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
@@ -182,7 +182,7 @@ class CQCBackend(object):
         cqc_host = self._cqc_connections.get_from_dict(host_id)
         host = self._hosts.get_from_dict(host_id)
         q = cqc_host.recvEPR()
-        key = sender + ':' + cqc_host.name
+        key = sender_id + ':' + cqc_host.name
         ent_list = self._entaglement_ids.get_from_dict(key)
         if ent_list is None:
             raise Exception("Internal Error!")

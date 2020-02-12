@@ -9,7 +9,7 @@ def main():
     nodes = ["Alice", "Bob", "Eve"]
     network.start(nodes)
 
-    host_alice = Host('Alice', )
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.start()
 
