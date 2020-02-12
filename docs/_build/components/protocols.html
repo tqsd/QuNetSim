@@ -127,7 +127,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with the Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -270,6 +270,12 @@ receiver.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="components.protocols._rec_ghz">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_ghz</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a GHZ state and stores it in quantum storage.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="components.protocols._rec_qubit">
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_rec_qubit</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._rec_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive a packet containing qubit information (qubit is transmitted externally)</p>
@@ -326,9 +332,9 @@ node in the network and modifies the header.</p>
 <code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_ack</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq_number</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an acknowledge message from the sender to the receiver.
 :param sender: The sender ID
-:type sender: string
+:type sender: str
 :param receiver: The receiver ID
-:type receiver: string
+:type receiver: str
 :param seq_number: The sequence number which to ACK
 :type seq_number: int</p>
 </dd></dl>
@@ -353,6 +359,13 @@ node in the network and modifies the header.</p>
 <dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#objects.packet.Packet" title="objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="components.protocols._send_ghz">
+<code class="sig-prename descclassname">components.protocols.</code><code class="sig-name descname">_send_ghz</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#components.protocols._send_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets GHZ qubits and distributes the to all hosts.
+One qubit is stored in own storage.</p>
 </dd></dl>
 
 <dl class="function">
@@ -391,14 +404,14 @@ node in the network and modifies the header.</p>
 <dd><p>Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
 with data and the header.
 :param sender: ID of the sender
-:type sender: string
+:type sender: str
 :param receiver: ID of the receiver
-:type receiver: string
+:type receiver: str
 :param protocol: ID of the protocol of which the packet should be processed.
-:type protocol: string
+:type protocol: str
 :param payload: The message that is intended to send with the packet. Type of payload depends on the protocol.
 :param payload_type: Type of the payload.
-:type payload_type: string
+:type payload_type: str
 :param sequence_num: Sequence number of the packet.
 :type sequence_num: int
 :param await_ack: If the sender should await an ACK

@@ -60,9 +60,9 @@ To chose a different backend, just initialize the backend variable with another 
 the QuNetSim backend package.
 
 
-######################
-Writing an own Backend
-######################
+########################
+Writing your own Backend
+########################
 
 Instead of using a provided backend, it is also possible to write an own backend. In this section,
 we describe how the interfacing to a backend works.
@@ -72,7 +72,7 @@ The interface to the backend is a class. There can be multiple instances of this
 class at once, and it has to be thread safe. This class also has to store all information
 which are necessary for the backend, if needed. To make these information thread safe, the
 file **backend.RWLock** provides a read write lock and the file **backends.SafeDict** provides
-a thread safe dictionary with some basic functionalities.
+a thread safe dictionary with some basic functionality.
 In the functions **start** and **stop**, the backend can be initialized if necessary and be destructed.
 
 The **create_qubit** function creates a qubit in the backend. It then has to create an object

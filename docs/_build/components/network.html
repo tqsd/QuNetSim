@@ -127,7 +127,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with the Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
 </ul>
@@ -348,7 +348,7 @@ between sender and receiver.</p>
 <li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the EPR pair</p></li>
 <li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
 <li><p><strong>route</strong> (<em>list</em>) – Route between the sender and receiver</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – Qubit ID of the sent EPR pair</p></li>
 <li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
 </ul>
 </dd>
@@ -454,8 +454,8 @@ between sender and receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
-<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
+<li><p><strong>source</strong> (<em>str</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>str</em>) – ID of the destination host</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -473,7 +473,7 @@ between sender and receiver.</p>
 <dd><p>Returns the host with the <em>host_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host_id</strong> (<em>string</em>) – ID number of the host that is returned.</p>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – ID number of the host that is returned.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Host with the <em>host_id</em></p>
@@ -489,7 +489,7 @@ between sender and receiver.</p>
 <code class="sig-name descname">get_host_name</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network.get_host_name" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host_id</strong> (<em>string</em>) – ID number of the host whose name is returned if it is in ARP table</p>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – ID number of the host whose name is returned if it is in ARP table</p>
 </dd>
 </dl>
 <p>Returns the name of the host with <em>host_id</em> if the host is in ARP table , otherwise returns None.</p>
@@ -510,8 +510,8 @@ between sender and receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<em>string</em>) – ID of the source host</p></li>
-<li><p><strong>dest</strong> (<em>string</em>) – ID of the destination host</p></li>
+<li><p><strong>source</strong> (<em>str</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>str</em>) – ID of the destination host</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

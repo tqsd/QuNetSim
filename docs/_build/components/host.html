@@ -289,6 +289,20 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </li>
 <li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">send_epr(host_id,</span> <span class="pre">qubit_id=&lt;None&gt;,</span> <span class="pre">await_ack=&lt;bool&gt;)</span></code>:</dt><dd><ul>
+<li><p>Creates a shared EPR pair with the host with host_id <em>host_id</em>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">send_ghz([host_id_list],</span> <span class="pre">qubit_id=&lt;None&gt;,</span> <span class="pre">await_ack=&lt;bool&gt;)</span></code>:</dt><dd><ul>
+<li><p>Creates a shared GHZ state with all hosts in the list [host_id_list].</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
 <dt><code class="code docutils literal notranslate"><span class="pre">shares_epr(host_id)</span></code>:</dt><dd><ul>
 <li><p>Returns if the host shares entanglement already with host with host_id <em>host_id</em></p></li>
 </ul>
@@ -327,7 +341,7 @@ through them. We see an example of that in the examples section.</p>
 <dd><p>Get and set the next sequence number of connection with a receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host</strong> (<em>string</em>) – The ID of the receiver</p>
+<dd class="field-odd"><p><strong>host</strong> (<em>str</em>) – The ID of the receiver</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The next sequence number of connection with a receiver.</p>
@@ -343,9 +357,9 @@ through them. We see an example of that in the examples section.</p>
 <code class="sig-name descname">_log_ack</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._log_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs acknowledgement messages.
 :param protocol: The protocol for the ACK
-:type protocol: string
+:type protocol: str
 :param receiver: The sender of the ACK
-:type receiver: string
+:type receiver: str
 :param seq: The sequence number of the packet
 :type seq: int</p>
 </dd></dl>
@@ -373,7 +387,7 @@ through them. We see an example of that in the examples section.</p>
 <dd><p>Adds the classical connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to connect with.</p>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to connect with.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,7 +415,7 @@ through them. We see an example of that in the examples section.</p>
 <dd><p>Adds the classical and quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to connect with.</p>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to connect with.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -414,7 +428,7 @@ otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host_id</strong> – The ID of the host to pair the qubit</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host to pair the qubit</p></li>
 <li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – the ID to set the qubit ID to</p></li>
 </ul>
@@ -438,8 +452,30 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>host_id</strong> (<em>String</em>) – The ID of the host to pair the qubit</p></li>
 <li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit to be added.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The ID of the qubit to be added.</p></li>
 <li><p><strong>blocked</strong> – If the qubit should be stored as blocked or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The qubit ID</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(string) <em>q_id</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.add_ghz_qubit">
+<code class="sig-name descname">add_ghz_qubit</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.add_ghz_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the GHZ qubit to the storage of the host. The host id corresponds
+to the generator of the GHZ state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host to pair the qubit</p></li>
+<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – the ID to set the qubit ID to</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -457,7 +493,7 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dd><p>Adds the quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to connect with.</p>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to connect with.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -476,16 +512,27 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.await_remaining_acks">
+<code class="sig-name descname">await_remaining_acks</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_remaining_acks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Awaits all remaining ACKs of one or all sender.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sender</strong> (<em>str</em>) – Optional, sender for which to wait for all acks.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.change_epr_qubit_id">
 <code class="sig-name descname">change_epr_qubit_id</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">new_id</em>, <em class="sig-param">old_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.change_epr_qubit_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change an EPR pair ID to another. If <em>old_id</em> is set, then change that specific
 EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.
 :param host_id: The partner ID of the EPR pair.
-:type host_id: string
+:type host_id: str
 :param new_id: The new ID to change the qubit too
-:type new_id: string
+:type new_id: str
 :param old_id: The old ID of the qubit
-:type old_id: string</p>
+:type old_id: str</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Old if of the qubit which has been changed.</p>
@@ -536,7 +583,7 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host_id</strong> (<em>string</em>) – The ID of the partner who sent the clasical messages</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the partner who sent the clasical messages</p></li>
 <li><p><strong>seq_num</strong> (<em>int</em>) – The sequence number of the message</p></li>
 <li><p><strong>wait</strong> (<em>float</em>) – How long in seconds to wait for the messages if none are set.</p></li>
 </ul>
@@ -562,8 +609,8 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host_id</strong> (<em>string</em>) – The ID of the host that data qubit to be returned is received from.</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The qubit ID of the data qubit to get.</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that data qubit to be returned is received from.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the data qubit to get.</p></li>
 <li><p><strong>wait</strong> (<em>float</em>) – The amount of time to wait for the a qubit to arrive</p></li>
 </ul>
 </dd>
@@ -607,8 +654,8 @@ EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host_id</strong> (<em>string</em>) – The ID of the host that returned EPR is entangled to.</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The qubit ID of the EPR to get.</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that returned EPR is entangled to.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the EPR to get.</p></li>
 <li><p><strong>wait</strong> (<em>float</em>) – the amount of time to wait</p></li>
 </ul>
 </dd>
@@ -645,6 +692,28 @@ Return an empty list otherwise.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="components.host.Host.get_ghz">
+<code class="sig-name descname">get_ghz</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the GHZ qubit which has been created by the host with the host ID <em>host_id</em>.
+It is not necessary to know with whom the states are shared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that creates the GHZ state.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the GHZ to get.</p></li>
+<li><p><strong>wait</strong> (<em>float</em>) – the amount of time to wait</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="components.host.Host.get_next_classical_message">
 <code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param">receive_from_id</em>, <em class="sig-param">buffer</em>, <em class="sig-param">sequence_nr</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -665,7 +734,7 @@ Return an empty list otherwise.</p>
 <dd><p>Get and set the next sequence number of connection with a receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host</strong> (<em>string</em>) – The ID of the receiver</p>
+<dd class="field-odd"><p><strong>host</strong> (<em>str</em>) – The ID of the receiver</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The next sequence number of connection with a receiver.</p>
@@ -685,7 +754,7 @@ Return an empty list otherwise.</p>
 <dd class="field-odd"><p>The host ID of the host.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(string)</p>
+<dd class="field-even"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -804,7 +873,7 @@ ID:receiver</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
+<li><p><strong>receiver</strong> (<em>str</em>) – The ID of the host to send the message.</p></li>
 <li><p><strong>seq_number</strong> (<em>int</em>) – Sequence number of the acknowleged packet.</p></li>
 </ul>
 </dd>
@@ -819,8 +888,8 @@ ID:receiver</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to send the message.</p></li>
-<li><p><strong>message</strong> (<em>string</em>) – The classical message to send.</p></li>
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to send the message.</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – The classical message to send.</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
@@ -841,8 +910,8 @@ ID of pair.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The ID of the qubit</p></li>
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The receiver ID</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The ID of the qubit</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 <li><p><strong>block</strong> (<em>bool</em>) – If the created EPR pair should be blocked or not.</p></li>
 </ul>
@@ -852,6 +921,33 @@ ID of pair.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>string, boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.send_ghz">
+<code class="sig-name descname">send_ghz</code><span class="sig-paren">(</span><em class="sig-param">receiver_list</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Share GHZ state with all receiver ids in the list. GHZ state is generated
+locally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_list</strong> (<em>list</em>) – A List of all Host IDs with which a GHZ state
+should be shared.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The ID of the GHZ qubits</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If the sender should await an ACK from all receivers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Qubit which belongs to the host and is part of the</dt><dd><p>GHZ state and ID which all Qubits will have.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Q_id, <a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -878,7 +974,7 @@ ID of pair.</p>
 <code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the qubit <em>q</em> to the receiver with ID <em>receiver_id</em>.
 :param receiver_id: The receiver ID to send the message to
-:type receiver_id: string
+:type receiver_id: str
 :param q: The qubit to send
 :type q: Qubit
 :param await_ack: If sender should wait for an ACK.
@@ -901,8 +997,8 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID to send the message to</p></li>
-<li><p><strong>message</strong> (<em>string</em>) – The two bit binary message</p></li>
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The receiver ID to send the message to</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – The two bit binary message</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 </ul>
 </dd>
@@ -922,7 +1018,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver_id</strong> (<em>string</em>) – The ID of the host to establish the EPR pair with</p></li>
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to establish the EPR pair with</p></li>
 <li><p><strong>q</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The qubit to teleport</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 <li><p><strong>payload</strong> – </p></li>
@@ -1000,7 +1096,7 @@ msg</strong>. ACK messages are not passed to the function.</p>
 with receiver with ID <em>receiver_id</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>string</em>) – The receiver ID to check.</p>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The receiver ID to check.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Whether the host shares an EPR pair with receiver with ID <em>receiver_id</em></p>
@@ -1079,15 +1175,16 @@ payload.</p>
 
 <dl class="function">
 <dt id="components.host._get_qubit">
-<code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">_get_qubit</code><span class="sig-paren">(</span><em class="sig-param">store</em>, <em class="sig-param">host_id</em>, <em class="sig-param">q_id</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host._get_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">components.host.</code><code class="sig-name descname">_get_qubit</code><span class="sig-paren">(</span><em class="sig-param">store</em>, <em class="sig-param">host_id</em>, <em class="sig-param">q_id</em>, <em class="sig-param">purpose</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host._get_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the data qubit received from another host in the network. If qubit ID is specified,
 qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>store</strong> – The qubit storage to retrieve the qubit</p></li>
-<li><p><strong>host_id</strong> (<em>string</em>) – The ID of the host that data qubit to be returned is received from.</p></li>
-<li><p><strong>q_id</strong> (<em>string</em>) – The qubit ID of the data qubit to get.</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that data qubit to be returned is received from.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the data qubit to get.</p></li>
+<li><p><strong>purpose</strong> (<em>str</em>) – The intended use of the qubit</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

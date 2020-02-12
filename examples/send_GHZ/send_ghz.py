@@ -10,6 +10,7 @@ def main():
 
     host_alice = Host('Alice')
     host_alice.add_connection('Bob')
+    host_alice.add_connection('Eve')
     host_alice.start()
 
     host_bob = Host('Bob')
@@ -20,6 +21,7 @@ def main():
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
+    host_eve.add_connection('Alice')
     host_eve.start()
 
     host_dean = Host('Dean')
@@ -55,7 +57,7 @@ def main():
     m3 = q3.measure()
     m4 = q4.measure()
 
-    print("results of measurements are %d, %d, %d, and %d." % (m1,m2,m3,m4))
+    print("results of measurements are %d, %d, %d, and %d." % (m1, m2, m3, m4))
 
     network.stop(True)
     exit()

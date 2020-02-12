@@ -118,7 +118,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="backends.html">Backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="backends.html#writing-an-own-backend">Writing an own Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backends.html#writing-your-own-backend">Writing your own Backend</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
@@ -256,11 +256,13 @@
         <li><a href="components/network.html#components.network.Network._process_queue">(components.network.Network method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#components.protocols._rec_classical">_rec_classical() (in module components.protocols)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#components.protocols._rec_epr">_rec_epr() (in module components.protocols)</a>
+</li>
+      <li><a href="components/protocols.html#components.protocols._rec_ghz">_rec_ghz() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._rec_qubit">_rec_qubit() (in module components.protocols)</a>
 </li>
@@ -279,6 +281,8 @@
       <li><a href="components/protocols.html#components.protocols._send_classical">_send_classical() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._send_epr">_send_epr() (in module components.protocols)</a>
+</li>
+      <li><a href="components/protocols.html#components.protocols._send_ghz">_send_ghz() (in module components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#components.protocols._send_qubit">_send_qubit() (in module components.protocols)</a>
 </li>
@@ -304,6 +308,8 @@
 </li>
       <li><a href="components/host.html#components.host.Host.add_epr">add_epr() (components.host.Host method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.add_ghz_qubit">add_ghz_qubit() (components.host.Host method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#components.network.Network.add_host">add_host() (components.network.Network method)</a>
@@ -320,6 +326,8 @@
         <li><a href="objects/packet.html#objects.packet.Packet.await_ack">(objects.packet.Packet property)</a>
 </li>
       </ul></li>
+      <li><a href="components/host.html#components.host.Host.await_remaining_acks">await_remaining_acks() (components.host.Host method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -419,6 +427,8 @@
       <li><a href="components/host.html#components.host.Host.get_epr">get_epr() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.get_epr_pairs">get_epr_pairs() (components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#components.host.Host.get_ghz">get_ghz() (components.host.Host method)</a>
 </li>
       <li><a href="components/network.html#components.network.Network.get_host">get_host() (components.network.Network method)</a>
 </li>
@@ -620,6 +630,8 @@
 </li>
       <li><a href="components/host.html#components.host.Host.send_epr">send_epr() (components.host.Host method)</a>
 </li>
+      <li><a href="components/host.html#components.host.Host.send_ghz">send_ghz() (components.host.Host method)</a>
+</li>
       <li><a href="components/host.html#components.host.Host.send_key">send_key() (components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#components.host.Host.send_qubit">send_qubit() (components.host.Host method)</a>
@@ -646,10 +658,10 @@
       </ul></li>
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_blocked_state">set_blocked_state() (objects.qubit.Qubit method)</a>
 </li>
-      <li><a href="components/host.html#components.host.Host.set_data_qubit_memory_limit">set_data_qubit_memory_limit() (components.host.Host method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#components.host.Host.set_data_qubit_memory_limit">set_data_qubit_memory_limit() (components.host.Host method)</a>
+</li>
       <li><a href="components/host.html#components.host.Host.set_epr_memory_limit">set_epr_memory_limit() (components.host.Host method)</a>
 </li>
       <li><a href="objects/qubit.html#objects.qubit.Qubit.set_new_host">set_new_host() (objects.qubit.Qubit method)</a>

@@ -21,11 +21,11 @@ class Packet(object):
         with data and the header.
 
         Args:
-            sender(string): ID of the sender
-            receiver(string): ID of the receiver
-            protocol(string): ID of the protocol of which the packet should be processed.
+            sender(str): ID of the sender
+            receiver(str): ID of the receiver
+            protocol(str): ID of the protocol of which the packet should be processed.
             payload (Object): The message that is intended to send with the packet. Type of payload depends on the protocol.
-            payload_type(string): Type of the payload.
+            payload_type(str): Type of the payload.
             sequence_number (int): Sequence number of the packet.
             await_ack(bool): If the sender should await an ACK
         """

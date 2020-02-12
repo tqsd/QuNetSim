@@ -35,6 +35,10 @@ The most commonly used methods for Hosts are:
     * Send a message (one of '00', '01', '10', or '11') as a superdense message
 * :code:`send_teleport(host_id, qubit, await_ack=<bool>)`:
     * Teleport qubit *qubit* to host with host_id *host_id*.
+* :code:`send_epr(host_id, qubit_id=<None>, await_ack=<bool>)`:
+    * Creates a shared EPR pair with the host with host_id *host_id*.
+* :code:`send_ghz([host_id_list], qubit_id=<None>, await_ack=<bool>)`:
+    * Creates a shared GHZ state with all hosts in the list [host_id_list].
 * :code:`shares_epr(host_id)`:
     * Returns if the host shares entanglement already with host with host_id *host_id*
 * :code:`run_protocol(protocol, protocol_params)`:

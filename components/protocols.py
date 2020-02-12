@@ -57,11 +57,11 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
     with data and the header.
     Args:
-        sender(string): ID of the sender
-        receiver(string): ID of the receiver
-        protocol(string): ID of the protocol of which the packet should be processed.
+        sender(str): ID of the sender
+        receiver(str): ID of the receiver
+        protocol(str): ID of the protocol of which the packet should be processed.
         payload : The message that is intended to send with the packet. Type of payload depends on the protocol.
-        payload_type(string): Type of the payload.
+        payload_type(str): Type of the payload.
         sequence_num(int): Sequence number of the packet.
         await_ack(bool): If the sender should await an ACK
     Returns:
@@ -345,8 +345,8 @@ def _send_ack(sender, receiver, seq_number):
     """
     Send an acknowledge message from the sender to the receiver.
     Args:
-        sender (string): The sender ID
-        receiver (string): The receiver ID
+        sender (str): The sender ID
+        receiver (str): The receiver ID
         seq_number (int): The sequence number which to ACK
     """
     Logger.get_instance().log('sending ACK:' + str(seq_number + 1) + ' from ' + receiver + " to " + sender)

@@ -302,7 +302,7 @@ class Network:
         Returns the host with the *host_id*.
 
         Args:
-            host_id (string): ID number of the host that is returned.
+            host_id (str): ID number of the host that is returned.
 
         Returns:
              Host: Host with the *host_id*
@@ -323,7 +323,7 @@ class Network:
     def get_host_name(self, host_id):
         """
         Args:
-            host_id (string): ID number of the host whose name is returned if it is in ARP table
+            host_id (str): ID number of the host whose name is returned if it is in ARP table
 
         Returns the name of the host with *host_id* if the host is in ARP table , otherwise returns None.
 
@@ -339,8 +339,8 @@ class Network:
         Gets the route for quantum information from source to destination.
 
         Args:
-            source (string): ID of the source host
-            dest (string): ID of the destination host
+            source (str): ID of the source host
+            dest (str): ID of the destination host
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
@@ -351,8 +351,8 @@ class Network:
         Gets the route for classical information from source to destination.
 
         Args:
-            source (string): ID of the source host
-            dest (string): ID of the destination host
+            source (str): ID of the source host
+            dest (str): ID of the destination host
 
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
@@ -368,7 +368,7 @@ class Network:
             sender (Host): Sender of the EPR pair
             receiver (Host): Receiver of the EPR pair
             route (list): Route between the sender and receiver
-            q_id (string): Qubit ID of the sent EPR pair
+            q_id (str): Qubit ID of the sent EPR pair
             blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)

@@ -13,11 +13,11 @@ class RoutingPacket(object):
         addition.
 
         Args:
-            sender(string): ID of the sender
-            receiver(string): ID of the receiver
-            protocol(string): ID of the protocol of which the packet should be processed.
+            sender(str): ID of the sender
+            receiver(str): ID of the receiver
+            protocol(str): ID of the protocol of which the packet should be processed.
             payload (Packet): The message that is intended to send with the packet. Type of payload depends on the protocol.
-            payload_type(string): Type of the payload.
+            payload_type(str): Type of the payload.
             ttl(int): Time-to-Live parameter
             route (List): Route the packet takes to its target host.
         """

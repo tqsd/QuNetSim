@@ -11,7 +11,6 @@ from backends.cqc_backend import CQCBackend
 import uuid
 import time
 
-
 DATA_QUBIT = "data"
 EPR_QUBIT = "EPR"
 GHZ_QUBIT = "GHZ"
@@ -74,7 +73,7 @@ class Host:
         Get the *host_id* of the host.
 
         Returns:
-            (string): The host ID of the host.
+            (str): The host ID of the host.
         """
         return self._host_id
 
@@ -320,7 +319,7 @@ class Host:
         Get and set the next sequence number of connection with a receiver.
 
         Args:
-            host(string): The ID of the receiver
+            host(str): The ID of the receiver
 
         Returns:
             (int): The next sequence number of connection with a receiver.
@@ -337,7 +336,7 @@ class Host:
         Get and set the next sequence number of connection with a receiver.
 
         Args:
-            host(string): The ID of the receiver
+            host(str): The ID of the receiver
 
         Returns:
             (int): The next sequence number of connection with a receiver.
@@ -385,8 +384,8 @@ class Host:
         """
         Logs acknowledgement messages.
         Args:
-            protocol (string): The protocol for the ACK
-            receiver (string): The sender of the ACK
+            protocol (str): The protocol for the ACK
+            receiver (str): The sender of the ACK
             seq (int): The sequence number of the packet
         """
         self.logger.log(self.host_id + ' awaits ' + protocol + ' ACK from '
@@ -497,7 +496,7 @@ class Host:
         Adds the classical connection to host with ID *receiver_id*.
 
         Args:
-            receiver_id (string): The ID of the host to connect with.
+            receiver_id (str): The ID of the host to connect with.
         """
         self.classical_connections.append(receiver_id)
 
@@ -506,7 +505,7 @@ class Host:
         Adds the quantum connection to host with ID *receiver_id*.
 
         Args:
-            receiver_id (string): The ID of the host to connect with.
+            receiver_id (str): The ID of the host to connect with.
         """
         self.quantum_connections.append(receiver_id)
 
@@ -515,7 +514,7 @@ class Host:
         Adds the classical and quantum connection to host with ID *receiver_id*.
 
         Args:
-            receiver_id (string): The ID of the host to connect with.
+            receiver_id (str): The ID of the host to connect with.
 
         """
         self.classical_connections.append(receiver_id)
@@ -562,7 +561,7 @@ class Host:
         ID:receiver
 
         Args:
-            receiver (string): The ID of the host to send the message.
+            receiver (str): The ID of the host to send the message.
             seq_number (int): Sequence number of the acknowleged packet.
 
         """
@@ -631,8 +630,8 @@ class Host:
         ID:receiver
 
         Args:
-            receiver_id (string): The ID of the host to send the message.
-            message (string): The classical message to send.
+            receiver_id (str): The ID of the host to send the message.
+            message (str): The classical message to send.
             await_ack (bool): If sender should wait for an ACK.
         Returns:
             boolean: If await_ack=True, return the status of the ACK
@@ -660,8 +659,8 @@ class Host:
         ID of pair.
 
         Args:
-            receiver_id (string): The receiver ID
-            q_id (string): The ID of the qubit
+            receiver_id (str): The receiver ID
+            q_id (str): The ID of the qubit
             await_ack (bool): If sender should wait for an ACK.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
@@ -693,8 +692,10 @@ class Host:
         locally.
 
         Args:
-            receiver_list (List): A List of all Host IDs with which a GHZ state
+            receiver_list (list): A List of all Host IDs with which a GHZ state
                                   should be shared.
+            q_id (str): The ID of the GHZ qubits
+            await_ack (bool): If the sender should await an ACK from all receivers
         Returns:
             Q_id, Qubit: Qubit which belongs to the host and is part of the
                         GHZ state and ID which all Qubits will have.
@@ -734,12 +735,12 @@ class Host:
 
     def get_ghz(self, host_id, q_id=None, wait=-1):
         """
-        Gets the GHZ qubit whih has been created by the host with the host id.
+        Gets the GHZ qubit which has been created by the host with the host ID *host_id*.
         It is not necessary to know with whom the states are shared.
 
         Args:
-            host_id (string): The ID of the host that creates the GHZ state.
-            q_id (string): The qubit ID of the GHZ to get.
+            host_id (str): The ID of the host that creates the GHZ state.
+            q_id (str): The qubit ID of the GHZ to get.
             wait (float): the amount of time to wait
         Returns:
              Qubit: Qubit shared with the host with *host_id* and *q_id*.
@@ -767,7 +768,7 @@ class Host:
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
         Args:
-            receiver_id (string): The ID of the host to establish the EPR pair with
+            receiver_id (str): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
             payload:
@@ -800,8 +801,8 @@ class Host:
         coding to the receiver with receiver ID *receiver_id*.
 
         Args:
-            receiver_id (string): The receiver ID to send the message to
-            message (string): The two bit binary message
+            receiver_id (str): The receiver ID to send the message to
+            message (str): The two bit binary message
             await_ack (bool): If sender should wait for an ACK.
         Returns:
            boolean: If await_ack=True, return the status of the ACK
@@ -829,7 +830,7 @@ class Host:
         """
         Send the qubit *q* to the receiver with ID *receiver_id*.
         Args:
-            receiver_id (string): The receiver ID to send the message to
+            receiver_id (str): The receiver ID to send the message to
             q (Qubit): The qubit to send
             await_ack (bool): If sender should wait for an ACK.
         Returns:
@@ -860,7 +861,7 @@ class Host:
         with receiver with ID *receiver_id*
 
         Args:
-            receiver_id (string): The receiver ID to check.
+            receiver_id (str): The receiver ID to check.
 
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
@@ -872,9 +873,9 @@ class Host:
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
         Args:
-            host_id (string): The partner ID of the EPR pair.
-            new_id (string): The new ID to change the qubit too
-            old_id (string):  The old ID of the qubit
+            host_id (str): The partner ID of the EPR pair.
+            new_id (str): The new ID to change the qubit too
+            old_id (str):  The old ID of the qubit
 
         Returns:
             Old if of the qubit which has been changed.
@@ -943,7 +944,7 @@ class Host:
         Args:
             host_id (String): The ID of the host to pair the qubit
             qubit(Qubit): The data Qubit to be added.
-            q_id(string): The ID of the qubit to be added.
+            q_id(str): The ID of the qubit to be added.
             blocked: If the qubit should be stored as blocked or not
         Returns:
              (string) *q_id*: The qubit ID
@@ -960,7 +961,7 @@ class Host:
         otherwise generates an ID for the qubit and adds the qubit with that ID.
 
         Args:
-            host_id: The ID of the host to pair the qubit
+            host_id (str): The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
             q_id (str): the ID to set the qubit ID to
         Returns:
@@ -978,7 +979,7 @@ class Host:
         to the generator of the GHZ state.
 
         Args:
-            host_id: The ID of the host to pair the qubit
+            host_id (str): The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
             q_id (str): the ID to set the qubit ID to
         Returns:
@@ -1018,7 +1019,7 @@ class Host:
         Get the classical messages from partner host *host_id*.
 
         Args:
-            host_id (string): The ID of the partner who sent the clasical messages
+            host_id (str): The ID of the partner who sent the clasical messages
             seq_num (int): The sequence number of the message
             wait (float): How long in seconds to wait for the messages if none are set.
 
@@ -1058,8 +1059,8 @@ class Host:
         EPR with that ID is returned, else, the last EPR added is returned.
 
         Args:
-            host_id (string): The ID of the host that returned EPR is entangled to.
-            q_id (string): The qubit ID of the EPR to get.
+            host_id (str): The ID of the host that returned EPR is entangled to.
+            q_id (str): The qubit ID of the EPR to get.
             wait (float): the amount of time to wait
         Returns:
              Qubit: Qubit shared with the host with *host_id* and *q_id*.
@@ -1088,8 +1089,8 @@ class Host:
         qubit with that ID is returned, else, the last qubit received is returned.
 
         Args:
-            host_id (string): The ID of the host that data qubit to be returned is received from.
-            q_id (string): The qubit ID of the data qubit to get.
+            host_id (str): The ID of the host that data qubit to be returned is received from.
+            q_id (str): The qubit ID of the data qubit to get.
             wait (float): The amount of time to wait for the a qubit to arrive
         Returns:
              Qubit: Qubit received from the host with *host_id* and *q_id*.
@@ -1161,7 +1162,7 @@ class Host:
 
         """
         buffer = buffer + \
-            self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
+                 self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
@@ -1205,8 +1206,9 @@ def _get_qubit(store, host_id, q_id, purpose):
 
     Args:
         store: The qubit storage to retrieve the qubit
-        host_id (string): The ID of the host that data qubit to be returned is received from.
-        q_id (string): The qubit ID of the data qubit to get.
+        host_id (str): The ID of the host that data qubit to be returned is received from.
+        q_id (str): The qubit ID of the data qubit to get.
+        purpose (str): The intended use of the qubit
     Returns:
          Qubit: Qubit received from the host with *host_id* and *q_id*.
     """
