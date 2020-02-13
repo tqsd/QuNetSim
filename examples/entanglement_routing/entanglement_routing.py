@@ -20,7 +20,7 @@ def generate_entanglement(host):
                     num_epr_pairs = len(host.get_epr_pairs(connection['connection']))
                     if num_epr_pairs < 4:
                         host.send_epr(connection['connection'], await_ack=True)
-        time.sleep(5)
+        time.sleep(2)
 
 
 def routing_algorithm(di_graph, source, target):
@@ -60,7 +60,7 @@ def routing_algorithm(di_graph, source, target):
 
 
 def main():
-    network.quantum_routing_algo = routing_algorithm
+
     # network.classical_routing_algo = routing_algorithm
     nodes = ['A', 'node_1', 'node_2', 'B']
     network.use_hop_by_hop = False
@@ -99,14 +99,14 @@ def main():
     time.sleep(15)
     print('---- DONE BUILDING ENTANGLEMENT   ----')
 
+    network.quantum_routing_algo = routing_algorithm
     choices = ['00', '11', '10', '01']
     for _ in range(5):
         print('----  sending superdense  ----')
         A.send_superdense(B.host_id, random.choice(choices), await_ack=True)
         time.sleep(1)
 
-    # Let the network run for 40 seconds
-    time.sleep(40)
+    time.sleep(20)
     print('stopping')
     network.stop(stop_hosts=True)
 
