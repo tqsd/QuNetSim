@@ -49,15 +49,18 @@ def main():
 
     host_A = Host('A')
     host_A.add_connection('B')
+    host_A.delay = 0
     host_A.start()
 
     host_B = Host('B')
     host_B.add_connection('A')
     host_B.add_connection('C')
+    host_B.delay = 0
     host_B.start()
 
     host_C = Host('C')
     host_C.add_connection('B')
+    host_C.delay = 0
     host_C.start()
 
     network.add_host(host_A)
