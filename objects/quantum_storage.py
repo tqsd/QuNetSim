@@ -350,7 +350,7 @@ class QuantumStorage(object):
         out = []
         self.lock.acquire_write()
         if from_host_id in self._host_dict:
-            for q in self._host_dict:
+            for q in self._host_dict[from_host_id]:
                 if self._check_qubit_in_system(q, from_host_id, purpose):
                     out.append(q)
             self.lock.release_write()
