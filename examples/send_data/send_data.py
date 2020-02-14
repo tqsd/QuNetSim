@@ -1,7 +1,9 @@
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
+from components.logger import Logger
 
+Logger.DISABLED = False
 
 # In this example, we send a data qubit from
 # Alice to Dean who sits 2 hops away from Alice

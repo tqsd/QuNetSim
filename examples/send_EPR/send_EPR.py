@@ -1,5 +1,8 @@
 from components.host import Host
+from components.logger import Logger
 from components.network import Network
+
+Logger.DISABLED = False
 
 
 def main():
