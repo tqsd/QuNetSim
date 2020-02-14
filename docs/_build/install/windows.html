@@ -117,7 +117,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-an-own-backend">Writing an own Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
@@ -218,7 +218,9 @@
 <p class="admonition-title">Note</p>
 <p>We include ProjectQ as a standard package which may not install properly without a C++ compiler. See ProjectQ
 documentation for how to install ProjectQ with just the Python version. Alternatively, you can edit the
-<code class="code docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and remove the ProjectQ requirement since it is optional.</p>
+<code class="code docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and remove the ProjectQ requirement since it is optional. The issue can be resolved in
+most cases by running <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">projectq</span> <span class="pre">--global-option=--without-cppsimulator</span></code> and then running step 4
+above again, but this will only install the ProjectQ Python simulator, and not the C version.</p>
 </div>
 <ol class="arabic" start="4">
 <li><p>To set the correct Python path we need to set the <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> system variable:</p>
