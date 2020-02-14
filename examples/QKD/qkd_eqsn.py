@@ -6,7 +6,7 @@ from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
 from components.logger import Logger
-
+from backends.eqsn_backend import EQSNBackend
 
 Logger.DISABLED = True
 
@@ -134,6 +134,7 @@ def eve_receive_message(eve, msg_buff, eve_key, sender):
 def main():
     # Initialize a network
     network = Network.get_instance()
+    backend = EQSNBackend()
 
     # Define the host IDs in the network
     nodes = ['Alice', 'Bob']
@@ -144,7 +145,7 @@ def main():
     network.start(nodes)
 
     # Initialize the host Alice
-    host_alice = Host('Alice')
+    host_alice = Host('Alice', backend)
 
     # Add a one-way connection (classical and quantum) to Bob
     host_alice.add_connection('Bob')
@@ -153,23 +154,16 @@ def main():
     # Start listening
     host_alice.start()
 
-    host_bob = Host('Bob')
-    # Bob adds his own one-way connection to Alice and Eve
+    host_bob = Host('Bob', backend)
+    # Bob adds his own one-way connection to Alice
     host_bob.add_connection('Alice')
-    # host_bob.add_connection('Eve')
     host_bob.delay = 0.0
     host_bob.start()
 
-    # host_eve = Host('Eve', backend)
-    # host_eve.add_connection('Bob')
-    # host_eve.delay = 0
-    # host_eve.start()
-
     # Add the hosts to the network
-    # The network is: Alice <--> Bob <--> Eve
+    # The network is: Alice <--> Bob
     network.add_host(host_alice)
     network.add_host(host_bob)
-    # network.add_host(host_eve)
 
     # Generate random key
     key_size = 10  # the size of the key in bit
@@ -188,13 +182,12 @@ def main():
 
     # Run Bob and Alice
 
-    t1 = host_alice.run_protocol(alice_func, ())
-    t2 = host_bob.run_protocol(eve_func, (), blocking=True)
+    host_alice.run_protocol(alice_func, ())
+    host_bob.run_protocol(eve_func, (), blocking=True)
 
-    # t1.join()
-    # t2.join()
     time.sleep(1)
     network.stop(True)
+
 
 if __name__ == '__main__':
     main()
