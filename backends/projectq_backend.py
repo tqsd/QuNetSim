@@ -1,8 +1,6 @@
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
-from components.logger import Logger
-from projectq.meta import Uncompute
 
 try:
     import projectq
@@ -17,8 +15,10 @@ class ProjectQBackend(object):
         self._hosts = ProjectQBackend.Hosts.get_instance()
         self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
         self.engine = projectq.MainEngine()
-        self._qubits = []
-        self._stopped = False
+
+    def __del__(self):
+        pass
+        self.engine.flush()
 
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
@@ -65,15 +65,7 @@ class ProjectQBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        Logger.get_instance().log('ProjectQ backend is stopping')
-        if self._stopped:
-            return
-
-        for q in self._qubits:
-            projectq.ops.Measure | q
-
-        Logger.get_instance().log('ProjectQ backend stopped')
-        self._stopped = True
+        pass
 
     def add_host(self, host):
         """
@@ -94,8 +86,7 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        self._qubits.append(self.engine.allocate_qubit())
-        return self._qubits[-1]
+        return self.engine.allocate_qubit()
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -151,7 +142,7 @@ class ProjectQBackend(object):
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
-            sender_id (String): ID of the sender of the EPR pair.
+            sender (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:

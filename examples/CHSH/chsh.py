@@ -145,8 +145,8 @@ def main():
     network.add_host(host_A)
     network.add_host(host_B)
 
-    strategy = 'CLASSICAL'
-    # strategy = 'QUANTUM'
+    # strategy = 'CLASSICAL'
+    strategy = 'QUANTUM'
 
     host_A.delay = 0.0
     host_B.delay = 0.0
@@ -177,9 +177,8 @@ def main():
         host_A.run_protocol(alice_quantum, (host_C.host_id, host_B.host_id))
         host_B.run_protocol(bob_quantum, (host_C.host_id, host_A.host_id))
 
-    t3 = host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
+    host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
 
-    t3.join()
     network.stop(True)
 
 
