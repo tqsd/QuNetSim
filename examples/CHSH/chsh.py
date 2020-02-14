@@ -2,12 +2,9 @@ import math
 import random
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
 from backends.projectq_backend import ProjectQBackend
 
-Logger.DISABLED = True
-
-PLAYS = 20
+PLAYS = 30
 
 
 def alice_classical(alice_host, referee_id):
@@ -104,7 +101,7 @@ def referee(ref, alice_id, bob_id):
         b = int(bob_response.content)
 
         print('X, Y, A, B --- %d, %d, %d, %d' % (x, y, a, b))
-        if x & y == a ^ b:
+        if (x & y) == (a ^ b):
             print('Winners!')
             wins += 1
         else:
@@ -125,15 +122,18 @@ def main():
 
     host_A = Host('A', backend)
     host_A.add_c_connection('C')
+    host_A.delay = 0
     host_A.start()
 
     host_B = Host('B', backend)
     host_B.add_c_connection('C')
+    host_B.delay = 0
     host_B.start()
 
     host_C = Host('C', backend)
     host_C.add_c_connection('A')
     host_C.add_c_connection('B')
+    host_C.delay = 0
     host_C.start()
 
     network.add_host(host_C)
@@ -157,6 +157,7 @@ def main():
         print('Generating initial entanglement...')
         for i in range(PLAYS):
             host_A.send_epr('B', await_ack=True)
+            print('sent %d' % i)
         print('Done generating initial entanglement')
     else:
         network.delay = 0.0

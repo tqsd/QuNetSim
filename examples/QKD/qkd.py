@@ -138,6 +138,7 @@ def main():
 
     # Add a one-way connection (classical and quantum) to Bob
     host_alice.add_connection('Bob')
+    host_alice.delay = 0
 
     # Start listening
     host_alice.start()
@@ -146,10 +147,12 @@ def main():
     # Bob adds his own one-way connection to Alice and Eve
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
+    host_bob.delay = 0
     host_bob.start()
 
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
+    host_eve.delay = 0
     host_eve.start()
 
     # Add the hosts to the network

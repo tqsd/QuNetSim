@@ -16,7 +16,7 @@ We configure the network as follows:
 
     nodes = ['A', 'node_1', 'node_2', 'B']
     network.use_hop_by_hop = False
-    network.set_delay = 0.2
+    network.set_delay = 0.1
     network.start(nodes)
 
     A = Host('A')

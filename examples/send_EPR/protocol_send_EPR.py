@@ -2,8 +2,6 @@ from components.host import Host
 from components.network import Network
 from components.logger import Logger
 
-Logger.DISABLED = True
-
 
 def protocol_1(host, receiver):
     # Here we write the protocol code for a host.

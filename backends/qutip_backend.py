@@ -1,24 +1,22 @@
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
+from components.logger import Logger
 
 try:
-    import projectq
+    import qutip
 except ImportError:
     raise RuntimeError(
-        'To use ProjectQ as a backend, you need to first install the Python package '
-        '\'projectq\' (e.g. run \'pip install projectq\'.')
+        'To use qutip as a backend, you need to first install the Python package '
+        '\'qutip\' (e.g. run \'pip install qutip\'.')
 
 
-class ProjectQBackend(object):
+class QuTipBackend(object):
     def __init__(self):
-        self._hosts = ProjectQBackend.Hosts.get_instance()
-        self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
-        self.engine = projectq.MainEngine()
-
-    def __del__(self):
-        pass
-        self.engine.flush()
+        self._hosts = QuTipBackend.Hosts.get_instance()
+        self._entaglement_pairs = QuTipBackend.EntanglementPairs.get_instance()
+        self._qubits = []
+        self._stopped = False
 
     def __del__(self):
         pass
@@ -29,15 +27,15 @@ class ProjectQBackend(object):
 
         @staticmethod
         def get_instance():
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                return ProjectQBackend.EntanglementPairs.__instance
+            if QuTipBackend.EntanglementPairs.__instance is not None:
+                return QuTipBackend.EntanglementPairs.__instance
             else:
-                return ProjectQBackend.EntanglementPairs()
+                return QuTipBackend.EntanglementPairs()
 
         def __init__(self):
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
+            if QuTipBackend.EntanglementPairs.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            ProjectQBackend.EntanglementPairs.__instance = self
+            QuTipBackend.EntanglementPairs.__instance = self
             SafeDict.__init__(self)
 
     class Hosts(SafeDict):
@@ -46,15 +44,15 @@ class ProjectQBackend(object):
 
         @staticmethod
         def get_instance():
-            if ProjectQBackend.Hosts.__instance is not None:
-                return ProjectQBackend.Hosts.__instance
+            if QuTipBackend.Hosts.__instance is not None:
+                return QuTipBackend.Hosts.__instance
             else:
-                return ProjectQBackend.Hosts()
+                return QuTipBackend.Hosts()
 
         def __init__(self):
-            if ProjectQBackend.Hosts.__instance is not None:
+            if QuTipBackend.Hosts.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            ProjectQBackend.Hosts.__instance = self
+            QuTipBackend.Hosts.__instance = self
             SafeDict.__init__(self)
 
     def start(self, **kwargs):
@@ -89,7 +87,8 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        self._qubits.append(self.engine.allocate_qubit())
+        return self._qubits[-1]
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -145,7 +144,7 @@ class ProjectQBackend(object):
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
-            sender (String): ID of the sender of the EPR pair.
+            sender_id (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
