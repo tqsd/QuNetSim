@@ -23,6 +23,9 @@ class ProjectQBackend(object):
     def __del__(self):
         pass
 
+    def __del__(self):
+        pass
+
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
         __instance = None
@@ -145,7 +148,7 @@ class ProjectQBackend(object):
 
         Args:
             host_id (String): ID of the first host who gets the EPR state.
-            sender (String): ID of the sender of the EPR pair.
+            sender_id (String): ID of the sender of the EPR pair.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
