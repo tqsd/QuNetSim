@@ -372,7 +372,7 @@ class Network:
             blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)
-        # TODO: Multiprocess this
+        # TODO: Multi-thread this
         # Create EPR pairs on the route, where all EPR qubits have the id q_id
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
@@ -393,14 +393,14 @@ class Network:
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
-                    'q_id': q_id,
+                    'eq_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q,
-                        'q_id': q_id,
+                        'eq_id': q_id,
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,

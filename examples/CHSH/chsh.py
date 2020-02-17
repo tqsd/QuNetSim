@@ -117,7 +117,7 @@ def main():
     # backend = EQSNBackend()
 
     nodes = ['A', 'B', 'C']
-    network.delay = 0.1
+    network.delay = 0.05
     network.start(nodes, backend)
 
     host_A = Host('A', backend)
@@ -167,7 +167,7 @@ def main():
     host_B.remove_connection('A')
     network.update_host(host_A)
     network.update_host(host_B)
-
+    network.delay = 0.1
     # Play the game classically
     if strategy == 'CLASSICAL':
         host_A.run_protocol(alice_classical, (host_C.host_id,))

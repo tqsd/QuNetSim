@@ -43,6 +43,7 @@ REC_SUPERDENSE = 'rec_superdense'
 SEND_SUPERDENSE = 'send_superdense'
 REC_CLASSICAL = 'rec_classical'
 SEND_CLASSICAL = 'send_classical'
+SEND_BROADCAST = 'send_broadcast'
 RELAY = 'relay'
 SEND_QUBIT = 'send_qubit'
 REC_QUBIT = 'rec_qubit'
@@ -126,6 +127,8 @@ def process(packet):
         return _send_ghz(packet)
     elif protocol == REC_GHZ:
         return _rec_ghz(packet)
+    elif protocol == SEND_BROADCAST:
+        return _send_broadcast(packet)
     else:
         Logger.get_instance().error('protocol not defined')
 
@@ -144,6 +147,24 @@ def _relay_message(packet):
         network.send(packet)
     else:
         Logger.get_instance().log('TTL Expired on packet')
+
+
+def _send_broadcast(packet):
+    sender = packet.sender
+    message = packet.payload
+    host_sender = network.get_host(sender)
+
+    for host in network.ARP.keys():
+        if sender != host:
+            seq_num = host_sender._get_sequence_number(host)
+            new_packet = Packet(sender=sender,
+                                receiver=host,
+                                protocol=REC_CLASSICAL,
+                                payload=message,
+                                payload_type=CLASSICAL,
+                                sequence_number=seq_num,
+                                await_ack=False)
+            network.send(new_packet)
 
 
 def _send_classical(packet):
@@ -223,19 +244,18 @@ def _send_teleport(packet):
         q_type = DATA
 
     q = packet.payload['q']
-    q_id = q.id
-
     host_sender = network.get_host(packet.sender)
+
     if GENERATE_EPR_IF_NONE in packet.payload and packet.payload[GENERATE_EPR_IF_NONE]:
         if not network.shares_epr(packet.sender, packet.receiver):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet.sender + " and " + packet.receiver)
-            host_sender.send_epr(packet.receiver, q_id=q_id, await_ack=True, block=True)
+            host_sender.send_epr(packet.receiver, q_id=q.id, await_ack=True, block=True)
 
-    if 'q_id' in packet.payload:
-        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['q_id'], wait=WAIT_TIME)
+    if 'eq_id' in packet.payload:
+        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['eq_id'], wait=WAIT_TIME)
     else:
-        epr_teleport = host_sender.get_epr(packet.receiver, q_id, wait=WAIT_TIME)
+        epr_teleport = host_sender.get_epr(packet.receiver, wait=WAIT_TIME)
 
     assert epr_teleport is not None
     q.cnot(epr_teleport)
@@ -251,9 +271,11 @@ def _send_teleport(packet):
     }
 
     if q_type == EPR:
-        data['q_id'] = packet.payload['q_id']
+        data['q_id'] = packet.payload['eq_id']
+        data['eq_id'] = packet.payload['eq_id']
     else:
-        data['q_id'] = epr_teleport.id
+        data['q_id'] = q.id
+        data['eq_id'] = epr_teleport.id
 
     if 'o_seq_num' in packet.payload:
         data['o_seq_num'] = packet.payload['o_seq_num']
@@ -276,8 +298,9 @@ def _rec_teleport(packet):
     host_receiver = network.get_host(packet.receiver)
     payload = packet.payload
     q_id = payload['q_id']
+    eq_id = payload['eq_id']
 
-    q = host_receiver.get_epr(packet.sender, q_id, wait=WAIT_TIME)
+    q = host_receiver.get_epr(packet.sender, eq_id, wait=WAIT_TIME)
     if q is None:
         # TODO: what to do when fails
         print(host_receiver.qubit_storage)
@@ -412,7 +435,7 @@ def _rec_superdense(packet):
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
-    return Message(packet.sender,  _decode_superdense(q1, q2), packet.seq_num)
+    return Message(packet.sender, _decode_superdense(q1, q2), packet.seq_num)
 
 
 def _send_key(packet):
@@ -501,6 +524,7 @@ def _rec_key(packet):
     key = key_array
     receiver.qkd_keys[sender.host_id] = key
 
+
 def _send_ghz(packet):
     """
     Gets GHZ qubits and distributes the to all hosts.
@@ -523,7 +547,6 @@ def _send_ghz(packet):
         network.send(new_packet)
 
 
-
 def _rec_ghz(packet):
     """
     Receives a GHZ state and stores it in quantum storage.
@@ -536,7 +559,6 @@ def _rec_ghz(packet):
 
     if packet.await_ack:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
-
 
 
 def _encode_superdense(message, q):

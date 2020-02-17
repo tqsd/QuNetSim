@@ -6,7 +6,7 @@ from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
 from components.logger import Logger
-from backends.eqsn_backend import EQSNBackend
+from backends.projectq_backend import ProjectQBackend
 
 Logger.DISABLED = True
 
@@ -19,9 +19,8 @@ wait_time = 10
 # key has to be a string
 def encrypt(key, text):
     encrypted_text = ""
-    print(len(key), len(text))
     for char in text:
-        encrypted_text += chr(ord(key) ^ ord(char))
+        encrypted_text += chr(ord(key[0]) ^ ord(char))
     return encrypted_text
 
 
@@ -113,7 +112,7 @@ def key_array_to_key_string(key_array):
 
 
 def alice_send_message(alice, secret_key, receiver):
-    msg_to_eve = "Hi Eve, how are you???"
+    msg_to_eve = "Hi Eve, how are you?"
     secret_key_string = key_array_to_key_string(secret_key)
     encrypted_msg_to_eve = encrypt(secret_key_string, msg_to_eve)
     print("Alice sends encrypted message")
@@ -134,7 +133,7 @@ def eve_receive_message(eve, msg_buff, eve_key, sender):
 def main():
     # Initialize a network
     network = Network.get_instance()
-    backend = EQSNBackend()
+    backend = ProjectQBackend()
 
     # Define the host IDs in the network
     nodes = ['Alice', 'Bob']
@@ -142,7 +141,7 @@ def main():
     network.delay = 0.0
 
     # Start the network with the defined hosts
-    network.start(nodes)
+    network.start(nodes, backend)
 
     # Initialize the host Alice
     host_alice = Host('Alice', backend)
@@ -166,7 +165,7 @@ def main():
     network.add_host(host_bob)
 
     # Generate random key
-    key_size = 10  # the size of the key in bit
+    key_size = 20 # the size of the key in bit
     secret_key = np.random.randint(2, size=key_size)
 
     # Concatentate functions
@@ -175,7 +174,7 @@ def main():
         alice_qkd(alice, msg_buff, secret_key, host_bob.host_id)
         alice_send_message(alice, secret_key, host_bob.host_id)
 
-    def eve_func(eve):
+    def bob_func(eve):
         msg_buff = []
         eve_key = eve_qkd(eve, msg_buff, key_size, host_alice.host_id)
         eve_receive_message(eve, msg_buff, eve_key, host_alice.host_id)
@@ -183,7 +182,7 @@ def main():
     # Run Bob and Alice
 
     host_alice.run_protocol(alice_func, ())
-    host_bob.run_protocol(eve_func, (), blocking=True)
+    host_bob.run_protocol(bob_func, (), blocking=True)
 
     time.sleep(1)
     network.stop(True)

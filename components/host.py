@@ -500,6 +500,16 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
 
+    def add_c_connections(self, receiver_ids):
+        """
+        Adds the classical connections to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): The IDs of the hosts to connect with.
+        """
+        for receiver_id in receiver_ids:
+            self.classical_connections.append(receiver_id)
+
     def add_q_connection(self, receiver_id):
         """
         Adds the quantum connection to host with ID *receiver_id*.
@@ -508,6 +518,16 @@ class Host:
             receiver_id (str): The ID of the host to connect with.
         """
         self.quantum_connections.append(receiver_id)
+
+    def add_q_connections(self, receiver_ids):
+        """
+        Adds the quantum connection to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): The IDs of the hosts to connect with.
+        """
+        for receiver_id in receiver_ids:
+            self.quantum_connections.append(receiver_id)
 
     def add_connection(self, receiver_id):
         """
@@ -519,6 +539,18 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
+
+    def add_connections(self, receiver_ids):
+        """
+        Adds the classical and quantum connections to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): A list of receiver IDs to connect with
+
+        """
+        for receiver_id in receiver_ids:
+            self.classical_connections.append(receiver_id)
+            self.quantum_connections.append(receiver_id)
 
     def remove_connection(self, receiver_id):
         """
@@ -565,7 +597,6 @@ class Host:
             seq_number (int): Sequence number of the acknowleged packet.
 
         """
-        message = Message(sender=self.host_id, content='ACK', seq_num=seq_number)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -623,6 +654,25 @@ class Host:
             sender (str): Optional, sender for which to wait for all acks.
         """
         pass
+
+    def send_broadcast(self, message):
+        """
+        Send a broadcast message to all of the network.
+
+        Args:
+            message (str): The message to broadcast
+        """
+        seq_num = -1
+        message = Message(sender=self.host_id, content=message, seq_num=seq_num)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=None,
+                                  protocol=protocols.SEND_BROADCAST,
+                                  payload=message,
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=seq_num,
+                                  await_ack=False)
+        self.logger.log(self.host_id + " sends BROADCAST message")
+        self._packet_queue.put(packet)
 
     def send_classical(self, receiver_id, message, await_ack=False):
         """
