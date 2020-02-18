@@ -6,7 +6,7 @@ from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
 from components.logger import Logger
-from backends.eqsn_backend import EQSNBackend
+from backends.projectq_backend import ProjectQBackend
 
 Logger.DISABLED = True
 
@@ -70,7 +70,7 @@ def alice_qkd(alice, msg_buff, secret_key, receiver):
             sequence_nr += 1
 
 
-def eve_qkd(eve, msg_buff, key_size, sender):
+def bob_qkd(bob, msg_buff, key_size, sender):
     sequence_nr = 0
     received_counter = 0
     key_array = []
@@ -80,9 +80,9 @@ def eve_qkd(eve, msg_buff, key_size, sender):
         measurement_base = random.randint(0, 1)
 
         # wait for the qubit
-        q_bit = eve.get_data_qubit(sender, wait=wait_time)
+        q_bit = bob.get_data_qubit(sender, wait=wait_time)
         while q_bit is None:
-            q_bit = eve.get_data_qubit(sender, wait=wait_time)
+            q_bit = bob.get_data_qubit(sender, wait=wait_time)
 
         # measure qubit in right measurement basis
         if measurement_base == 1:
@@ -90,16 +90,16 @@ def eve_qkd(eve, msg_buff, key_size, sender):
         bit = q_bit.measure()
 
         # Send Alice the base in which Bob has measured
-        eve.send_classical(sender, "%d:%d" %
+        bob.send_classical(sender, "%d:%d" %
                            (sequence_nr, measurement_base), await_ack=True)
 
         # get the return message from Alice, to know if the bases have matched
-        msg = eve.get_next_classical_message(sender, msg_buff, sequence_nr)
+        msg = bob.get_next_classical_message(sender, msg_buff, sequence_nr)
 
         # Check if the bases have matched
         if msg == ("%d:0" % sequence_nr):
             received_counter += 1
-            print("Eve received %d key bits." % received_counter)
+            print("%s received %d key bits." % (bob.host_id, received_counter))
             key_array.append(bit)
         sequence_nr += 1
     return key_array
@@ -112,7 +112,7 @@ def key_array_to_key_string(key_array):
 
 
 def alice_send_message(alice, secret_key, receiver):
-    msg_to_eve = "Hi Eve, how are you?"
+    msg_to_eve = "Hi %s, how are you?" % receiver
     secret_key_string = key_array_to_key_string(secret_key)
     encrypted_msg_to_eve = encrypt(secret_key_string, msg_to_eve)
     print("Alice sends encrypted message")
@@ -120,20 +120,20 @@ def alice_send_message(alice, secret_key, receiver):
         receiver, "-1:" + encrypted_msg_to_eve, await_ack=True)
 
 
-def eve_receive_message(eve, msg_buff, eve_key, sender):
-    encrypted_msg_from_alice = eve.get_next_classical_message(
+def bob_receive_message(bob, msg_buff, eve_key, sender):
+    encrypted_msg_from_alice = bob.get_next_classical_message(
         sender, msg_buff, -1)
     encrypted_msg_from_alice = encrypted_msg_from_alice.split(':')[1]
     secret_key_string = key_array_to_key_string(eve_key)
     decrypted_msg_from_alice = decrypt(
         secret_key_string, encrypted_msg_from_alice)
-    print("Eve received decoded message: %s" % decrypted_msg_from_alice)
+    print("%s received decoded message: %s" % (bob.host_id, decrypted_msg_from_alice))
 
 
 def main():
     # Initialize a network
     network = Network.get_instance()
-    backend = EQSNBackend()
+    backend = ProjectQBackend()
 
     # Define the host IDs in the network
     nodes = ['Alice', 'Bob']
@@ -176,8 +176,8 @@ def main():
 
     def bob_func(eve):
         msg_buff = []
-        eve_key = eve_qkd(eve, msg_buff, key_size, host_alice.host_id)
-        eve_receive_message(eve, msg_buff, eve_key, host_alice.host_id)
+        bob_key = bob_qkd(eve, msg_buff, key_size, host_alice.host_id)
+        bob_receive_message(eve, msg_buff, bob_key, host_alice.host_id)
 
     # Run Bob and Alice
 
