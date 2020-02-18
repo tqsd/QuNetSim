@@ -8,16 +8,8 @@ from objects.qubit import Qubit
 
 
 def distribute(host, nodes):
-    host.send_ghz(nodes)
-    messages = []
-    while len(messages) < 4:
-        messages = host.classical
-        time.sleep(0.5)
-
-    # eliminate the remaining qubit at the host
-    q = host.get_ghz(host.host_id)
-    q.measure()
-    host.empty_classical()
+    # distribute=True => sender doesn't keep part of the GHZ
+    host.send_ghz(nodes, distribute=True)
 
 
 def sender(host, distributor, r, epr_id):

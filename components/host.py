@@ -614,11 +614,14 @@ class Host:
         if receiver not in self._seq_number_receiver:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
+
         if expected_seq + self._max_window < seq_number:
             raise Exception(
                 "Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+
         elif expected_seq < seq_number:
             self._seq_number_receiver[receiver][0].append(seq_number)
+
         else:
             self._seq_number_receiver[receiver][1] += 1
             expected_seq = self._seq_number_receiver[receiver][1]
@@ -742,7 +745,7 @@ class Host:
 
         return q_id
 
-    def send_ghz(self, receiver_list, q_id=None, await_ack=False):
+    def send_ghz(self, receiver_list, q_id=None, await_ack=False, distribute=False):
         """
         Share GHZ state with all receiver ids in the list. GHZ state is generated
         locally.
@@ -752,6 +755,8 @@ class Host:
                                   should be shared.
             q_id (str): The ID of the GHZ qubits
             await_ack (bool): If the sender should await an ACK from all receivers
+            distribute (bool): If the sender should keep part of the GHZ state, or just
+                               distribute one
         Returns:
             Q_id, Qubit: Qubit which belongs to the host and is part of the
                         GHZ state and ID which all Qubits will have.
@@ -760,11 +765,19 @@ class Host:
         q_id = own_qubit.id
         own_qubit.H()
         q_list = []
-        for _ in receiver_list:
+        for _ in range(len(receiver_list) - 1):
             new_qubit = Qubit(self, q_id=q_id)
             own_qubit.cnot(new_qubit)
             q_list.append(new_qubit)
-        self.add_ghz_qubit(self.host_id, own_qubit)
+
+        if distribute:
+            q_list.append(own_qubit)
+        else:
+            new_qubit = Qubit(self, q_id=q_id)
+            own_qubit.cnot(new_qubit)
+            q_list.append(new_qubit)
+            self.add_ghz_qubit(self.host_id, own_qubit)
+
         seq_num_list = []
         for receiver_id in receiver_list:
             seq_num = self._get_sequence_number(receiver_id)
