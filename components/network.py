@@ -226,6 +226,16 @@ class Network:
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
+    def add_hosts(self, hosts):
+        """
+        Adds the *hosts* to ARP table and updates the network graph.
+
+        Args:
+            hosts (list): The hosts to be added to the network.
+        """
+        for host in hosts:
+            self.add_host(host)
+
     def remove_host(self, host):
         """
         Removes the host from the ARP table.

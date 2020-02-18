@@ -115,6 +115,12 @@ class Host:
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
 
+    def empty_classical(self):
+        """
+        Empty the classical message buffers.
+        """
+        self._classical_messages.empty()
+
     @property
     def qubit_storage(self):
         return self._qubit_storage
