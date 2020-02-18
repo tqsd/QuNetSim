@@ -17,6 +17,7 @@ def distribute(host, nodes):
     # eliminate the remaining qubit at the host
     q = host.get_ghz(host.host_id)
     q.measure()
+    host.empty_classical()
 
 
 def sender(host, distributor, r, epr_id):
@@ -33,7 +34,7 @@ def sender(host, distributor, r, epr_id):
     # Generate EPR if none shouldn't change anything, but if there is
     # no shared entanglement between s and r, then there should
     # be a mistake in the protocol
-    host.send_teleport(r, sending_qubit, generate_epr_if_none=False, await_ack=True)
+    host.send_teleport(r, sending_qubit, generate_epr_if_none=False)
     host.empty_classical()
 
 
@@ -110,7 +111,7 @@ def main():
         threads.append(host_B.run_protocol(node, ('A',)))
         threads.append(host_C.run_protocol(node, ('A',)))
         host_E.run_protocol(receiver, (host_A.host_id, host_D.host_id, epr_id), blocking=True)
-
+        time.sleep(2)
     network.stop(True)
 
 
