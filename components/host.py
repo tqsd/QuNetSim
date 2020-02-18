@@ -50,7 +50,7 @@ class Host:
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self._max_window = 10
+        self._max_window = 15
         # [Queue, sender, seq_num, timeout, start_time]
         self._ack_receiver_queue = []
         # sender: host -> int

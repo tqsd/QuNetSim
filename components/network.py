@@ -36,7 +36,7 @@ class Network:
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
-            self._delay = 0.0
+            self._delay = 0.1
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
