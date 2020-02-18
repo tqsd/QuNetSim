@@ -1,3 +1,4 @@
+from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
@@ -55,12 +56,12 @@ def banker_protocol(host, customer):
 
             measurement = q.measure()
             if measurement != bank_bits[serial_to_be_checked][qubit_no]:
-                print('Money is invalid!')
                 cheat_alert = True
-                break
 
         if not cheat_alert:
             print('MONEY IS VALID')
+        else:
+            print('MONEY IS INVALID!')
 
     print("Banker is preparing and distributing qubits")
     preparation_and_distribution()
@@ -87,11 +88,18 @@ def customer_protocol(host, banker):
 
     def verify_money():
         print('Customer is verifying the money')
-        serial_of_money_to_be_used = randint(0, NO_OF_SERIALS - 1)
-        host.send_classical(banker, serial_of_money_to_be_used)
+        serial_to_be_used = randint(0, NO_OF_SERIALS - 1)
+        host.send_classical(banker, serial_to_be_used)
 
         for qubit_no in range(QUBITS_PER_MONEY):
-            host.send_qubit(banker, money_qubits[serial_of_money_to_be_used][qubit_no])
+            host.send_qubit(banker, money_qubits[serial_to_be_used][qubit_no], await_ack=False)
+
+        # Remove unused qubits
+        unused_serials = list(range(NO_OF_SERIALS))
+        del unused_serials[serial_to_be_used]
+        for unused_serial in unused_serials:
+            for q in money_qubits[unused_serial]:
+                q.release()
 
     print('Customer is awaiting serial number and qubits that represent the money')
     receive_money()
@@ -108,16 +116,19 @@ def sniffing_quantum(sender, receiver, qubit):
         receiver (Host) : Receiver of the qubit
         qubit (Qubit): Qubit in transmission
     """
-
     # Eavesdropper measures some of the qubits.
-    if sender == 'Bank' and random() <= 0.25:
-        print('Eavesdropper measured qubit from %s to %s' % (sender, receiver))
-        qubit.measure(non_destructive=True)
+    if sender == 'Customer' and random() <= 0.50:
+        print('Eavesdropper applied X qubit from %s to %s' % (sender, receiver))
+        qubit.X()
+    elif sender == 'Customer':
+        print('Eavesdropper applied H qubit from %s to %s' % (sender, receiver))
+        qubit.H()
 
 
 def main():
     # Initialize a network
     network = Network.get_instance()
+    # backend = CQCBackend()
     backend = ProjectQBackend()
     nodes = ['Bank', 'Customer', 'Eve']
     network.delay = 0.1
@@ -134,6 +145,7 @@ def main():
 
     host_customer = Host('Customer', backend)
     host_customer.add_connection('Eve')
+    host_customer.delay = 0.4
     host_customer.start()
 
     network.add_host(host_bank)
@@ -144,12 +156,10 @@ def main():
     host_eve.set_quantum_relay_sniffing_function(sniffing_quantum)
 
     print('Starting transfer')
-    t1 = host_bank.run_protocol(banker_protocol, (host_customer.host_id,))
-    t2 = host_customer.run_protocol(customer_protocol, (host_bank.host_id,))
 
-    t1.join()
-    t2.join()
-
+    t = host_customer.run_protocol(customer_protocol, (host_bank.host_id,))
+    host_bank.run_protocol(banker_protocol, (host_customer.host_id,), blocking=True)
+    t.join()
     network.stop(True)
 
 
