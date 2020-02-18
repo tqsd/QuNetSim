@@ -17,14 +17,7 @@ class ProjectQBackend(object):
         self.engine = projectq.MainEngine()
 
     def __del__(self):
-        pass
-        self.engine.flush()
-
-    def __del__(self):
-        pass
-
-    def __del__(self):
-        pass
+        self.engine.flush(deallocate_qubits=True)
 
     class EntanglementPairs(SafeDict):
         # There only should be one instance of Hosts
@@ -71,6 +64,7 @@ class ProjectQBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
+        self.engine.flush(deallocate_qubits=True)
         pass
 
     def add_host(self, host):
@@ -296,7 +290,12 @@ class ProjectQBackend(object):
             The value which has been measured.
         """
         projectq.ops.Measure | qubit.qubit
-        return int(qubit.qubit)
+        m = int(qubit.qubit)
+
+        if not non_destructive:
+            self.release(qubit)
+
+        return m
 
     def release(self, qubit):
         """

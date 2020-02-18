@@ -10,6 +10,10 @@ class ClassicalStorage(object):
         self._host_to_msg_dict = {}
         self._host_to_read_index = {}
 
+    def empty(self):
+        self._host_to_msg_dict = {}
+        self._host_to_read_index = {}
+
     def _add_new_host_id(self, host_id):
         self._host_to_msg_dict[host_id] = []
         self._host_to_read_index[host_id] = 0

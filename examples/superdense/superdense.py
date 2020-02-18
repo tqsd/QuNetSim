@@ -1,6 +1,8 @@
 from components.host import Host
 from components.network import Network
-import time
+from components.logger import Logger
+
+Logger.DISABLED = False
 
 
 def main():
@@ -26,17 +28,18 @@ def main():
     network.add_host(host_bob)
     network.add_host(host_eve)
 
-    host_alice.send_superdense('Eve', '11')
-    host_alice.send_superdense('Eve', '10')
-    host_alice.send_superdense('Eve', '00')
+    host_alice.send_superdense('Eve', '11', await_ack=True)
+    host_alice.send_superdense('Eve', '10', await_ack=True)
+    host_alice.send_superdense('Eve', '00', await_ack=True)
 
-    time.sleep(5)
     messages = host_eve.get_classical('Alice')
 
     for m in messages:
         print('----')
         print(m)
         print('----')
+
+    network.stop(True)
 
 
 if __name__ == '__main__':

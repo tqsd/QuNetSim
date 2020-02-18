@@ -36,7 +36,7 @@ class Network:
             self._packet_queue = Queue()
             self._stop_thread = False
             self._queue_processor_thread = None
-            self._delay = 0.0
+            self._delay = 0.1
             self._packet_drop_rate = 0
             self._x_error_rate = 0
             self._z_error_rate = 0
@@ -226,6 +226,16 @@ class Network:
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
+    def add_hosts(self, hosts):
+        """
+        Adds the *hosts* to ARP table and updates the network graph.
+
+        Args:
+            hosts (list): The hosts to be added to the network.
+        """
+        for host in hosts:
+            self.add_host(host)
+
     def remove_host(self, host):
         """
         Removes the host from the ARP table.
@@ -372,7 +382,7 @@ class Network:
             blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)
-        # TODO: Multiprocess this
+        # TODO: Multi-thread this
         # Create EPR pairs on the route, where all EPR qubits have the id q_id
         for i in range(len(route) - 1):
             if not self.shares_epr(route[i], route[i + 1]):
@@ -393,14 +403,14 @@ class Network:
                 Logger.get_instance().error('Entanglement swap failed')
                 return
             data = {'q': q,
-                    'q_id': q_id,
+                    'eq_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
                     'type': protocols.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q,
-                        'q_id': q_id,
+                        'eq_id': q_id,
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,

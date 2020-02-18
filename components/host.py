@@ -50,7 +50,7 @@ class Host:
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self._max_window = 10
+        self._max_window = 15
         # [Queue, sender, seq_num, timeout, start_time]
         self._ack_receiver_queue = []
         # sender: host -> int
@@ -114,6 +114,12 @@ class Host:
              Array: Sorted array of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
+
+    def empty_classical(self):
+        """
+        Empty the classical message buffers.
+        """
+        self._classical_messages.empty()
 
     @property
     def qubit_storage(self):
@@ -500,6 +506,16 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
 
+    def add_c_connections(self, receiver_ids):
+        """
+        Adds the classical connections to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): The IDs of the hosts to connect with.
+        """
+        for receiver_id in receiver_ids:
+            self.classical_connections.append(receiver_id)
+
     def add_q_connection(self, receiver_id):
         """
         Adds the quantum connection to host with ID *receiver_id*.
@@ -508,6 +524,16 @@ class Host:
             receiver_id (str): The ID of the host to connect with.
         """
         self.quantum_connections.append(receiver_id)
+
+    def add_q_connections(self, receiver_ids):
+        """
+        Adds the quantum connection to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): The IDs of the hosts to connect with.
+        """
+        for receiver_id in receiver_ids:
+            self.quantum_connections.append(receiver_id)
 
     def add_connection(self, receiver_id):
         """
@@ -519,6 +545,18 @@ class Host:
         """
         self.classical_connections.append(receiver_id)
         self.quantum_connections.append(receiver_id)
+
+    def add_connections(self, receiver_ids):
+        """
+        Adds the classical and quantum connections to host with ID *receiver_id*.
+
+        Args:
+            receiver_ids (list): A list of receiver IDs to connect with
+
+        """
+        for receiver_id in receiver_ids:
+            self.classical_connections.append(receiver_id)
+            self.quantum_connections.append(receiver_id)
 
     def remove_connection(self, receiver_id):
         """
@@ -565,7 +603,6 @@ class Host:
             seq_number (int): Sequence number of the acknowleged packet.
 
         """
-        message = Message(sender=self.host_id, content='ACK', seq_num=seq_number)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=protocols.SEND_CLASSICAL,
@@ -577,11 +614,14 @@ class Host:
         if receiver not in self._seq_number_receiver:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
+
         if expected_seq + self._max_window < seq_number:
             raise Exception(
                 "Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+
         elif expected_seq < seq_number:
             self._seq_number_receiver[receiver][0].append(seq_number)
+
         else:
             self._seq_number_receiver[receiver][1] += 1
             expected_seq = self._seq_number_receiver[receiver][1]
@@ -623,6 +663,25 @@ class Host:
             sender (str): Optional, sender for which to wait for all acks.
         """
         pass
+
+    def send_broadcast(self, message):
+        """
+        Send a broadcast message to all of the network.
+
+        Args:
+            message (str): The message to broadcast
+        """
+        seq_num = -1
+        message = Message(sender=self.host_id, content=message, seq_num=seq_num)
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=None,
+                                  protocol=protocols.SEND_BROADCAST,
+                                  payload=message,
+                                  payload_type=protocols.CLASSICAL,
+                                  sequence_num=seq_num,
+                                  await_ack=False)
+        self.logger.log(self.host_id + " sends BROADCAST message")
+        self._packet_queue.put(packet)
 
     def send_classical(self, receiver_id, message, await_ack=False):
         """
@@ -686,7 +745,7 @@ class Host:
 
         return q_id
 
-    def send_ghz(self, receiver_list, q_id=None, await_ack=False):
+    def send_ghz(self, receiver_list, q_id=None, await_ack=False, distribute=False):
         """
         Share GHZ state with all receiver ids in the list. GHZ state is generated
         locally.
@@ -696,6 +755,8 @@ class Host:
                                   should be shared.
             q_id (str): The ID of the GHZ qubits
             await_ack (bool): If the sender should await an ACK from all receivers
+            distribute (bool): If the sender should keep part of the GHZ state, or just
+                               distribute one
         Returns:
             Q_id, Qubit: Qubit which belongs to the host and is part of the
                         GHZ state and ID which all Qubits will have.
@@ -704,11 +765,19 @@ class Host:
         q_id = own_qubit.id
         own_qubit.H()
         q_list = []
-        for _ in receiver_list:
+        for _ in range(len(receiver_list) - 1):
             new_qubit = Qubit(self, q_id=q_id)
             own_qubit.cnot(new_qubit)
             q_list.append(new_qubit)
-        self.add_ghz_qubit(self.host_id, own_qubit)
+
+        if distribute:
+            q_list.append(own_qubit)
+        else:
+            new_qubit = Qubit(self, q_id=q_id)
+            own_qubit.cnot(new_qubit)
+            q_list.append(new_qubit)
+            self.add_ghz_qubit(self.host_id, own_qubit)
+
         seq_num_list = []
         for receiver_id in receiver_list:
             seq_num = self._get_sequence_number(receiver_id)

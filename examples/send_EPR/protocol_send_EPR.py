@@ -4,6 +4,7 @@ from components.logger import Logger
 
 Logger.DISABLED = False
 
+
 def protocol_1(host, receiver):
     # Here we write the protocol code for a host.
     for i in range(5):
