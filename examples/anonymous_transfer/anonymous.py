@@ -21,7 +21,7 @@ def sender(host, distributor, r, epr_id):
 
     host.add_epr(r, q, q_id=epr_id)
     sending_qubit = Qubit(host)
-    sending_qubit.H()
+    sending_qubit.X()
     print('Sending %s' % sending_qubit.id)
     # Generate EPR if none shouldn't change anything, but if there is
     # no shared entanglement between s and r, then there should
@@ -44,7 +44,8 @@ def receiver(host, distributor, s, epr_id):
     print([m.content for m in messages])
     parity = int(b)
     for m in messages:
-        parity = parity ^ int(m.content)
+        if m.sender != s:
+            parity = parity ^ int(m.content)
 
     if parity == 1:
         q.Z()
@@ -94,16 +95,14 @@ def main():
     network.add_hosts([host_A, host_B, host_C, host_D, host_E])
 
     for i in range(10):
-        threads = []
         # The ID of the generated secret EPR pair has to be agreed upon in advance
-        epr_id = '123' + str(i)
-        threads.append(host_D.run_protocol(sender, (host_A.host_id, host_E.host_id, epr_id)))
-        threads.append(
-            host_A.run_protocol(distribute, ([host_B.host_id, host_C.host_id, host_D.host_id, host_E.host_id],)))
-        threads.append(host_B.run_protocol(node, ('A',)))
-        threads.append(host_C.run_protocol(node, ('A',)))
+        epr_id = '123'
+        host_D.run_protocol(sender, (host_A.host_id, host_E.host_id, epr_id))
+        host_A.run_protocol(distribute, ([host_B.host_id, host_C.host_id, host_D.host_id, host_E.host_id],))
+        host_B.run_protocol(node, (host_A.host_id,))
+        host_C.run_protocol(node, (host_A.host_id,))
         host_E.run_protocol(receiver, (host_A.host_id, host_D.host_id, epr_id), blocking=True)
-        time.sleep(2)
+        time.sleep(0.5)
     network.stop(True)
 
 
