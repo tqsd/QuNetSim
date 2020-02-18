@@ -3,7 +3,6 @@ import time
 from backends.projectq_backend import ProjectQBackend
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
 import random
 
 from objects.qubit import Qubit
@@ -13,21 +12,24 @@ def distribute(host, nodes):
     host.send_ghz(nodes)
 
 
-def sender(host, distributor, r):
+def sender(host, distributor, r, epr_id):
     q = host.get_ghz(distributor, wait=5)
     b = random.choice(['0', '1'])
     host.send_broadcast(b)
     if b == '1':
         q.Z()
 
-    host.add_epr(r, q, q_id='1')
+    host.add_epr(r, q, q_id=epr_id)
     sending_qubit = Qubit(host)
-    sending_qubit.I()
+    sending_qubit.X()
     print('Sending %s' % sending_qubit.id)
+    # Generate EPR if none shouldn't change anything, but if there is
+    # no shared entanglement between s and r, then there should
+    # be a mistake in the protocol
     host.send_teleport(r, sending_qubit, generate_epr_if_none=False)
 
 
-def receiver(host, distributor, s):
+def receiver(host, distributor, s, epr_id):
     q = host.get_ghz(distributor, wait=5)
     b = random.choice(['0', '1'])
     host.send_broadcast(b)
@@ -46,7 +48,7 @@ def receiver(host, distributor, s):
         q.Z()
 
     print('established secret EPR')
-    host.add_epr(s, q, q_id='1')
+    host.add_epr(s, q, q_id=epr_id)
     q = host.get_data_qubit(s, wait=5)
     print('Received qubit %s in the %d state' % (q.id, q.measure()))
 
@@ -96,8 +98,10 @@ def main():
     network.add_host(host_E)
 
     threads = []
-    threads.append(host_D.run_protocol(sender, (host_A.host_id, host_E.host_id)))
-    threads.append(host_E.run_protocol(receiver, (host_A.host_id, host_D.host_id)))
+    # The ID of the generated secret EPR pair has to be agreed upon in advance
+    epr_id = '123'
+    threads.append(host_D.run_protocol(sender, (host_A.host_id, host_E.host_id, epr_id)))
+    threads.append(host_E.run_protocol(receiver, (host_A.host_id, host_D.host_id, epr_id)))
     threads.append(host_A.run_protocol(distribute, ([host_B.host_id, host_C.host_id, host_D.host_id, host_E.host_id],)))
     threads.append(host_B.run_protocol(node, ('A',)))
     threads.append(host_C.run_protocol(node, ('A',)))
