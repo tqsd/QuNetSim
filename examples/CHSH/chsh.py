@@ -137,8 +137,8 @@ def main():
     host_C.start()
 
     network.add_host(host_C)
-    #
-    # Generate entanglement
+
+    # To generate entanglement
     host_A.add_connection('B')
     host_B.add_connection('A')
 

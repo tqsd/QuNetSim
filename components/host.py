@@ -11,10 +11,6 @@ from backends.cqc_backend import CQCBackend
 import uuid
 import time
 
-DATA_QUBIT = "data"
-EPR_QUBIT = "EPR"
-GHZ_QUBIT = "GHZ"
-
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
@@ -822,7 +818,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, GHZ_QUBIT)
+                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
             return q
 
         if wait > 0:
@@ -830,7 +826,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, GHZ_QUBIT)
+            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
 
     def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -935,7 +931,7 @@ class Host:
         Returns:
              boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
-        return self._qubit_storage.check_qubit_from_host_exists(receiver_id, EPR_QUBIT)
+        return self._qubit_storage.check_qubit_from_host_exists(receiver_id, Qubit.EPR_QUBIT)
 
     def change_epr_qubit_id(self, host_id, new_id, old_id=None):
         """
@@ -966,7 +962,7 @@ class Host:
         """
         if host_id is None:
             raise ValueError("Host id has to be specified!")
-        return self._qubit_storage.get_all_qubits_from_host(host_id, EPR_QUBIT)
+        return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
 
     def get_data_qubits(self, host_id):
         """
@@ -981,7 +977,7 @@ class Host:
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        return self._qubit_storage.get_all_qubits_from_host(host_id, DATA_QUBIT)
+        return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.DATA_QUBIT)
 
     def set_epr_memory_limit(self, limit, host_id=None):
         """
@@ -1021,7 +1017,7 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
         qubit.set_blocked_state(blocked)
-        self._qubit_storage.add_qubit_from_host(qubit, EPR_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id
 
     def add_data_qubit(self, host_id, qubit, q_id=None):
@@ -1039,7 +1035,7 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
 
-        self._qubit_storage.add_qubit_from_host(qubit, DATA_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.DATA_QUBIT, host_id)
         return qubit.id
 
     def add_ghz_qubit(self, host_id, qubit, q_id=None):
@@ -1057,7 +1053,7 @@ class Host:
         if q_id is not None:
             qubit.set_new_id(q_id)
 
-        self._qubit_storage.add_qubit_from_host(qubit, GHZ_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
@@ -1142,7 +1138,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, EPR_QUBIT)
+                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
             return q
 
         if wait > 0:
@@ -1150,7 +1146,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, EPR_QUBIT)
+            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
 
     def get_data_qubit(self, host_id, q_id=None, wait=-1):
         """
@@ -1172,7 +1168,7 @@ class Host:
             nonlocal wait
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, DATA_QUBIT)
+                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT)
             return q
 
         if wait > 0:
@@ -1180,7 +1176,7 @@ class Host:
             DaemonThread(_wait).join()
             return q
         else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, DATA_QUBIT)
+            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT)
 
     def stop(self, release_qubits=True):
         """

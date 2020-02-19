@@ -2,6 +2,10 @@ import uuid
 
 
 class Qubit(object):
+    DATA_QUBIT = "data"
+    EPR_QUBIT = "EPR"
+    GHZ_QUBIT = "GHZ"
+
     """
     A Qubit object. It is a wrapper class of qubits of different
     backends, which adds additional information needed for QuNetSim.

@@ -1,4 +1,3 @@
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
@@ -10,7 +9,7 @@ Logger.DISABLED = True
 
 WAIT_TIME = 10
 QUBITS_PER_MONEY = 10
-NO_OF_SERIALS = 2
+NO_OF_SERIALS = 1
 
 
 def banker_protocol(host, customer):
@@ -145,7 +144,7 @@ def main():
 
     host_customer = Host('Customer', backend)
     host_customer.add_connection('Eve')
-    host_customer.delay = 0.4
+    host_customer.delay = 0.3
     host_customer.start()
 
     network.add_host(host_bank)
@@ -160,6 +159,7 @@ def main():
     t = host_customer.run_protocol(customer_protocol, (host_bank.host_id,))
     host_bank.run_protocol(banker_protocol, (host_customer.host_id,), blocking=True)
     t.join()
+
     network.stop(True)
 
 
