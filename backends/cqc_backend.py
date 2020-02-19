@@ -73,6 +73,7 @@ class CQCBackend(object):
         self._cqc_connections = CQCBackend.CQCConnections.get_instance()
         # keys are from : to, where from is the host calling create EPR
         self._entaglement_ids = CQCBackend.EntanglementIDs.get_instance()
+        self._stopped = False
 
     def start(self, **kwargs):
         """
@@ -93,9 +94,11 @@ class CQCBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        CQCBackend.backend_network_lock.acquire_write()
-        CQCBackend.backend_network.stop()
-        CQCBackend.backend_network_lock.release_write()
+        if not self._stopped:
+            CQCBackend.backend_network_lock.acquire_write()
+            CQCBackend.backend_network.stop()
+            self._stopped = True
+            CQCBackend.backend_network_lock.release_write()
 
     def add_host(self, host):
         """

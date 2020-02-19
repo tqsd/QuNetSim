@@ -1187,7 +1187,10 @@ class Host:
         """
         self.logger.log('Host ' + self.host_id + " stopped")
         if release_qubits:
-            self._qubit_storage.release_storage()
+            try:
+                self._qubit_storage.release_storage()
+            except Exception:
+                Logger.get_instance().error('Releasing qubits was not successful')
 
         self._backend.stop()
         self._stop_thread = True

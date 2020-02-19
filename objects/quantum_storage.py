@@ -134,15 +134,15 @@ class QuantumStorage(object):
             self._storage_mode, self._storage_limit)
         out += "Host dictionary is:\n"
         out += "; ".join([str(key) + ":" + str([v.id for v in value])
-                         for key, value in self._host_dict.items()])
+                          for key, value in self._host_dict.items()])
         out += "\n"
         out += "Qubit dictionary is:\n"
         out += "; ".join([str(key) + ":" + str(value)
-                         for key, value in self._qubit_dict.items()])
+                          for key, value in self._qubit_dict.items()])
         out += "\n"
         out += "Purpose dictionary is:\n"
         out += "; ".join([str(key) + ":" + str(value)
-                         for key, value in self._purpose_dict.items()])
+                          for key, value in self._purpose_dict.items()])
         out += "\n"
         return out
 
@@ -171,7 +171,6 @@ class QuantumStorage(object):
         self.lock.acquire_write()
         for q in self._qubit_dict.values():
             for ele in q.values():
-                # print("release qubit with id " + str(ele.id))
                 ele.release()
         # do not release write, storage not usable anymore
 
@@ -210,7 +209,7 @@ class QuantumStorage(object):
 
         purp = _pop_purpose_from_purpose_dict(q_id, from_host_id)
         if purp is not None:
-            if purpose is None or purpose==purp:
+            if purpose is None or purpose == purp:
                 qubit = self._qubit_dict[q_id].pop(from_host_id, None)
                 if qubit is not None:
                     if not self._qubit_dict[q_id]:

@@ -1,8 +1,10 @@
+from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
+from backends.projectq_backend import ProjectQBackend
 
-Logger.DISABLED = False
+Logger.DISABLED = True
 
 
 def protocol_1(host, receiver):
@@ -43,22 +45,25 @@ def protocol_2(host, sender):
 
 def main():
     network = Network.get_instance()
+
+    # backend = ProjectQBackend()
+    backend = CQCBackend()
+
     nodes = ['A', 'B', 'C']
-    network.start(nodes)
+    network.start(nodes, backend)
     network.delay = 0.1
 
-    host_A = Host('A')
+    host_A = Host('A', backend)
     host_A.add_connection('B')
     host_A.delay = 0
     host_A.start()
 
-    host_B = Host('B')
-    host_B.add_connection('A')
-    host_B.add_connection('C')
+    host_B = Host('B', backend)
+    host_B.add_connections(['A', 'C'])
     host_B.delay = 0
     host_B.start()
 
-    host_C = Host('C')
+    host_C = Host('C', backend)
     host_C.add_connection('B')
     host_C.delay = 0
     host_C.start()

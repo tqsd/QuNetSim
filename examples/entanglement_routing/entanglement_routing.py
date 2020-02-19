@@ -1,6 +1,7 @@
 import time
 import networkx as nx
 import random
+
 from components.host import Host
 from components.network import Network
 from components.logger import Logger
@@ -18,7 +19,7 @@ def generate_entanglement(host):
             for connection in host_connections:
                 if connection['type'] == 'quantum':
                     num_epr_pairs = len(host.get_epr_pairs(connection['connection']))
-                    if num_epr_pairs < 4:
+                    if num_epr_pairs < 5:
                         host.send_epr(connection['connection'], await_ack=True)
         time.sleep(2)
 
@@ -46,6 +47,7 @@ def routing_algorithm(di_graph, source, target):
         for connection in host_connections:
             if connection['type'] == 'quantum':
                 num_epr_pairs = len(host.get_epr_pairs(connection['connection']))
+                # print(host.host_id, connection['connection'], num_epr_pairs)
                 if num_epr_pairs == 0:
                     entanglement_network.add_edge(host.host_id, connection['connection'], weight=1000)
                 else:
@@ -53,18 +55,18 @@ def routing_algorithm(di_graph, source, target):
 
     try:
         route = nx.shortest_path(entanglement_network, source, target, weight='weight')
-        print('-------' + str(route) + '-------')
+        if source == 'A':
+            print('-------' + str(route) + '-------')
         return route
     except Exception as e:
         Logger.get_instance().error(e)
 
 
 def main():
-
     # network.classical_routing_algo = routing_algorithm
     nodes = ['A', 'node_1', 'node_2', 'B']
     network.use_hop_by_hop = False
-    network.set_delay = 0.2
+    network.set_delay = 0.1
     network.start(nodes)
 
     A = Host('A')
@@ -96,7 +98,9 @@ def main():
 
     print('---- BUILDING ENTANGLEMENT   ----')
     # Let the network build up entanglement
-    time.sleep(15)
+    for i in range(10):
+        print('building...')
+        time.sleep(1)
     print('---- DONE BUILDING ENTANGLEMENT   ----')
 
     network.quantum_routing_algo = routing_algorithm
@@ -106,9 +110,11 @@ def main():
         A.send_superdense(B.host_id, random.choice(choices), await_ack=True)
         time.sleep(1)
 
-    time.sleep(20)
     print('stopping')
-    network.stop(stop_hosts=True)
+    try:
+        network.stop(stop_hosts=True)
+    except Exception:
+        print('')
 
 
 if __name__ == '__main__':

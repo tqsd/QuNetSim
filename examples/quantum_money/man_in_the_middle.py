@@ -2,13 +2,14 @@ from components.host import Host
 from components.network import Network
 from components.logger import Logger
 from objects.qubit import Qubit
-from random import randint, random
+from random import randint
 from backends.projectq_backend import ProjectQBackend
+from backends.cqc_backend import CQCBackend
 
 Logger.DISABLED = True
 
 WAIT_TIME = 10
-QUBITS_PER_MONEY = 10
+QUBITS_PER_MONEY = 8
 NO_OF_SERIALS = 1
 
 
@@ -36,7 +37,7 @@ def banker_protocol(host, customer):
                     q.X()
                 if random_base == 1:
                     q.H()
-                host.send_qubit(customer, q)
+                host.send_qubit(customer, q, await_ack=False)
 
     def controlling():
         """
@@ -46,6 +47,11 @@ def banker_protocol(host, customer):
         cheat_alert = False
         print('Banker waiting for serial')
         message = host.get_classical(customer, seq_num=0, wait=10)
+
+        if message is None:
+            print("Bank did not receive the serial number")
+            return
+
         print('Serial received by Bank')
         serial_to_be_checked = message.content
         for qubit_no in range(QUBITS_PER_MONEY):
@@ -60,7 +66,7 @@ def banker_protocol(host, customer):
         if not cheat_alert:
             print('MONEY IS VALID')
         else:
-            print('MONEY IS INVALID!')
+            print('MONEY IS INVALID')
 
     print("Banker is preparing and distributing qubits")
     preparation_and_distribution()
@@ -88,7 +94,7 @@ def customer_protocol(host, banker):
     def verify_money():
         print('Customer is verifying the money')
         serial_to_be_used = randint(0, NO_OF_SERIALS - 1)
-        host.send_classical(banker, serial_to_be_used)
+        host.send_classical(banker, serial_to_be_used, await_ack=True)
 
         for qubit_no in range(QUBITS_PER_MONEY):
             host.send_qubit(banker, money_qubits[serial_to_be_used][qubit_no], await_ack=False)
@@ -96,9 +102,11 @@ def customer_protocol(host, banker):
         # Remove unused qubits
         unused_serials = list(range(NO_OF_SERIALS))
         del unused_serials[serial_to_be_used]
-        for unused_serial in unused_serials:
-            for q in money_qubits[unused_serial]:
-                q.release()
+        if len(unused_serials) > 0:
+            print('Customer removes unused qubits')
+            for unused_serial in unused_serials:
+                for q in money_qubits[unused_serial]:
+                    q.release()
 
     print('Customer is awaiting serial number and qubits that represent the money')
     receive_money()
@@ -116,12 +124,12 @@ def sniffing_quantum(sender, receiver, qubit):
         qubit (Qubit): Qubit in transmission
     """
     # Eavesdropper measures some of the qubits.
-    if sender == 'Customer' and random() <= 0.50:
-        print('Eavesdropper applied X qubit from %s to %s' % (sender, receiver))
-        qubit.X()
-    elif sender == 'Customer':
-        print('Eavesdropper applied H qubit from %s to %s' % (sender, receiver))
-        qubit.H()
+    if sender == 'Customer':
+        print('Eavesdropper applied I to qubit sent from %s to %s' % (sender, receiver))
+        qubit.I()
+
+        # print('Eavesdropper applied X to qubit sent from %s to %s' % (sender, receiver))
+        # qubit.X()
 
 
 def main():
@@ -130,11 +138,12 @@ def main():
     # backend = CQCBackend()
     backend = ProjectQBackend()
     nodes = ['Bank', 'Customer', 'Eve']
-    network.delay = 0.1
+    network.delay = 0.2
     network.start(nodes, backend)
 
     host_bank = Host('Bank', backend)
     host_bank.add_connection('Eve')
+    host_bank.delay = 0.3
     host_bank.start()
 
     host_eve = Host('Eve', backend)

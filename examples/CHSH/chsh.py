@@ -4,7 +4,7 @@ from components.host import Host
 from components.network import Network
 from backends.projectq_backend import ProjectQBackend
 
-PLAYS = 30
+PLAYS = 20
 
 
 def alice_classical(alice_host, referee_id):
@@ -117,7 +117,7 @@ def main():
     # backend = EQSNBackend()
 
     nodes = ['A', 'B', 'C']
-    network.delay = 0.05
+    network.delay = 0.1
     network.start(nodes, backend)
 
     host_A = Host('A', backend)
@@ -131,8 +131,7 @@ def main():
     host_B.start()
 
     host_C = Host('C', backend)
-    host_C.add_c_connection('A')
-    host_C.add_c_connection('B')
+    host_C.add_c_connections(['A', 'B'])
     host_C.delay = 0
     host_C.start()
 
@@ -157,7 +156,7 @@ def main():
         print('Generating initial entanglement...')
         for i in range(PLAYS):
             host_A.send_epr('B', await_ack=True)
-            print('sent %d' % i)
+            print('created %d EPR pairs' % (i+1))
         print('Done generating initial entanglement')
     else:
         network.delay = 0.0
@@ -167,7 +166,7 @@ def main():
     host_B.remove_connection('A')
     network.update_host(host_A)
     network.update_host(host_B)
-    network.delay = 0.1
+
     # Play the game classically
     if strategy == 'CLASSICAL':
         host_A.run_protocol(alice_classical, (host_C.host_id,))

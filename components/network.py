@@ -499,7 +499,7 @@ class Network:
                         route = full_route[full_route.index(sender):]
                     else:
                         if packet.protocol == protocols.REC_EPR:
-                            route = self.get_quantum_route(sender, receiver)
+                            route = self.get_classical_route(sender, receiver)
                         else:
                             route = self.get_classical_route(sender, receiver)
 
@@ -555,13 +555,16 @@ class Network:
         """
 
         Logger.get_instance().log("Network stopped")
-        if stop_hosts:
-            for host in self.ARP:
-                self.ARP[host].stop(release_qubits=True)
+        try:
+            if stop_hosts:
+                for host in self.ARP:
+                    self.ARP[host].stop(release_qubits=True)
 
-        self._stop_thread = True
-        if self._backend is not None:
-            self._backend.stop()
+            self._stop_thread = True
+            if self._backend is not None:
+                self._backend.stop()
+        except Exception:
+            Logger.get_instance().error("Network stopped with errors")
 
     def start(self, nodes=None, backend=None):
         """
