@@ -451,7 +451,7 @@ otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host to pair the qubit</p></li>
-<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
+<li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – the ID to set the qubit ID to</p></li>
 </ul>
 </dd>
@@ -473,7 +473,7 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>host_id</strong> (<em>String</em>) – The ID of the host to pair the qubit</p></li>
-<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
+<li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – The ID of the qubit to be added.</p></li>
 <li><p><strong>blocked</strong> – If the qubit should be stored as blocked or not</p></li>
 </ul>
@@ -496,7 +496,7 @@ to the generator of the GHZ state.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host to pair the qubit</p></li>
-<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
+<li><p><strong>qubit</strong> (<em>Qubit</em>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – the ID to set the qubit ID to</p></li>
 </ul>
 </dd>
@@ -657,7 +657,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dd class="field-even"><p>Qubit received from the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>Qubit</p>
 </dd>
 </dl>
 </dd></dl>
@@ -702,7 +702,7 @@ EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>Qubit</p>
 </dd>
 </dl>
 </dd></dl>
@@ -747,7 +747,7 @@ It is not necessary to know with whom the states are shared.</p>
 <dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>Qubit</p>
 </dd>
 </dl>
 </dd></dl>
@@ -999,7 +999,7 @@ distribute one</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Q_id, <a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>Q_id, Qubit</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1071,7 +1071,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the host to establish the EPR pair with</p></li>
-<li><p><strong>q</strong> (<a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – The qubit to teleport</p></li>
+<li><p><strong>q</strong> (<em>Qubit</em>) – The qubit to teleport</p></li>
 <li><p><strong>await_ack</strong> (<em>bool</em>) – If sender should wait for an ACK.</p></li>
 <li><p><strong>payload</strong> – </p></li>
 <li><p><strong>generate_epr_if_none</strong> – Generate an EPR pair with receiver if one doesn’t exist</p></li>
@@ -1243,7 +1243,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dd class="field-even"><p>Qubit received from the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>Qubit</p>
 </dd>
 </dl>
 </dd></dl>

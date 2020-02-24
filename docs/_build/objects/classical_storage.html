@@ -209,15 +209,40 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A classical storage for messages.</p>
 <dl class="method">
+<dt id="objects.classical_storage.ClassicalStorage._add_new_host_id">
+<code class="sig-name descname">_add_new_host_id</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage._add_new_host_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new host to the storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – The host ID to store.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.classical_storage.ClassicalStorage.add_msg_to_storage">
 <code class="sig-name descname">add_msg_to_storage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.add_msg_to_storage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a message to the storage.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="objects.classical_storage.ClassicalStorage.empty">
+<code class="sig-name descname">empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empty the classical storage.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="objects.classical_storage.ClassicalStorage.get_all">
 <code class="sig-name descname">get_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.get_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all Messages as a list.</p>
+<dd><p>Get all Messages as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>All Messages as a list.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(list) messages</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
