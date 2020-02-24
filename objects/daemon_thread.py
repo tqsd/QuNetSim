@@ -2,7 +2,7 @@ import threading
 
 
 class DaemonThread(threading.Thread):
-    """ A Daemon thread that runs a take until completion and then exits. """
+    """ A Daemon thread that runs a task until completion and then exits. """
 
     def __init__(self, target, args=None):
         if args is not None:

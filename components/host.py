@@ -901,7 +901,7 @@ class Host:
         Returns:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
-        q.set_blocked_state(True)
+        q.blocked = True
         q_id = q.id
         seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
@@ -1015,8 +1015,8 @@ class Host:
              (string) *q_id*: The qubit ID
         """
         if q_id is not None:
-            qubit.set_new_id(q_id)
-        qubit.set_blocked_state(blocked)
+            qubit.id = q_id
+        qubit.blocked = blocked
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id
 
@@ -1033,7 +1033,7 @@ class Host:
             (string) *q_id*: The qubit ID
         """
         if q_id is not None:
-            qubit.set_new_id(q_id)
+            qubit.id = q_id
 
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.DATA_QUBIT, host_id)
         return qubit.id
@@ -1051,7 +1051,7 @@ class Host:
             (string) *q_id*: The qubit ID
         """
         if q_id is not None:
-            qubit.set_new_id(q_id)
+            qubit.id = q_id
 
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id

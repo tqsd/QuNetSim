@@ -11,10 +11,19 @@ class ClassicalStorage(object):
         self._host_to_read_index = {}
 
     def empty(self):
+        """
+        Empty the classical storage.
+        """
         self._host_to_msg_dict = {}
         self._host_to_read_index = {}
 
     def _add_new_host_id(self, host_id):
+        """
+        Add a new host to the storage.
+
+        Args:
+            host_id (str): The host ID to store.
+        """
         self._host_to_msg_dict[host_id] = []
         self._host_to_read_index[host_id] = 0
 
@@ -88,7 +97,10 @@ class ClassicalStorage(object):
 
     def get_all(self):
         """
-        Returns all Messages as a list.
+        Get all Messages as a list.
+
+        Returns:
+            (list) messages: All Messages as a list.
         """
         ret = []
         for host_id in list(self._host_to_msg_dict):

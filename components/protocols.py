@@ -402,8 +402,9 @@ def _send_superdense(packet):
         raise Exception("couldn't encode superdense")
 
     _encode_superdense(packet.payload, q_superdense)
+
     # change id, so that at receiving they are not the same
-    q_superdense.set_new_id("E" + q_superdense.id)
+    q_superdense.id = "E" + q_superdense.id
     packet.payload = q_superdense
     packet.protocol = REC_SUPERDENSE
     packet.payload_type = QUANTUM

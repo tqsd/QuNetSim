@@ -97,7 +97,7 @@ class ProjectQBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        qubit.set_new_host(self._hosts.get_from_dict(to_host_id))
+        qubit.host = self._hosts.get_from_dict(to_host_id)
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """

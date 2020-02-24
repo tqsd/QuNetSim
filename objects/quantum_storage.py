@@ -27,6 +27,24 @@ class QuantumStorage(object):
         # read write lock, for threaded access
         self.lock = RWLock()
 
+    def __str__(self):
+        out = ""
+        out += "Quantum storage with the properties:\nstorage mode: %d\nstorage limit: %d\n" % (
+            self._storage_mode, self._storage_limit)
+        out += "Host dictionary is:\n"
+        out += "; ".join([str(key) + ":" + str([v.id for v in value])
+                          for key, value in self._host_dict.items()])
+        out += "\n"
+        out += "Qubit dictionary is:\n"
+        out += "; ".join([str(key) + ":" + str(value)
+                          for key, value in self._qubit_dict.items()])
+        out += "\n"
+        out += "Purpose dictionary is:\n"
+        out += "; ".join([str(key) + ":" + str(value)
+                          for key, value in self._purpose_dict.items()])
+        out += "\n"
+        return out
+
     @property
     def storage_limit(self):
         return self._storage_limit
@@ -128,24 +146,6 @@ class QuantumStorage(object):
         self._amount_qubit_stored += 1
         return True
 
-    def __str__(self):
-        out = ""
-        out += "Quantum storage with the properties:\nstorage mode: %d\nstorage limit: %d\n" % (
-            self._storage_mode, self._storage_limit)
-        out += "Host dictionary is:\n"
-        out += "; ".join([str(key) + ":" + str([v.id for v in value])
-                          for key, value in self._host_dict.items()])
-        out += "\n"
-        out += "Qubit dictionary is:\n"
-        out += "; ".join([str(key) + ":" + str(value)
-                          for key, value in self._qubit_dict.items()])
-        out += "\n"
-        out += "Purpose dictionary is:\n"
-        out += "; ".join([str(key) + ":" + str(value)
-                          for key, value in self._purpose_dict.items()])
-        out += "\n"
-        return out
-
     def _decrease_qubit_counter(self, host_id):
         """
         Checks if the qubit counter can be decreased
@@ -244,7 +244,7 @@ class QuantumStorage(object):
             qubit, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
                 old_id, from_host_id)
             if qubit is not None:
-                qubit.set_new_id(new_id)
+                qubit.id = new_id
                 self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
                 self.lock.release_write()
                 return old_id
@@ -254,7 +254,7 @@ class QuantumStorage(object):
                 old_id = qubit.id
                 _, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
                     old_id, from_host_id)
-                qubit.set_new_id(new_id)
+                qubit.id = new_id
                 self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
                 self.lock.release_write()
                 return old_id

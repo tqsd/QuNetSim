@@ -134,9 +134,9 @@ class CQCBackend(object):
         """
         cqc_from_host = self._cqc_connections.get_from_dict(from_host_id)
         cqc_to_host = self._cqc_connections.get_from_dict(to_host_id)
-        cqc_from_host.sendQubit(qubit._qubit, cqc_to_host.name)
-        qubit.set_new_qubit(cqc_to_host.recvQubit())
-        qubit.set_new_host(self._hosts.get_from_dict(to_host_id))
+        cqc_from_host.sendQubit(qubit.qubit, cqc_to_host.name)
+        qubit.qubit = cqc_to_host.recvQubit()
+        qubit.host(self._hosts.get_from_dict(to_host_id))
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """

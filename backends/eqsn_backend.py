@@ -147,7 +147,7 @@ class EQSNBackend(object):
         Args:
             host_id (String): Id of the host to whom the qubit belongs.
 
-        Reurns:
+        Returns:
             Qubit of backend type.
         """
         id = str(uuid.uuid4())
@@ -164,7 +164,7 @@ class EQSNBackend(object):
             to_host_id (String): New host of the qubit.
         """
         new_host = self._hosts.get_from_dict(to_host_id)
-        qubit.set_new_host(new_host)
+        qubit.host = new_host
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
@@ -339,6 +339,7 @@ class EQSNBackend(object):
 
         Args:
             qubit (Qubit): Qubit which should be measured.
+            non_destructive (bool): If the qubit should be destroyed after measuring.
 
         Returns:
             The value which has been measured.

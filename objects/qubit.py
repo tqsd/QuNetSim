@@ -63,7 +63,8 @@ class Qubit(object):
         """
         return self._qubit
 
-    def set_new_qubit(self, qubit):
+    @qubit.setter
+    def qubit(self, qubit):
         """
         Set the physical qubit.
 
@@ -72,7 +73,8 @@ class Qubit(object):
         """
         self._qubit = qubit
 
-    def set_new_host(self, host):
+    @host.setter
+    def host(self, host):
         """
         Set the host of this qubit.
 
@@ -81,7 +83,8 @@ class Qubit(object):
         """
         self._host = host
 
-    def set_new_id(self, new_id):
+    @id.setter
+    def id(self, new_id):
         """
         Give the qubit a new id.
 
@@ -90,9 +93,10 @@ class Qubit(object):
         """
         self._id = str(new_id)
 
-    def set_blocked_state(self, state):
+    @blocked.setter
+    def blocked(self, state):
         """
-        Set the bockes state of the qubit.
+        Set the blocked state of the qubit.
 
         Args:
             state (bool): True for blocked, False if not.
