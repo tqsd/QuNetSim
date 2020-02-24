@@ -205,7 +205,194 @@
 <p>The <em>Qubit</em> object is mainly a wrapper for the underlying qubit that is defined in the <em>Backend</em>. We add
 our own properties such that we can better manage the qubits in the system, for example, <em>Qubits</em> have a unique
 ID and they know which <em>Host</em> they belong to.</p>
-<span class="target" id="module-objects.qubit"></span></div>
+<span class="target" id="module-objects.qubit"></span><dl class="class">
+<dt id="objects.qubit.Qubit">
+<em class="property">class </em><code class="sig-prename descclassname">objects.qubit.</code><code class="sig-name descname">Qubit</code><span class="sig-paren">(</span><em class="sig-param">host</em>, <em class="sig-param">qubit=None</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">blocked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Qubit object. It is a wrapper class of qubits of different
+backends, which adds additional information needed for QuNetSim.</p>
+<dl class="method">
+<dt id="objects.qubit.Qubit.H">
+<code class="sig-name descname">H</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.H" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a Hadamard gate on the qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.I">
+<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.I" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Identity operation on the qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.K">
+<code class="sig-name descname">K</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a K gate on the qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.T">
+<code class="sig-name descname">T</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.T" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a T gate on the qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.X">
+<code class="sig-name descname">X</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform pauli x gate on qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.Y">
+<code class="sig-name descname">Y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform pauli y gate on qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.Z">
+<code class="sig-name descname">Z</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform pauli z gate on qubit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.blocked">
+<em class="property">property </em><code class="sig-name descname">blocked</code><a class="headerlink" href="#objects.qubit.Qubit.blocked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give the block state of the qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the qubit is blocked or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.cnot">
+<code class="sig-name descname">cnot</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.cnot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a controlled x gate to the target qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference internal" href="#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – Qubit on which the cnot gate should be applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.cphase">
+<code class="sig-name descname">cphase</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.cphase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a controlled z gate to the target qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference internal" href="#objects.qubit.Qubit" title="objects.qubit.Qubit"><em>Qubit</em></a>) – Qubit on which the cphase gate should be applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.host">
+<em class="property">property </em><code class="sig-name descname">host</code><a class="headerlink" href="#objects.qubit.Qubit.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give the host of who the qubit belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Host of the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.id">
+<em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#objects.qubit.Qubit.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give the ID of the qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Id of the qubit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.measure">
+<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param">non_destructive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measures the state of a qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>non_destructive</strong> (<em>bool</em>) – Determines if the qubit should stay in the
+system or be eliminated.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>0 or 1, dependent on measurement outcome.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>measured_value (int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.qubit">
+<em class="property">property </em><code class="sig-name descname">qubit</code><a class="headerlink" href="#objects.qubit.Qubit.qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the physical qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return the physical qubit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(backend.qubit) qubit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.release">
+<code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Releases a qubit from the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.rx">
+<code class="sig-name descname">rx</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.rx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a rotation pauli x gate with an angle of phi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>phi</strong> (<em>float</em>) – Rotation in rad</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.ry">
+<code class="sig-name descname">ry</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.ry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a rotation pauli y gate with an angle of phi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>phi</strong> (<em>float</em>) – Rotation in rad</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.rz">
+<code class="sig-name descname">rz</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.rz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a rotation pauli z gate with an angle of phi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>phi</strong> (<em>float</em>) – Rotation in rad</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="objects.qubit.Qubit.send_to">
+<code class="sig-name descname">send_to</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.qubit.Qubit.send_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the Qubit to another host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>String</em>) – ID of Host the qubit should be send to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 
 
            </div>
