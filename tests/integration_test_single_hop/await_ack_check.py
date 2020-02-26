@@ -39,10 +39,11 @@ def main():
     saw_ack_1 = False
     saw_ack_2 = False
     messages = hosts['alice'].classical
+    # print([m.seq_num for m in messages])
     for m in messages:
-        if m.content == protocols.ACK and m.seq_num == 1:
+        if m.content == protocols.ACK and m.seq_num == 0:
             saw_ack_1 = True
-        if m.content == protocols.ACK and m.seq_num == 2:
+        if m.content == protocols.ACK and m.seq_num == 1:
             saw_ack_2 = True
         if saw_ack_1 and saw_ack_2:
             break

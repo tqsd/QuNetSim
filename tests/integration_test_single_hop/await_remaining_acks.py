@@ -44,7 +44,7 @@ def main():
     messages = hosts['alice'].classical
     for m in messages:
         if m.content == protocols.ACK:
-            saw_ack[m.seq_num-1] = True
+            saw_ack[m.seq_num] = True
 
 
     for ack in saw_ack:

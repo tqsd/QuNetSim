@@ -46,7 +46,7 @@ class Host:
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self._max_window = 5
+        self._max_window = 10
         # [Queue, sender, seq_num, timeout, start_time]
         self._ack_receiver_queue = []
         # sender: host -> int
@@ -641,11 +641,15 @@ class Host:
 
         def wait():
             nonlocal did_ack
+            did_ack = False
             start_time = time.time()
             q = Queue()
-            task = (q, sender, sequence_number, self.max_ack_wait, start_time)
+            task = (q, sender, sequence_number, self._max_ack_wait, start_time)
             self._ack_receiver_queue.append(task)
-            did_ack = q.get()
+            try:
+                did_ack = q.get(timeout=self._max_ack_wait)
+            except Exception as error:
+                did_ack = False
             return
 
         did_ack = False
@@ -664,7 +668,7 @@ class Host:
             start_time = time.time()
             for sequence_number in seq_num_list:
                 q = Queue()
-                task = (q, sender, sequence_number, self.max_ack_wait, start_time)
+                task = (q, sender, sequence_number, self._max_ack_wait, start_time)
                 self._ack_receiver_queue.append(task)
                 queue_list.append(q)
             ret = True

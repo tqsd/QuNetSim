@@ -22,6 +22,7 @@ if __name__=="__main__":
     files = [f for f in glob.glob("./tests/**/*.py")] + [f for f in glob.glob("./tests/*.py")]
     print(files)
     for f in files:
+        print("Start with " + str(f))
         if f in ignore:
             continue
         path, filename = os.path.split(f)

@@ -39,6 +39,7 @@ def receiver(host, distributor, s, epr_id):
     # Await broadcast messages from all parties
     while len(messages) < 3:
         messages = host.classical
+        messages = [x for x in messages if x.content != 'ACK']
         time.sleep(0.5)
 
     print([m.content for m in messages])
