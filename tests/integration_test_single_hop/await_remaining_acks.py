@@ -31,25 +31,24 @@ def main():
     for h in hosts.values():
         network.add_host(h)
 
-    # print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob two', await_ack=True)
-    # print(f"ack test - SEND CLASSICAL - finished at {time.strftime('%X')}")
+    # send messages to Bob without waiting for ACKs
+    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=False)
+    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob two', await_ack=False)
+    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob three', await_ack=False)
+    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob four', await_ack=False)
 
-    saw_ack_1 = False
-    saw_ack_2 = False
+    # Wait for all Acks from Bob
+    hosts['alice'].await_remaining_acks(hosts['bob'].host_id)
+
+    saw_ack = [False, False, False, False]
     messages = hosts['alice'].classical
-    # print([m.seq_num for m in messages])
     for m in messages:
-        if m.content == protocols.ACK and m.seq_num == 0:
-            saw_ack_1 = True
-        if m.content == protocols.ACK and m.seq_num == 1:
-            saw_ack_2 = True
-        if saw_ack_1 and saw_ack_2:
-            break
+        if m.content == protocols.ACK:
+            saw_ack[m.seq_num] = True
 
-    assert saw_ack_1
-    assert saw_ack_2
+
+    for ack in saw_ack:
+        assert ack
     print("All tests succesfull!")
     network.stop(True)
     exit()

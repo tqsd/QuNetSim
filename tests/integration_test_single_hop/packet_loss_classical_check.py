@@ -35,9 +35,11 @@ def main():
     # ACKs for 1 hop take at most 2 seconds
     hosts['alice'].max_ack_wait = 3
     num_acks = 0
-    num_messages = 15
+    # don't make more then 10 attempts, since of receiver window.
+    num_messages = 10
     for _ in range(num_messages):
         ack = hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=True)
+        # print("received ack "+ str(ack))
         if ack:
             num_acks += 1
 

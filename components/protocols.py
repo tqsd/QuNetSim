@@ -157,6 +157,7 @@ def _send_broadcast(packet):
     for host in network.ARP.keys():
         if sender != host:
             seq_num = host_sender._get_sequence_number(host)
+            message.seq_num = seq_num
             new_packet = Packet(sender=sender,
                                 receiver=host,
                                 protocol=REC_CLASSICAL,
@@ -195,8 +196,8 @@ def _rec_classical(packet):
         message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
-
-    if packet.await_ack:
+    else:
+        # Always send an ACK message back, as long as not an ACK msg!
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     return message
@@ -221,8 +222,8 @@ def _rec_qubit(packet):
     """
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
-    if packet.await_ack:
-        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Always send an ACK!
+    _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_teleport(packet):
@@ -304,7 +305,7 @@ def _rec_teleport(packet):
     if q is None:
         # TODO: what to do when fails
         print(host_receiver.qubit_storage)
-        raise Exception
+        raise Exception("failed to get EPR")
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]
@@ -322,11 +323,11 @@ def _rec_teleport(packet):
     elif payload['type'] == DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id=q_id)
 
-    if packet.await_ack:
-        if 'o_seq_num' in payload and 'ack' in payload:
-            _send_ack(epr_host, packet.receiver, payload['o_seq_num'])
+    # Always send ACK!
+    if 'o_seq_num' in payload and 'ack' in payload:
+        _send_ack(epr_host, packet.receiver, payload['o_seq_num'])
 
-        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_epr(packet):
@@ -360,8 +361,8 @@ def _rec_epr(packet):
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
-    if packet.await_ack:
-        _send_ack(sender, receiver, packet.seq_num)
+    # Always send an ACK!
+    _send_ack(sender, receiver, packet.seq_num)
 
 
 def _send_ack(sender, receiver, seq_number):
@@ -433,8 +434,7 @@ def _rec_superdense(packet):
 
     assert q1 is not None and q2 is not None
 
-    if packet.await_ack:
-        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     return Message(packet.sender, _decode_superdense(q1, q2), packet.seq_num)
 
@@ -558,8 +558,8 @@ def _rec_ghz(packet):
     receiver = network.get_host(receiver)
     receiver.add_ghz_qubit(from_host, qubit)
 
-    if packet.await_ack:
-        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Always send an ACK!
+    _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _encode_superdense(message, q):
