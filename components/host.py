@@ -1,6 +1,6 @@
 from queue import Queue
 from components import protocols
-from components.logger import Logger
+from objects.logger import Logger
 from objects.daemon_thread import DaemonThread
 from objects.packet import Packet
 from objects.qubit import Qubit

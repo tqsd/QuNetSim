@@ -49,6 +49,7 @@ class ClassicalStorage(object):
         else:
             return
 
+    # TODO: refactor to "add_msg"
     def add_msg_to_storage(self, message):
         """
         Adds a message to the storage.

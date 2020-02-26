@@ -2,10 +2,10 @@ from objects.qubit import Qubit
 from components.host import Host
 from components.network import Network
 from components import protocols
-from components.logger import Logger
+from objects.logger import Logger
+from backends.projectq_backend import ProjectQBackend
 import unittest
 import time
-
 
 Logger.DISABLED = True
 
@@ -22,49 +22,50 @@ class TestOneHop(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        pass
-        # global network
-        # nodes = ["Alice", "Bob"]
-        # network.start(nodes=nodes)
+        global network
+        global hosts
+        nodes = ["Alice", "Bob"]
+        backend = ProjectQBackend()
+        network.start(nodes=nodes, backend=backend)
+        hosts = {'alice': Host('Alice', backend),
+                 'bob': Host('Bob', backend)}
+        hosts['alice'].add_connection('Bob')
+        hosts['bob'].add_connection('Alice')
+        hosts['alice'].start()
+        hosts['bob'].start()
+        for h in hosts.values():
+            network.add_host(h)
 
     @classmethod
     def tearDownClass(cls):
         global network
-        network.stop()
+        global hosts
+        network.stop(stop_hosts=True)
 
     def setUp(self):
         global network
-        nodes = ["Alice", "Bob"]
-        network.start(nodes=nodes)
-
+        global hosts
         network.delay = 0.2
         network.packet_drop_rate = 0
 
-    def tearDown(self):
-        global network
-        global hosts
+        hosts['alice'].delay = 0.1
+        hosts['bob'].delay = 0.1
 
-        for key in hosts:
-            hosts[key].backend.flush(hosts[key].host_id)
-            network.remove_host(hosts[key])
-        network.stop()
+        hosts['alice'].set_epr_memory_limit(-1)
+        hosts['bob'].set_epr_memory_limit(-1)
+        hosts['alice'].set_data_qubit_memory_limit(-1)
+        hosts['bob'].set_data_qubit_memory_limit(-1)
+
+        hosts['alice'].empty_classical()
+        hosts['bob'].empty_classical()
+
+    def tearDown(self):
+        pass
 
     # @unittest.skip('')
     def test_shares_epr(self):
         global hosts
         global network
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            network.add_host(h)
 
         q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
         q1 = hosts['alice'].shares_epr(hosts['bob'].host_id)
@@ -93,22 +94,6 @@ class TestOneHop(unittest.TestCase):
 
     # @unittest.skip('')
     def test_send_classical(self):
-        global hosts
-        global network
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        # A <-> B
-        hosts['alice'].add_connection(hosts['bob'].host_id)
-        hosts['bob'].add_connection(hosts['alice'].host_id)
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            network.add_host(h)
-
         hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=False)
         hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice', await_ack=False)
 
@@ -123,7 +108,6 @@ class TestOneHop(unittest.TestCase):
         alice_messages = hosts['alice'].get_classical(hosts['bob'].host_id)
         while i < TestOneHop.MAX_WAIT and len(alice_messages) == 0:
             alice_messages = hosts['alice'].get_classical(hosts['bob'].host_id)
-            print(alice_messages)
             i += 1
             time.sleep(1)
 
@@ -137,20 +121,7 @@ class TestOneHop(unittest.TestCase):
 
     @unittest.skip('')
     def test_await_ack(self):
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.hosts = hosts
-        self.network.delay = 0
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         # print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
         hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
@@ -160,6 +131,7 @@ class TestOneHop(unittest.TestCase):
         saw_ack_1 = False
         saw_ack_2 = False
         messages = hosts['alice'].get_classical('bob')
+        print(messages)
         for m in messages:
             if m.content == protocols.ACK and m.seq_num == 1:
                 saw_ack_1 = True
@@ -212,23 +184,9 @@ class TestOneHop(unittest.TestCase):
 
         self.assertTrue(saw_ack)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_max_wait_for_ack(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         ack_received_1 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
         hosts['alice'].max_ack_wait = 0
@@ -236,23 +194,9 @@ class TestOneHop(unittest.TestCase):
         self.assertTrue(ack_received_1)
         self.assertFalse(ack_received_2)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_epr(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
         q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
@@ -273,23 +217,9 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         self.assertEqual(q1.measure(), q2.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         q = Qubit(hosts['alice'])
         q.X()
@@ -306,22 +236,9 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         self.assertEqual(q2.measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_superdense(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         hosts['alice'].send_superdense(hosts['bob'].host_id, '01')
 
@@ -337,22 +254,9 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
         self.assertEqual(messages[0]['message'], '01')
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_send_qubit_alice_to_bob(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         q = Qubit(hosts['alice'])
         q.X()
@@ -368,22 +272,9 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(rec_q)
         self.assertEqual(rec_q.measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_send_qubit_bob_to_alice(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['bob'].add_connection('00000000')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         q = Qubit(hosts['bob'])
         q.X()
@@ -400,25 +291,11 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(rec_q)
         self.assertEqual(rec_q.measure(), 1)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport_superdense_combination(self):
-
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        global hosts
 
         hosts['alice'].send_superdense(hosts['bob'].host_id, '11')
-
         messages = hosts['bob'].classical
         i = 0
         while i < TestOneHop.MAX_WAIT and len(messages) == 0:
@@ -447,27 +324,11 @@ class TestOneHop(unittest.TestCase):
 
     @unittest.skip('')
     def test_maximum_epr_qubit_limit(self):
+        global hosts
 
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        # hosts['alice'].set_memory_limit(1)
-        hosts['alice'].memory_limit = 1
-        hosts['bob'].memory_limit = 1
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
-
-        hosts['alice'].max_ack_wait = 10
-
+        hosts['alice'].set_epr_memory_limit(1)
+        hosts['bob'].set_epr_memory_limit(1)
+        hosts['alice'].max_ack_wait = 5
         hosts['alice'].send_epr(hosts['bob'].host_id, await_ack=True)
         hosts['alice'].send_epr(hosts['bob'].host_id, await_ack=True)
 
@@ -487,23 +348,10 @@ class TestOneHop(unittest.TestCase):
 
     @unittest.skip('')
     def test_maximum_data_qubit_limit(self):
+        global hosts
 
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-        self.hosts = hosts
-
-        # A <-> B
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].memory_limit = 1
-        hosts['bob'].memory_limit = 1
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
+        hosts['alice'].set_data_qubit_memory_limit(1)
+        hosts['bob'].set_data_qubit_memory_limit(1)
 
         q_alice_id_1 = hosts['alice'].send_qubit(hosts['bob'].host_id, Qubit(hosts['alice']))
         time.sleep(2)

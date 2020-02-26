@@ -4,7 +4,7 @@ import random
 
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
+from objects.logger import Logger
 
 network = Network.get_instance()
 

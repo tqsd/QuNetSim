@@ -2,7 +2,7 @@ from objects.message import Message
 from objects.qubit import Qubit
 
 # DATA TYPES
-from components.logger import Logger
+from objects.logger import Logger
 from components.network import Network
 from objects.packet import Packet
 import numpy as np

@@ -5,7 +5,7 @@ import time
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
-from components.logger import Logger
+from objects.logger import Logger
 from backends.eqsn_backend import EQSNBackend
 
 Logger.DISABLED = True

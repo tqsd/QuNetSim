@@ -1,10 +1,9 @@
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
+from objects.logger import Logger
 from objects.qubit import Qubit
 from random import randint
 from backends.projectq_backend import ProjectQBackend
-from backends.cqc_backend import CQCBackend
 
 Logger.DISABLED = True
 

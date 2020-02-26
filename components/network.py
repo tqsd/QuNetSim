@@ -4,7 +4,7 @@ from queue import Queue
 import time
 import random
 from components import protocols
-from components.logger import Logger
+from objects.logger import Logger
 from objects.daemon_thread import DaemonThread
 from inspect import signature
 

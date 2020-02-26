@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from components.host import Host
 from components.network import Network
-from components.logger import Logger
+from objects.logger import Logger
 
 from objects.qubit import Qubit
 
