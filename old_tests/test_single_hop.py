@@ -1,7 +1,3 @@
-import sys
-
-sys.path.append("../..")
-
 from objects.qubit import Qubit
 from components.host import Host
 from components.network import Network
