@@ -26,12 +26,12 @@ def sender(host, distributor, r, epr_id):
     # Generate EPR if none shouldn't change anything, but if there is
     # no shared entanglement between s and r, then there should
     # be a mistake in the protocol
-    host.send_teleport(r, sending_qubit, generate_epr_if_none=False)
+    host.send_teleport(r, sending_qubit, generate_epr_if_none=False, await_ack=False)
     host.empty_classical()
 
 
 def receiver(host, distributor, s, epr_id):
-    q = host.get_ghz(distributor, wait=5)
+    q = host.get_ghz(distributor, wait=10)
     b = random.choice(['0', '1'])
     host.send_broadcast(b)
 

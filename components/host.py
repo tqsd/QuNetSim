@@ -46,7 +46,7 @@ class Host:
         self._delay = 0.1
         self.logger = Logger.get_instance()
         # Packet sequence numbers per connection
-        self._max_window = 15
+        self._max_window = 5
         # [Queue, sender, seq_num, timeout, start_time]
         self._ack_receiver_queue = []
         # sender: host -> int
@@ -651,14 +651,34 @@ class Host:
         wait()
         return did_ack
 
-    def await_remaining_acks(self, sender=None):
+    def await_remaining_acks(self, sender):
         """
-        Awaits all remaining ACKs of one or all sender.
+        Awaits all remaining ACKs of one sender.
 
         Args:
-            sender (str): Optional, sender for which to wait for all acks.
+            sender (str): sender for which to wait for all acks.
         """
-        pass
+        def wait_multiple_seqs(seq_num_list):
+            queue_list = []
+            start_time = time.time()
+            for sequence_number in seq_num_list:
+                q = Queue()
+                task = (q, sender, sequence_number, self.max_ack_wait, start_time)
+                self._ack_receiver_queue.append(task)
+                queue_list.append(q)
+            ret = True
+            for q in queue_list:
+                if q.get() is False:
+                    ret = False
+            return ret
+
+        last_send_seq = self._seq_number_sender[sender]
+        lowest_waiting_seq = self._seq_number_sender_ack[sender][1]
+        all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
+        for received_ack in self._seq_number_sender_ack[sender][0]:
+            all_remaining_acks.remove(received_ack)
+        for remaining_ack in all_remaining_acks:
+            wait(remaining_ack)
 
     def send_broadcast(self, message):
         """
