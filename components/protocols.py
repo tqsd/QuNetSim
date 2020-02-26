@@ -195,8 +195,8 @@ def _rec_classical(packet):
         message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
-
-    if packet.await_ack:
+    else:
+        # Always send an ACK message back, as long as not an ACK msg!
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     return message

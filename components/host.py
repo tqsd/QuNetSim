@@ -461,6 +461,7 @@ class Host:
                 elif seq_num > expected_seq:
                     self._seq_number_sender_ack[sender][0].append(seq_num)
                 else:
+                    raise Exception("Received seq_num %d from %s, expected is %d" % (seq_num, sender, expected_seq))
                     raise Exception("Should never happen!")
                 for t in self._ack_receiver_queue:
                     res = check_task(*t)
@@ -673,12 +674,14 @@ class Host:
             return ret
 
         last_send_seq = self._seq_number_sender[sender]
-        lowest_waiting_seq = self._seq_number_sender_ack[sender][1]
+        lowest_waiting_seq = 0
         all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
-        for received_ack in self._seq_number_sender_ack[sender][0]:
-            all_remaining_acks.remove(received_ack)
-        for remaining_ack in all_remaining_acks:
-            wait(remaining_ack)
+        if sender in self._seq_number_sender_ack:
+            lowest_waiting_seq = self._seq_number_sender_ack[sender][1]
+            all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
+            for received_ack in self._seq_number_sender_ack[sender][0]:
+                all_remaining_acks.remove(received_ack)
+        wait_multiple_seqs(all_remaining_acks)
 
     def send_broadcast(self, message):
         """
