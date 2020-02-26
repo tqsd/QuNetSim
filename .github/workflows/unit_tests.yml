@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2      
     - name: Set up Python 3.6.4
       uses: actions/setup-python@v1
       with:
@@ -18,5 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run unit tests
+      env:
+        PYTHONPATH: $PWD
       run: |
         nose2 -s old_tests
