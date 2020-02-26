@@ -98,16 +98,16 @@ class TestOneHop(unittest.TestCase):
         hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice', await_ack=False)
 
         i = 0
-        bob_messages = hosts['bob'].get_classical(hosts['alice'].host_id)
+        bob_messages = hosts['bob'].classical
         while i < TestOneHop.MAX_WAIT and len(bob_messages) == 0:
-            bob_messages = hosts['bob'].get_classical(hosts['alice'].host_id)
+            bob_messages = hosts['bob'].classical
             i += 1
             time.sleep(1)
 
         i = 0
-        alice_messages = hosts['alice'].get_classical(hosts['bob'].host_id)
+        alice_messages = hosts['alice'].classical
         while i < TestOneHop.MAX_WAIT and len(alice_messages) == 0:
-            alice_messages = hosts['alice'].get_classical(hosts['bob'].host_id)
+            alice_messages = hosts['alice'].classical
             i += 1
             time.sleep(1)
 
@@ -251,8 +251,8 @@ class TestOneHop(unittest.TestCase):
 
         self.assertIsNotNone(messages)
         self.assertTrue(len(messages) > 0)
-        self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
-        self.assertEqual(messages[0]['message'], '01')
+        self.assertEqual(messages[0].sender, hosts['alice'].host_id)
+        self.assertEqual(messages[0].content, '01')
 
     # @unittest.skip('')
     def test_send_qubit_alice_to_bob(self):
@@ -316,8 +316,8 @@ class TestOneHop(unittest.TestCase):
 
         self.assertIsNotNone(messages)
         self.assertTrue(len(messages) > 0)
-        self.assertEqual(messages[0]['sender'], hosts['alice'].host_id)
-        self.assertEqual(messages[0]['message'], '11')
+        self.assertEqual(messages[0].sender, hosts['alice'].host_id)
+        self.assertEqual(messages[0].content, '11')
 
         self.assertIsNotNone(q2)
         self.assertEqual(q2.measure(), 1)

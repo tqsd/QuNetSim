@@ -15,3 +15,5 @@ objects/__pycache__/
 backends/__pycache__/
 components/__init__.pyc
 tests/backends/__pycache__/
+old_tests/__pycache__/test_multi_hop.cpython-36.pyc
+old_tests/__pycache__/test_single_hop.cpython-36.pyc

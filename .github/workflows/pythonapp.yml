@@ -25,4 +25,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --ignore E501
     - name: Test with nose2
       run: |
-        nose2
+        nose2 -s old_tests
