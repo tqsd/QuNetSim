@@ -17,7 +17,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Run singe hop tests
+    - name: Run single hop tests
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_single_hop

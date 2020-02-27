@@ -37,8 +37,6 @@ class TestOneHop(unittest.TestCase):
         global network
         global hosts
         network.stop(stop_hosts=True)
-        del network
-        del hosts
 
     def setUp(self):
         global network
