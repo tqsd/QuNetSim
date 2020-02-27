@@ -31,8 +31,10 @@ DATA = 1
 SIGNAL = 'signal'
 CLASSICAL = 'classical'
 QUANTUM = 'quantum'
-ACK = 'ACK'
-NACK = 'NACK'
+
+# SIGNALS
+ACK = 'qunetsim_ACK__'
+NACK = 'qunetsim_NACK__'
 
 # PROTOCOL IDs
 REC_EPR = 'rec_epr'
