@@ -13,7 +13,7 @@ thread_2_return = None
 SYN = '10'
 SYN_ACK = '11'
 ACK = '01'
-WAIT_TIME = 15
+WAIT_TIME = 30
 MAX_NUM_OF_TRANSMISSIONS = 10
 Logger.DISABLED = False
 
@@ -46,8 +46,6 @@ def handshake_sender(host, receiver_id):
         return False
 
     syn_seq_num = host.get_sequence_number_receiver(receiver_id)
-    print('SYN_SEQ_NUM')
-    print(syn_seq_num)
 
     # Receive the qubits Bob has sent (qubit 2 and qubit 3) for SYN-ACK.
     qb_2 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
@@ -60,8 +58,6 @@ def handshake_sender(host, receiver_id):
 
     # Receive the classical message Bob has sent for SYN-ACK.
     message_recv = host.get_classical(receiver_id, syn_seq_num + 2, wait=WAIT_TIME)
-    print('MESSAGE_RECV')
-    print(message_recv)
     if message_recv is None:
         return False
 
@@ -89,8 +85,7 @@ def handshake_sender(host, receiver_id):
         if ack_received is False:
             Logger.get_instance().log('ACK is not received')
             return False
-        message = host.get_classical(receiver_id, latest_seq_num + 2, wait=WAIT_TIME)
-        return message.content == 'ACK'
+        return True
     else:
         Logger.get_instance().log("Something is wrong.")
         return False
@@ -106,15 +101,13 @@ def handshake_receiver(host, sender_id):
     :return: If successful returns True, otherwise False
     """
     latest_seq_num = host.get_sequence_number_receiver(sender_id)
-    print('LATEST SEQ NUM')
-    print(latest_seq_num)
 
     # Receive the EPR half of Alice and the SYN message
     qb_2 = host.get_data_qubit(sender_id, wait=WAIT_TIME)
     if qb_2 is None:
         Logger.get_instance().log('qb_2 is None')
         return False
-    #qb_2_physical = qb_2.qubit
+    # qb_2_physical = qb_2.qubit
 
     message_recv = host.get_classical(sender_id, (latest_seq_num + 1), wait=WAIT_TIME)
     if not message_recv:
@@ -147,7 +140,7 @@ def handshake_receiver(host, sender_id):
 
     # Send SYN-ACK message.
     host.send_classical(sender_id, SYN_ACK, True)
-    latest_seq_num = host.get_sequence_number(sender_id)
+    latest_seq_num = host.get_sequence_number_receiver(sender_id)
 
     # Receive the ACK message.
     message = host.get_classical(sender_id, latest_seq_num, wait=WAIT_TIME)
@@ -220,9 +213,9 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
             # encode logical qubit
             q.cnot(err_1)
 
-            host.send_qubit(receiver_id, q, await_ack=True)
-            messages = host.get_classical(receiver_id, wait=WAIT_TIME)
-            if messages[0].content == 'ACK':
+            dummy, ack_received = host.send_qubit(receiver_id, q, await_ack=True)
+            # messages = host.get_classical(receiver_id, wait=WAIT_TIME)
+            if ack_received:
                 err_1.release()
                 got_ack = True
                 q_success = True
@@ -295,9 +288,9 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
         if checksum_qubits[i].measure() != 0:
             errors += 1
 
-    latest_seq_num = host.get_sequence_number(sender_id)
-    print('LATEST SEQ NUM')
-    print(latest_seq_num)
+    # latest_seq_num = host.get_sequence_number(sender_id)
+    # print('LATEST SEQ NUM 4')
+    # print(latest_seq_num)
 
     print('---------')
     if errors == 0:
@@ -305,8 +298,6 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
     else:
         Logger.get_instance().log('There were errors in the TCP transmission')
     print('---------')
-
-
 
     rec_bits = []
     for i in range(len(qubits) - checksum_size):
