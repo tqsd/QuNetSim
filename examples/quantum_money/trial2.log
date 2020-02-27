@@ -1,0 +1,678 @@
+2020-02-11 12:05:47,802: Host Alice started processing
+2020-02-11 12:05:47,960: Host Bob started processing
+2020-02-11 12:05:48,128: Host Eve started processing
+2020-02-11 12:05:48,301: Alice sends QUBIT to Eve
+2020-02-11 12:05:48,302: Alice awaits SEND QUBIT ACK from Eve with sequence 0
+2020-02-11 12:05:48,375: sending qubits from Alice to Bob
+2020-02-11 12:05:48,381: transfer qubits - sending qubit 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:05:48,405: transfer qubits - received 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:05:48,410: sending qubits from Bob to Eve
+2020-02-11 12:05:48,416: transfer qubits - sending qubit 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:05:48,452: transfer qubits - received 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:05:48,567: Eve received qubit 8e0a4325-189d-4caf-aa3c-1617fd945724 from Alice
+2020-02-11 12:05:48,573: sending ACK:1 from Eve to Alice
+2020-02-11 12:05:48,798: Alice received ACK from Eve with sequence number 0
+2020-02-11 12:05:49,006: Alice sends QUBIT to Eve
+2020-02-11 12:05:49,017: Alice awaits SEND QUBIT ACK from Eve with sequence 1
+2020-02-11 12:05:49,081: sending qubits from Alice to Bob
+2020-02-11 12:05:49,091: transfer qubits - sending qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:05:49,156: transfer qubits - received 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:05:49,162: sending qubits from Bob to Eve
+2020-02-11 12:05:49,167: transfer qubits - sending qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:05:49,246: transfer qubits - received 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:05:49,536: Eve received qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5 from Alice
+2020-02-11 12:05:49,547: sending ACK:2 from Eve to Alice
+2020-02-11 12:05:49,959: Alice received ACK from Eve with sequence number 1
+2020-02-11 12:05:50,165: Alice sends QUBIT to Eve
+2020-02-11 12:05:50,165: Alice awaits SEND QUBIT ACK from Eve with sequence 2
+2020-02-11 12:05:50,198: sending qubits from Alice to Bob
+2020-02-11 12:05:50,204: transfer qubits - sending qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:05:50,268: transfer qubits - received 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:05:50,269: sending qubits from Bob to Eve
+2020-02-11 12:05:50,279: transfer qubits - sending qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:05:50,345: transfer qubits - received 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:05:50,577: Eve received qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5 from Alice
+2020-02-11 12:05:50,577: sending ACK:3 from Eve to Alice
+2020-02-11 12:05:50,900: Alice received ACK from Eve with sequence number 2
+2020-02-11 12:05:51,035: Alice sends QUBIT to Eve
+2020-02-11 12:05:51,040: Alice awaits SEND QUBIT ACK from Eve with sequence 3
+2020-02-11 12:05:51,184: sending qubits from Alice to Bob
+2020-02-11 12:05:51,185: transfer qubits - sending qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:05:51,252: transfer qubits - received a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:05:51,253: sending qubits from Bob to Eve
+2020-02-11 12:05:51,253: transfer qubits - sending qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:05:51,332: transfer qubits - received a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:05:51,510: Eve received qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46 from Alice
+2020-02-11 12:05:51,520: sending ACK:4 from Eve to Alice
+2020-02-11 12:05:51,811: Alice received ACK from Eve with sequence number 3
+2020-02-11 12:05:51,984: Alice sends QUBIT to Eve
+2020-02-11 12:05:51,995: Alice awaits SEND QUBIT ACK from Eve with sequence 4
+2020-02-11 12:05:52,063: sending qubits from Alice to Bob
+2020-02-11 12:05:52,068: transfer qubits - sending qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:05:52,137: transfer qubits - received 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:05:52,142: sending qubits from Bob to Eve
+2020-02-11 12:05:52,147: transfer qubits - sending qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:05:52,220: transfer qubits - received 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:05:52,336: Eve received qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3 from Alice
+2020-02-11 12:05:52,342: sending ACK:5 from Eve to Alice
+2020-02-11 12:05:52,619: Alice received ACK from Eve with sequence number 4
+2020-02-11 12:05:52,820: Alice sends QUBIT to Eve
+2020-02-11 12:05:52,826: Alice awaits SEND QUBIT ACK from Eve with sequence 5
+2020-02-11 12:05:52,863: sending qubits from Alice to Bob
+2020-02-11 12:05:52,869: transfer qubits - sending qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:05:52,933: transfer qubits - received 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:05:52,938: sending qubits from Bob to Eve
+2020-02-11 12:05:52,944: transfer qubits - sending qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:05:53,020: transfer qubits - received 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:05:53,100: Eve received qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592 from Alice
+2020-02-11 12:05:53,105: sending ACK:6 from Eve to Alice
+2020-02-11 12:05:53,417: Alice received ACK from Eve with sequence number 5
+2020-02-11 12:05:53,595: Alice sends QUBIT to Eve
+2020-02-11 12:05:53,606: Alice awaits SEND QUBIT ACK from Eve with sequence 6
+2020-02-11 12:05:53,675: sending qubits from Alice to Bob
+2020-02-11 12:05:53,681: transfer qubits - sending qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:05:53,745: transfer qubits - received 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:05:53,745: sending qubits from Bob to Eve
+2020-02-11 12:05:53,745: transfer qubits - sending qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:05:53,812: transfer qubits - received 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:05:53,975: Eve received qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f from Alice
+2020-02-11 12:05:54,003: sending ACK:7 from Eve to Alice
+2020-02-11 12:05:54,297: Alice received ACK from Eve with sequence number 6
+2020-02-11 12:05:54,430: Alice sends QUBIT to Eve
+2020-02-11 12:05:54,435: Alice awaits SEND QUBIT ACK from Eve with sequence 7
+2020-02-11 12:05:54,564: sending qubits from Alice to Bob
+2020-02-11 12:05:54,570: transfer qubits - sending qubit 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:05:54,639: transfer qubits - received 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:05:54,644: sending qubits from Bob to Eve
+2020-02-11 12:05:54,649: transfer qubits - sending qubit 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:05:54,721: transfer qubits - received 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:05:54,805: Eve received qubit 345c11eb-54f6-4d5b-a187-15155c93f400 from Alice
+2020-02-11 12:05:54,816: sending ACK:8 from Eve to Alice
+2020-02-11 12:05:55,079: Alice received ACK from Eve with sequence number 7
+2020-02-11 12:05:55,163: Alice sends QUBIT to Eve
+2020-02-11 12:05:55,168: Alice awaits SEND QUBIT ACK from Eve with sequence 8
+2020-02-11 12:05:55,206: sending qubits from Alice to Bob
+2020-02-11 12:05:55,212: transfer qubits - sending qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:05:55,281: transfer qubits - received b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:05:55,286: sending qubits from Bob to Eve
+2020-02-11 12:05:55,292: transfer qubits - sending qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:05:55,361: transfer qubits - received b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:05:55,531: Eve received qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb from Alice
+2020-02-11 12:05:55,537: sending ACK:9 from Eve to Alice
+2020-02-11 12:05:55,879: Alice received ACK from Eve with sequence number 8
+2020-02-11 12:05:55,981: Alice sends QUBIT to Eve
+2020-02-11 12:05:55,987: Alice awaits SEND QUBIT ACK from Eve with sequence 9
+2020-02-11 12:05:56,008: sending qubits from Alice to Bob
+2020-02-11 12:05:56,019: transfer qubits - sending qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:05:56,093: transfer qubits - received d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:05:56,098: sending qubits from Bob to Eve
+2020-02-11 12:05:56,103: transfer qubits - sending qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:05:56,173: transfer qubits - received d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:05:56,230: Eve received qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98 from Alice
+2020-02-11 12:05:56,230: sending ACK:10 from Eve to Alice
+2020-02-11 12:05:56,612: Alice received ACK from Eve with sequence number 9
+2020-02-11 12:05:56,734: Alice sends QUBIT to Eve
+2020-02-11 12:05:56,765: Alice awaits SEND QUBIT ACK from Eve with sequence 10
+2020-02-11 12:05:56,845: sending qubits from Alice to Bob
+2020-02-11 12:05:56,851: transfer qubits - sending qubit bea58e0a-8031-46a9-86d6-0c439eebffdc
+2020-02-11 12:05:56,921: transfer qubits - received bea58e0a-8031-46a9-86d6-0c439eebffdc
+2020-02-11 12:05:56,926: sending qubits from Bob to Eve
+2020-02-11 12:05:56,926: transfer qubits - sending qubit bea58e0a-8031-46a9-86d6-0c439eebffdc
+2020-02-11 12:05:56,997: transfer qubits - received bea58e0a-8031-46a9-86d6-0c439eebffdc
+2020-02-11 12:05:57,184: Eve received qubit bea58e0a-8031-46a9-86d6-0c439eebffdc from Alice
+2020-02-11 12:05:57,190: sending ACK:11 from Eve to Alice
+2020-02-11 12:05:57,515: Alice received ACK from Eve with sequence number 10
+2020-02-11 12:05:57,781: Alice sends QUBIT to Eve
+2020-02-11 12:05:57,781: Alice awaits SEND QUBIT ACK from Eve with sequence 11
+2020-02-11 12:05:57,813: sending qubits from Alice to Bob
+2020-02-11 12:05:57,813: transfer qubits - sending qubit bc8ac348-08a2-4407-92c9-1435ce63cc9b
+2020-02-11 12:05:57,889: transfer qubits - received bc8ac348-08a2-4407-92c9-1435ce63cc9b
+2020-02-11 12:05:57,894: sending qubits from Bob to Eve
+2020-02-11 12:05:57,900: transfer qubits - sending qubit bc8ac348-08a2-4407-92c9-1435ce63cc9b
+2020-02-11 12:05:57,972: transfer qubits - received bc8ac348-08a2-4407-92c9-1435ce63cc9b
+2020-02-11 12:05:58,158: Eve received qubit bc8ac348-08a2-4407-92c9-1435ce63cc9b from Alice
+2020-02-11 12:05:58,190: sending ACK:12 from Eve to Alice
+2020-02-11 12:05:58,381: Alice received ACK from Eve with sequence number 11
+2020-02-11 12:05:58,560: Alice sends QUBIT to Eve
+2020-02-11 12:05:58,565: Alice awaits SEND QUBIT ACK from Eve with sequence 12
+2020-02-11 12:05:58,618: sending qubits from Alice to Bob
+2020-02-11 12:05:58,623: transfer qubits - sending qubit 6cfbf22d-b0ad-44ac-b012-4cab82e5309c
+2020-02-11 12:05:58,689: transfer qubits - received 6cfbf22d-b0ad-44ac-b012-4cab82e5309c
+2020-02-11 12:05:58,694: sending qubits from Bob to Eve
+2020-02-11 12:05:58,700: transfer qubits - sending qubit 6cfbf22d-b0ad-44ac-b012-4cab82e5309c
+2020-02-11 12:05:58,772: transfer qubits - received 6cfbf22d-b0ad-44ac-b012-4cab82e5309c
+2020-02-11 12:05:58,942: Eve received qubit 6cfbf22d-b0ad-44ac-b012-4cab82e5309c from Alice
+2020-02-11 12:05:58,953: sending ACK:13 from Eve to Alice
+2020-02-11 12:05:59,145: Alice received ACK from Eve with sequence number 12
+2020-02-11 12:05:59,198: Alice sends QUBIT to Eve
+2020-02-11 12:05:59,204: Alice awaits SEND QUBIT ACK from Eve with sequence 13
+2020-02-11 12:05:59,343: sending qubits from Alice to Bob
+2020-02-11 12:05:59,349: transfer qubits - sending qubit 9e82b308-479b-497c-85d9-2fab30c11afc
+2020-02-11 12:05:59,421: transfer qubits - received 9e82b308-479b-497c-85d9-2fab30c11afc
+2020-02-11 12:05:59,426: sending qubits from Bob to Eve
+2020-02-11 12:05:59,432: transfer qubits - sending qubit 9e82b308-479b-497c-85d9-2fab30c11afc
+2020-02-11 12:05:59,497: transfer qubits - received 9e82b308-479b-497c-85d9-2fab30c11afc
+2020-02-11 12:05:59,645: Eve received qubit 9e82b308-479b-497c-85d9-2fab30c11afc from Alice
+2020-02-11 12:05:59,645: sending ACK:14 from Eve to Alice
+2020-02-11 12:05:59,875: Alice received ACK from Eve with sequence number 13
+2020-02-11 12:06:00,064: Alice sends QUBIT to Eve
+2020-02-11 12:06:00,070: Alice awaits SEND QUBIT ACK from Eve with sequence 14
+2020-02-11 12:06:00,109: sending qubits from Alice to Bob
+2020-02-11 12:06:00,109: transfer qubits - sending qubit deebe454-a642-4410-860b-861c7edd144a
+2020-02-11 12:06:00,172: transfer qubits - received deebe454-a642-4410-860b-861c7edd144a
+2020-02-11 12:06:00,178: sending qubits from Bob to Eve
+2020-02-11 12:06:00,183: transfer qubits - sending qubit deebe454-a642-4410-860b-861c7edd144a
+2020-02-11 12:06:00,253: transfer qubits - received deebe454-a642-4410-860b-861c7edd144a
+2020-02-11 12:06:00,429: Eve received qubit deebe454-a642-4410-860b-861c7edd144a from Alice
+2020-02-11 12:06:00,434: sending ACK:15 from Eve to Alice
+2020-02-11 12:06:00,763: Alice received ACK from Eve with sequence number 14
+2020-02-11 12:06:00,940: Alice sends QUBIT to Eve
+2020-02-11 12:06:00,946: Alice awaits SEND QUBIT ACK from Eve with sequence 15
+2020-02-11 12:06:01,015: sending qubits from Alice to Bob
+2020-02-11 12:06:01,021: transfer qubits - sending qubit 2f07f7fb-ae2e-4b01-92d6-be6cee04013e
+2020-02-11 12:06:01,088: transfer qubits - received 2f07f7fb-ae2e-4b01-92d6-be6cee04013e
+2020-02-11 12:06:01,094: sending qubits from Bob to Eve
+2020-02-11 12:06:01,099: transfer qubits - sending qubit 2f07f7fb-ae2e-4b01-92d6-be6cee04013e
+2020-02-11 12:06:01,168: transfer qubits - received 2f07f7fb-ae2e-4b01-92d6-be6cee04013e
+2020-02-11 12:06:01,344: Eve received qubit 2f07f7fb-ae2e-4b01-92d6-be6cee04013e from Alice
+2020-02-11 12:06:01,344: sending ACK:16 from Eve to Alice
+2020-02-11 12:06:01,675: Alice received ACK from Eve with sequence number 15
+2020-02-11 12:06:01,749: Alice sends QUBIT to Eve
+2020-02-11 12:06:01,755: Alice awaits SEND QUBIT ACK from Eve with sequence 16
+2020-02-11 12:06:01,829: sending qubits from Alice to Bob
+2020-02-11 12:06:01,835: transfer qubits - sending qubit adaf1faa-e754-49ac-a074-f138a1f4ace5
+2020-02-11 12:06:01,896: transfer qubits - received adaf1faa-e754-49ac-a074-f138a1f4ace5
+2020-02-11 12:06:01,902: sending qubits from Bob to Eve
+2020-02-11 12:06:01,913: transfer qubits - sending qubit adaf1faa-e754-49ac-a074-f138a1f4ace5
+2020-02-11 12:06:01,972: transfer qubits - received adaf1faa-e754-49ac-a074-f138a1f4ace5
+2020-02-11 12:06:02,146: Eve received qubit adaf1faa-e754-49ac-a074-f138a1f4ace5 from Alice
+2020-02-11 12:06:02,151: sending ACK:17 from Eve to Alice
+2020-02-11 12:06:02,464: Alice received ACK from Eve with sequence number 16
+2020-02-11 12:06:02,586: Alice sends QUBIT to Eve
+2020-02-11 12:06:02,586: Alice awaits SEND QUBIT ACK from Eve with sequence 17
+2020-02-11 12:06:02,633: sending qubits from Alice to Bob
+2020-02-11 12:06:02,639: transfer qubits - sending qubit fdf056a2-264a-4960-a59a-d2aeb3756977
+2020-02-11 12:06:02,709: transfer qubits - received fdf056a2-264a-4960-a59a-d2aeb3756977
+2020-02-11 12:06:02,709: sending qubits from Bob to Eve
+2020-02-11 12:06:02,709: transfer qubits - sending qubit fdf056a2-264a-4960-a59a-d2aeb3756977
+2020-02-11 12:06:02,780: transfer qubits - received fdf056a2-264a-4960-a59a-d2aeb3756977
+2020-02-11 12:06:02,900: Eve received qubit fdf056a2-264a-4960-a59a-d2aeb3756977 from Alice
+2020-02-11 12:06:02,900: sending ACK:18 from Eve to Alice
+2020-02-11 12:06:03,309: Alice received ACK from Eve with sequence number 17
+2020-02-11 12:06:03,428: Alice sends QUBIT to Eve
+2020-02-11 12:06:03,444: Alice awaits SEND QUBIT ACK from Eve with sequence 18
+2020-02-11 12:06:03,558: sending qubits from Alice to Bob
+2020-02-11 12:06:03,564: transfer qubits - sending qubit a808c7a1-6e7a-4e6c-9df3-ca4bdc21a89d
+2020-02-11 12:06:03,632: transfer qubits - received a808c7a1-6e7a-4e6c-9df3-ca4bdc21a89d
+2020-02-11 12:06:03,638: sending qubits from Bob to Eve
+2020-02-11 12:06:03,648: transfer qubits - sending qubit a808c7a1-6e7a-4e6c-9df3-ca4bdc21a89d
+2020-02-11 12:06:03,721: transfer qubits - received a808c7a1-6e7a-4e6c-9df3-ca4bdc21a89d
+2020-02-11 12:06:03,955: Eve received qubit a808c7a1-6e7a-4e6c-9df3-ca4bdc21a89d from Alice
+2020-02-11 12:06:03,966: sending ACK:19 from Eve to Alice
+2020-02-11 12:06:04,435: Alice received ACK from Eve with sequence number 18
+2020-02-11 12:06:04,597: Alice sends QUBIT to Eve
+2020-02-11 12:06:04,608: Alice awaits SEND QUBIT ACK from Eve with sequence 19
+2020-02-11 12:06:04,682: sending qubits from Alice to Bob
+2020-02-11 12:06:04,688: transfer qubits - sending qubit 6f2bdbd9-c555-4de6-82da-33d07f455074
+2020-02-11 12:06:04,752: transfer qubits - received 6f2bdbd9-c555-4de6-82da-33d07f455074
+2020-02-11 12:06:04,757: sending qubits from Bob to Eve
+2020-02-11 12:06:04,768: transfer qubits - sending qubit 6f2bdbd9-c555-4de6-82da-33d07f455074
+2020-02-11 12:06:04,840: transfer qubits - received 6f2bdbd9-c555-4de6-82da-33d07f455074
+2020-02-11 12:06:04,851: Eve sends CLASSICAL to Alice with sequence 0
+2020-02-11 12:06:04,852: Eve sends QUBIT to Alice
+2020-02-11 12:06:04,852: Eve awaits SEND QUBIT ACK from Alice with sequence 1
+2020-02-11 12:06:04,981: sending qubits from Eve to Bob
+2020-02-11 12:06:04,981: transfer qubits - sending qubit 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:06:05,041: transfer qubits - received 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:06:05,041: sending qubits from Bob to Alice
+2020-02-11 12:06:05,042: transfer qubits - sending qubit 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:06:05,069: Alice received 0 with sequence number 0
+2020-02-11 12:06:05,081: Eve received qubit 6f2bdbd9-c555-4de6-82da-33d07f455074 from Alice
+2020-02-11 12:06:05,081: sending ACK:20 from Eve to Alice
+2020-02-11 12:06:05,105: transfer qubits - received 8e0a4325-189d-4caf-aa3c-1617fd945724
+2020-02-11 12:06:05,285: Alice received qubit 8e0a4325-189d-4caf-aa3c-1617fd945724 from Eve
+2020-02-11 12:06:05,290: sending ACK:2 from Alice to Eve
+2020-02-11 12:06:05,507: Alice received ACK from Eve with sequence number 19
+2020-02-11 12:06:05,528: Eve received ACK from Alice with sequence number 1
+2020-02-11 12:06:05,546: Eve sends QUBIT to Alice
+2020-02-11 12:06:05,552: Eve awaits SEND QUBIT ACK from Alice with sequence 2
+2020-02-11 12:06:05,723: sending qubits from Eve to Bob
+2020-02-11 12:06:05,728: transfer qubits - sending qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:06:05,800: transfer qubits - received 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:06:05,801: sending qubits from Bob to Alice
+2020-02-11 12:06:05,801: transfer qubits - sending qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:06:05,865: transfer qubits - received 1b4a9639-bc6a-48e1-9e20-3efb977abaf5
+2020-02-11 12:06:06,102: Alice received qubit 1b4a9639-bc6a-48e1-9e20-3efb977abaf5 from Eve
+2020-02-11 12:06:06,143: sending ACK:3 from Alice to Eve
+2020-02-11 12:06:06,399: Eve received ACK from Alice with sequence number 2
+2020-02-11 12:06:06,405: Eve sends QUBIT to Alice
+2020-02-11 12:06:06,405: Eve awaits SEND QUBIT ACK from Alice with sequence 3
+2020-02-11 12:06:06,555: sending qubits from Eve to Bob
+2020-02-11 12:06:06,561: transfer qubits - sending qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:06:06,633: transfer qubits - received 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:06:06,639: sending qubits from Bob to Alice
+2020-02-11 12:06:06,639: transfer qubits - sending qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:06:06,708: transfer qubits - received 6cf3483c-9fc3-422d-82d0-13b307b654b5
+2020-02-11 12:06:06,811: Alice received qubit 6cf3483c-9fc3-422d-82d0-13b307b654b5 from Eve
+2020-02-11 12:06:06,816: sending ACK:4 from Alice to Eve
+2020-02-11 12:06:07,204: Eve received ACK from Alice with sequence number 3
+2020-02-11 12:06:07,225: Eve sends QUBIT to Alice
+2020-02-11 12:06:07,230: Eve awaits SEND QUBIT ACK from Alice with sequence 4
+2020-02-11 12:06:07,326: sending qubits from Eve to Bob
+2020-02-11 12:06:07,332: transfer qubits - sending qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:06:07,404: transfer qubits - received a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:06:07,405: sending qubits from Bob to Alice
+2020-02-11 12:06:07,405: transfer qubits - sending qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:06:07,473: transfer qubits - received a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46
+2020-02-11 12:06:07,672: Alice received qubit a49f2e90-5f5c-43c0-9eb0-7dd2faa2ab46 from Eve
+2020-02-11 12:06:07,687: sending ACK:5 from Alice to Eve
+2020-02-11 12:06:08,131: Eve received ACK from Alice with sequence number 4
+2020-02-11 12:06:08,148: Eve sends QUBIT to Alice
+2020-02-11 12:06:08,149: Eve awaits SEND QUBIT ACK from Alice with sequence 5
+2020-02-11 12:06:08,264: sending qubits from Eve to Bob
+2020-02-11 12:06:08,270: transfer qubits - sending qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:06:08,341: transfer qubits - received 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:06:08,346: sending qubits from Bob to Alice
+2020-02-11 12:06:08,346: transfer qubits - sending qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:06:08,412: transfer qubits - received 367a2311-7bbb-4c0d-9a19-d37d35865bb3
+2020-02-11 12:06:08,569: Alice received qubit 367a2311-7bbb-4c0d-9a19-d37d35865bb3 from Eve
+2020-02-11 12:06:08,575: sending ACK:6 from Alice to Eve
+2020-02-11 12:06:08,964: Eve received ACK from Alice with sequence number 5
+2020-02-11 12:06:08,975: Eve sends QUBIT to Alice
+2020-02-11 12:06:08,981: Eve awaits SEND QUBIT ACK from Alice with sequence 6
+2020-02-11 12:06:09,161: sending qubits from Eve to Bob
+2020-02-11 12:06:09,166: transfer qubits - sending qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:06:09,237: transfer qubits - received 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:06:09,242: sending qubits from Bob to Alice
+2020-02-11 12:06:09,248: transfer qubits - sending qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:06:09,324: transfer qubits - received 631ab0f8-84d1-40bb-ba97-6b529b0db592
+2020-02-11 12:06:09,448: Alice received qubit 631ab0f8-84d1-40bb-ba97-6b529b0db592 from Eve
+2020-02-11 12:06:09,454: sending ACK:7 from Alice to Eve
+2020-02-11 12:06:09,795: Eve received ACK from Alice with sequence number 6
+2020-02-11 12:06:09,821: Eve sends QUBIT to Alice
+2020-02-11 12:06:09,828: Eve awaits SEND QUBIT ACK from Alice with sequence 7
+2020-02-11 12:06:09,922: sending qubits from Eve to Bob
+2020-02-11 12:06:09,933: transfer qubits - sending qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:06:10,005: transfer qubits - received 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:06:10,010: sending qubits from Bob to Alice
+2020-02-11 12:06:10,016: transfer qubits - sending qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:06:10,091: transfer qubits - received 1a7d8812-0f61-41b1-ab2d-19146ecaf98f
+2020-02-11 12:06:10,229: Alice received qubit 1a7d8812-0f61-41b1-ab2d-19146ecaf98f from Eve
+2020-02-11 12:06:10,234: sending ACK:8 from Alice to Eve
+2020-02-11 12:06:10,459: Eve received ACK from Alice with sequence number 7
+2020-02-11 12:06:10,478: Eve sends QUBIT to Alice
+2020-02-11 12:06:10,484: Eve awaits SEND QUBIT ACK from Alice with sequence 8
+2020-02-11 12:06:10,608: sending qubits from Eve to Bob
+2020-02-11 12:06:10,614: transfer qubits - sending qubit 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:06:10,685: transfer qubits - received 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:06:10,697: sending qubits from Bob to Alice
+2020-02-11 12:06:10,702: transfer qubits - sending qubit 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:06:10,776: transfer qubits - received 345c11eb-54f6-4d5b-a187-15155c93f400
+2020-02-11 12:06:10,928: Alice received qubit 345c11eb-54f6-4d5b-a187-15155c93f400 from Eve
+2020-02-11 12:06:10,939: sending ACK:9 from Alice to Eve
+2020-02-11 12:06:11,241: Eve received ACK from Alice with sequence number 8
+2020-02-11 12:06:11,247: Eve sends QUBIT to Alice
+2020-02-11 12:06:11,248: Eve awaits SEND QUBIT ACK from Alice with sequence 9
+2020-02-11 12:06:11,369: sending qubits from Eve to Bob
+2020-02-11 12:06:11,383: transfer qubits - sending qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:06:11,465: transfer qubits - received b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:06:11,470: sending qubits from Bob to Alice
+2020-02-11 12:06:11,470: transfer qubits - sending qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:06:11,537: transfer qubits - received b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb
+2020-02-11 12:06:11,749: Alice received qubit b0a27b6f-e6af-4dde-b5c9-660a8aecf6eb from Eve
+2020-02-11 12:06:11,749: sending ACK:10 from Alice to Eve
+2020-02-11 12:06:12,024: Eve received ACK from Alice with sequence number 9
+2020-02-11 12:06:12,043: Eve sends QUBIT to Alice
+2020-02-11 12:06:12,048: Eve awaits SEND QUBIT ACK from Alice with sequence 10
+2020-02-11 12:06:12,181: sending qubits from Eve to Bob
+2020-02-11 12:06:12,181: transfer qubits - sending qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:06:12,253: transfer qubits - received d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:06:12,253: sending qubits from Bob to Alice
+2020-02-11 12:06:12,254: transfer qubits - sending qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:06:12,320: transfer qubits - received d1b13c9c-6f74-4b1c-826c-3c26dfeebf98
+2020-02-11 12:06:12,496: Alice received qubit d1b13c9c-6f74-4b1c-826c-3c26dfeebf98 from Eve
+2020-02-11 12:06:12,502: sending ACK:11 from Alice to Eve
+2020-02-11 12:06:12,697: Eve received ACK from Alice with sequence number 10
+2020-02-11 12:06:12,703: Network stopped
+2020-02-11 12:06:12,708: Host Alice stopped
+2020-02-11 12:06:14,652: Host Bob stopped
+2020-02-11 12:06:14,658: Host Eve stopped
+2020-02-11 12:17:33,785: Host Alice started processing
+2020-02-11 12:17:33,954: Host Bob started processing
+2020-02-11 12:17:34,123: Host Eve started processing
+2020-02-11 12:17:34,226: Alice sends QUBIT to Eve
+2020-02-11 12:17:34,237: Alice awaits SEND QUBIT ACK from Eve with sequence 0
+2020-02-11 12:17:34,336: sending qubits from Alice to Bob
+2020-02-11 12:17:34,342: transfer qubits - sending qubit 79364fee-fa9a-467c-8c2b-dc8dd9796c7c
+2020-02-11 12:17:34,377: transfer qubits - received 79364fee-fa9a-467c-8c2b-dc8dd9796c7c
+2020-02-11 12:17:34,382: sending qubits from Bob to Eve
+2020-02-11 12:17:34,388: transfer qubits - sending qubit 79364fee-fa9a-467c-8c2b-dc8dd9796c7c
+2020-02-11 12:17:34,427: transfer qubits - received 79364fee-fa9a-467c-8c2b-dc8dd9796c7c
+2020-02-11 12:17:34,548: Eve received qubit 79364fee-fa9a-467c-8c2b-dc8dd9796c7c from Alice
+2020-02-11 12:17:34,553: sending ACK:1 from Eve to Alice
+2020-02-11 12:17:34,767: Alice received ACK from Eve with sequence number 0
+2020-02-11 12:17:34,893: Alice sends QUBIT to Eve
+2020-02-11 12:17:34,899: Alice awaits SEND QUBIT ACK from Eve with sequence 1
+2020-02-11 12:17:35,025: sending qubits from Alice to Bob
+2020-02-11 12:17:35,031: transfer qubits - sending qubit 3b80f7be-86be-4acd-beff-c3a1d4904832
+2020-02-11 12:17:35,101: transfer qubits - received 3b80f7be-86be-4acd-beff-c3a1d4904832
+2020-02-11 12:17:35,101: sending qubits from Bob to Eve
+2020-02-11 12:17:35,101: transfer qubits - sending qubit 3b80f7be-86be-4acd-beff-c3a1d4904832
+2020-02-11 12:17:35,173: transfer qubits - received 3b80f7be-86be-4acd-beff-c3a1d4904832
+2020-02-11 12:17:35,236: Eve received qubit 3b80f7be-86be-4acd-beff-c3a1d4904832 from Alice
+2020-02-11 12:17:35,242: sending ACK:2 from Eve to Alice
+2020-02-11 12:17:35,541: Alice received ACK from Eve with sequence number 1
+2020-02-11 12:17:35,727: Alice sends QUBIT to Eve
+2020-02-11 12:17:35,733: Alice awaits SEND QUBIT ACK from Eve with sequence 2
+2020-02-11 12:17:35,782: sending qubits from Alice to Bob
+2020-02-11 12:17:35,787: transfer qubits - sending qubit b0e71bdf-cc80-443e-987c-c701a48d0ce5
+2020-02-11 12:17:35,849: transfer qubits - received b0e71bdf-cc80-443e-987c-c701a48d0ce5
+2020-02-11 12:17:35,849: sending qubits from Bob to Eve
+2020-02-11 12:17:35,849: transfer qubits - sending qubit b0e71bdf-cc80-443e-987c-c701a48d0ce5
+2020-02-11 12:17:35,917: transfer qubits - received b0e71bdf-cc80-443e-987c-c701a48d0ce5
+2020-02-11 12:17:36,069: Eve received qubit b0e71bdf-cc80-443e-987c-c701a48d0ce5 from Alice
+2020-02-11 12:17:36,083: sending ACK:3 from Eve to Alice
+2020-02-11 12:17:36,419: Alice received ACK from Eve with sequence number 2
+2020-02-11 12:17:36,534: Alice sends QUBIT to Eve
+2020-02-11 12:17:36,540: Alice awaits SEND QUBIT ACK from Eve with sequence 3
+2020-02-11 12:17:36,638: sending qubits from Alice to Bob
+2020-02-11 12:17:36,644: transfer qubits - sending qubit 8d24230b-d8e9-4e27-a51a-410b5cb73c16
+2020-02-11 12:17:36,712: transfer qubits - received 8d24230b-d8e9-4e27-a51a-410b5cb73c16
+2020-02-11 12:17:36,712: sending qubits from Bob to Eve
+2020-02-11 12:17:36,712: transfer qubits - sending qubit 8d24230b-d8e9-4e27-a51a-410b5cb73c16
+2020-02-11 12:17:36,776: transfer qubits - received 8d24230b-d8e9-4e27-a51a-410b5cb73c16
+2020-02-11 12:17:36,947: Eve received qubit 8d24230b-d8e9-4e27-a51a-410b5cb73c16 from Alice
+2020-02-11 12:17:36,952: sending ACK:4 from Eve to Alice
+2020-02-11 12:17:37,141: Alice received ACK from Eve with sequence number 3
+2020-02-11 12:17:37,287: Alice sends QUBIT to Eve
+2020-02-11 12:17:37,292: Alice awaits SEND QUBIT ACK from Eve with sequence 4
+2020-02-11 12:17:37,385: sending qubits from Alice to Bob
+2020-02-11 12:17:37,391: transfer qubits - sending qubit 17b4dc73-f101-4267-b23d-c786f63f533b
+2020-02-11 12:17:37,452: transfer qubits - received 17b4dc73-f101-4267-b23d-c786f63f533b
+2020-02-11 12:17:37,458: sending qubits from Bob to Eve
+2020-02-11 12:17:37,463: transfer qubits - sending qubit 17b4dc73-f101-4267-b23d-c786f63f533b
+2020-02-11 12:17:37,536: transfer qubits - received 17b4dc73-f101-4267-b23d-c786f63f533b
+2020-02-11 12:17:37,839: Eve received qubit 17b4dc73-f101-4267-b23d-c786f63f533b from Alice
+2020-02-11 12:17:37,844: sending ACK:5 from Eve to Alice
+2020-02-11 12:17:38,140: Alice received ACK from Eve with sequence number 4
+2020-02-11 12:17:38,228: Alice sends QUBIT to Eve
+2020-02-11 12:17:38,228: Alice awaits SEND QUBIT ACK from Eve with sequence 5
+2020-02-11 12:17:38,317: sending qubits from Alice to Bob
+2020-02-11 12:17:38,322: transfer qubits - sending qubit 9226ff96-fa96-481e-b3a2-4ebd4bda5d22
+2020-02-11 12:17:38,384: transfer qubits - received 9226ff96-fa96-481e-b3a2-4ebd4bda5d22
+2020-02-11 12:17:38,390: sending qubits from Bob to Eve
+2020-02-11 12:17:38,395: transfer qubits - sending qubit 9226ff96-fa96-481e-b3a2-4ebd4bda5d22
+2020-02-11 12:17:38,464: transfer qubits - received 9226ff96-fa96-481e-b3a2-4ebd4bda5d22
+2020-02-11 12:17:38,672: Eve received qubit 9226ff96-fa96-481e-b3a2-4ebd4bda5d22 from Alice
+2020-02-11 12:17:38,688: sending ACK:6 from Eve to Alice
+2020-02-11 12:17:38,938: Alice received ACK from Eve with sequence number 5
+2020-02-11 12:17:39,044: Alice sends QUBIT to Eve
+2020-02-11 12:17:39,050: Alice awaits SEND QUBIT ACK from Eve with sequence 6
+2020-02-11 12:17:39,180: sending qubits from Alice to Bob
+2020-02-11 12:17:39,185: transfer qubits - sending qubit d69bb24a-888a-443e-8085-b074c0b50847
+2020-02-11 12:17:39,253: transfer qubits - received d69bb24a-888a-443e-8085-b074c0b50847
+2020-02-11 12:17:39,258: sending qubits from Bob to Eve
+2020-02-11 12:17:39,258: transfer qubits - sending qubit d69bb24a-888a-443e-8085-b074c0b50847
+2020-02-11 12:17:39,328: transfer qubits - received d69bb24a-888a-443e-8085-b074c0b50847
+2020-02-11 12:17:39,502: Eve received qubit d69bb24a-888a-443e-8085-b074c0b50847 from Alice
+2020-02-11 12:17:39,508: sending ACK:7 from Eve to Alice
+2020-02-11 12:17:39,844: Alice received ACK from Eve with sequence number 6
+2020-02-11 12:17:39,943: Alice sends QUBIT to Eve
+2020-02-11 12:17:39,949: Alice awaits SEND QUBIT ACK from Eve with sequence 7
+2020-02-11 12:17:39,965: sending qubits from Alice to Bob
+2020-02-11 12:17:39,971: transfer qubits - sending qubit 76426e14-1452-43e5-b177-e359dae40599
+2020-02-11 12:17:40,040: transfer qubits - received 76426e14-1452-43e5-b177-e359dae40599
+2020-02-11 12:17:40,046: sending qubits from Bob to Eve
+2020-02-11 12:17:40,046: transfer qubits - sending qubit 76426e14-1452-43e5-b177-e359dae40599
+2020-02-11 12:17:40,112: transfer qubits - received 76426e14-1452-43e5-b177-e359dae40599
+2020-02-11 12:17:40,279: Eve received qubit 76426e14-1452-43e5-b177-e359dae40599 from Alice
+2020-02-11 12:17:40,284: sending ACK:8 from Eve to Alice
+2020-02-11 12:17:40,638: Alice received ACK from Eve with sequence number 7
+2020-02-11 12:17:40,822: Alice sends QUBIT to Eve
+2020-02-11 12:17:40,832: Alice awaits SEND QUBIT ACK from Eve with sequence 8
+2020-02-11 12:17:40,875: sending qubits from Alice to Bob
+2020-02-11 12:17:40,880: transfer qubits - sending qubit 55b88651-eb63-457a-a625-9fa1a501c166
+2020-02-11 12:17:40,949: transfer qubits - received 55b88651-eb63-457a-a625-9fa1a501c166
+2020-02-11 12:17:40,954: sending qubits from Bob to Eve
+2020-02-11 12:17:40,955: transfer qubits - sending qubit 55b88651-eb63-457a-a625-9fa1a501c166
+2020-02-11 12:17:41,020: transfer qubits - received 55b88651-eb63-457a-a625-9fa1a501c166
+2020-02-11 12:17:41,194: Eve received qubit 55b88651-eb63-457a-a625-9fa1a501c166 from Alice
+2020-02-11 12:17:41,205: sending ACK:9 from Eve to Alice
+2020-02-11 12:17:41,522: Alice received ACK from Eve with sequence number 8
+2020-02-11 12:17:41,585: Alice sends QUBIT to Eve
+2020-02-11 12:17:41,591: Alice awaits SEND QUBIT ACK from Eve with sequence 9
+2020-02-11 12:17:41,649: sending qubits from Alice to Bob
+2020-02-11 12:17:41,655: transfer qubits - sending qubit f9c42820-6fa3-4fe1-aef4-744c4ba9bb17
+2020-02-11 12:17:41,724: transfer qubits - received f9c42820-6fa3-4fe1-aef4-744c4ba9bb17
+2020-02-11 12:17:41,730: sending qubits from Bob to Eve
+2020-02-11 12:17:41,735: transfer qubits - sending qubit f9c42820-6fa3-4fe1-aef4-744c4ba9bb17
+2020-02-11 12:17:41,800: transfer qubits - received f9c42820-6fa3-4fe1-aef4-744c4ba9bb17
+2020-02-11 12:17:41,969: Eve received qubit f9c42820-6fa3-4fe1-aef4-744c4ba9bb17 from Alice
+2020-02-11 12:17:41,974: sending ACK:10 from Eve to Alice
+2020-02-11 12:17:42,334: Alice received ACK from Eve with sequence number 9
+2020-02-11 12:17:42,517: Alice sends QUBIT to Eve
+2020-02-11 12:17:42,517: Alice awaits SEND QUBIT ACK from Eve with sequence 10
+2020-02-11 12:17:42,561: sending qubits from Alice to Bob
+2020-02-11 12:17:42,567: transfer qubits - sending qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:42,636: transfer qubits - received 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:42,642: sending qubits from Bob to Eve
+2020-02-11 12:17:42,647: transfer qubits - sending qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:42,717: transfer qubits - received 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:42,893: Eve received qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297 from Alice
+2020-02-11 12:17:42,893: sending ACK:11 from Eve to Alice
+2020-02-11 12:17:43,230: Alice received ACK from Eve with sequence number 10
+2020-02-11 12:17:43,400: Alice sends QUBIT to Eve
+2020-02-11 12:17:43,401: Alice awaits SEND QUBIT ACK from Eve with sequence 11
+2020-02-11 12:17:43,474: sending qubits from Alice to Bob
+2020-02-11 12:17:43,479: transfer qubits - sending qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:43,548: transfer qubits - received 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:43,554: sending qubits from Bob to Eve
+2020-02-11 12:17:43,559: transfer qubits - sending qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:43,628: transfer qubits - received 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:43,702: Eve received qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705 from Alice
+2020-02-11 12:17:43,707: sending ACK:12 from Eve to Alice
+2020-02-11 12:17:44,152: Alice received ACK from Eve with sequence number 11
+2020-02-11 12:17:44,402: Alice sends QUBIT to Eve
+2020-02-11 12:17:44,417: Alice awaits SEND QUBIT ACK from Eve with sequence 12
+2020-02-11 12:17:44,535: sending qubits from Alice to Bob
+2020-02-11 12:17:44,540: transfer qubits - sending qubit 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:44,604: transfer qubits - received 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:44,610: sending qubits from Bob to Eve
+2020-02-11 12:17:44,616: transfer qubits - sending qubit 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:44,688: transfer qubits - received 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:44,831: Eve received qubit 76792477-3b84-4a15-8f39-2dea8223890a from Alice
+2020-02-11 12:17:44,848: sending ACK:13 from Eve to Alice
+2020-02-11 12:17:45,143: Alice received ACK from Eve with sequence number 12
+2020-02-11 12:17:45,225: Alice sends QUBIT to Eve
+2020-02-11 12:17:45,235: Alice awaits SEND QUBIT ACK from Eve with sequence 13
+2020-02-11 12:17:45,277: sending qubits from Alice to Bob
+2020-02-11 12:17:45,283: transfer qubits - sending qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:45,344: transfer qubits - received e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:45,350: sending qubits from Bob to Eve
+2020-02-11 12:17:45,350: transfer qubits - sending qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:45,419: transfer qubits - received e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:45,636: Eve received qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559 from Alice
+2020-02-11 12:17:45,641: sending ACK:14 from Eve to Alice
+2020-02-11 12:17:45,829: Alice received ACK from Eve with sequence number 13
+2020-02-11 12:17:45,908: Alice sends QUBIT to Eve
+2020-02-11 12:17:45,919: Alice awaits SEND QUBIT ACK from Eve with sequence 14
+2020-02-11 12:17:46,014: sending qubits from Alice to Bob
+2020-02-11 12:17:46,019: transfer qubits - sending qubit 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:46,084: transfer qubits - received 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:46,085: sending qubits from Bob to Eve
+2020-02-11 12:17:46,085: transfer qubits - sending qubit 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:46,153: transfer qubits - received 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:46,372: Eve received qubit 58acc7e6-9871-4561-b0c0-d39f5548b900 from Alice
+2020-02-11 12:17:46,387: sending ACK:15 from Eve to Alice
+2020-02-11 12:17:46,602: Alice received ACK from Eve with sequence number 14
+2020-02-11 12:17:46,801: Alice sends QUBIT to Eve
+2020-02-11 12:17:46,817: Alice awaits SEND QUBIT ACK from Eve with sequence 15
+2020-02-11 12:17:46,839: sending qubits from Alice to Bob
+2020-02-11 12:17:46,845: transfer qubits - sending qubit 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:46,912: transfer qubits - received 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:46,918: sending qubits from Bob to Eve
+2020-02-11 12:17:46,923: transfer qubits - sending qubit 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:46,993: transfer qubits - received 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:47,066: Eve received qubit 2b5858af-0579-4662-bc17-bcecaca9b993 from Alice
+2020-02-11 12:17:47,076: sending ACK:16 from Eve to Alice
+2020-02-11 12:17:47,414: Alice received ACK from Eve with sequence number 15
+2020-02-11 12:17:47,567: Alice sends QUBIT to Eve
+2020-02-11 12:17:47,573: Alice awaits SEND QUBIT ACK from Eve with sequence 16
+2020-02-11 12:17:47,682: sending qubits from Alice to Bob
+2020-02-11 12:17:47,687: transfer qubits - sending qubit a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:47,748: transfer qubits - received a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:47,754: sending qubits from Bob to Eve
+2020-02-11 12:17:47,754: transfer qubits - sending qubit a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:47,824: transfer qubits - received a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:47,988: Eve received qubit a6a5b528-1242-4832-ac79-410175eeaaab from Alice
+2020-02-11 12:17:47,988: sending ACK:17 from Eve to Alice
+2020-02-11 12:17:48,303: Alice received ACK from Eve with sequence number 16
+2020-02-11 12:17:48,472: Alice sends QUBIT to Eve
+2020-02-11 12:17:48,478: Alice awaits SEND QUBIT ACK from Eve with sequence 17
+2020-02-11 12:17:48,529: sending qubits from Alice to Bob
+2020-02-11 12:17:48,540: transfer qubits - sending qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:48,608: transfer qubits - received 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:48,614: sending qubits from Bob to Eve
+2020-02-11 12:17:48,619: transfer qubits - sending qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:48,689: transfer qubits - received 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:48,777: Eve received qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc from Alice
+2020-02-11 12:17:48,788: sending ACK:18 from Eve to Alice
+2020-02-11 12:17:49,126: Alice received ACK from Eve with sequence number 17
+2020-02-11 12:17:49,258: Alice sends QUBIT to Eve
+2020-02-11 12:17:49,269: Alice awaits SEND QUBIT ACK from Eve with sequence 18
+2020-02-11 12:17:49,388: sending qubits from Alice to Bob
+2020-02-11 12:17:49,394: transfer qubits - sending qubit a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:49,464: transfer qubits - received a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:49,470: sending qubits from Bob to Eve
+2020-02-11 12:17:49,476: transfer qubits - sending qubit a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:49,544: transfer qubits - received a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:49,709: Eve received qubit a7f41756-59d8-4532-817c-744771b31b3b from Alice
+2020-02-11 12:17:49,724: sending ACK:19 from Eve to Alice
+2020-02-11 12:17:50,010: Alice received ACK from Eve with sequence number 18
+2020-02-11 12:17:50,235: Alice sends QUBIT to Eve
+2020-02-11 12:17:50,241: Alice awaits SEND QUBIT ACK from Eve with sequence 19
+2020-02-11 12:17:50,377: sending qubits from Alice to Bob
+2020-02-11 12:17:50,378: transfer qubits - sending qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:50,449: transfer qubits - received 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:50,454: sending qubits from Bob to Eve
+2020-02-11 12:17:50,454: transfer qubits - sending qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:50,520: transfer qubits - received 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:50,537: Eve sends CLASSICAL to Alice with sequence 0
+2020-02-11 12:17:50,543: Eve sends QUBIT to Alice
+2020-02-11 12:17:50,554: Eve awaits SEND QUBIT ACK from Alice with sequence 1
+2020-02-11 12:17:50,693: sending qubits from Eve to Bob
+2020-02-11 12:17:50,693: transfer qubits - sending qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:50,753: transfer qubits - received 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:50,753: sending qubits from Bob to Alice
+2020-02-11 12:17:50,753: transfer qubits - sending qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:50,771: Alice received 1 with sequence number 0
+2020-02-11 12:17:50,793: Eve received qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc from Alice
+2020-02-11 12:17:50,794: sending ACK:20 from Eve to Alice
+2020-02-11 12:17:50,809: transfer qubits - received 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297
+2020-02-11 12:17:50,987: Alice received qubit 0c867f7f-4ffc-4ddf-956a-2c7cbd6f6297 from Eve
+2020-02-11 12:17:50,993: sending ACK:2 from Alice to Eve
+2020-02-11 12:17:51,219: Eve received ACK from Alice with sequence number 1
+2020-02-11 12:17:51,220: Alice received ACK from Eve with sequence number 19
+2020-02-11 12:17:51,230: Eve sends QUBIT to Alice
+2020-02-11 12:17:51,246: Eve awaits SEND QUBIT ACK from Alice with sequence 2
+2020-02-11 12:17:51,351: sending qubits from Eve to Bob
+2020-02-11 12:17:51,352: transfer qubits - sending qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:51,420: transfer qubits - received 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:51,426: sending qubits from Bob to Alice
+2020-02-11 12:17:51,431: transfer qubits - sending qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:51,500: transfer qubits - received 9bc64f3b-fa36-4d4e-a56c-ffb266927705
+2020-02-11 12:17:51,680: Alice received qubit 9bc64f3b-fa36-4d4e-a56c-ffb266927705 from Eve
+2020-02-11 12:17:51,691: sending ACK:3 from Alice to Eve
+2020-02-11 12:17:51,998: Eve received ACK from Alice with sequence number 2
+2020-02-11 12:17:52,013: Eve sends QUBIT to Alice
+2020-02-11 12:17:52,014: Eve awaits SEND QUBIT ACK from Alice with sequence 3
+2020-02-11 12:17:52,130: sending qubits from Eve to Bob
+2020-02-11 12:17:52,135: transfer qubits - sending qubit 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:52,200: transfer qubits - received 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:52,206: sending qubits from Bob to Alice
+2020-02-11 12:17:52,211: transfer qubits - sending qubit 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:52,284: transfer qubits - received 76792477-3b84-4a15-8f39-2dea8223890a
+2020-02-11 12:17:52,352: Alice received qubit 76792477-3b84-4a15-8f39-2dea8223890a from Eve
+2020-02-11 12:17:52,378: sending ACK:4 from Alice to Eve
+2020-02-11 12:17:52,553: Eve received ACK from Alice with sequence number 3
+2020-02-11 12:17:52,564: Eve sends QUBIT to Alice
+2020-02-11 12:17:52,580: Eve awaits SEND QUBIT ACK from Alice with sequence 4
+2020-02-11 12:17:52,715: sending qubits from Eve to Bob
+2020-02-11 12:17:52,721: transfer qubits - sending qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:52,789: transfer qubits - received e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:52,794: sending qubits from Bob to Alice
+2020-02-11 12:17:52,800: transfer qubits - sending qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:52,869: transfer qubits - received e7e579c5-4c9e-472a-ae28-a895d8ca5559
+2020-02-11 12:17:53,094: Alice received qubit e7e579c5-4c9e-472a-ae28-a895d8ca5559 from Eve
+2020-02-11 12:17:53,100: sending ACK:5 from Alice to Eve
+2020-02-11 12:17:53,424: Eve received ACK from Alice with sequence number 4
+2020-02-11 12:17:53,455: Eve sends QUBIT to Alice
+2020-02-11 12:17:53,466: Eve awaits SEND QUBIT ACK from Alice with sequence 5
+2020-02-11 12:17:53,566: sending qubits from Eve to Bob
+2020-02-11 12:17:53,571: transfer qubits - sending qubit 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:53,637: transfer qubits - received 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:53,642: sending qubits from Bob to Alice
+2020-02-11 12:17:53,648: transfer qubits - sending qubit 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:53,712: transfer qubits - received 58acc7e6-9871-4561-b0c0-d39f5548b900
+2020-02-11 12:17:53,851: Alice received qubit 58acc7e6-9871-4561-b0c0-d39f5548b900 from Eve
+2020-02-11 12:17:53,861: sending ACK:6 from Alice to Eve
+2020-02-11 12:17:54,290: Eve received ACK from Alice with sequence number 5
+2020-02-11 12:17:54,317: Eve sends QUBIT to Alice
+2020-02-11 12:17:54,317: Eve awaits SEND QUBIT ACK from Alice with sequence 6
+2020-02-11 12:17:54,426: sending qubits from Eve to Bob
+2020-02-11 12:17:54,432: transfer qubits - sending qubit 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:54,505: transfer qubits - received 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:54,510: sending qubits from Bob to Alice
+2020-02-11 12:17:54,510: transfer qubits - sending qubit 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:54,572: transfer qubits - received 2b5858af-0579-4662-bc17-bcecaca9b993
+2020-02-11 12:17:54,714: Alice received qubit 2b5858af-0579-4662-bc17-bcecaca9b993 from Eve
+2020-02-11 12:17:54,720: sending ACK:7 from Alice to Eve
+2020-02-11 12:17:55,095: Eve received ACK from Alice with sequence number 6
+2020-02-11 12:17:55,116: Eve sends QUBIT to Alice
+2020-02-11 12:17:55,122: Eve awaits SEND QUBIT ACK from Alice with sequence 7
+2020-02-11 12:17:55,236: sending qubits from Eve to Bob
+2020-02-11 12:17:55,241: transfer qubits - sending qubit a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:55,305: transfer qubits - received a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:55,311: sending qubits from Bob to Alice
+2020-02-11 12:17:55,317: transfer qubits - sending qubit a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:55,388: transfer qubits - received a6a5b528-1242-4832-ac79-410175eeaaab
+2020-02-11 12:17:55,529: Alice received qubit a6a5b528-1242-4832-ac79-410175eeaaab from Eve
+2020-02-11 12:17:55,550: sending ACK:8 from Alice to Eve
+2020-02-11 12:17:55,855: Eve received ACK from Alice with sequence number 7
+2020-02-11 12:17:55,861: Eve sends QUBIT to Alice
+2020-02-11 12:17:55,872: Eve awaits SEND QUBIT ACK from Alice with sequence 8
+2020-02-11 12:17:55,991: sending qubits from Eve to Bob
+2020-02-11 12:17:55,996: transfer qubits - sending qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:56,064: transfer qubits - received 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:56,070: sending qubits from Bob to Alice
+2020-02-11 12:17:56,075: transfer qubits - sending qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:56,144: transfer qubits - received 69a0d20b-b11a-4e12-b542-575bd8c99ebc
+2020-02-11 12:17:56,361: Alice received qubit 69a0d20b-b11a-4e12-b542-575bd8c99ebc from Eve
+2020-02-11 12:17:56,377: sending ACK:9 from Alice to Eve
+2020-02-11 12:17:56,685: Eve received ACK from Alice with sequence number 8
+2020-02-11 12:17:56,722: Eve sends QUBIT to Alice
+2020-02-11 12:17:56,728: Eve awaits SEND QUBIT ACK from Alice with sequence 9
+2020-02-11 12:17:56,840: sending qubits from Eve to Bob
+2020-02-11 12:17:56,845: transfer qubits - sending qubit a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:56,916: transfer qubits - received a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:56,922: sending qubits from Bob to Alice
+2020-02-11 12:17:56,927: transfer qubits - sending qubit a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:56,988: transfer qubits - received a7f41756-59d8-4532-817c-744771b31b3b
+2020-02-11 12:17:57,076: Alice received qubit a7f41756-59d8-4532-817c-744771b31b3b from Eve
+2020-02-11 12:17:57,088: sending ACK:10 from Alice to Eve
+2020-02-11 12:17:57,381: Eve received ACK from Alice with sequence number 9
+2020-02-11 12:17:57,403: Eve sends QUBIT to Alice
+2020-02-11 12:17:57,409: Eve awaits SEND QUBIT ACK from Alice with sequence 10
+2020-02-11 12:17:57,502: sending qubits from Eve to Bob
+2020-02-11 12:17:57,508: transfer qubits - sending qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:57,580: transfer qubits - received 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:57,586: sending qubits from Bob to Alice
+2020-02-11 12:17:57,591: transfer qubits - sending qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:57,656: transfer qubits - received 14212283-d9dc-4c6b-a36d-2e2ab3437cdc
+2020-02-11 12:17:57,767: Alice received qubit 14212283-d9dc-4c6b-a36d-2e2ab3437cdc from Eve
+2020-02-11 12:17:57,773: sending ACK:11 from Alice to Eve
+2020-02-11 12:17:58,038: Eve received ACK from Alice with sequence number 10
+2020-02-11 12:17:58,054: Network stopped
+2020-02-11 12:17:58,059: Host Alice stopped
+2020-02-11 12:17:59,992: Host Bob stopped
+2020-02-11 12:17:59,992: Host Eve stopped

@@ -4,7 +4,9 @@ import numpy as np
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
+from components.logger import Logger
 
+Logger.DISABLED = False
 
 def qudp_sender(host, q_size, receiver_id):
     bit_arr = np.random.randint(2, size=q_size)
@@ -37,7 +39,7 @@ def qudp_receiver(host, q_size, sender_id):
 
     assert messages is not None and len(messages) > 0
 
-    checksum_size = int(messages[0]['message'])
+    checksum_size = int(messages[0].content)
     checksum_per_qubit = int(q_size / checksum_size)
 
     wait_start_time = time.time()
@@ -59,12 +61,12 @@ def qudp_receiver(host, q_size, sender_id):
     checksum_cnt = 0
     for i in range(len(host.get_data_qubits(sender_id))):
         if checksum_cnt < checksum_size:
-            checksum_qubits.append(data_qubits[q_size + i]['q'])
+            checksum_qubits.append(data_qubits[q_size + i].qubit)
             checksum_cnt = checksum_cnt + 1
 
     k = 1
     for i in range(len(data_qubits) - checksum_size):
-        data_qubits[i]['q'].cnot(checksum_qubits[k - 1])
+        data_qubits[i].qubit.cnot(checksum_qubits[k - 1])
         if i == (k * checksum_per_qubit - 1):
             k = k + 1
 
@@ -82,7 +84,7 @@ def qudp_receiver(host, q_size, sender_id):
 
     rec_bits = []
     for i in range(len(data_qubits) - checksum_size):
-        rec_bits.append(data_qubits[i]['q'].measure())
+        rec_bits.append(data_qubits[i].qubit.measure())
 
     print('---------')
     print('Receiver received the classical bits: ' + str(rec_bits))

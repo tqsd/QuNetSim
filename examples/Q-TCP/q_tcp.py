@@ -15,6 +15,7 @@ SYN_ACK = '11'
 ACK = '01'
 WAIT_TIME = 15
 MAX_NUM_OF_TRANSMISSIONS = 10
+Logger.DISABLED = False
 
 
 def handshake_sender(host, receiver_id):
@@ -44,7 +45,9 @@ def handshake_sender(host, receiver_id):
         Logger.get_instance().log('ACK is not received')
         return False
 
-    syn_seq_num = host.get_sequence_number(receiver_id)
+    syn_seq_num = host.get_sequence_number_receiver(receiver_id)
+    print('SYN_SEQ_NUM')
+    print(syn_seq_num)
 
     # Receive the qubits Bob has sent (qubit 2 and qubit 3) for SYN-ACK.
     qb_2 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
@@ -57,6 +60,8 @@ def handshake_sender(host, receiver_id):
 
     # Receive the classical message Bob has sent for SYN-ACK.
     message_recv = host.get_classical(receiver_id, syn_seq_num + 2, wait=WAIT_TIME)
+    print('MESSAGE_RECV')
+    print(message_recv)
     if message_recv is None:
         return False
 
@@ -100,21 +105,23 @@ def handshake_receiver(host, sender_id):
     :param sender_id: ID of the sender
     :return: If successful returns True, otherwise False
     """
-    latest_seq_num = host.get_sequence_number(sender_id)
+    latest_seq_num = host.get_sequence_number_receiver(sender_id)
+    print('LATEST SEQ NUM')
+    print(latest_seq_num)
 
     # Receive the EPR half of Alice and the SYN message
     qb_2 = host.get_data_qubit(sender_id, wait=WAIT_TIME)
     if qb_2 is None:
         Logger.get_instance().log('qb_2 is None')
         return False
-    qb_2 = qb_2['q']
+    #qb_2_physical = qb_2.qubit
 
     message_recv = host.get_classical(sender_id, (latest_seq_num + 1), wait=WAIT_TIME)
     if not message_recv:
         Logger.get_instance().log('No message has arrived')
         return False
 
-    message_recv = message_recv[0]['message']
+    message_recv = message_recv.content
 
     if message_recv == '10':
         Logger.get_instance().log("SYN is received by Bob")
@@ -129,7 +136,6 @@ def handshake_receiver(host, sender_id):
 
     # Send half of the EPR pair created (qubit 3) and send back the qubit 2 that Alice has sent first.
     _, ack_received = host.send_qubit(sender_id, qb_2, await_ack=True)
-
     if ack_received is False:
         Logger.get_instance().log('ACK is not received')
         return False
@@ -275,12 +281,12 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
     checksum_size = int(q_size / checksum_size_per_qubit)
     for i in range(len(qubits)):
         if checksum_cnt < checksum_size:
-            checksum_qubits.append(qubits[q_size + i]['q'])
+            checksum_qubits.append(qubits[q_size + i].qubit)
             checksum_cnt = checksum_cnt + 1
 
     checksum_cnt = 1
     for i in range(len(qubits) - checksum_size):
-        qubits[i]['q'].cnot(checksum_qubits[checksum_cnt - 1])
+        qubits[i].qubit.cnot(checksum_qubits[checksum_cnt - 1])
         if i == (checksum_cnt * checksum_size_per_qubit - 1):
             checksum_cnt = checksum_cnt + 1
 
@@ -289,16 +295,22 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
         if checksum_qubits[i].measure() != 0:
             errors += 1
 
+    latest_seq_num = host.get_sequence_number(sender_id)
+    print('LATEST SEQ NUM')
+    print(latest_seq_num)
+
     print('---------')
     if errors == 0:
-        Logger.get_instance().log('No error exist in UDP packet')
+        Logger.get_instance().log('No error exist in TCP packet')
     else:
-        Logger.get_instance().log('There were errors in the UDP transmission')
+        Logger.get_instance().log('There were errors in the TCP transmission')
     print('---------')
+
+
 
     rec_bits = []
     for i in range(len(qubits) - checksum_size):
-        rec_bits.append(qubits[i]['q'].measure())
+        rec_bits.append(qubits[i].qubit.measure())
 
     if errors == 0:
         print('---------')
@@ -369,31 +381,31 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes)
-    network.delay = 0.5
+    network.delay = 0.0
 
     host_alice = Host('Alice')
-    host_alice.add_connection('bob')
+    host_alice.add_connection('Bob')
     host_alice.max_ack_wait = 30
-    host_alice.delay = 0.2
+    host_alice.delay = 0.0
     host_alice.start()
 
     host_bob = Host('Bob')
     host_bob.max_ack_wait = 30
-    host_bob.delay = 0.2
+    host_bob.delay = 0.0
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
     host_eve = Host('Eve')
     host_eve.max_ack_wait = 30
-    host_eve.delay = 0.2
+    host_eve.delay = 0.0
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.start()
 
     host_dean = Host('Dean')
     host_dean.max_ack_wait = 30
-    host_dean.delay = 0.2
+    host_dean.delay = 0.0
     host_dean.add_connection('Eve')
     host_dean.start()
 

@@ -3,8 +3,10 @@ from components.network import Network
 from objects.logger import Logger
 from objects.qubit import Qubit
 from random import randint
+import logging
 
-Logger.DISABLED = True
+#Logger(file='./trial4.log')
+Logger.DISABLED = False
 
 WAIT_TIME = 10
 QUBITS_PER_MONEY = 10

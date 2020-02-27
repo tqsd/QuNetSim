@@ -349,6 +349,19 @@ class Host:
 
         return self._seq_number_sender[host]
 
+    def get_sequence_number_receiver(self, host):
+
+        '''
+
+        :param host:
+        :return:
+        '''
+
+        if host not in self._seq_number_receiver:
+            return 0
+
+        return self._seq_number_receiver[host][1]
+
     def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
         """
         Get a message from a sender with a specific sequence number.
@@ -1096,7 +1109,7 @@ class Host:
         i = 0
         check_qubits = []
         while i < len(qubits):
-            check = Qubit(self.host_id)
+            check = Qubit(self)
             j = 0
             while j < size_per_qubit:
                 qubits[i + j].cnot(check)
