@@ -451,8 +451,8 @@ class Host:
         result = protocols.process(packet)
         if result is not None:  # classical message if not None
             msg = result
-            self._classical_messages.add_msg_to_storage(msg)
             if msg.content != protocols.ACK:
+                self._classical_messages.add_msg_to_storage(msg)
                 self.logger.log(self.host_id + ' received ' + str(msg.content)
                                 + ' with sequence number ' + str(msg.seq_num))
             else:
