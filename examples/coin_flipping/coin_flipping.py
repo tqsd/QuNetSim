@@ -4,6 +4,8 @@ from objects.qubit import Qubit
 from components.host import Host
 from components.network import Network
 from backends.eqsn_backend import EQSNBackend
+# from backends.cqc_backend import CQCBackend
+# from backends.projectq_backend import ProjectQBackend
 
 
 def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
@@ -21,8 +23,8 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
 
     final random bit: A_tilde ^ B
     """
-    b = np.random.randint(0, 1, m, dtype=int)
-    d = np.random.randint(0, 1, (n, m), dtype=int)
+    b = np.random.randint(0, 2, m, dtype=int)
+    d = np.random.randint(0, 2, (n, m), dtype=int)
 
     a = np.zeros(m, dtype=int)
 
@@ -30,9 +32,11 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
     partner_qubits = np.ndarray(shape=(n, m, 2), dtype=Qubit)
 
     # qubits which are in the end at host
-    final_qubits = np.ndarray(shape=(n, m, 2), dtype=Qubit)
+    psi_a = np.ndarray(shape=(n, m), dtype=Qubit)
+    psi_b_bar = np.ndarray(shape=(n, m), dtype=Qubit)
 
     for i in range(n):
+        print(i)
         for j in range(m):
             q1 = Qubit(host)
             q2 = Qubit(host)
@@ -44,45 +48,46 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
                 q1.rx(-1.0 * rot_angle)
                 q2.rx(rot_angle)
 
-            # send qubits to partner
+            # send and get q1
             host.send_qubit(partner_id, q1, await_ack=True)
-            host.send_qubit(partner_id, q2, await_ack=True)
-
-            # get qubit from partner
             partner_q1 = host.get_data_qubit(partner_id)
+
+            # send and get q2
+            host.send_qubit(partner_id, q2, await_ack=True)
             partner_q2 = host.get_data_qubit(partner_id)
 
             partner_qubits[i, j, 0] = partner_q1
             partner_qubits[i, j, 1] = partner_q2
 
     for i in range(n):
+        print(i)
         for j in range(m):
-            f_ij = b[i] ^ d[i, j]
+            f_ij = b[j] ^ d[i, j]
 
             host.send_classical(partner_id, str(f_ij))
-            e_ij = host.get_classical(partner_id, wait=10)[0].content
-            e_ij = int(e_ij)
+            msg = host.get_next_classical(partner_id)
+            e_ij = int(msg.content)
 
             if e_ij == 0:
                 host.send_qubit(partner_id, partner_qubits[i, j, 1])
-                final_qubits[i, j, 0] = partner_qubits[i, j, 0]
+                psi_a[i, j] = partner_qubits[i, j, 0]
             else:
                 host.send_qubit(partner_id, partner_qubits[i, j, 0])
-                final_qubits[i, j, 0] = partner_qubits[i, j, 1]
+                psi_a[i, j] = partner_qubits[i, j, 1]
 
-            final_qubits[i, j, 1] = host.get_data_qubit(partner_id, wait=10)
+            psi_b_bar[i, j] = host.get_data_qubit(partner_id, wait=10)
 
     for j in range(m):
         # Send own encoded basis to partner
         host.send_classical(partner_id, str(b[j]))
 
         # Get partner base to decode her qubits
-        a_j = host.get_classical(partner_id, wait=10)[0].content
-        a_j = int(a_j)
+        msg = host.get_next_classical(partner_id)
+        a_j = int(msg.content)
 
         for i in range(n):
             # Meaure in Psi_a basis or Psi_not_a basis
-            q = final_qubits[i, j, 0]
+            q = psi_a[i, j]
             res = -1
             if a_j == 0:
                 q.rx(-1.0 * rot_angle)
@@ -92,14 +97,15 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
             res = q.measure()
             # Check if all results match the random number
             # partner has shared with us.
-            if res != a_j:
-                raise ValueError("Cheater!")
+            # if res != 0:
+            #     raise ValueError("Cheater!")
 
         # a_j got accepted
         a[j] = a_j
 
+        # Check if returned psi_b_bar is valid
         for i in range(n):
-            q = final_qubits[i, j, 1]
+            q = psi_b_bar[i, j]
             if 1 - b[j] == 0:
                 q.rx(-1.0 * rot_angle)
             else:
@@ -116,6 +122,9 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
     for j in range(m):
         B ^= b[j]
 
+    print("%s: a is " % host.host_id + str(a))
+    print("%s: b is " % host.host_id + str(b))
+
     random_bit = A_tilde ^ B
     print("%s: random bit is %d" % (host.host_id, random_bit))
     return random_bit
@@ -125,6 +134,7 @@ def main():
     network = Network.get_instance()
 
     # backend = ProjectQBackend()
+    # backend = CQCBackend()
     backend = EQSNBackend()
 
     nodes = ['A', 'B']
@@ -144,8 +154,8 @@ def main():
     network.add_host(host_A)
     network.add_host(host_B)
 
-    m = 3
-    n = 3
+    m = 2
+    n = 4
     rot_angle = np.pi/9
 
     t1 = host_A.run_protocol(quantum_coin_flipping,
