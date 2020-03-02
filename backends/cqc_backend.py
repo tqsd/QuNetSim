@@ -83,6 +83,7 @@ class CQCBackend(object):
         Args:
             nodes(List): A list of hosts in the network.
         """
+        print('Starting SimulaQron Network...')
         nodes = kwargs['nodes']
         CQCBackend.backend_network_lock.acquire_write()
         simulaqron_settings.default_settings()
