@@ -1145,6 +1145,24 @@ class Host:
             process_messages()
             return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
+    def get_next_classical(self, sender_id, wait=-1):
+        """
+        Gets the next classical message available from a sender.
+        If wait is -1 (default), it is waited till a message arrives.
+
+        Args:
+            sender_id (str): ID of the sender from the returned message.
+            wait (int): waiting time, default forever.
+        """
+        ret = None
+        wait_start_time = time.time()
+        while (time.time() - wait_start_time < wait or wait==-1)\
+                                                    and ret == None:
+            time.sleep(0.01)
+            ret = self._classical_messages.get_next_from_sender(sender_id)
+        return ret
+
+
     def get_epr(self, host_id, q_id=None, wait=-1):
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
