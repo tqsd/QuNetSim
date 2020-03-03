@@ -11,8 +11,18 @@ from backends.eqsn_backend import EQSNBackend
 def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
     """
     Quantum Coin Flipping Protocol.
+    see https://arxiv.org/abs/quant-ph/9904078
+    or https://wiki.veriqloud.fr/index.php?title=Quantum_Coin_Flipping
 
-    Own random variables are b_j and d_ij.
+    The two quantum states we use are:
+    Ψ_0 = c |0> + s |1>
+    Ψ_1 = c |0> - s |1>
+    where
+    c = Re{e^(iΘ)}
+    s = Im{e^(iΘ)}
+    and Θ is given by the rot_angle.
+
+    Own random bits are b_j and d_ij.
     Partners random variables are a_j and c_ij.
 
     Own shared: f_ij = b_j ^ d_ij
@@ -23,36 +33,47 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
 
     final random bit: A_tilde ^ B
     """
-    b = np.random.randint(0, 2, m, dtype=int)
-    d = np.random.randint(0, 2, (n, m), dtype=int)
+    # own random bits
+    random_bits_b = np.random.randint(0, 2, m, dtype=int)
+    random_bits_d = np.random.randint(0, 2, (n, m), dtype=int)
 
-    a = np.zeros(m, dtype=int)
+    # random bits received from partner
+    random_bits_a = np.zeros(m, dtype=int)
 
     # qubits received by partner
+    # Qubits are Ψ_e_ij and Ψ_e_ij_bar
     partner_qubits = np.ndarray(shape=(n, m, 2), dtype=Qubit)
 
-    # qubits which are in the end at host
+    # Qubits which are at the end of the protocol
+    # at this host. First index determines the state,
+    # Ψ_a_j and Ψ_b_j_bar, where the second index (1,...,m)
+    # should be m copies of this state.
     psi_a = np.ndarray(shape=(n, m), dtype=Qubit)
     psi_b_bar = np.ndarray(shape=(n, m), dtype=Qubit)
 
     for i in range(n):
-        print(i)
         for j in range(m):
             q1 = Qubit(host)
             q2 = Qubit(host)
 
-            if d[i, j] == 0:
+            # Generate q1 as Ψ_d and
+            # q2 as Ψ_d_bar
+            if random_bits_d[i, j] == 0:
+                # q1 is Ψ_0
                 q1.rx(rot_angle)
+                # q2 is Ψ_1
                 q2.rx(-1.0 * rot_angle)
             else:
+                # q1 is Ψ_1
                 q1.rx(-1.0 * rot_angle)
+                # q2 is Ψ_0
                 q2.rx(rot_angle)
 
-            # send and get q1
+            # send and get q1 from our partner
             host.send_qubit(partner_id, q1, await_ack=True)
             partner_q1 = host.get_data_qubit(partner_id)
 
-            # send and get q2
+            # send and get q2 from our partner
             host.send_qubit(partner_id, q2, await_ack=True)
             partner_q2 = host.get_data_qubit(partner_id)
 
@@ -60,14 +81,21 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
             partner_qubits[i, j, 1] = partner_q2
 
     for i in range(n):
-        print(i)
         for j in range(m):
-            f_ij = b[j] ^ d[i, j]
+            # random bit generated from own two random bits
+            f_ij = random_bits_b[j] ^ random_bits_d[i, j]
 
+            # give partner information about this two bits
             host.send_classical(partner_id, str(f_ij))
+
+            # get the partners generated bit of his two
+            # random bits by a XOR operation
             msg = host.get_next_classical(partner_id)
             e_ij = int(msg.content)
 
+            # dependent on this bit, send him one of the
+            # qubits received. The other qubit should be
+            # in the state Ψ_a_j.
             if e_ij == 0:
                 host.send_qubit(partner_id, partner_qubits[i, j, 1])
                 psi_a[i, j] = partner_qubits[i, j, 0]
@@ -75,18 +103,21 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
                 host.send_qubit(partner_id, partner_qubits[i, j, 0])
                 psi_a[i, j] = partner_qubits[i, j, 1]
 
+            # The partner should send the qubit Ψ_b_j_bar back.
             psi_b_bar[i, j] = host.get_data_qubit(partner_id, wait=10)
 
     for j in range(m):
-        # Send own encoded basis to partner
-        host.send_classical(partner_id, str(b[j]))
+        # Send own random bits b_j to partner
+        host.send_classical(partner_id, str(random_bits_b[j]))
 
         # Get partner base to decode her qubits
         msg = host.get_next_classical(partner_id)
         a_j = int(msg.content)
 
         for i in range(n):
-            # Meaure in Psi_a basis or Psi_not_a basis
+            # Meaure in Psi_0 basis or Psi_1 basis
+            # Because Partner has to tell us the right basis,
+            # our measurement outcome should always be 0.
             q = psi_a[i, j]
             res = -1
             if a_j == 0:
@@ -97,16 +128,16 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
             res = q.measure()
             # Check if all results match the random number
             # partner has shared with us.
-            # if res != 0:
-            #     raise ValueError("Cheater!")
+            if res != 0:
+                raise ValueError("Cheater!")
 
         # a_j got accepted
-        a[j] = a_j
+        random_bits_a[j] = a_j
 
         # Check if returned psi_b_bar is valid
         for i in range(n):
             q = psi_b_bar[i, j]
-            if 1 - b[j] == 0:
+            if 1 - random_bits_b[j] == 0:
                 q.rx(-1.0 * rot_angle)
             else:
                 q.rx(rot_angle)
@@ -114,18 +145,19 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
             if res != 0:
                 raise ValueError("Cheater!")
 
-    A_tilde = 0
+    # random number generated by singe random numbers
+    # of partner
+    randomnes_from_partner = 0
     for j in range(m):
-        A_tilde ^= a[j]
+        randomnes_from_partner ^= random_bits_a[j]
 
-    B = 0
+    # random number generated by own single random numbers
+    own_randomnes = 0
     for j in range(m):
-        B ^= b[j]
+        own_randomnes ^= random_bits_b[j]
 
-    print("%s: a is " % host.host_id + str(a))
-    print("%s: b is " % host.host_id + str(b))
-
-    random_bit = A_tilde ^ B
+    # concatenation of both random numbers
+    random_bit = randomnes_from_partner ^ own_randomnes
     print("%s: random bit is %d" % (host.host_id, random_bit))
     return random_bit
 
