@@ -16,7 +16,11 @@ ACK = '01'
 WAIT_TIME = 30
 MAX_NUM_OF_TRANSMISSIONS = 10
 Logger.DISABLED = False
+Logger(file=None)
 
+
+# Logger(file= './trial7.log')
+# Logger()
 
 def handshake_sender(host, receiver_id):
     """
@@ -76,7 +80,6 @@ def handshake_sender(host, receiver_id):
     # If measurement results are as expected, send Bob a ACK message and the qubit 3 that he has sent previously.
     # Else report that there is something wrong.
     if qa_1_check == 0 and qb_2_check == 0:
-        latest_seq_num = host.get_sequence_number(receiver_id)
         ack_received = host.send_classical(receiver_id, ACK, await_ack=True)
         if ack_received is False:
             Logger.get_instance().log('ACK is not received')
@@ -213,7 +216,7 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
             # encode logical qubit
             q.cnot(err_1)
 
-            dummy, ack_received = host.send_qubit(receiver_id, q, await_ack=True)
+            _, ack_received = host.send_qubit(receiver_id, q, await_ack=True)
             # messages = host.get_classical(receiver_id, wait=WAIT_TIME)
             if ack_received:
                 err_1.release()
@@ -288,25 +291,21 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
         if checksum_qubits[i].measure() != 0:
             errors += 1
 
-    # latest_seq_num = host.get_sequence_number(sender_id)
-    # print('LATEST SEQ NUM 4')
-    # print(latest_seq_num)
-
-    print('---------')
+    Logger.get_instance().log('---------')
     if errors == 0:
         Logger.get_instance().log('No error exist in TCP packet')
     else:
         Logger.get_instance().log('There were errors in the TCP transmission')
-    print('---------')
+    Logger.get_instance().log('---------')
 
     rec_bits = []
     for i in range(len(qubits) - checksum_size):
         rec_bits.append(qubits[i].qubit.measure())
 
     if errors == 0:
-        print('---------')
+        Logger.get_instance().log('---------')
         Logger.get_instance().log('Receiver received the classical bits: ' + str(rec_bits))
-        print('---------')
+        Logger.get_instance().log('---------')
         return True
 
 

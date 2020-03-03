@@ -15,10 +15,11 @@ class Logger():
 
     def __init__(self,file=None):
         if Logger.__instance is None:
-            # if file is not None:
-            #     logging.basicConfig(format=FORMAT, filename=file)
-            # if file is None:
-            #     logging.basicConfig(format=FORMAT)
+            if file is None:
+                logging.basicConfig(format=FORMAT)
+            else:
+                logging.basicConfig(format=FORMAT, filename=file)
+
             self.logger = logging.getLogger('qu_net_sim')
             self.logger.setLevel(logging.INFO)
             Logger.__instance = self
