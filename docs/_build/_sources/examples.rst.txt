@@ -10,4 +10,4 @@ Examples
     examples/quantum_money
     examples/entanglement_routing
     examples/QKD
-
+    examples/quantum_coin_flipping

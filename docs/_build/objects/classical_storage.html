@@ -130,6 +130,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
 </ul>
 </li>
 </ul>
@@ -203,96 +204,6 @@
   <div class="section" id="classical-storage">
 <h1>Classical Storage<a class="headerlink" href="#classical-storage" title="Permalink to this headline">¶</a></h1>
 <p>The <em>Classical Storage</em> object is a component of a Host used to store <em>message</em> objects.</p>
-<span class="target" id="module-objects.classical_storage"></span><dl class="class">
-<dt id="objects.classical_storage.ClassicalStorage">
-<em class="property">class </em><code class="sig-prename descclassname">objects.classical_storage.</code><code class="sig-name descname">ClassicalStorage</code><a class="headerlink" href="#objects.classical_storage.ClassicalStorage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A classical storage for messages.</p>
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage._add_new_host_id">
-<code class="sig-name descname">_add_new_host_id</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage._add_new_host_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new host to the storage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – The host ID to store.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.add_msg_to_storage">
-<code class="sig-name descname">add_msg_to_storage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.add_msg_to_storage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a message to the storage.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.empty">
-<code class="sig-name descname">empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.empty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Empty the classical storage.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.get_all">
-<code class="sig-name descname">get_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.get_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all Messages as a list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>All Messages as a list.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(list) messages</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.get_all_from_sender">
-<code class="sig-name descname">get_all_from_sender</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">delete=False</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.get_all_from_sender" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all stored messages from a sender. If delete option is set,
-the returned messages are removed from the storage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sender_id</strong> (<em>String</em>) – The host id of the host.</p></li>
-<li><p><strong>delete</strong> (<em>bool</em>) – optional, True if returned messages should be removed from storage.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List of messages of the sender. If there are none, an empyt list is
-returned.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.get_next_from_sender">
-<code class="sig-name descname">get_next_from_sender</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.get_next_from_sender" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the next, unread, message from the sender. If there isn’t one,
-None is returned.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sender_id</strong> (<em>String</em>) – The sender id of the message to get.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Message object, if such a message exists, or none.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="objects.classical_storage.ClassicalStorage.remove_all_ack">
-<code class="sig-name descname">remove_all_ack</code><span class="sig-paren">(</span><em class="sig-param">from_sender=None</em><span class="sig-paren">)</span><a class="headerlink" href="#objects.classical_storage.ClassicalStorage.remove_all_ack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes all ACK messages stored. If from sender is given, only ACKs from
-this sender are removed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>from_sender</strong> (<em>String</em>) – Host id of the sender, whos ACKs should be delted.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 
