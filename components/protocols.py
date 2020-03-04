@@ -305,8 +305,6 @@ def _rec_teleport(packet):
 
     q = host_receiver.get_epr(packet.sender, eq_id, wait=WAIT_TIME)
     if q is None:
-        # TODO: what to do when fails
-        print(host_receiver.qubit_storage)
         raise Exception("failed to get EPR")
 
     a = payload['measurements'][0]
