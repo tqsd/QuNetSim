@@ -410,20 +410,6 @@ class Host:
             packet (Packet): The received packet
         """
 
-        def check_task(q, _sender, _seq_num, timeout, start_time):
-            if timeout is not None and time.time() - timeout > start_time:
-                q.put(False)
-                return True
-            if _sender not in self._seq_number_sender_ack:
-                return False
-            if _seq_num < self._seq_number_sender_ack[_sender][1]:
-                q.put(True)
-                return True
-            if _seq_num in self._seq_number_sender_ack[_sender][0]:
-                q.put(True)
-                return True
-            return False
-
         if self._relay_sniffing:
             # if it is a classical relay message, sniff it
             if packet.protocol == protocols.RELAY:
@@ -445,28 +431,47 @@ class Host:
             else:
                 # Is ack msg
                 sender = msg.sender
-                if sender not in self._seq_number_sender_ack:
-                    self._seq_number_sender_ack[sender] = [[], 0]
                 seq_num = msg.seq_num
-                expected_seq = self._seq_number_sender_ack[sender][1]
-                if seq_num == expected_seq:
-                    self._seq_number_sender_ack[sender][1] += 1
-                    expected_seq = self._seq_number_sender_ack[sender][1]
-                    while len(self._seq_number_sender_ack[sender][0]) > 0 \
-                            and expected_seq in self._seq_number_sender_ack[sender][0]:
-                        self._seq_number_sender_ack[sender][0].remove(
-                            expected_seq)
-                        self._seq_number_sender_ack[sender][1] += 1
-                        expected_seq += 1
-                elif seq_num > expected_seq:
-                    self._seq_number_sender_ack[sender][0].append(seq_num)
-                else:
-                    raise Exception("Received seq_num %d from %s, expected is %d" % (seq_num, sender, expected_seq))
-                    raise Exception("Should never happen!")
-                for t in self._ack_receiver_queue:
-                    res = check_task(*t)
-                    if res is True:
-                        self._ack_receiver_queue.remove(t)
+                self._process_ack(sender, seq_num)
+
+    def _process_ack(self, sender, seq_num):
+        """
+        Processes an ACK msg.
+        """
+        def check_task(q, _sender, _seq_num, timeout, start_time):
+            if timeout is not None and time.time() - timeout > start_time:
+                q.put(False)
+                return True
+            if _sender not in self._seq_number_sender_ack:
+                return False
+            if _seq_num < self._seq_number_sender_ack[_sender][1]:
+                q.put(True)
+                return True
+            if _seq_num in self._seq_number_sender_ack[_sender][0]:
+                q.put(True)
+                return True
+            return False
+
+        if sender not in self._seq_number_sender_ack:
+            self._seq_number_sender_ack[sender] = [[], 0]
+        expected_seq = self._seq_number_sender_ack[sender][1]
+        if seq_num == expected_seq:
+            self._seq_number_sender_ack[sender][1] += 1
+            expected_seq = self._seq_number_sender_ack[sender][1]
+            while len(self._seq_number_sender_ack[sender][0]) > 0 \
+                    and expected_seq in self._seq_number_sender_ack[sender][0]:
+                self._seq_number_sender_ack[sender][0].remove(
+                    expected_seq)
+                self._seq_number_sender_ack[sender][1] += 1
+                expected_seq += 1
+        elif seq_num > expected_seq:
+            self._seq_number_sender_ack[sender][0].append(seq_num)
+        else:
+            raise Exception("Should never happen!")
+        for t in self._ack_receiver_queue:
+            res = check_task(*t)
+            if res is True:
+                self._ack_receiver_queue.remove(t)
 
     def _process_queue(self):
         """
@@ -650,6 +655,8 @@ class Host:
                 did_ack = q.get(timeout=self._max_ack_wait)
             except Exception as error:
                 did_ack = False
+                # remove this ACK from waiting list
+                self._process_ack(sender, sequence_number)
             return
 
         did_ack = False
@@ -671,11 +678,13 @@ class Host:
                 task = (q, sender, sequence_number, self._max_ack_wait, start_time)
                 self._ack_receiver_queue.append(task)
                 queue_list.append(q)
-            ret = True
-            for q in queue_list:
+            ret_list = []
+            for q, seq_num in zip(queue_list, seq_num_list):
                 if q.get() is False:
-                    ret = False
-            return ret
+                    ret_list.append(seq_num)
+                    # remove this seq_num from waiting list
+                    self._process_ack(sender, seq_num)
+            return ret_list
 
         last_send_seq = self._seq_number_sender[sender]
         lowest_waiting_seq = 0
@@ -685,7 +694,7 @@ class Host:
             all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
             for received_ack in self._seq_number_sender_ack[sender][0]:
                 all_remaining_acks.remove(received_ack)
-        wait_multiple_seqs(all_remaining_acks)
+        return wait_multiple_seqs(all_remaining_acks)
 
     def send_broadcast(self, message):
         """

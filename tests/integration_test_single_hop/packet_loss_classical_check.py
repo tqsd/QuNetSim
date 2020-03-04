@@ -14,7 +14,7 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
-    network.delay = 0.7
+    network.delay = 0.1
 
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
@@ -39,7 +39,6 @@ def main():
     num_messages = 10
     for _ in range(num_messages):
         ack = hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=True)
-        # print("received ack "+ str(ack))
         if ack:
             num_acks += 1
 

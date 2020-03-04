@@ -6,6 +6,8 @@ tests/__pycache__/*
 backends/__pycache__/*
 objects/__pycache__/*
 
+build_docs.sh
+
 venv/
 
 venv2/
