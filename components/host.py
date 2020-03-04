@@ -1158,7 +1158,6 @@ class Host:
         wait_start_time = time.time()
         while (time.time() - wait_start_time < wait or wait==-1)\
                                                     and ret == None:
-            self.delay(0.01)
             ret = self._classical_messages.get_next_from_sender(sender_id)
         return ret
 
