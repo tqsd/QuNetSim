@@ -1244,8 +1244,6 @@ class Host:
                 self._qubit_storage.release_storage()
             except Exception:
                 Logger.get_instance().error('Releasing qubits was not successful')
-
-        self._backend.stop()
         self._stop_thread = True
 
     def start(self):
