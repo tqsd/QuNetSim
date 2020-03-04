@@ -28,7 +28,8 @@ def bob_sniffing_quantum(sender, receiver, qubit):
 
 
 def bob_sniffing_classical(sender, receiver, msg):
-    # Bob modifies the message content of all classical messages routed through him
+    # Bob modifies the message content of all classical messages routed
+    # through him
     print('MESSAGE')
     print(msg)
     if msg.content != 'ACK':
@@ -37,7 +38,7 @@ def bob_sniffing_classical(sender, receiver, msg):
 
 def eve(host):
     for i in range(amount_transmit):
-        alice_message = host.get_classical('Alice', wait = WAIT_TIME, seq_num=i)
+        alice_message = host.get_classical('Alice', wait=WAIT_TIME, seq_num=i)
         print("Eve Received classical: %s." % alice_message.content)
 
     for i in range(amount_transmit):
@@ -54,29 +55,23 @@ def main():
 
     host_alice = Host('Alice')
     host_alice.add_connection('Bob')
-    host_alice.delay = 0.1
     host_alice.start()
 
     host_bob = Host('Bob')
-    host_bob.add_connection('Alice')
-    host_bob.add_connection('Eve')
-    host_bob.delay = 0.1
+    host_bob.add_connections(['Alice', 'Eve'])
     host_bob.start()
 
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
-    host_eve.delay = 0.1
     host_eve.start()
 
-    network.add_host(host_alice)
-    network.add_host(host_bob)
-    network.add_host(host_eve)
+    network.add_hosts([host_alice, host_bob, host_eve])
 
-    host_bob.quantum_relay_sniffing = True
-    host_bob.set_quantum_relay_sniffing_function(bob_sniffing_quantum)
+    host_bob.q_relay_sniffing = True
+    host_bob.q_relay_sniffing_fn = bob_sniffing_quantum
 
-    host_bob.relay_sniffing = True
-    host_bob.set_relay_sniffing_function(bob_sniffing_classical)
+    host_bob.c_relay_sniffing = True
+    host_bob.c_relay_sniffing_fn = bob_sniffing_classical
 
     t1 = host_alice.run_protocol(alice)
     t2 = host_eve.run_protocol(eve)
