@@ -612,16 +612,19 @@ class Host:
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
+        self._packet_queue.put(packet)
 
         if receiver not in self._seq_number_receiver:
             self._seq_number_receiver[receiver] = [[], 0]
         expected_seq = self._seq_number_receiver[receiver][1]
 
-        if expected_seq + self._max_window < seq_number:
-            raise Exception(
-                "Message with seq number %d did not come before the receiver window closed!" % expected_seq)
+        while expected_seq + self._max_window < seq_number:
+            self.logger.log("%s: Msg with sequence number %d was not received within the receiving window." % (self.host_id, expected_seq))
+            # just jump over this sequence number
+            expected_seq += 1
+            self._seq_number_receiver[receiver][1] += 1
 
-        elif expected_seq < seq_number:
+        if expected_seq < seq_number:
             self._seq_number_receiver[receiver][0].append(seq_number)
 
         else:
@@ -632,7 +635,6 @@ class Host:
                 self._seq_number_receiver[receiver][0].remove(expected_seq)
                 self._seq_number_receiver[receiver][1] += 1
                 expected_seq += 1
-        self._packet_queue.put(packet)
 
     def await_ack(self, sequence_number, sender):
         """
