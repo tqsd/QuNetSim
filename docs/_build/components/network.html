@@ -130,6 +130,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
 </ul>
 </li>
 </ul>
@@ -349,6 +350,25 @@ between sender and receiver.</p>
 <li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
 <li><p><strong>route</strong> (<em>list</em>) – Route between the sender and receiver</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>o_seq_num</strong> (<em>int</em>) – The original sequence number</p></li>
+<li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.network.Network._establish_epr">
+<code class="sig-name descname">_establish_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">q_id</em>, <em class="sig-param">o_seq_num</em>, <em class="sig-param">blocked</em><span class="sig-paren">)</span><a class="headerlink" href="#components.network.Network._establish_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instead doing an entanglement swap, for efficiency we establish EPR pairs
+directly for simulation, if an entanglement swap would have been possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Sender of the EPR pair</p></li>
+<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>o_seq_num</strong> (<em>int</em>) – The original sequence number</p></li>
 <li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
 </ul>
 </dd>
@@ -490,7 +510,7 @@ between sender and receiver.</p>
 <dd class="field-even"><p>Host with the <em>host_id</em></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="host.html#components.host.Host" title="components.host.Host">Host</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="host.html#components.host.Host" title="components.host.Host">Host</a> (<a class="reference internal" href="host.html#components.host.Host" title="components.host.Host">Host</a>)</p>
 </dd>
 </dl>
 </dd></dl>

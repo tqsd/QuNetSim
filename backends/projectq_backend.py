@@ -294,6 +294,7 @@ class ProjectQBackend(object):
 
         if not non_destructive:
             self.release(qubit)
+            self.engine.flush()
 
         return m
 
@@ -305,3 +306,4 @@ class ProjectQBackend(object):
             qubit (Qubit): The qubit which should be released.
         """
         projectq.ops.Measure | qubit.qubit
+        self.engine.flush()

@@ -447,7 +447,7 @@ class Network:
     def _establish_epr(self, sender, receiver, q_id, o_seq_num, blocked):
         """
         Instead doing an entanglement swap, for efficiency we establish EPR pairs
-        directly if an entanglement swap would have been possible.
+        directly for simulation, if an entanglement swap would have been possible.
 
         Args:
             sender (Host): Sender of the EPR pair

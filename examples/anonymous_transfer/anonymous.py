@@ -77,19 +77,15 @@ def main():
     host_A.add_connections(['B', 'C', 'D', 'E'])
     host_A.start()
     host_B = Host('B')
-    host_B.add_connection('A')
     host_B.add_c_connections(['C', 'D', 'E'])
     host_B.start()
     host_C = Host('C')
-    host_C.add_connection('A')
     host_C.add_c_connections(['B', 'D', 'E'])
     host_C.start()
     host_D = Host('D')
-    host_D.add_connection('A')
     host_D.add_c_connections(['B', 'C', 'E'])
     host_D.start()
     host_E = Host('E')
-    host_E.add_connection('A')
     host_E.add_c_connections(['B', 'C', 'D'])
     host_E.start()
 
@@ -98,10 +94,10 @@ def main():
     for i in range(10):
         # The ID of the generated secret EPR pair has to be agreed upon in advance
         epr_id = '123'
-        host_D.run_protocol(sender, (host_A.host_id, host_E.host_id, epr_id))
         host_A.run_protocol(distribute, ([host_B.host_id, host_C.host_id, host_D.host_id, host_E.host_id],))
         host_B.run_protocol(node, (host_A.host_id,))
         host_C.run_protocol(node, (host_A.host_id,))
+        host_D.run_protocol(sender, (host_A.host_id, host_E.host_id, epr_id))
         host_E.run_protocol(receiver, (host_A.host_id, host_D.host_id, epr_id), blocking=True)
         time.sleep(0.5)
     network.stop(True)

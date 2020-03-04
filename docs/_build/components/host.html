@@ -130,6 +130,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
 </ul>
 </li>
 </ul>
@@ -546,11 +547,11 @@ to the generator of the GHZ state.</p>
 
 <dl class="method">
 <dt id="components.host.Host.await_remaining_acks">
-<code class="sig-name descname">await_remaining_acks</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_remaining_acks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Awaits all remaining ACKs of one or all sender.</p>
+<code class="sig-name descname">await_remaining_acks</code><span class="sig-paren">(</span><em class="sig-param">sender</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.await_remaining_acks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Awaits all remaining ACKs of one sender.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sender</strong> (<em>str</em>) – Optional, sender for which to wait for all acks.</p>
+<dd class="field-odd"><p><strong>sender</strong> (<em>str</em>) – sender for which to wait for all acks.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -748,6 +749,21 @@ It is not necessary to know with whom the states are shared.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#objects.qubit.Qubit" title="objects.qubit.Qubit">Qubit</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host.get_next_classical">
+<code class="sig-name descname">get_next_classical</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.get_next_classical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the next classical message available from a sender.
+If wait is -1 (default), it is waited till a message arrives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender_id</strong> (<em>str</em>) – ID of the sender from the returned message.</p></li>
+<li><p><strong>wait</strong> (<em>int</em>) – waiting time, default forever.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
