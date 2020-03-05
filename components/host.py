@@ -58,10 +58,10 @@ class Host:
         self.qkd_keys = {}
         self._sniff_full_packet = False
         self._sniff_exclude_ACKs = True
-        self._relay_sniffing = False
-        self._relay_sniffing_function = None
-        self._quantum_relay_sniffing = False
-        self._quantum_relay_sniffing_function = None
+        self._c_relay_sniffing = False
+        self._c_relay_sniffing_fn = None
+        self._q_relay_sniffing = False
+        self._q_relay_sniffing_fn = None
 
     @property
     def host_id(self):
@@ -234,16 +234,21 @@ class Host:
         return self._quantum_connections
 
     @property
-    def relay_sniffing(self):
-        return self._relay_sniffing
+    def c_relay_sniffing(self):
+        return self._c_relay_sniffing
 
-    @relay_sniffing.setter
-    def relay_sniffing(self, value):
+    @c_relay_sniffing.setter
+    def c_relay_sniffing(self, value):
         if not isinstance(value, bool):
             raise ValueError("Relay sniffing has to be a boolean.")
-        self._relay_sniffing = value
+        self._c_relay_sniffing = value
 
-    def set_relay_sniffing_function(self, func):
+    @property
+    def c_relay_sniffing_fn(self):
+        return self._c_relay_sniffing_fn
+
+    @c_relay_sniffing_fn.setter
+    def c_relay_sniffing_fn(self, func):
         """
         Set a custom function which handles messages which are routed
         through this host. Functions parameter have to be **sender, receiver,
@@ -252,18 +257,18 @@ class Host:
         Args:
             func (function): Function with sender, receiver, msg args.
         """
-        self._relay_sniffing_function = func
+        self._c_relay_sniffing_fn = func
 
     def relay_sniffing_function(self, sender, receiver, transport_packet):
-        if self._relay_sniffing_function is not None \
+        if self.c_relay_sniffing_fn is not None \
                 and isinstance(transport_packet, Packet) \
                 and isinstance(transport_packet.payload, Message):
             if not self._sniff_exclude_ACKs or \
                     (self._sniff_exclude_ACKs and transport_packet.payload.content != protocols.ACK):
                 if self._sniff_full_packet:
-                    self._relay_sniffing_function(sender, receiver, transport_packet)
+                    self._c_relay_sniffing_fn(sender, receiver, transport_packet)
                 else:
-                    self._relay_sniffing_function(sender, receiver, transport_packet.payload)
+                    self._c_relay_sniffing_fn(sender, receiver, transport_packet.payload)
 
     @property
     def sniff_full_packet(self):
@@ -290,16 +295,21 @@ class Host:
         self._sniff_full_packet = should_sniff_full_packet
 
     @property
-    def quantum_relay_sniffing(self):
-        return self._quantum_relay_sniffing
+    def q_relay_sniffing(self):
+        return self._q_relay_sniffing
 
-    @quantum_relay_sniffing.setter
-    def quantum_relay_sniffing(self, value):
+    @q_relay_sniffing.setter
+    def q_relay_sniffing(self, value):
         if not isinstance(value, bool):
             raise ValueError("Quantum Relay sniffing has to be a boolean.")
-        self._quantum_relay_sniffing = value
+        self._q_relay_sniffing = value
 
-    def set_quantum_relay_sniffing_function(self, func):
+    @property
+    def q_relay_sniffing_fn(self):
+        return self._q_relay_sniffing_fn
+
+    @q_relay_sniffing_fn.setter
+    def q_relay_sniffing_fn(self, func):
         """
         Set a custom function which handles qubits which are routes through this
         host. Functions parameter have to be **sender, receiver, qubit**.
@@ -307,14 +317,14 @@ class Host:
         Args:
             func (function): Function with sender, receiver, qubit args.
         """
-        self._quantum_relay_sniffing_function = func
+        self._q_relay_sniffing_fn = func
 
     def quantum_relay_sniffing_function(self, sender, receiver, qubit):
         """
         Calls the quantum relay sniffing function if one is set.
         """
-        if self._quantum_relay_sniffing_function is not None:
-            self._quantum_relay_sniffing_function(sender, receiver, qubit)
+        if self._q_relay_sniffing_fn is not None:
+            self._q_relay_sniffing_fn(sender, receiver, qubit)
 
     def _get_sequence_number(self, host):
         """
@@ -424,7 +434,7 @@ class Host:
                 return True
             return False
 
-        if self._relay_sniffing:
+        if self._c_relay_sniffing:
             # if it is a classical relay message, sniff it
             if packet.protocol == protocols.RELAY:
                 # RELAY is a network layer protocol, the transport layer packet
@@ -663,6 +673,7 @@ class Host:
         Args:
             sender (str): sender for which to wait for all acks.
         """
+
         def wait_multiple_seqs(seq_num_list):
             queue_list = []
             start_time = time.time()
@@ -679,10 +690,10 @@ class Host:
 
         last_send_seq = self._seq_number_sender[sender]
         lowest_waiting_seq = 0
-        all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
+        all_remaining_acks = range(lowest_waiting_seq, last_send_seq + 1)
         if sender in self._seq_number_sender_ack:
             lowest_waiting_seq = self._seq_number_sender_ack[sender][1]
-            all_remaining_acks = range(lowest_waiting_seq, last_send_seq+1)
+            all_remaining_acks = range(lowest_waiting_seq, last_send_seq + 1)
             for received_ack in self._seq_number_sender_ack[sender][0]:
                 all_remaining_acks.remove(received_ack)
         wait_multiple_seqs(all_remaining_acks)
@@ -1156,11 +1167,10 @@ class Host:
         """
         ret = None
         wait_start_time = time.time()
-        while (time.time() - wait_start_time < wait or wait==-1)\
-                                                    and ret == None:
+        while (time.time() - wait_start_time < wait or wait == -1) \
+                and ret == None:
             ret = self._classical_messages.get_next_from_sender(sender_id)
         return ret
-
 
     def get_epr(self, host_id, q_id=None, wait=-1):
         """

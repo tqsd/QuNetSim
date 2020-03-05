@@ -159,8 +159,8 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_customer)
 
-    host_eve.quantum_relay_sniffing = True
-    host_eve.set_quantum_relay_sniffing_function(sniffing_quantum)
+    host_eve.q_relay_sniffing_fn = True
+    host_eve.q_relay_sniffing_fn = sniffing_quantum
 
     print('Starting transfer')
 

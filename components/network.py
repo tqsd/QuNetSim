@@ -492,8 +492,8 @@ class Network:
                 # Unblock qubits in case they were blocked
                 q.blocked = False
 
-                if not store and self.ARP[r].quantum_relay_sniffing:
-                    self.ARP[r].quantum_relay_sniffing_function(original_sender, receiver, q)
+                if not store and self.ARP[r].q_relay_sniffing:
+                    self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
 
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)
