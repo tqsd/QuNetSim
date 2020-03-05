@@ -530,7 +530,6 @@ class Network:
                     Logger.get_instance().log("PACKET DROPPED")
                     if packet.payload_type == protocols.QUANTUM:
                         packet.payload.release()
-                        print("Qubit was released")
                     continue
 
                 sender, receiver = packet.sender, packet.receiver
