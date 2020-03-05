@@ -528,6 +528,8 @@ class Network:
                 packet_drop_var = random.random()
                 if packet_drop_var > (1 - self.packet_drop_rate):
                     Logger.get_instance().log("PACKET DROPPED")
+                    if packet.payload_type == protocols.QUANTUM:
+                        packet.payload.release()
                     continue
 
                 sender, receiver = packet.sender, packet.receiver
