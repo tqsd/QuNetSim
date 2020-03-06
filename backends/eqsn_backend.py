@@ -274,6 +274,24 @@ class EQSNBackend(object):
         """
         eqsn.H_gate(qubit.qubit)
 
+    def K(self, qubit):
+        """
+        Perform K gate on a qubit.
+
+        Args:
+            qubit (Qubit): Qubit on which gate should be applied to.
+        """
+        eqsn.K_gate(qubit.qubit)
+
+    def S(self, qubit):
+        """
+        Perform S gate on a qubit.
+
+        Args:
+            qubit (Qubit): Qubit on which gate should be applied to.
+        """
+        eqsn.S_gate(qubit.qubit)
+
     def T(self, qubit):
         """
         Perform T gate on a qubit.
