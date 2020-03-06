@@ -1,4 +1,4 @@
-from string import ascii_uppercase
+from string import ascii_uppercase, ascii_lowercase
 
 
 def gen_imports():
@@ -6,7 +6,7 @@ def gen_imports():
     imports += "from components.host import Host\n"
     imports += "from components.network import Network\n"
     imports += "from objects.qubit import Qubit\n"
-    imports += "from components.logger import Logger\n"
+    imports += "from objects.logger import Logger\n"
     imports += "Logger.DISABLED = True\n\n\n"
     return imports
 
@@ -37,8 +37,15 @@ def gen_main():
     main_content += "   " + "network = Network.get_instance()" + "\n"
     num_nodes = int(input("How many nodes are in the network? "))
     nodes = []
+
+    node_names = list(ascii_uppercase)
+    node_names.extend(ascii_lowercase)
+
+    if (num_nodes > len(node_names)):
+        print('Please use less than %d nodes' % len(num_nodes))
+
     for i in range(num_nodes):
-        nodes.append(ascii_uppercase[i])
+        nodes.append(node_names[i])
     main_content += "   " + "nodes = " + str(nodes) + "\n"
     main_content += "   " + "network.start(nodes)" + "\n"
     main_content += "\n"
