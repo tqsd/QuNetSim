@@ -95,6 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
 </ul>
@@ -363,6 +364,12 @@ through them. We see an example of that in the examples section.</p>
 :type receiver: str
 :param seq: The sequence number of the packet
 :type seq: int</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="components.host.Host._process_ack">
+<code class="sig-name descname">_process_ack</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">seq_num</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host._process_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes an ACK msg.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1128,31 +1135,6 @@ use the limit for all connections.</p>
 <li><p><strong>limit</strong> (<em>int</em>) – The maximum number of qubits for the memory</p></li>
 <li><p><strong>host_id</strong> (<em>str</em>) – (optional) The partner ID to set the limit with</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.host.Host.set_quantum_relay_sniffing_function">
-<code class="sig-name descname">set_quantum_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_quantum_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set a custom function which handles qubits which are routes through this
-host. Functions parameter have to be <strong>sender, receiver, qubit</strong>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – Function with sender, receiver, qubit args.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.host.Host.set_relay_sniffing_function">
-<code class="sig-name descname">set_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="headerlink" href="#components.host.Host.set_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set a custom function which handles messages which are routed
-through this host. Functions parameter have to be <strong>sender, receiver,
-msg</strong>. ACK messages are not passed to the function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – Function with sender, receiver, msg args.</p>
 </dd>
 </dl>
 </dd></dl>
