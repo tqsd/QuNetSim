@@ -10,6 +10,14 @@ We give the instructions below on how to install the environment for each operat
 
 ....
 
+Via pip
+-------
+
+To install QuNetSim via pip: :code:`pip install qunetsim`. The Python package comes with a script called :code:`template`.
+Simply type :code:`template` and follow the instructions to generate an example template.
+
+....
+
 Linux / Mac OS X
 ----------------
 
