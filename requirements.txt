@@ -1,8 +1,6 @@
-cqc==3.1.1
 matplotlib==3.1.2
 networkx==2.4
 nose2==0.9.1
 numpy==1.18.1
 projectq==0.4.2
-simulaqron==3.0.10
-eqsn==0.0.1
+eqsn
