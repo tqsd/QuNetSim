@@ -3,6 +3,7 @@ import logging
 FORMAT = '%(asctime)s: %(message)s'
 logging.basicConfig(format=FORMAT)
 
+
 class Logger():
     __instance = None
     DISABLED = True
@@ -13,13 +14,8 @@ class Logger():
             Logger()
         return Logger.__instance
 
-    def __init__(self,file=None):
+    def __init__(self):
         if Logger.__instance is None:
-            if file is None:
-                logging.basicConfig(format=FORMAT)
-            else:
-                logging.basicConfig(format=FORMAT, filename=file)
-
             self.logger = logging.getLogger('qu_net_sim')
             self.logger.setLevel(logging.INFO)
             Logger.__instance = self

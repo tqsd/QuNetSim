@@ -19,7 +19,6 @@ ACK = '01'
 WAIT_TIME = 30
 MAX_NUM_OF_TRANSMISSIONS = 10
 Logger.DISABLED = False
-Logger(file=None)
 
 
 def handshake_sender(host, receiver_id):
@@ -110,7 +109,6 @@ def handshake_receiver(host, sender_id):
     if qb_2 is None:
         print('qb_2 is None')
         return False
-    # qb_2_physical = qb_2.qubit
 
     message_recv = host.get_classical(sender_id, (latest_seq_num + 1), wait=WAIT_TIME)
     if not message_recv:
@@ -217,7 +215,6 @@ def qubit_send_w_retransmission(host, q_size, receiver_id, checksum_size_per_qub
             q.cnot(err_1)
 
             _, ack_received = host.send_qubit(receiver_id, q, await_ack=True)
-            # messages = host.get_classical(receiver_id, wait=WAIT_TIME)
             if ack_received:
                 err_1.release()
                 got_ack = True
@@ -265,7 +262,6 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
                     print("Bob: didn't receive the qubit")
                     host.send_classical('Alice', 'NACK', False)
                     # Simulate qubit loss
-                    #q.release()
                     number_of_retranmissions += 1
 
             if number_of_retranmissions == MAX_NUM_OF_TRANSMISSIONS:
