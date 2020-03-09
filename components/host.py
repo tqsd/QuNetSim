@@ -7,7 +7,7 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
-from backends.cqc_backend import CQCBackend
+from backends.eqsn_backend import EQSNBackend
 import uuid
 import time
 
@@ -35,7 +35,7 @@ class Host:
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = EQSNBackend()
         else:
             self._backend = backend
         # add this host to the backend
@@ -476,8 +476,7 @@ class Host:
                 expected_seq += 1
         elif seq_num > expected_seq:
             self._seq_number_sender_ack[sender][0].append(seq_num)
-        else:
-            raise Exception("Should never happen!")
+
         for t in self._ack_receiver_queue:
             res = check_task(*t)
             if res is True:

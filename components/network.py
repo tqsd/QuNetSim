@@ -13,7 +13,7 @@ from inspect import signature
 
 from objects.packet import Packet
 from objects.routing_packet import RoutingPacket
-from backends.cqc_backend import CQCBackend
+from backends.eqsn_backend import EQSNBackend
 
 
 # Network singleton
@@ -614,8 +614,8 @@ class Network:
             self._stop_thread = True
             if self._backend is not None:
                 self._backend.stop()
-        except Exception:
-            Logger.get_instance().error("Network stopped with errors")
+        except Exception as e:
+            Logger.get_instance().error(e)
 
     def start(self, nodes=None, backend=None):
         """
@@ -623,7 +623,7 @@ class Network:
 
         """
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = EQSNBackend()
         else:
             self._backend = backend
         if nodes is not None:
