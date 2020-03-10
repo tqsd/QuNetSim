@@ -32,6 +32,9 @@ information is relayed through Eve, i.e. the "man in the middle". First we Initi
         network.add_host(host_eve)
         network.add_host(host_customer)
 
+        host_eve.q_relay_sniffing = True
+        host_eve.q_relay_sniffing_fn = sniffing_quantum
+
 
 In this protocol, the aim of the bank is to create unforgeable bank notes
 and distribute it to the customers. To achieve this, for every bank note,
@@ -44,6 +47,12 @@ and distributes it to the customer and the customer receives the qubits and the 
     :linenos:
 
     def banker_protocol(host, customer):
+        """
+        The banker's protocol.
+        Args:
+            host (Host): The Host that runs the banker's protocol.
+            customer: The ID of the customer.
+        """
         bank_bits = [[] for _ in range(NO_OF_SERIALS)]
         bank_basis = [[] for _ in range(NO_OF_SERIALS)]
 
@@ -76,7 +85,7 @@ After the bank distributes the money, the customer possesses the money.
                 for bit_no in range(QUBITS_PER_MONEY):
                     q = host.get_data_qubit(banker, wait=10)
                     money_qubits[serial].append(q)
-
+            print('Customer received money')
 
 To use this money, the customer has to get it verified by the bank.
 To do this, he sends the serial number of the banknote that
@@ -86,11 +95,21 @@ he wants to use along with the qubits assigned to the banknote:
     :linenos:
 
     def verify_money():
-        serial_of_money_to_be_used = randint(0, NO_OF_SERIALS - 1)
-        host.send_classical(banker, serial_of_money_to_be_used)
+        print('Customer is verifying the money')
+        serial_to_be_used = randint(0, NO_OF_SERIALS - 1)
+        host.send_classical(banker, serial_to_be_used, await_ack=True)
 
         for qubit_no in range(QUBITS_PER_MONEY):
-            host.send_qubit(banker, money_qubits[serial_of_money_to_be_used][qubit_no], await_ack=True)
+            host.send_qubit(banker, money_qubits[serial_to_be_used][qubit_no], await_ack=False)
+
+        # Remove unused qubits
+        unused_serials = list(range(NO_OF_SERIALS))
+        del unused_serials[serial_to_be_used]
+        if len(unused_serials) > 0:
+            print('Customer removes unused qubits')
+            for unused_serial in unused_serials:
+                for q in money_qubits[unused_serial]:
+                    q.release()
 
 After receiving the qubits associated with the serial number, the bank measures the qubits to check
 if measurement results match with the data in bank's database. If there is a mismatch, the bank realizes
@@ -100,8 +119,20 @@ that there is a cheating attempt. If measurement results are correct, the bank v
     :linenos:
 
     def controlling():
+        """
+        Function to check if qubits representing the money are correct.
+        Return:
+            Prints out if the money is valid or if teh customer is cheating.
+        """
         cheat_alert = False
+        print('Banker waiting for serial')
         message = host.get_classical(customer, seq_num=0, wait=10)
+
+        if message is None:
+            print("Bank did not receive the serial number")
+            return
+
+        print('Serial received by Bank')
         serial_to_be_checked = message.content
         for qubit_no in range(QUBITS_PER_MONEY):
             q = host.get_data_qubit(customer, wait=10)
@@ -111,10 +142,11 @@ that there is a cheating attempt. If measurement results are correct, the bank v
             measurement = q.measure()
             if measurement != bank_bits[serial_to_be_checked][qubit_no]:
                 cheat_alert = True
-                break
 
         if not cheat_alert:
             print('MONEY IS VALID')
+        else:
+            print('MONEY IS INVALID')
 
 If Eve, being the relay node, acts as an attacker, she can only steal the money but can't reproduce
 the money as she doesn't know the polarization bases. Therefore, the money is unforgeable. Also, if
@@ -137,9 +169,14 @@ shown below:
         """
 
         # Eavesdropper measures some of the qubits.
-        if sender == 'Bank' and random() <= 0.25:
-            print('Eavesdropper measured qubit from %s to %s' % (sender, receiver))
-            qubit.measure(non_destructive=True)
+        if sender == 'Customer':
+            r = random.random()
+            if r > 0.5:
+                print('Eavesdropper applied I to qubit sent from %s to %s' % (sender, receiver))
+                qubit.I()
+            else:
+                print('Eavesdropper applied X to qubit sent from %s to %s' % (sender, receiver))
+                qubit.X()
 
 
 The full example is below:
@@ -149,7 +186,7 @@ The full example is below:
 
     from components.host import Host
     from components.network import Network
-    from components.logger import Logger
+    from objects.logger import Logger
     from objects.qubit import Qubit
     from random import randint, random
     from backends.projectq_backend import ProjectQBackend
@@ -157,8 +194,8 @@ The full example is below:
     Logger.DISABLED = True
 
     WAIT_TIME = 10
-    QUBITS_PER_MONEY = 10
-    NO_OF_SERIALS = 2
+    QUBITS_PER_MONEY = 8
+    NO_OF_SERIALS = 1
 
 
     def banker_protocol(host, customer):
@@ -167,7 +204,6 @@ The full example is below:
         Args:
             host (Host): The Host that runs the banker's protocol.
             customer: The ID of the customer.
-
         """
         bank_bits = [[] for _ in range(NO_OF_SERIALS)]
         bank_basis = [[] for _ in range(NO_OF_SERIALS)]
@@ -185,16 +221,22 @@ The full example is below:
                         q.X()
                     if random_base == 1:
                         q.H()
-                    host.send_qubit(customer, q)
+                    host.send_qubit(customer, q, await_ack=False)
 
         def controlling():
             """
             Function to check if qubits representing the money are correct.
-            :return: Prints out if the money is valid or if teh customer is cheating.
+            Return:
+                Prints out if the money is valid or if teh customer is cheating.
             """
             cheat_alert = False
             print('Banker waiting for serial')
             message = host.get_classical(customer, seq_num=0, wait=10)
+
+            if message is None:
+                print("Bank did not receive the serial number")
+                return
+
             print('Serial received by Bank')
             serial_to_be_checked = message.content
             for qubit_no in range(QUBITS_PER_MONEY):
@@ -204,12 +246,12 @@ The full example is below:
 
                 measurement = q.measure()
                 if measurement != bank_bits[serial_to_be_checked][qubit_no]:
-                    print('Money is invalid!')
                     cheat_alert = True
-                    break
 
             if not cheat_alert:
                 print('MONEY IS VALID')
+            else:
+                print('MONEY IS INVALID')
 
         print("Banker is preparing and distributing qubits")
         preparation_and_distribution()
@@ -236,11 +278,20 @@ The full example is below:
 
         def verify_money():
             print('Customer is verifying the money')
-            serial_of_money_to_be_used = randint(0, NO_OF_SERIALS - 1)
-            host.send_classical(banker, serial_of_money_to_be_used)
+            serial_to_be_used = randint(0, NO_OF_SERIALS - 1)
+            host.send_classical(banker, serial_to_be_used, await_ack=True)
 
             for qubit_no in range(QUBITS_PER_MONEY):
-                host.send_qubit(banker, money_qubits[serial_of_money_to_be_used][qubit_no])
+                host.send_qubit(banker, money_qubits[serial_to_be_used][qubit_no], await_ack=False)
+
+            # Remove unused qubits
+            unused_serials = list(range(NO_OF_SERIALS))
+            del unused_serials[serial_to_be_used]
+            if len(unused_serials) > 0:
+                print('Customer removes unused qubits')
+                for unused_serial in unused_serials:
+                    for q in money_qubits[unused_serial]:
+                        q.release()
 
         print('Customer is awaiting serial number and qubits that represent the money')
         receive_money()
@@ -257,50 +308,56 @@ The full example is below:
             receiver (Host) : Receiver of the qubit
             qubit (Qubit): Qubit in transmission
         """
-
         # Eavesdropper measures some of the qubits.
-        if sender == 'Bank' and random() <= 0.25:
-            print('Eavesdropper measured qubit from %s to %s' % (sender, receiver))
-            qubit.measure(non_destructive=True)
+        print('did this')
+        if sender == 'Customer':
+            r = random()
+            if r > 0.5:
+                print('Eavesdropper applied I to qubit sent from %s to %s' % (sender, receiver))
+                qubit.I()
+            else:
+                print('Eavesdropper applied X to qubit sent from %s to %s' % (sender, receiver))
+                qubit.X()
 
 
     def main():
         # Initialize a network
         network = Network.get_instance()
-        backend = ProjectQBackend()
         nodes = ['Bank', 'Customer', 'Eve']
-        network.delay = 0.1
-        network.start(nodes, backend)
+        network.delay = 0.2
+        network.start(nodes)
 
-        host_bank = Host('Bank', backend)
+        host_bank = Host('Bank')
         host_bank.add_connection('Eve')
+        host_bank.delay = 0.3
         host_bank.start()
 
-        host_eve = Host('Eve', backend)
+        host_eve = Host('Eve')
         host_eve.add_connection('Bank')
         host_eve.add_connection('Customer')
         host_eve.start()
 
-        host_customer = Host('Customer', backend)
+        host_customer = Host('Customer')
         host_customer.add_connection('Eve')
+        host_customer.delay = 0.3
         host_customer.start()
 
         network.add_host(host_bank)
         network.add_host(host_eve)
         network.add_host(host_customer)
 
-        host_eve.quantum_relay_sniffing = True
-        host_eve.set_quantum_relay_sniffing_function(sniffing_quantum)
+        host_eve.q_relay_sniffing = True
+        host_eve.q_relay_sniffing_fn = sniffing_quantum
 
         print('Starting transfer')
-        t1 = host_bank.run_protocol(banker_protocol, (host_customer.host_id,))
-        t2 = host_customer.run_protocol(customer_protocol, (host_bank.host_id,))
 
-        t1.join()
-        t2.join()
+        t = host_customer.run_protocol(customer_protocol, (host_bank.host_id,))
+        host_bank.run_protocol(banker_protocol, (host_customer.host_id,), blocking=True)
+        t.join()
 
         network.stop(True)
 
 
     if __name__ == '__main__':
         main()
+

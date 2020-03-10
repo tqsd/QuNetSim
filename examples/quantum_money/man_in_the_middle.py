@@ -2,7 +2,7 @@ from components.host import Host
 from components.network import Network
 from objects.logger import Logger
 from objects.qubit import Qubit
-from random import randint
+from random import randint, random
 from backends.projectq_backend import ProjectQBackend
 
 Logger.DISABLED = True
@@ -18,7 +18,6 @@ def banker_protocol(host, customer):
     Args:
         host (Host): The Host that runs the banker's protocol.
         customer: The ID of the customer.
-
     """
     bank_bits = [[] for _ in range(NO_OF_SERIALS)]
     bank_basis = [[] for _ in range(NO_OF_SERIALS)]
@@ -41,7 +40,8 @@ def banker_protocol(host, customer):
     def controlling():
         """
         Function to check if qubits representing the money are correct.
-        :return: Prints out if the money is valid or if teh customer is cheating.
+        Return:
+            Prints out if the money is valid or if teh customer is cheating.
         """
         cheat_alert = False
         print('Banker waiting for serial')
@@ -123,34 +123,35 @@ def sniffing_quantum(sender, receiver, qubit):
         qubit (Qubit): Qubit in transmission
     """
     # Eavesdropper measures some of the qubits.
+    print('did this')
     if sender == 'Customer':
-        print('Eavesdropper applied I to qubit sent from %s to %s' % (sender, receiver))
-        qubit.I()
-
-        # print('Eavesdropper applied X to qubit sent from %s to %s' % (sender, receiver))
-        # qubit.X()
+        r = random()
+        if r > 0.5:
+            print('Eavesdropper applied I to qubit sent from %s to %s' % (sender, receiver))
+            qubit.I()
+        else:
+            print('Eavesdropper applied X to qubit sent from %s to %s' % (sender, receiver))
+            qubit.X()
 
 
 def main():
     # Initialize a network
     network = Network.get_instance()
-    # backend = CQCBackend()
-    backend = ProjectQBackend()
     nodes = ['Bank', 'Customer', 'Eve']
     network.delay = 0.2
-    network.start(nodes, backend)
+    network.start(nodes)
 
-    host_bank = Host('Bank', backend)
+    host_bank = Host('Bank')
     host_bank.add_connection('Eve')
     host_bank.delay = 0.3
     host_bank.start()
 
-    host_eve = Host('Eve', backend)
+    host_eve = Host('Eve')
     host_eve.add_connection('Bank')
     host_eve.add_connection('Customer')
     host_eve.start()
 
-    host_customer = Host('Customer', backend)
+    host_customer = Host('Customer')
     host_customer.add_connection('Eve')
     host_customer.delay = 0.3
     host_customer.start()
@@ -159,7 +160,7 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_customer)
 
-    host_eve.q_relay_sniffing_fn = True
+    host_eve.q_relay_sniffing = True
     host_eve.q_relay_sniffing_fn = sniffing_quantum
 
     print('Starting transfer')

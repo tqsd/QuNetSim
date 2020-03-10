@@ -95,6 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
 </ul>
@@ -226,7 +227,10 @@ information is relayed through Eve, i.e. the “man in the middle”. First we I
 19
 20
 21
-22</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+22
+23
+24
+25</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize a network</span>
     <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Bank&#39;</span><span class="p">,</span> <span class="s1">&#39;Customer&#39;</span><span class="p">,</span> <span class="s1">&#39;Eve&#39;</span><span class="p">]</span>
@@ -248,6 +252,9 @@ information is relayed through Eve, i.e. the “man in the middle”. First we I
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_bank</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_customer</span><span class="p">)</span>
+
+    <span class="n">host_eve</span><span class="o">.</span><span class="n">q_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">host_eve</span><span class="o">.</span><span class="n">q_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">sniffing_quantum</span>
 </pre></div>
 </td></tr></table></div>
 <p>In this protocol, the aim of the bank is to create unforgeable bank notes
@@ -273,7 +280,19 @@ and distributes it to the customer and the customer receives the qubits and the 
 15
 16
 17
-18</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">banker_protocol</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">customer</span><span class="p">):</span>
+18
+19
+20
+21
+22
+23
+24</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">banker_protocol</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">customer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The banker&#39;s protocol.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        host (Host): The Host that runs the banker&#39;s protocol.</span>
+<span class="sd">        customer: The ID of the customer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bank_bits</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">)]</span>
     <span class="n">bank_basis</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">)]</span>
 
@@ -301,7 +320,8 @@ and distributes it to the customer and the customer receives the qubits and the 
 5
 6
 7
-8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">customer_protocol</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">banker</span><span class="p">):</span>
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">customer_protocol</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">banker</span><span class="p">):</span>
     <span class="n">money_qubits</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="nf">receive_money</span><span class="p">():</span>
@@ -309,22 +329,43 @@ and distributes it to the customer and the customer receives the qubits and the 
             <span class="k">for</span> <span class="n">bit_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">QUBITS_PER_MONEY</span><span class="p">):</span>
                 <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
                 <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer received money&#39;</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>To use this money, the customer has to get it verified by the bank.
 To do this, he sends the serial number of the banknote that
 he wants to use along with the qubits assigned to the banknote:</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">verify_money</span><span class="p">():</span>
-    <span class="n">serial_of_money_to_be_used</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NO_OF_SERIALS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">serial_of_money_to_be_used</span><span class="p">)</span>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">verify_money</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer is verifying the money&#39;</span><span class="p">)</span>
+    <span class="n">serial_to_be_used</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NO_OF_SERIALS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">serial_to_be_used</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">qubit_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">QUBITS_PER_MONEY</span><span class="p">):</span>
-        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial_of_money_to_be_used</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">],</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial_to_be_used</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">],</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1"># Remove unused qubits</span>
+    <span class="n">unused_serials</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">))</span>
+    <span class="k">del</span> <span class="n">unused_serials</span><span class="p">[</span><span class="n">serial_to_be_used</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unused_serials</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer removes unused qubits&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">unused_serial</span> <span class="ow">in</span> <span class="n">unused_serials</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">unused_serial</span><span class="p">]:</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
 <p>After receiving the qubits associated with the serial number, the bank measures the qubits to check
@@ -345,9 +386,34 @@ that there is a cheating attempt. If measurement results are correct, the bank v
 13
 14
 15
-16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">controlling</span><span class="p">():</span>
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">controlling</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to check if qubits representing the money are correct.</span>
+<span class="sd">    Return:</span>
+<span class="sd">        Prints out if the money is valid or if teh customer is cheating.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cheat_alert</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Banker waiting for serial&#39;</span><span class="p">)</span>
     <span class="n">message</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">customer</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Bank did not receive the serial number&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Serial received by Bank&#39;</span><span class="p">)</span>
     <span class="n">serial_to_be_checked</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span>
     <span class="k">for</span> <span class="n">qubit_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">QUBITS_PER_MONEY</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">customer</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -357,10 +423,11 @@ that there is a cheating attempt. If measurement results are correct, the bank v
         <span class="n">measurement</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">measurement</span> <span class="o">!=</span> <span class="n">bank_bits</span><span class="p">[</span><span class="n">serial_to_be_checked</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">]:</span>
             <span class="n">cheat_alert</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">break</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cheat_alert</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;MONEY IS VALID&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;MONEY IS INVALID&#39;</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>If Eve, being the relay node, acts as an attacker, she can only steal the money but can’t reproduce
@@ -382,7 +449,12 @@ shown below:</p>
 11
 12
 13
-14</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sniffing_quantum</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+14
+15
+16
+17
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sniffing_quantum</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to set what the relay node does to the qubit in transmission.</span>
 
@@ -393,9 +465,14 @@ shown below:</p>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Eavesdropper measures some of the qubits.</span>
-    <span class="k">if</span> <span class="n">sender</span> <span class="o">==</span> <span class="s1">&#39;Bank&#39;</span> <span class="ow">and</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mf">0.25</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper measured qubit from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
-        <span class="n">qubit</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">non_destructive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sender</span> <span class="o">==</span> <span class="s1">&#39;Customer&#39;</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper applied I to qubit sent from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">I</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper applied X to qubit sent from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
 <p>The full example is below:</p>
@@ -555,9 +632,28 @@ shown below:</p>
 154
 155
 156
-157</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
 <span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
-<span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">objects.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 <span class="kn">from</span> <span class="nn">objects.qubit</span> <span class="kn">import</span> <span class="n">Qubit</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">random</span>
 <span class="kn">from</span> <span class="nn">backends.projectq_backend</span> <span class="kn">import</span> <span class="n">ProjectQBackend</span>
@@ -565,8 +661,8 @@ shown below:</p>
 <span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
 
 <span class="n">WAIT_TIME</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">QUBITS_PER_MONEY</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">NO_OF_SERIALS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">QUBITS_PER_MONEY</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">NO_OF_SERIALS</span> <span class="o">=</span> <span class="mi">1</span>
 
 
 <span class="k">def</span> <span class="nf">banker_protocol</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">customer</span><span class="p">):</span>
@@ -575,7 +671,6 @@ shown below:</p>
 <span class="sd">    Args:</span>
 <span class="sd">        host (Host): The Host that runs the banker&#39;s protocol.</span>
 <span class="sd">        customer: The ID of the customer.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bank_bits</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">)]</span>
     <span class="n">bank_basis</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">)]</span>
@@ -593,16 +688,22 @@ shown below:</p>
                     <span class="n">q</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">random_base</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
-                <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">customer</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+                <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">customer</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">controlling</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to check if qubits representing the money are correct.</span>
-<span class="sd">        :return: Prints out if the money is valid or if teh customer is cheating.</span>
+<span class="sd">        Return:</span>
+<span class="sd">            Prints out if the money is valid or if teh customer is cheating.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cheat_alert</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Banker waiting for serial&#39;</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_classical</span><span class="p">(</span><span class="n">customer</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Bank did not receive the serial number&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Serial received by Bank&#39;</span><span class="p">)</span>
         <span class="n">serial_to_be_checked</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span>
         <span class="k">for</span> <span class="n">qubit_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">QUBITS_PER_MONEY</span><span class="p">):</span>
@@ -612,12 +713,12 @@ shown below:</p>
 
             <span class="n">measurement</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">measurement</span> <span class="o">!=</span> <span class="n">bank_bits</span><span class="p">[</span><span class="n">serial_to_be_checked</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">]:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Money is invalid!&#39;</span><span class="p">)</span>
                 <span class="n">cheat_alert</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="k">break</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cheat_alert</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;MONEY IS VALID&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;MONEY IS INVALID&#39;</span><span class="p">)</span>
 
     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Banker is preparing and distributing qubits&quot;</span><span class="p">)</span>
     <span class="n">preparation_and_distribution</span><span class="p">()</span>
@@ -644,11 +745,20 @@ shown below:</p>
 
     <span class="k">def</span> <span class="nf">verify_money</span><span class="p">():</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer is verifying the money&#39;</span><span class="p">)</span>
-        <span class="n">serial_of_money_to_be_used</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NO_OF_SERIALS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">serial_of_money_to_be_used</span><span class="p">)</span>
+        <span class="n">serial_to_be_used</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NO_OF_SERIALS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">serial_to_be_used</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">qubit_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">QUBITS_PER_MONEY</span><span class="p">):</span>
-            <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial_of_money_to_be_used</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">])</span>
+            <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">banker</span><span class="p">,</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">serial_to_be_used</span><span class="p">][</span><span class="n">qubit_no</span><span class="p">],</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c1"># Remove unused qubits</span>
+        <span class="n">unused_serials</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">NO_OF_SERIALS</span><span class="p">))</span>
+        <span class="k">del</span> <span class="n">unused_serials</span><span class="p">[</span><span class="n">serial_to_be_used</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unused_serials</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer removes unused qubits&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">unused_serial</span> <span class="ow">in</span> <span class="n">unused_serials</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">money_qubits</span><span class="p">[</span><span class="n">unused_serial</span><span class="p">]:</span>
+                    <span class="n">q</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Customer is awaiting serial number and qubits that represent the money&#39;</span><span class="p">)</span>
     <span class="n">receive_money</span><span class="p">()</span>
@@ -665,47 +775,52 @@ shown below:</p>
 <span class="sd">        receiver (Host) : Receiver of the qubit</span>
 <span class="sd">        qubit (Qubit): Qubit in transmission</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="c1"># Eavesdropper measures some of the qubits.</span>
-    <span class="k">if</span> <span class="n">sender</span> <span class="o">==</span> <span class="s1">&#39;Bank&#39;</span> <span class="ow">and</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mf">0.25</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper measured qubit from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
-        <span class="n">qubit</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">non_destructive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;did this&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sender</span> <span class="o">==</span> <span class="s1">&#39;Customer&#39;</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper applied I to qubit sent from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">I</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Eavesdropper applied X to qubit sent from </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">))</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize a network</span>
     <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="n">ProjectQBackend</span><span class="p">()</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Bank&#39;</span><span class="p">,</span> <span class="s1">&#39;Customer&#39;</span><span class="p">,</span> <span class="s1">&#39;Eve&#39;</span><span class="p">]</span>
-    <span class="n">network</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.1</span>
-    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
 
-    <span class="n">host_bank</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Bank&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_bank</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Bank&#39;</span><span class="p">)</span>
     <span class="n">host_bank</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
+    <span class="n">host_bank</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">host_bank</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="n">host_eve</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_eve</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
     <span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Bank&#39;</span><span class="p">)</span>
     <span class="n">host_eve</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Customer&#39;</span><span class="p">)</span>
     <span class="n">host_eve</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="n">host_customer</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Customer&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_customer</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;Customer&#39;</span><span class="p">)</span>
     <span class="n">host_customer</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;Eve&#39;</span><span class="p">)</span>
+    <span class="n">host_customer</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">host_customer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_bank</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_customer</span><span class="p">)</span>
 
-    <span class="n">host_eve</span><span class="o">.</span><span class="n">quantum_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">host_eve</span><span class="o">.</span><span class="n">set_quantum_relay_sniffing_function</span><span class="p">(</span><span class="n">sniffing_quantum</span><span class="p">)</span>
+    <span class="n">host_eve</span><span class="o">.</span><span class="n">q_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">host_eve</span><span class="o">.</span><span class="n">q_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">sniffing_quantum</span>
 
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Starting transfer&#39;</span><span class="p">)</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="n">host_bank</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">banker_protocol</span><span class="p">,</span> <span class="p">(</span><span class="n">host_customer</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
-    <span class="n">t2</span> <span class="o">=</span> <span class="n">host_customer</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">customer_protocol</span><span class="p">,</span> <span class="p">(</span><span class="n">host_bank</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
 
-    <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-    <span class="n">t2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">host_customer</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">customer_protocol</span><span class="p">,</span> <span class="p">(</span><span class="n">host_bank</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+    <span class="n">host_bank</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">banker_protocol</span><span class="p">,</span> <span class="p">(</span><span class="n">host_customer</span><span class="o">.</span><span class="n">host_id</span><span class="p">,),</span> <span class="n">blocking</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
     <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
