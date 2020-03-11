@@ -1,7 +1,6 @@
 import cqc.pythonLib as cqc
 from simulaqron.settings import simulaqron_settings
 from simulaqron.network import Network as SimulaNetwork
-
 from backends.RWLock import RWLock
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit

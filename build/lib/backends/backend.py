@@ -1,71 +1,28 @@
-from backends.SafeDict import SafeDict
-from objects.qubit import Qubit
-from queue import Queue
-
-try:
-    import projectq
-except ImportError:
-    raise RuntimeError(
-        'To use ProjectQ as a backend, you need to first install the Python package '
-        '\'projectq\' (e.g. run \'pip install projectq\'.')
 
 
-class ProjectQBackend(object):
+class Backend(object):
+    """
+    Definition of how a backend has to look and behave like.
+    """
+
     def __init__(self):
-        self._hosts = ProjectQBackend.Hosts.get_instance()
-        self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
-        self.engine = projectq.MainEngine()
-
-    def __del__(self):
-        self.engine.flush(deallocate_qubits=True)
-
-    class EntanglementPairs(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
-
-        @staticmethod
-        def get_instance():
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                return ProjectQBackend.EntanglementPairs.__instance
-            else:
-                return ProjectQBackend.EntanglementPairs()
-
-        def __init__(self):
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            ProjectQBackend.EntanglementPairs.__instance = self
-            SafeDict.__init__(self)
-
-    class Hosts(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
-
-        @staticmethod
-        def get_instance():
-            if ProjectQBackend.Hosts.__instance is not None:
-                return ProjectQBackend.Hosts.__instance
-            else:
-                return ProjectQBackend.Hosts()
-
-        def __init__(self):
-            if ProjectQBackend.Hosts.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            ProjectQBackend.Hosts.__instance = self
-            SafeDict.__init__(self)
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def start(self, **kwargs):
         """
         Starts Backends which have to run in an own thread or process before they
         can be used.
         """
-        pass
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
 
     def stop(self):
         """
         Stops Backends which are running in an own thread or process.
         """
-        self.engine.flush(deallocate_qubits=True)
-        pass
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
 
     def add_host(self, host):
         """
@@ -74,7 +31,8 @@ class ProjectQBackend(object):
         Args:
             host (Host): New Host which should be added.
         """
-        self._hosts.add_to_dict(host.host_id, host)
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
 
     def create_qubit(self, host_id):
         """
@@ -83,10 +41,11 @@ class ProjectQBackend(object):
         Args:
             host_id (String): Id of the host to whom the qubit belongs.
 
-        Returns:
+        Reurns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        raise EnvironmentError("This is only an interface, not \
+                        an actual implementation!")
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -97,7 +56,8 @@ class ProjectQBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        qubit.host = self._hosts.get_from_dict(to_host_id)
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
@@ -112,29 +72,8 @@ class ProjectQBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        q1 = self.create_qubit(host_a_id)
-        q2 = self.create_qubit(host_b_id)
-
-        projectq.ops.H | q1
-        projectq.ops.CNOT | (q1, q2)
-
-        host_a = self._hosts.get_from_dict(host_a_id)
-        host_b = self._hosts.get_from_dict(host_b_id)
-        qubit_b = Qubit(host_b, qubit=q2, q_id=q_id, blocked=block)
-        qubit = Qubit(host_a, qubit=q1, q_id=q_id, blocked=block)
-        self.store_ent_pair(host_a.host_id, host_b.host_id, qubit_b)
-        return qubit
-
-    def store_ent_pair(self, host_a, host_b, qubit):
-        key = host_a + ':' + host_b
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
-
-        if ent_queue is not None:
-            ent_queue.put(qubit)
-        else:
-            ent_queue = Queue()
-            ent_queue.put(qubit)
-        self._entaglement_pairs.add_to_dict(key, ent_queue)
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
@@ -148,14 +87,8 @@ class ProjectQBackend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        key = sender_id + ':' + host_id
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
-        if ent_queue is None:
-            raise Exception("Internal Error!")
-        qubit = ent_queue.get()
-        if q_id is not None and q_id != qubit.id:
-            raise ValueError("Qid doesn't match id!")
-        return qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     ##########################
     #   Gate definitions    #
@@ -168,7 +101,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        pass
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def X(self, qubit):
         """
@@ -177,7 +111,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.X | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def Y(self, qubit):
         """
@@ -186,7 +121,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Y | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def Z(self, qubit):
         """
@@ -195,7 +131,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Z | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def H(self, qubit):
         """
@@ -204,7 +141,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.H | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def T(self, qubit):
         """
@@ -213,19 +151,8 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.T | qubit.qubit
-
-    def K(self, qubit):
-        """
-        Perform K gate on a qubit.
-
-        Args:
-            qubit (Qubit): Qubit on which gate should be applied to.
-        """
-        projectq.ops.H | qubit.qubit
-        projectq.ops.S | qubit.qubit
-        projectq.ops.H | qubit.qubit
-        projectq.ops.Z | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def rx(self, qubit, phi):
         """
@@ -233,9 +160,10 @@ class ProjectQBackend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        projectq.ops.Rx(phi) | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def ry(self, qubit, phi):
         """
@@ -243,39 +171,43 @@ class ProjectQBackend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        projectq.ops.Ry(phi) | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
-    def rz(self, qubit, phi):
+    def rz(self, phi):
         """
         Perform a rotation pauli z gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        projectq.ops.Rz(phi) | qubit.qubit
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
-    def cnot(self, control, target):
+    def cnot(self, qubit, target):
         """
         Applies a controlled x gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cnot.
+            qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        projectq.ops.CNOT | (control.qubit, target.qubit)
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
-    def cphase(self, control, target):
+    def cphase(self, qubit, target):
         """
         Applies a controlled z gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cphase.
+            qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        projectq.ops.CZ | (control.qubit, target.qubit)
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def measure(self, qubit, non_destructive):
         """
@@ -289,15 +221,8 @@ class ProjectQBackend(object):
         Returns:
             The value which has been measured.
         """
-        projectq.ops.Measure | qubit.qubit
-        m = int(qubit.qubit)
-
-        # TODO: This causes threading issues
-        # if not non_destructive:
-        #     self.release(qubit)
-        #     self.engine.flush()
-
-        return m
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def release(self, qubit):
         """
@@ -306,5 +231,5 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        projectq.ops.Measure | qubit.qubit
-        self.engine.flush()
+        raise(EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))

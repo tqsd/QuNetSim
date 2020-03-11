@@ -1,0 +1,4 @@
+eqsn
+networkx
+numpy
+matplotlib

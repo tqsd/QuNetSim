@@ -1,40 +1,83 @@
-from backends.SafeDict import SafeDict
+import eqsn
+import uuid
 from objects.qubit import Qubit
+import threading
 from queue import Queue
 
-try:
-    import projectq
-except ImportError:
-    raise RuntimeError(
-        'To use ProjectQ as a backend, you need to first install the Python package '
-        '\'projectq\' (e.g. run \'pip install projectq\'.')
 
-
-class ProjectQBackend(object):
+# From O'Reilly Python Cookbook by David Ascher, Alex Martelli
+# with some smaller adaptions
+class RWLock:
     def __init__(self):
-        self._hosts = ProjectQBackend.Hosts.get_instance()
-        self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
-        self.engine = projectq.MainEngine()
+        self._read_ready = threading.Condition(threading.RLock())
+        self._num_reader = 0
+        self._num_writer = 0
+        self._readerList = []
+        self._writerList = []
 
-    def __del__(self):
-        self.engine.flush(deallocate_qubits=True)
+    def acquire_read(self):
+        self._read_ready.acquire()
+        try:
+            while self._num_writer > 0:
+                self._read_ready.wait()
+            self._num_reader += 1
+        finally:
+            self._readerList.append(threading.get_ident())
+            self._read_ready.release()
 
-    class EntanglementPairs(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
+    def release_read(self):
+        self._read_ready.acquire()
+        try:
+            self._num_reader -= 1
+            if not self._num_reader:
+                self._read_ready.notifyAll()
+        finally:
+            self._readerList.remove(threading.get_ident())
+            self._read_ready.release()
 
-        @staticmethod
-        def get_instance():
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                return ProjectQBackend.EntanglementPairs.__instance
-            else:
-                return ProjectQBackend.EntanglementPairs()
+    def acquire_write(self):
+        self._read_ready.acquire()
+        self._num_writer += 1
+        self._writerList.append(threading.get_ident())
+        while self._num_reader > 0:
+            self._read_ready.wait()
 
-        def __init__(self):
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            ProjectQBackend.EntanglementPairs.__instance = self
-            SafeDict.__init__(self)
+    def release_write(self):
+        self._num_writer -= 1
+        self._writerList.remove(threading.get_ident())
+        self._read_ready.notifyAll()
+        self._read_ready.release()
+
+
+class SafeDict(object):
+    def __init__(self):
+        self.lock = RWLock()
+        self.dict = {}
+
+    def __str__(self):
+        self.lock.acquire_read()
+        ret = str(self.dict)
+        self.lock.release_read()
+        return ret
+
+    def add_to_dict(self, key, value):
+        self.lock.acquire_write()
+        self.dict[key] = value
+        self.lock.release_write()
+
+    def get_from_dict(self, key):
+        ret = None
+        self.lock.acquire_read()
+        if key in self.dict:
+            ret = self.dict[key]
+        self.lock.release_read()
+        return ret
+
+
+class EQSNBackend(object):
+    """
+    Definition of how a backend has to look and behave like.
+    """
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -42,16 +85,38 @@ class ProjectQBackend(object):
 
         @staticmethod
         def get_instance():
-            if ProjectQBackend.Hosts.__instance is not None:
-                return ProjectQBackend.Hosts.__instance
+            if EQSNBackend.Hosts.__instance is not None:
+                return EQSNBackend.Hosts.__instance
             else:
-                return ProjectQBackend.Hosts()
+                return EQSNBackend.Hosts()
 
         def __init__(self):
-            if ProjectQBackend.Hosts.__instance is not None:
+            if EQSNBackend.Hosts.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            ProjectQBackend.Hosts.__instance = self
+            EQSNBackend.Hosts.__instance = self
             SafeDict.__init__(self)
+
+    class EntanglementIDs(SafeDict):
+        # There only should be one instance of Hosts
+        __instance = None
+
+        @staticmethod
+        def get_instance():
+            if EQSNBackend.EntanglementIDs.__instance is not None:
+                return EQSNBackend.EntanglementIDs.__instance
+            else:
+                return EQSNBackend.EntanglementIDs()
+
+        def __init__(self):
+            if EQSNBackend.EntanglementIDs.__instance is not None:
+                raise Exception("Call get instance to get this class!")
+            EQSNBackend.EntanglementIDs.__instance = self
+            SafeDict.__init__(self)
+
+    def __init__(self):
+        self._hosts = EQSNBackend.Hosts.get_instance()
+        # keys are from : to, where from is the host calling create EPR
+        self._entaglement_qubits = EQSNBackend.EntanglementIDs.get_instance()
 
     def start(self, **kwargs):
         """
@@ -64,8 +129,7 @@ class ProjectQBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        self.engine.flush(deallocate_qubits=True)
-        pass
+        eqsn.stop_all()
 
     def add_host(self, host):
         """
@@ -86,7 +150,9 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        id = str(uuid.uuid4())
+        eqsn.new_qubit(id)
+        return id
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -97,7 +163,8 @@ class ProjectQBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        qubit.host = self._hosts.get_from_dict(to_host_id)
+        new_host = self._hosts.get_from_dict(to_host_id)
+        qubit.host = new_host
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
@@ -112,29 +179,29 @@ class ProjectQBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        q1 = self.create_qubit(host_a_id)
-        q2 = self.create_qubit(host_b_id)
-
-        projectq.ops.H | q1
-        projectq.ops.CNOT | (q1, q2)
-
+        uid1 = uuid.uuid4()
+        uid2 = uuid.uuid4()
         host_a = self._hosts.get_from_dict(host_a_id)
         host_b = self._hosts.get_from_dict(host_b_id)
-        qubit_b = Qubit(host_b, qubit=q2, q_id=q_id, blocked=block)
-        qubit = Qubit(host_a, qubit=q1, q_id=q_id, blocked=block)
-        self.store_ent_pair(host_a.host_id, host_b.host_id, qubit_b)
-        return qubit
+        eqsn.new_qubit(uid1)
+        eqsn.new_qubit(uid2)
+        eqsn.H_gate(uid1)
+        eqsn.cnot_gate(uid2, uid1)
+        q1 = Qubit(host_a, qubit=uid1, q_id=q_id, blocked=block)
+        q2 = Qubit(host_b, qubit=uid2, q_id=q1.id, blocked=block)
+        self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
+        return q1
 
     def store_ent_pair(self, host_a, host_b, qubit):
         key = host_a + ':' + host_b
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
 
         if ent_queue is not None:
             ent_queue.put(qubit)
         else:
             ent_queue = Queue()
             ent_queue.put(qubit)
-        self._entaglement_pairs.add_to_dict(key, ent_queue)
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
@@ -149,13 +216,14 @@ class ProjectQBackend(object):
             Returns an EPR qubit with the other Host.
         """
         key = sender_id + ':' + host_id
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
         if ent_queue is None:
             raise Exception("Internal Error!")
-        qubit = ent_queue.get()
-        if q_id is not None and q_id != qubit.id:
-            raise ValueError("Qid doesn't match id!")
-        return qubit
+        q = ent_queue.get()
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
+        if q_id is not None and q_id != q.id:
+            raise ValueError("Qid doesent match id!")
+        return q
 
     ##########################
     #   Gate definitions    #
@@ -177,7 +245,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.X | qubit.qubit
+        eqsn.X_gate(qubit.qubit)
 
     def Y(self, qubit):
         """
@@ -186,7 +254,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Y | qubit.qubit
+        eqsn.Y_gate(qubit.qubit)
 
     def Z(self, qubit):
         """
@@ -195,7 +263,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Z | qubit.qubit
+        eqsn.Z_gate(qubit.qubit)
 
     def H(self, qubit):
         """
@@ -204,16 +272,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.H | qubit.qubit
-
-    def T(self, qubit):
-        """
-        Perform T gate on a qubit.
-
-        Args:
-            qubit (Qubit): Qubit on which gate should be applied to.
-        """
-        projectq.ops.T | qubit.qubit
+        eqsn.H_gate(qubit.qubit)
 
     def K(self, qubit):
         """
@@ -222,10 +281,25 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.H | qubit.qubit
-        projectq.ops.S | qubit.qubit
-        projectq.ops.H | qubit.qubit
-        projectq.ops.Z | qubit.qubit
+        eqsn.K_gate(qubit.qubit)
+
+    def S(self, qubit):
+        """
+        Perform S gate on a qubit.
+
+        Args:
+            qubit (Qubit): Qubit on which gate should be applied to.
+        """
+        eqsn.S_gate(qubit.qubit)
+
+    def T(self, qubit):
+        """
+        Perform T gate on a qubit.
+
+        Args:
+            qubit (Qubit): Qubit on which gate should be applied to.
+        """
+        eqsn.T_gate(qubit.qubit)
 
     def rx(self, qubit, phi):
         """
@@ -235,7 +309,7 @@ class ProjectQBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        projectq.ops.Rx(phi) | qubit.qubit
+        eqsn.RX_gate(qubit.qubit, phi)
 
     def ry(self, qubit, phi):
         """
@@ -245,7 +319,7 @@ class ProjectQBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        projectq.ops.Ry(phi) | qubit.qubit
+        eqsn.RY_gate(qubit.qubit, phi)
 
     def rz(self, qubit, phi):
         """
@@ -255,27 +329,27 @@ class ProjectQBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        projectq.ops.Rz(phi) | qubit.qubit
+        eqsn.RZ_gate(qubit.qubit, phi)
 
-    def cnot(self, control, target):
+    def cnot(self, qubit, target):
         """
         Applies a controlled x gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cnot.
+            qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        projectq.ops.CNOT | (control.qubit, target.qubit)
+        eqsn.cnot_gate(target.qubit, qubit.qubit)
 
-    def cphase(self, control, target):
+    def cphase(self, qubit, target):
         """
         Applies a controlled z gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cphase.
+            qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        projectq.ops.CZ | (control.qubit, target.qubit)
+        eqsn.cphase_gate(target.qubit, qubit.qubit)
 
     def measure(self, qubit, non_destructive):
         """
@@ -283,21 +357,12 @@ class ProjectQBackend(object):
 
         Args:
             qubit (Qubit): Qubit which should be measured.
-            non_destructive (bool): Determines if the Qubit should stay in the
-                                    system or be eliminated.
+            non_destructive (bool): If the qubit should be destroyed after measuring.
 
         Returns:
             The value which has been measured.
         """
-        projectq.ops.Measure | qubit.qubit
-        m = int(qubit.qubit)
-
-        # TODO: This causes threading issues
-        # if not non_destructive:
-        #     self.release(qubit)
-        #     self.engine.flush()
-
-        return m
+        return eqsn.measure(qubit.qubit, non_destructive)
 
     def release(self, qubit):
         """
@@ -306,5 +371,4 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        projectq.ops.Measure | qubit.qubit
-        self.engine.flush()
+        eqsn.measure(qubit.qubit)

@@ -292,10 +292,9 @@ class ProjectQBackend(object):
         projectq.ops.Measure | qubit.qubit
         m = int(qubit.qubit)
 
-        # TODO: This causes threading issues
-        # if not non_destructive:
-        #     self.release(qubit)
-        #     self.engine.flush()
+        if not non_destructive:
+            self.release(qubit)
+            self.engine.flush()
 
         return m
 

@@ -1,40 +1,15 @@
+import cqc.pythonLib as cqc
+from simulaqron.settings import simulaqron_settings
+from simulaqron.network import Network as SimulaNetwork
+from backends.RWLock import RWLock
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
-from queue import Queue
-
-try:
-    import projectq
-except ImportError:
-    raise RuntimeError(
-        'To use ProjectQ as a backend, you need to first install the Python package '
-        '\'projectq\' (e.g. run \'pip install projectq\'.')
 
 
-class ProjectQBackend(object):
-    def __init__(self):
-        self._hosts = ProjectQBackend.Hosts.get_instance()
-        self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
-        self.engine = projectq.MainEngine()
-
-    def __del__(self):
-        self.engine.flush(deallocate_qubits=True)
-
-    class EntanglementPairs(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
-
-        @staticmethod
-        def get_instance():
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                return ProjectQBackend.EntanglementPairs.__instance
-            else:
-                return ProjectQBackend.EntanglementPairs()
-
-        def __init__(self):
-            if ProjectQBackend.EntanglementPairs.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            ProjectQBackend.EntanglementPairs.__instance = self
-            SafeDict.__init__(self)
+class CQCBackend(object):
+    """
+    The SimulaQron CQC backend
+    """
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -42,30 +17,88 @@ class ProjectQBackend(object):
 
         @staticmethod
         def get_instance():
-            if ProjectQBackend.Hosts.__instance is not None:
-                return ProjectQBackend.Hosts.__instance
+            if CQCBackend.Hosts.__instance is not None:
+                return CQCBackend.Hosts.__instance
             else:
-                return ProjectQBackend.Hosts()
+                return CQCBackend.Hosts()
 
         def __init__(self):
-            if ProjectQBackend.Hosts.__instance is not None:
+            if CQCBackend.Hosts.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            ProjectQBackend.Hosts.__instance = self
+            CQCBackend.Hosts.__instance = self
             SafeDict.__init__(self)
+
+    class CQCConnections(SafeDict):
+        # There only should be one instance of Hosts
+        __instance = None
+
+        @staticmethod
+        def get_instance():
+            if CQCBackend.CQCConnections.__instance is not None:
+                return CQCBackend.CQCConnections.__instance
+            else:
+                return CQCBackend.CQCConnections()
+
+        def __init__(self):
+            if CQCBackend.CQCConnections.__instance is not None:
+                raise Exception("Call get instance to get this class!")
+            CQCBackend.CQCConnections.__instance = self
+            SafeDict.__init__(self)
+
+    class EntanglementIDs(SafeDict):
+        # There only should be one instance of Hosts
+        __instance = None
+
+        @staticmethod
+        def get_instance():
+            if CQCBackend.EntanglementIDs.__instance is not None:
+                return CQCBackend.EntanglementIDs.__instance
+            else:
+                return CQCBackend.EntanglementIDs()
+
+        def __init__(self):
+            if CQCBackend.EntanglementIDs.__instance is not None:
+                raise Exception("Call get instance to get this class!")
+            CQCBackend.EntanglementIDs.__instance = self
+            SafeDict.__init__(self)
+
+    # SimulaQron comes with an own network simulator
+    # has to be kept in sync with QuNetSim network
+    backend_network = None
+    backend_network_lock = RWLock()
+
+    def __init__(self):
+        self._hosts = CQCBackend.Hosts.get_instance()
+        self._cqc_connections = CQCBackend.CQCConnections.get_instance()
+        # keys are from : to, where from is the host calling create EPR
+        self._entaglement_ids = CQCBackend.EntanglementIDs.get_instance()
+        self._stopped = False
 
     def start(self, **kwargs):
         """
         Starts Backends which have to run in an own thread or process before they
         can be used.
+
+        Args:
+            nodes(List): A list of hosts in the network.
         """
-        pass
+        print('Starting SimulaQron Network...')
+        Network.get_instance().use_ent_swap = True
+        nodes = kwargs['nodes']
+        CQCBackend.backend_network_lock.acquire_write()
+        simulaqron_settings.default_settings()
+        CQCBackend.backend_network = SimulaNetwork(nodes=nodes, force=True)
+        CQCBackend.backend_network_lock.release_write()
 
     def stop(self):
         """
         Stops Backends which are running in an own thread or process.
         """
-        self.engine.flush(deallocate_qubits=True)
-        pass
+        if not self._stopped:
+            CQCBackend.backend_network_lock.acquire_write()
+            CQCBackend.backend_network.stop()
+            self._stopped = True
+            CQCBackend.backend_network_lock.release_write()
 
     def add_host(self, host):
         """
@@ -74,6 +107,8 @@ class ProjectQBackend(object):
         Args:
             host (Host): New Host which should be added.
         """
+        connection = cqc.CQCConnection(host.host_id)
+        self._cqc_connections.add_to_dict(host.host_id, connection)
         self._hosts.add_to_dict(host.host_id, host)
 
     def create_qubit(self, host_id):
@@ -86,7 +121,7 @@ class ProjectQBackend(object):
         Returns:
             Qubit of backend type.
         """
-        return self.engine.allocate_qubit()
+        return cqc.qubit(self._cqc_connections.get_from_dict(host_id))
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -97,6 +132,10 @@ class ProjectQBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
+        cqc_from_host = self._cqc_connections.get_from_dict(from_host_id)
+        cqc_to_host = self._cqc_connections.get_from_dict(to_host_id)
+        cqc_from_host.sendQubit(qubit.qubit, cqc_to_host.name)
+        qubit.qubit = cqc_to_host.recvQubit()
         qubit.host = self._hosts.get_from_dict(to_host_id)
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
@@ -112,29 +151,24 @@ class ProjectQBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        q1 = self.create_qubit(host_a_id)
-        q2 = self.create_qubit(host_b_id)
-
-        projectq.ops.H | q1
-        projectq.ops.CNOT | (q1, q2)
-
+        cqc_host_a = self._cqc_connections.get_from_dict(host_a_id)
+        cqc_host_b = self._cqc_connections.get_from_dict(host_b_id)
         host_a = self._hosts.get_from_dict(host_a_id)
-        host_b = self._hosts.get_from_dict(host_b_id)
-        qubit_b = Qubit(host_b, qubit=q2, q_id=q_id, blocked=block)
-        qubit = Qubit(host_a, qubit=q1, q_id=q_id, blocked=block)
-        self.store_ent_pair(host_a.host_id, host_b.host_id, qubit_b)
+        q = cqc_host_a.createEPR(cqc_host_b.name)
+        qubit = Qubit(host_a, qubit=q, q_id=q_id, blocked=block)
+        # add the ID to a list, so the next returned qubit from recv EPR
+        # gets assigned the right id
+        self.store_ent_id(cqc_host_a, cqc_host_b, qubit)
         return qubit
 
-    def store_ent_pair(self, host_a, host_b, qubit):
-        key = host_a + ':' + host_b
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
-
-        if ent_queue is not None:
-            ent_queue.put(qubit)
+    def store_ent_id(self, cqc_host_a, cqc_host_b, qubit):
+        key = cqc_host_a.name + ':' + cqc_host_b.name
+        ent_list = self._entaglement_ids.get_from_dict(key)
+        if ent_list is not None:
+            ent_list.append(qubit.id)
         else:
-            ent_queue = Queue()
-            ent_queue.put(qubit)
-        self._entaglement_pairs.add_to_dict(key, ent_queue)
+            ent_list = [qubit.id]
+        self._entaglement_ids.add_to_dict(key, ent_list)
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
@@ -148,14 +182,25 @@ class ProjectQBackend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        key = sender_id + ':' + host_id
-        ent_queue = self._entaglement_pairs.get_from_dict(key)
-        if ent_queue is None:
+        cqc_host = self._cqc_connections.get_from_dict(host_id)
+        host = self._hosts.get_from_dict(host_id)
+        q = cqc_host.recvEPR()
+        key = sender_id + ':' + cqc_host.name
+        ent_list = self._entaglement_ids.get_from_dict(key)
+        if ent_list is None:
             raise Exception("Internal Error!")
-        qubit = ent_queue.get()
-        if q_id is not None and q_id != qubit.id:
-            raise ValueError("Qid doesn't match id!")
-        return qubit
+        id = None
+        id = ent_list.pop(0)
+        if q_id is not None and q_id != id:
+            raise ValueError("q_id doesn't match id!")
+        self._entaglement_ids.add_to_dict(key, ent_list)
+        return Qubit(host, qubit=q, q_id=id, blocked=block)
+
+    def flush(self, host_id):
+        """
+        CQC specific function.
+        """
+        self._cqc_connections.get_from_dict(host_id).flush()
 
     ##########################
     #   Gate definitions    #
@@ -168,7 +213,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        pass
+        qubit.qubit.I()
 
     def X(self, qubit):
         """
@@ -177,7 +222,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.X | qubit.qubit
+        qubit.qubit.X()
 
     def Y(self, qubit):
         """
@@ -186,7 +231,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Y | qubit.qubit
+        qubit.qubit.Y()
 
     def Z(self, qubit):
         """
@@ -195,7 +240,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.Z | qubit.qubit
+        qubit.qubit.Z()
 
     def H(self, qubit):
         """
@@ -204,7 +249,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.H | qubit.qubit
+        qubit.qubit.H()
 
     def T(self, qubit):
         """
@@ -213,7 +258,7 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.T | qubit.qubit
+        qubit.qubit.T()
 
     def K(self, qubit):
         """
@@ -222,60 +267,68 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        projectq.ops.H | qubit.qubit
-        projectq.ops.S | qubit.qubit
-        projectq.ops.H | qubit.qubit
-        projectq.ops.Z | qubit.qubit
+        qubit.qubit.K()
 
-    def rx(self, qubit, phi):
+    def rx(self, qubit, steps):
         """
         Perform a rotation pauli x gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            steps (int): Amount of rotation in Rad.
         """
-        projectq.ops.Rx(phi) | qubit.qubit
+        # convert to cqc unit
+        if steps < 0:
+            steps = 256 + steps
+        qubit.qubit.rot_X(steps)
 
-    def ry(self, qubit, phi):
+    def ry(self, qubit, steps):
         """
         Perform a rotation pauli y gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            steps (int): Amount of rotation in Rad.
         """
-        projectq.ops.Ry(phi) | qubit.qubit
+        # convert to cqc unit
+        # steps = phi * 256.0 / (2.0 * np.pi)
+        if steps < 0:
+            steps = 256 + steps
+        qubit.qubit.rot_Y(steps)
 
-    def rz(self, qubit, phi):
+    def rz(self, qubit, steps):
         """
         Perform a rotation pauli z gate with an angle of phi.
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        projectq.ops.Rz(phi) | qubit.qubit
+        # convert to cqc unit
+        # steps = phi * 256.0 / (2.0 * np.pi)
+        if steps < 0:
+            steps = 256 + steps
+        qubit.qubit.rot_Z(steps)
 
-    def cnot(self, control, target):
+    def cnot(self, qubit, target):
         """
         Applies a controlled x gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cnot.
+            qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        projectq.ops.CNOT | (control.qubit, target.qubit)
+        qubit.qubit.cnot(target.qubit)
 
-    def cphase(self, control, target):
+    def cphase(self, qubit, target):
         """
         Applies a controlled z gate to the target qubit.
 
         Args:
-            control (Qubit): Qubit to control cphase.
+            qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        projectq.ops.CZ | (control.qubit, target.qubit)
+        qubit.qubit.cphase(target.qubit)
 
     def measure(self, qubit, non_destructive):
         """
@@ -289,15 +342,7 @@ class ProjectQBackend(object):
         Returns:
             The value which has been measured.
         """
-        projectq.ops.Measure | qubit.qubit
-        m = int(qubit.qubit)
-
-        # TODO: This causes threading issues
-        # if not non_destructive:
-        #     self.release(qubit)
-        #     self.engine.flush()
-
-        return m
+        return qubit.qubit.measure(inplace=non_destructive)
 
     def release(self, qubit):
         """
@@ -306,5 +351,4 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        projectq.ops.Measure | qubit.qubit
-        self.engine.flush()
+        qubit.qubit.release()
