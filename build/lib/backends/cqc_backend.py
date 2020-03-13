@@ -83,11 +83,11 @@ class CQCBackend(object):
             nodes(List): A list of hosts in the network.
         """
         print('Starting SimulaQron Network...')
-        Network.get_instance().use_ent_swap = True
         nodes = kwargs['nodes']
         CQCBackend.backend_network_lock.acquire_write()
         simulaqron_settings.default_settings()
         CQCBackend.backend_network = SimulaNetwork(nodes=nodes, force=True)
+        CQCBackend.backend_network.start()
         CQCBackend.backend_network_lock.release_write()
 
     def stop(self):

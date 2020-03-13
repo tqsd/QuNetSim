@@ -624,6 +624,7 @@ class Network:
         """
         if backend is None:
             self._backend = CQCBackend()
+            self.use_ent_swap = True
         else:
             self._backend = backend
         if nodes is not None:

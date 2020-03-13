@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='qunetsim',
-    version='0.0.8',
+    version='0.0.9',
     scripts=['bin/template'],
     author="Stephen Diadamo",
     author_email="stephen.diadamo@gmail.com",
