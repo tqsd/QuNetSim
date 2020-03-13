@@ -1,4 +1,4 @@
-import eqsn
+from eqsn import EQSN
 import uuid
 from objects.qubit import Qubit
 import threading
@@ -117,6 +117,7 @@ class EQSNBackend(object):
         self._hosts = EQSNBackend.Hosts.get_instance()
         # keys are from : to, where from is the host calling create EPR
         self._entaglement_qubits = EQSNBackend.EntanglementIDs.get_instance()
+        self.eqsn = EQSN()
 
     def start(self, **kwargs):
         """
@@ -129,7 +130,7 @@ class EQSNBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        eqsn.stop_all()
+        self.eqsn.stop_all()
 
     def add_host(self, host):
         """
@@ -151,7 +152,7 @@ class EQSNBackend(object):
             Qubit of backend type.
         """
         id = str(uuid.uuid4())
-        eqsn.new_qubit(id)
+        self.eqsn.new_qubit(id)
         return id
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
@@ -183,10 +184,10 @@ class EQSNBackend(object):
         uid2 = uuid.uuid4()
         host_a = self._hosts.get_from_dict(host_a_id)
         host_b = self._hosts.get_from_dict(host_b_id)
-        eqsn.new_qubit(uid1)
-        eqsn.new_qubit(uid2)
-        eqsn.H_gate(uid1)
-        eqsn.cnot_gate(uid2, uid1)
+        self.eqsn.new_qubit(uid1)
+        self.eqsn.new_qubit(uid2)
+        self.eqsn.H_gate(uid1)
+        self.eqsn.cnot_gate(uid2, uid1)
         q1 = Qubit(host_a, qubit=uid1, q_id=q_id, blocked=block)
         q2 = Qubit(host_b, qubit=uid2, q_id=q1.id, blocked=block)
         self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
@@ -245,7 +246,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.X_gate(qubit.qubit)
+        self.eqsn.X_gate(qubit.qubit)
 
     def Y(self, qubit):
         """
@@ -254,7 +255,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.Y_gate(qubit.qubit)
+        self.eqsn.Y_gate(qubit.qubit)
 
     def Z(self, qubit):
         """
@@ -263,7 +264,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.Z_gate(qubit.qubit)
+        self.eqsn.Z_gate(qubit.qubit)
 
     def H(self, qubit):
         """
@@ -272,7 +273,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.H_gate(qubit.qubit)
+        self.eqsn.H_gate(qubit.qubit)
 
     def K(self, qubit):
         """
@@ -281,7 +282,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.K_gate(qubit.qubit)
+        self.eqsn.K_gate(qubit.qubit)
 
     def S(self, qubit):
         """
@@ -290,7 +291,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.S_gate(qubit.qubit)
+        self.eqsn.S_gate(qubit.qubit)
 
     def T(self, qubit):
         """
@@ -299,7 +300,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        eqsn.T_gate(qubit.qubit)
+        self.eqsn.T_gate(qubit.qubit)
 
     def rx(self, qubit, phi):
         """
@@ -309,7 +310,7 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        eqsn.RX_gate(qubit.qubit, phi)
+        self.eqsn.RX_gate(qubit.qubit, phi)
 
     def ry(self, qubit, phi):
         """
@@ -319,7 +320,7 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        eqsn.RY_gate(qubit.qubit, phi)
+        self.eqsn.RY_gate(qubit.qubit, phi)
 
     def rz(self, qubit, phi):
         """
@@ -329,7 +330,7 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of roation in Rad.
         """
-        eqsn.RZ_gate(qubit.qubit, phi)
+        self.eqsn.RZ_gate(qubit.qubit, phi)
 
     def cnot(self, qubit, target):
         """
@@ -339,7 +340,7 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        eqsn.cnot_gate(target.qubit, qubit.qubit)
+        self.eqsn.cnot_gate(target.qubit, qubit.qubit)
 
     def cphase(self, qubit, target):
         """
@@ -349,7 +350,7 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        eqsn.cphase_gate(target.qubit, qubit.qubit)
+        self.eqsn.cphase_gate(target.qubit, qubit.qubit)
 
     def measure(self, qubit, non_destructive):
         """
@@ -362,7 +363,7 @@ class EQSNBackend(object):
         Returns:
             The value which has been measured.
         """
-        return eqsn.measure(qubit.qubit, non_destructive)
+        return self.eqsn.measure(qubit.qubit, non_destructive)
 
     def release(self, qubit):
         """
@@ -371,4 +372,4 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        eqsn.measure(qubit.qubit)
+        self.eqsn.measure(qubit.qubit)
