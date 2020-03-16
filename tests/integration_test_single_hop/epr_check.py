@@ -1,16 +1,14 @@
 from cqc.pythonLib import CQCConnection
-import sys
-import time
-
-sys.path.append("../..")
 from backends.cqc_backend import CQCBackend
+from backends.eqsn_backend import EQSNBackend
 from components.host import Host
 from components.network import Network
 from objects.qubit import Qubit
+import time
 
 
 def main():
-    backend = CQCBackend()
+    backend = EQSNBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
@@ -18,14 +16,12 @@ def main():
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 
-
     # A <-> B
     hosts['alice'].add_connection('Bob')
     hosts['bob'].add_connection('Alice')
 
     hosts['alice'].start()
     hosts['bob'].start()
-
 
     for h in hosts.values():
         network.add_host(h)

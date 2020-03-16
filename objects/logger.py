@@ -4,7 +4,7 @@ FORMAT = '%(asctime)s: %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
-class Logger:
+class Logger():
     __instance = None
     DISABLED = True
 
