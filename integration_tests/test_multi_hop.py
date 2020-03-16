@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from backends.projectq_backend import ProjectQBackend
+from backends.eqsn_backend import EQSNBackend
 from components.host import Host
 from objects.qubit import Qubit
 from components.network import Network
@@ -22,7 +22,7 @@ class TestTwoHop(unittest.TestCase):
         global network
         global hosts
         nodes = ["Alice", "Bob", "Eve"]
-        backend = ProjectQBackend()
+        backend = EQSNBackend()
         network.start(nodes=nodes, backend=backend)
         hosts = {'alice': Host('Alice', backend),
                  'bob': Host('Bob', backend),

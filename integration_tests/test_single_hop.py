@@ -2,7 +2,7 @@ from objects.qubit import Qubit
 from components.host import Host
 from components.network import Network
 from components import protocols
-from backends.projectq_backend import ProjectQBackend
+from backends.eqsn_backend import EQSNBackend
 import unittest
 import time
 
@@ -21,7 +21,7 @@ class TestOneHop(unittest.TestCase):
         global network
         global hosts
         nodes = ["Alice", "Bob"]
-        backend = ProjectQBackend()
+        backend = EQSNBackend()
         network.start(nodes=nodes, backend=backend)
         hosts = {'alice': Host('Alice', backend),
                  'bob': Host('Bob', backend)}
@@ -91,6 +91,7 @@ class TestOneHop(unittest.TestCase):
         hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice', await_ack=False)
         i = 0
         bob_messages = hosts['bob'].classical
+
         while i < TestOneHop.MAX_WAIT and len(bob_messages) == 0:
             bob_messages = hosts['bob'].classical
             i += 1
@@ -179,7 +180,6 @@ class TestOneHop(unittest.TestCase):
     # @unittest.skip('')
     def test_max_wait_for_ack(self):
         global hosts
-
         ack_received_1 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
         hosts['alice'].max_ack_wait = 0
         ack_received_2 = hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=True)
