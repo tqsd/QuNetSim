@@ -1,17 +1,11 @@
-from cqc.pythonLib import CQCConnection
-import sys
-import time
-
-sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
 import components.protocols as protocols
+from components.network import Network
+from components.host import Host
+from backends.eqsn_backend import EQSNBackend
 
 
 def main():
-    backend = CQCBackend()
+    backend = EQSNBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
@@ -32,10 +26,14 @@ def main():
         network.add_host(h)
 
     # send messages to Bob without waiting for ACKs
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob one', await_ack=False)
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob two', await_ack=False)
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob three', await_ack=False)
-    hosts['alice'].send_classical(hosts['bob'].host_id, 'hello bob four', await_ack=False)
+    hosts['alice'].send_classical(
+        hosts['bob'].host_id, 'hello bob one', await_ack=False)
+    hosts['alice'].send_classical(
+        hosts['bob'].host_id, 'hello bob two', await_ack=False)
+    hosts['alice'].send_classical(
+        hosts['bob'].host_id, 'hello bob three', await_ack=False)
+    hosts['alice'].send_classical(
+        hosts['bob'].host_id, 'hello bob four', await_ack=False)
 
     # Wait for all Acks from Bob
     hosts['alice'].await_remaining_acks(hosts['bob'].host_id)
@@ -46,13 +44,13 @@ def main():
         if m.content == protocols.ACK:
             saw_ack[m.seq_num] = True
 
-
     for ack in saw_ack:
         assert ack
     print("All tests succesfull!")
     network.stop(True)
-    exit()
 
 
 if __name__ == '__main__':
+    print("Test outdated")
+    exit(0)
     main()
