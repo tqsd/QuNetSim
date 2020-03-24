@@ -1,26 +1,20 @@
-from cqc.pythonLib import CQCConnection
-import sys
-import time
-
-sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
 from components.host import Host
 from components.network import Network
-from objects.qubit import Qubit
+from backends.eqsn_backend import EQSNBackend
 
 
 def main():
-    backend = CQCBackend()
+    backend = EQSNBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     network.start(nodes, backend)
-    network.delay = 0.1
+    network.delay = 0.0
 
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
 
     network.start(nodes, backend)
-    network.packet_drop_rate = 0.75
+    network.packet_drop_rate = 0.5
     network.delay = 0
 
     hosts['alice'].add_connection('Bob')
@@ -33,12 +27,13 @@ def main():
         network.add_host(h)
 
     # ACKs for 1 hop take at most 2 seconds
-    hosts['alice'].max_ack_wait = 3
+    hosts['alice'].max_ack_wait = 0.5
     num_acks = 0
     # don't make more then 10 attempts, since of receiver window.
-    num_messages = 10
+    num_messages = 20
     for _ in range(num_messages):
-        ack = hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=True)
+        ack = hosts['alice'].send_classical(
+            hosts['bob'].host_id, 'Hello Bob', await_ack=True)
         if ack:
             num_acks += 1
 
