@@ -1,36 +1,34 @@
 from components.host import Host
 from components.network import Network
 from objects.logger import Logger
-from backends.projectq_backend import ProjectQBackend
 
-Logger.DISABLED = False
+Logger.DISABLED = True
 
 
 def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    back = ProjectQBackend()
-    network.start(nodes, back)
+    network.start(nodes)
 
     network.delay = 0.1
 
-    host_alice = Host('Alice', back)
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.add_connection('Eve')
     host_alice.start()
 
-    host_bob = Host('Bob', back)
+    host_bob = Host('Bob')
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve', back)
+    host_eve = Host('Eve')
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.add_connection('Alice')
     host_eve.start()
 
-    host_dean = Host('Dean', back)
+    host_dean = Host('Dean')
     host_dean.add_connection('Eve')
     host_dean.start()
 
@@ -40,30 +38,31 @@ def main():
     network.add_host(host_dean)
 
     share_list = ["Bob", "Eve", "Dean"]
-    q_id1, ack_received = host_alice.send_ghz(share_list, await_ack=True)
+    for _ in range(10):
+        q_id1, ack_received = host_alice.send_ghz(share_list, await_ack=True)
 
-    print("Alice received ACK from all? " + str(ack_received))
+        print("Alice received ACK from all? " + str(ack_received))
 
-    q1 = host_alice.get_ghz('Alice', q_id1, wait=10)
-    q2 = host_bob.get_ghz('Alice', q_id1, wait=10)
-    q3 = host_eve.get_ghz('Alice', q_id1, wait=10)
-    q4 = host_dean.get_ghz('Alice', q_id1, wait=10)
+        q1 = host_alice.get_ghz('Alice', q_id1, wait=10)
+        q2 = host_bob.get_ghz('Alice', q_id1, wait=10)
+        q3 = host_eve.get_ghz('Alice', q_id1, wait=10)
+        q4 = host_dean.get_ghz('Alice', q_id1, wait=10)
 
-    if q1 is None:
-        raise ValueError("Q1 is none")
-    if q2 is None:
-        raise ValueError("Q2 is none")
-    if q3 is None:
-        raise ValueError("Q3 is none")
-    if q4 is None:
-        raise ValueError("Q4 is none")
+        if q1 is None:
+            raise ValueError("Q1 is none")
+        if q2 is None:
+            raise ValueError("Q2 is none")
+        if q3 is None:
+            raise ValueError("Q3 is none")
+        if q4 is None:
+            raise ValueError("Q4 is none")
 
-    m1 = q1.measure()
-    m2 = q2.measure()
-    m3 = q3.measure()
-    m4 = q4.measure()
+        m1 = q1.measure()
+        m2 = q2.measure()
+        m3 = q3.measure()
+        m4 = q4.measure()
 
-    print("results of measurements are %d, %d, %d, and %d." % (m1, m2, m3, m4))
+        print("results of measurements are %d, %d, %d, and %d." % (m1, m2, m3, m4))
 
     network.stop(True)
     exit()

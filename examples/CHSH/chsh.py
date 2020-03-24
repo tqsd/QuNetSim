@@ -113,24 +113,21 @@ def referee(ref, alice_id, bob_id):
 def main():
     network = Network.get_instance()
 
-    backend = ProjectQBackend()
-    # backend = EQSNBackend()
-
     nodes = ['A', 'B', 'C']
     network.delay = 0.1
-    network.start(nodes, backend)
+    network.start(nodes)
 
-    host_A = Host('A', backend)
+    host_A = Host('A')
     host_A.add_c_connection('C')
     host_A.delay = 0
     host_A.start()
 
-    host_B = Host('B', backend)
+    host_B = Host('B')
     host_B.add_c_connection('C')
     host_B.delay = 0
     host_B.start()
 
-    host_C = Host('C', backend)
+    host_C = Host('C')
     host_C.add_c_connections(['A', 'B'])
     host_C.delay = 0
     host_C.start()
