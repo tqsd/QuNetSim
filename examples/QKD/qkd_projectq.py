@@ -127,7 +127,8 @@ def bob_receive_message(bob, msg_buff, eve_key, sender):
     secret_key_string = key_array_to_key_string(eve_key)
     decrypted_msg_from_alice = decrypt(
         secret_key_string, encrypted_msg_from_alice)
-    print("%s received decoded message: %s" % (bob.host_id, decrypted_msg_from_alice))
+    print("%s received decoded message: %s" %
+          (bob.host_id, decrypted_msg_from_alice))
 
 
 def main():
