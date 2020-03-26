@@ -117,7 +117,7 @@ class EQSNBackend(object):
         self._hosts = EQSNBackend.Hosts.get_instance()
         # keys are from : to, where from is the host calling create EPR
         self._entaglement_qubits = EQSNBackend.EntanglementIDs.get_instance()
-        self.eqsn = EQSN()
+        self.eqsn = EQSN.get_instance()
 
     def start(self, **kwargs):
         """
