@@ -199,8 +199,9 @@ def _rec_classical(packet):
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
     else:
-        # Always send an ACK message back, as long as not an ACK msg!
-        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+        # Send an ACK msg if seq_num is not -1, as long as not an ACK msg!
+        if packet.seq_num != -1:
+            _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     return message
 
@@ -224,8 +225,9 @@ def _rec_qubit(packet):
     """
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
-    # Always send an ACK!
-    _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Send ACK if seq_num is not -1
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_teleport(packet):
@@ -361,8 +363,9 @@ def _rec_epr(packet):
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
     host_receiver.add_epr(sender, q)
-    # Always send an ACK!
-    _send_ack(sender, receiver, packet.seq_num)
+    # Send an ACK if sequence number is not -1
+    if packet.seq_num != -1:
+        _send_ack(sender, receiver, packet.seq_num)
 
 
 def _send_ack(sender, receiver, seq_number):
