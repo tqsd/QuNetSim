@@ -11,3 +11,4 @@ Examples
     examples/entanglement_routing
     examples/QKD
     examples/quantum_coin_flipping
+    examples/anonymous_transfer
