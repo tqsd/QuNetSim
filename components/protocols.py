@@ -329,7 +329,9 @@ def _rec_teleport(packet):
     if 'o_seq_num' in payload and 'ack' in payload:
         _send_ack(epr_host, packet.receiver, payload['o_seq_num'])
 
-    _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Send an ACK if sequence number is not -1
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _send_epr(packet):
@@ -437,7 +439,9 @@ def _rec_superdense(packet):
 
     assert q1 is not None and q2 is not None
 
-    _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Send ACK if seq_num is not -1
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     return Message(packet.sender, _decode_superdense(q1, q2), packet.seq_num)
 
@@ -561,8 +565,9 @@ def _rec_ghz(packet):
     receiver = network.get_host(receiver)
     receiver.add_ghz_qubit(from_host, qubit)
 
-    # Always send an ACK!
-    _send_ack(packet.sender, packet.receiver, packet.seq_num)
+    # Send ACK if seq_num is not -1
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
 
 def _encode_superdense(message, q):

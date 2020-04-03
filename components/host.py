@@ -810,7 +810,7 @@ class Host:
 
         return q_id
 
-    def send_ghz(self, receiver_list, q_id=None, await_ack=False, distribute=False):
+    def send_ghz(self, receiver_list, q_id=None, await_ack=False, no_ack=False, distribute=False):
         """
         Share GHZ state with all receiver ids in the list. GHZ state is generated
         locally.
@@ -820,6 +820,7 @@ class Host:
                                   should be shared.
             q_id (str): The ID of the GHZ qubits
             await_ack (bool): If the sender should await an ACK from all receivers
+            no_ack (bool): If this message should not use any ACK and sequencing.
             distribute (bool): If the sender should keep part of the GHZ state, or just
                                distribute one
         Returns:
@@ -845,7 +846,11 @@ class Host:
 
         seq_num_list = []
         for receiver_id in receiver_list:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = -1
+            if no_ack:
+                await_ack = False
+            else:
+                seq_num = self._get_sequence_number(receiver_id)
             seq_num_list.append(seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
@@ -897,7 +902,7 @@ class Host:
         else:
             return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
 
-    def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
+    def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
@@ -905,19 +910,25 @@ class Host:
             receiver_id (str): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
             payload:
             generate_epr_if_none: Generate an EPR pair with receiver if one doesn't exist
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
+        seq_num = -1
+        if no_ack:
+            # if no ACKs are send, await_ack is always false
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
                                   payload={
                                       'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(
-                                      receiver_id),
+                                  sequence_num=seq_num,
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -929,7 +940,7 @@ class Host:
             self._log_ack('TELEPORT', receiver_id, packet.seq_num)
             return self.await_ack(packet.seq_num, receiver_id)
 
-    def send_superdense(self, receiver_id, message, await_ack=False):
+    def send_superdense(self, receiver_id, message, await_ack=False, no_ack=False):
         """
         Send the two bit binary (i.e. '00', '01', '10', '11) message via superdense
         coding to the receiver with receiver ID *receiver_id*.
@@ -938,6 +949,7 @@ class Host:
             receiver_id (str): The receiver ID to send the message to
             message (str): The two bit binary message
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
            boolean: If await_ack=True, return the status of the ACK
         """
@@ -945,13 +957,18 @@ class Host:
             raise ValueError(
                 "Can only sent one of '00', '01', '10', or '11' as a superdense message")
 
+        seq_num = -1
+        if no_ack:
+            # if no ACKs are send, await_ack is always false
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(
-                                      receiver_id),
+                                  sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
