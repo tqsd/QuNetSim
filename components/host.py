@@ -749,6 +749,7 @@ class Host:
             receiver_id (str): The ID of the host to send the message.
             message (str): The classical message to send.
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
@@ -782,6 +783,7 @@ class Host:
             receiver_id (str): The receiver ID
             q_id (str): The ID of the qubit
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
             string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
@@ -980,6 +982,7 @@ class Host:
     def send_qubit(self, receiver_id, q, await_ack=False, no_ack=False):
         """
         Send the qubit *q* to the receiver with ID *receiver_id*.
+
         Args:
             receiver_id (str): The receiver ID to send the message to
             q (Qubit): The qubit to send
@@ -1029,6 +1032,7 @@ class Host:
         """
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
+
         Args:
             host_id (str): The partner ID of the EPR pair.
             new_id (str): The new ID to change the qubit too
@@ -1151,6 +1155,7 @@ class Host:
     def add_checksum(self, qubits, size_per_qubit=2):
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
+
         Args:
             qubits: The set of qubits to encode
             size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
@@ -1310,6 +1315,7 @@ class Host:
     def run_protocol(self, protocol, arguments=(), blocking=False):
         """
         Run the protocol *protocol*.
+
         Args:
             protocol (function): The protocol that the host should run.
             arguments (tuple): The set of (ordered) arguments for the protocol
