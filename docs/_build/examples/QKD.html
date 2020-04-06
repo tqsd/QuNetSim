@@ -241,7 +241,7 @@ can talk to Eve.</p>
 32
 33
 34
-35</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+35</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># Initialize a network</span>
 <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
@@ -372,9 +372,9 @@ the same bit again, until the transmission works.</p>
     <span class="n">sequence_nr</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># iterate over all bits in the secret key.</span>
     <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">secret_key</span><span class="p">:</span>
-        <span class="n">ack</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">ack</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">ack</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Alice sent </span><span class="si">%d</span><span class="s2"> key bits&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice sent </span><span class="si">%d</span><span class="s2"> key bits&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="c1"># get a random base. 0 for Z base and 1 for X base.</span>
             <span class="n">base</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -390,7 +390,7 @@ the same bit again, until the transmission works.</p>
                 <span class="n">q_bit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
 
             <span class="c1"># Send Qubit to Bob</span>
-            <span class="n">alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_bit</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_bit</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Get measured basis of Bob</span>
             <span class="n">message</span> <span class="o">=</span> <span class="n">alice</span><span class="o">.</span><span class="n">get_next_classical_message</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">sequence_nr</span><span class="p">)</span>
@@ -398,11 +398,11 @@ the same bit again, until the transmission works.</p>
             <span class="c1"># Compare to send basis, if same, answer with 0 and set ack True and go to next bit,</span>
             <span class="c1"># otherwise, send 1 and repeat.</span>
             <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
-                <span class="n">ack</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">ack</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ack</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:1&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">ack</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:1&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">sequence_nr</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -417,7 +417,7 @@ the same bit again, until the transmission works.</p>
 
         <span class="c1"># wait for the qubit</span>
         <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
-        <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
 
         <span class="c1"># measure qubit in right measurement basis</span>
@@ -426,7 +426,7 @@ the same bit again, until the transmission works.</p>
         <span class="n">bit</span> <span class="o">=</span> <span class="n">q_bit</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
 
         <span class="c1"># Send Alice the base in which Bob has measured</span>
-        <span class="n">eve</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">measurement_base</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">eve</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">measurement_base</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># get the return message from Alice, to know if the bases have matched</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_next_classical_message</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">sequence_nr</span><span class="p">)</span>
@@ -434,7 +434,7 @@ the same bit again, until the transmission works.</p>
         <span class="c1"># Check if the bases have matched</span>
         <span class="k">if</span> <span class="n">msg</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">):</span>
             <span class="n">received_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Eve received </span><span class="si">%d</span><span class="s2"> key bits.&quot;</span> <span class="o">%</span> <span class="n">received_counter</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eve received </span><span class="si">%d</span><span class="s2"> key bits.&quot;</span> <span class="o">%</span> <span class="n">received_counter</span><span class="p">)</span>
             <span class="n">key_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span>
         <span class="n">sequence_nr</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -472,7 +472,7 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="k">return</span> <span class="n">encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">encrypted_text</span><span class="p">)</span>
 
 <span class="c1"># Test the encryption algorithm</span>
-<span class="k">print</span><span class="p">(</span><span class="n">decrypt</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">decrypt</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s2">&quot;Encryption works!&quot;</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">decrypt</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">decrypt</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s2">&quot;Encryption works!&quot;</span><span class="p">)))</span>
 </pre></div>
 </td></tr></table></div>
 <p>Alice can finally send her message to Eve, without being disturbed by Bob!</p>
@@ -505,8 +505,8 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="n">msg_to_eve</span> <span class="o">=</span> <span class="s2">&quot;Hi Eve, how are you???&quot;</span>
     <span class="n">secret_key_string</span> <span class="o">=</span> <span class="n">key_array_to_key_string</span><span class="p">(</span><span class="n">secret_key</span><span class="p">)</span>
     <span class="n">encrypted_msg_to_eve</span> <span class="o">=</span> <span class="n">encrypt</span><span class="p">(</span><span class="n">secret_key_string</span><span class="p">,</span> <span class="n">msg_to_eve</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Alice sends encrypted message&quot;</span><span class="p">)</span>
-    <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s2">&quot;-1:&quot;</span> <span class="o">+</span> <span class="n">encrypted_msg_to_eve</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice sends encrypted message&quot;</span><span class="p">)</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s2">&quot;-1:&quot;</span> <span class="o">+</span> <span class="n">encrypted_msg_to_eve</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">eve_receive_message</span><span class="p">(</span><span class="n">eve</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">eve_key</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
@@ -514,7 +514,7 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="n">encrypted_msg_from_alice</span> <span class="o">=</span> <span class="n">encrypted_msg_from_alice</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">secret_key_string</span> <span class="o">=</span> <span class="n">key_array_to_key_string</span><span class="p">(</span><span class="n">eve_key</span><span class="p">)</span>
     <span class="n">decrypted_msg_from_alice</span> <span class="o">=</span> <span class="n">decrypt</span><span class="p">(</span><span class="n">secret_key_string</span><span class="p">,</span> <span class="n">encrypted_msg_from_alice</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Eve received decoded message: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decrypted_msg_from_alice</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eve received decoded message: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decrypted_msg_from_alice</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>We can now concatenate the two actions of Alice and Eve and let them each run in their own thread.</p>
@@ -744,7 +744,7 @@ our key is too small to use a real encryption function, we will define our own o
 186
 187
 188
-189</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+189</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
 <span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
@@ -752,7 +752,7 @@ our key is too small to use a real encryption function, we will define our own o
 <span class="kn">from</span> <span class="nn">objects.qubit</span> <span class="kn">import</span> <span class="n">Qubit</span>
 <span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 
-<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="n">wait_time</span> <span class="o">=</span> <span class="mi">10</span>
 
@@ -776,9 +776,9 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="n">sequence_nr</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># iterate over all bits in the secret key.</span>
     <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">secret_key</span><span class="p">:</span>
-        <span class="n">ack</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">ack</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">ack</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Alice sent </span><span class="si">%d</span><span class="s2"> key bits&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice sent </span><span class="si">%d</span><span class="s2"> key bits&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="c1"># get a random base. 0 for Z base and 1 for X base.</span>
             <span class="n">base</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -794,7 +794,7 @@ our key is too small to use a real encryption function, we will define our own o
                 <span class="n">q_bit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
 
             <span class="c1"># Send Qubit to Bob</span>
-            <span class="n">alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_bit</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_bit</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Get measured basis of Bob</span>
             <span class="n">message</span> <span class="o">=</span> <span class="n">alice</span><span class="o">.</span><span class="n">get_next_classical_message</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">sequence_nr</span><span class="p">)</span>
@@ -802,11 +802,11 @@ our key is too small to use a real encryption function, we will define our own o
             <span class="c1"># Compare to send basis, if same, answer with 0 and set ack True and go to next bit,</span>
             <span class="c1"># otherwise, send 1 and repeat.</span>
             <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
-                <span class="n">ack</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">ack</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ack</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:1&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">ack</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:1&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">sequence_nr</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -822,7 +822,7 @@ our key is too small to use a real encryption function, we will define our own o
 
         <span class="c1"># wait for the qubit</span>
         <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
-        <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
 
         <span class="c1"># measure qubit in right measurement basis</span>
@@ -831,7 +831,7 @@ our key is too small to use a real encryption function, we will define our own o
         <span class="n">bit</span> <span class="o">=</span> <span class="n">q_bit</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
 
         <span class="c1"># Send Alice the base in which Bob has measured</span>
-        <span class="n">eve</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">measurement_base</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">eve</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sequence_nr</span><span class="p">,</span> <span class="n">measurement_base</span><span class="p">),</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># get the return message from Alice, to know if the bases have matched</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_next_classical_message</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">sequence_nr</span><span class="p">)</span>
@@ -839,7 +839,7 @@ our key is too small to use a real encryption function, we will define our own o
         <span class="c1"># Check if the bases have matched</span>
         <span class="k">if</span> <span class="n">msg</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">:0&quot;</span> <span class="o">%</span> <span class="n">sequence_nr</span><span class="p">):</span>
             <span class="n">received_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Eve received </span><span class="si">%d</span><span class="s2"> key bits.&quot;</span> <span class="o">%</span> <span class="n">received_counter</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eve received </span><span class="si">%d</span><span class="s2"> key bits.&quot;</span> <span class="o">%</span> <span class="n">received_counter</span><span class="p">)</span>
             <span class="n">key_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span>
         <span class="n">sequence_nr</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -858,8 +858,8 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="n">msg_to_eve</span> <span class="o">=</span> <span class="s2">&quot;Hi Eve, how are you???&quot;</span>
     <span class="n">secret_key_string</span> <span class="o">=</span> <span class="n">key_array_to_key_string</span><span class="p">(</span><span class="n">secret_key</span><span class="p">)</span>
     <span class="n">encrypted_msg_to_eve</span> <span class="o">=</span> <span class="n">encrypt</span><span class="p">(</span><span class="n">secret_key_string</span><span class="p">,</span> <span class="n">msg_to_eve</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Alice sends encrypted message&quot;</span><span class="p">)</span>
-    <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s2">&quot;-1:&quot;</span> <span class="o">+</span> <span class="n">encrypted_msg_to_eve</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice sends encrypted message&quot;</span><span class="p">)</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="s2">&quot;-1:&quot;</span> <span class="o">+</span> <span class="n">encrypted_msg_to_eve</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">eve_receive_message</span><span class="p">(</span><span class="n">eve</span><span class="p">,</span> <span class="n">msg_buff</span><span class="p">,</span> <span class="n">eve_key</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
@@ -867,7 +867,7 @@ our key is too small to use a real encryption function, we will define our own o
     <span class="n">encrypted_msg_from_alice</span> <span class="o">=</span> <span class="n">encrypted_msg_from_alice</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">secret_key_string</span> <span class="o">=</span> <span class="n">key_array_to_key_string</span><span class="p">(</span><span class="n">eve_key</span><span class="p">)</span>
     <span class="n">decrypted_msg_from_alice</span> <span class="o">=</span> <span class="n">decrypt</span><span class="p">(</span><span class="n">secret_key_string</span><span class="p">,</span> <span class="n">encrypted_msg_from_alice</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Eve received decoded message: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decrypted_msg_from_alice</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eve received decoded message: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decrypted_msg_from_alice</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
