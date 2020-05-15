@@ -331,6 +331,38 @@ class CQCBackend(object):
         """
         qubit.qubit.cphase(target.qubit)
 
+    def custom_gate(self, qubit, gate):
+        """
+        Applies a custom gate to the qubit.
+
+        Args:
+            qubit(Qubit): Qubit to which the gate is applied.
+            gate(np.ndarray): 2x2 array of the gate.
+        """
+        raise(EnvironmentError("Not implemented for this backend!"))
+
+    def custom_controlled_gate(self, qubit, target, gate):
+        """
+        Applies a custom gate to the target qubit, controlled by the qubit.
+
+        Args:
+            qubit(Qubit): Qubit to control the gate.
+            target(Qubit): Qubit on which the gate is applied.
+            gate(nd.array): 2x2 array for the gate applied to target.
+        """
+        raise(EnvironmentError("Not implemented for this backend!"))
+
+    def custom_two_qubit_gate(self, qubit1, qubit2, gate):
+        """
+        Applies a custom two qubit gate to qubit1 \\otimes qubit2.
+
+        Args:
+            qubit1(Qubit): First qubit of the gate.
+            qubit2(Qubit): Second qubit of the gate.
+            gate(np.ndarray): 4x4 array for the gate applied.
+        """
+        raise(EnvironmentError("Not implemented for this backend!"))
+
     def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.
