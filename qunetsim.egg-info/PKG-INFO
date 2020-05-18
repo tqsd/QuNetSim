@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: qunetsim
-Version: 0.0.12
+Version: 0.0.12.post1
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
 Author: Stephen Diadamo
 Author-email: stephen.diadamo@gmail.com
 License: MIT
-Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.0.5
+Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.0.12
 Description: [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=for-the-badge)](http://unitary.fund)
         # QuNetSim
         
