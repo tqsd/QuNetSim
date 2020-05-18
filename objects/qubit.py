@@ -1,4 +1,5 @@
 import uuid
+import numpy as np
 
 
 class Qubit(object):
@@ -205,6 +206,59 @@ class Qubit(object):
         """
         self._host.backend.cphase(self, target)
 
+    def custom_gate(self, gate):
+        """
+        Applies a custom 2x2 unitary on the qubit.
+
+        Args:
+            gate (Numpy ndarray): A unitary 2x2 matrix
+        """
+
+        if not isinstance(gate, np.ndarray):
+            raise (InputError("Only Numpy matrices are allowed"))
+        if not is_unitary(gate):
+            raise (InputError("Custom gates must be unitary operations"))
+        if gate.shape != (2, 2):
+            raise (InputError("Custom gates must be 2x2 matrices"))
+
+        self._host.backend.custom_gate(self, gate)
+
+    def custom_controlled_gate(self, target, gate):
+        """
+        Applies a custom 2x2 unitary on the qubit.
+
+        Args:
+            target (Qubit): Qubit on which the controlled gate should be applied.
+            gate (Numpy ndarray): A unitary 2x2 matrix
+        """
+
+        if not isinstance(gate, np.ndarray):
+            raise (InputError("Only Numpy arrays are allowed"))
+        if not is_unitary(gate):
+            raise (InputError("Custom gates must be unitary operations"))
+        if gate.shape != (2, 2):
+            raise (InputError("Custom controlled gates must be 2x2 matrices"))
+
+        self._host.backend.custom_controlled_gate(self, target, gate)
+
+    def custom_two_qubit_gate(self, other_qubit, gate):
+        """
+        Applies a custom 2 qubit gate.
+
+        Args:
+            other_qubit (Qubit): The second qubit.
+            gate (Numpy ndarray): The gate
+
+        """
+        if not isinstance(gate, np.ndarray):
+            raise (InputError("Only Numpy matrices are allowed"))
+        if not is_unitary(gate):
+            raise (InputError("Custom gates must be unitary operations"))
+        if gate.shape != (4, 4):
+            raise (InputError("Custom controlled gates must be 2x2 matrices"))
+
+        self._host.backend.custom_two_qubit_gate(self, other_qubit, gate)
+
     def measure(self, non_destructive=False):
         """
         Measures the state of a qubit.
@@ -217,3 +271,20 @@ class Qubit(object):
             measured_value (int): 0 or 1, dependent on measurement outcome.
         """
         return self._host.backend.measure(self, non_destructive)
+
+
+def is_unitary(m):
+    return np.allclose(np.eye(m.shape[0]), m.conj().T.dot(m))
+
+
+class InputError(Exception):
+    """
+    Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
