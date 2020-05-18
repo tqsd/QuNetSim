@@ -95,6 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#via-pip">Via pip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
 </ul>
@@ -131,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
 </ul>
 </li>
 </ul>
@@ -214,7 +216,7 @@ key distribution. The full list of applications built into QuNetSim can be found
 QuNetSim requires routes to exist in the created network in order to transmit information from one node to another. For example,
 if a Host <em>A</em> is connected to a Host <em>C</em> via a Host <em>B</em>, then all information is routed through be. QuNetSim even uses an entanglement swapping  procedure to generate entanglement between distantly connected (i.e. multi-hop) hosts.</p>
 <p>Another feature of QuNetSim is that one can write custom routing functions. QuNetSim uses graphs to represent the network, specifically the Python library <a class="reference external" href="https://networkx.github.io/">networkx</a>, to generate its network structures (i.e. one for classical and one for quantum). In QuNetSim, one can create in a sense, two networks, one for classical communications and one for quantum communications. This allows the user to develop and test their own routing algorithms with flexibility, based on both the classical and quantum network states. We provide a simple example of routing based on the amount of entanglement already generated in the Examples section.</p>
-<p>QuNetSim is not an event-driven simulation, meaning that events are happening asynchronously at arbitrary times, and it is sometimes up to the user to develop robust protocols to avoid out of order arrivals at the hosts. We provide some features to help with this, for example, packets come with a sequence number and also one can choose to block a thread until an acknowledgement is returned.</p>
+<p>QuNetSim is an event-driven simulation. Events are happening asynchronously at arbitrary times, and it is sometimes up to the user to develop robust protocols to avoid out of order arrivals at the hosts. We provide some features to help with this, for example, packets come with a sequence number and also one can choose to block a thread until an acknowledgement is returned.</p>
 <p>QuNetSim treats a quantum network like a classical network, in that it uses a network layering architecture. In the image below we demonstrate the layered structure. The two different coloured lines connecting the layers represent a quantum and classical connection, which means that quantum information and classical information are treated the same way. A host triggers an application that requires communication, the information from the application is packetized and then put into the network. The packet will be moved around in the network, unknown to the host, and once it arrives at its destination, an the sending host will know the state of the packet once an acknowledgement arrives.</p>
 <a class="reference internal image-reference" href="_images/packet_structure.png"><img alt="QuNetSim layering structure" class="align-center" src="_images/packet_structure.png" style="width: 500px;" /></a>
 <p>In the below image, we see how QuNetSim routes packets. A packet initiated at Host <em>A</em> gets put into the network through a transport layer. The network moves the packet through Host <em>B</em> who processes it as a network packet and simply relays it onward. The packet arrives at Host <em>C</em> who then recovers the payload of the packet, being either quantum or classical which is handled by the transport layer and then added to the correct memory of Host <em>C</em> who can then access it.</p>

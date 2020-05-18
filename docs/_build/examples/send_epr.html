@@ -95,6 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
 </ul>
@@ -131,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
 </ul>
 </li>
 </ul>
@@ -315,17 +317,17 @@ by specifying the connection type when adding connections to a Host, that is, us
 <span class="sd">        receiver (str): The ID of the receiver of the EPR pairs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ack_arrived</span><span class="p">:</span>
             <span class="c1"># Receiver got the EPR pair and ACK came back</span>
             <span class="c1"># safe to use the EPR pair.</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
 
 
 
@@ -342,11 +344,11 @@ by specifying the connection type when adding connections to a Host, that is, us
         <span class="c1"># Waits 5 seconds for the EPR to arrive.</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="c1"># q is None if the wait time expired.</span>
-        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>Now, we instruct the hosts to run their protocols.</p>
@@ -437,7 +439,7 @@ by specifying the connection type when adding connections to a Host, that is, us
 <span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
 <span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 
-<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
 
 
 <span class="k">def</span> <span class="nf">protocol_1</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
@@ -450,17 +452,17 @@ by specifying the connection type when adding connections to a Host, that is, us
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Here we write the protocol code for a host.</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sending EPR pair </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">epr_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ack_arrived</span><span class="p">:</span>
             <span class="c1"># Receiver got the EPR pair and ACK came back</span>
             <span class="c1"># safe to use the EPR pair.</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 1 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The EPR pair was not properly established&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sender protocol done&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">protocol_2</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
@@ -476,11 +478,11 @@ by specifying the connection type when adding connections to a Host, that is, us
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_epr</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="c1"># q is None if the wait time expired.</span>
-        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 2 measured: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Host 2 did not receive an EPR pair&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Receiver protocol done&#39;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>

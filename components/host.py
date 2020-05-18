@@ -740,7 +740,7 @@ class Host:
         self.logger.log(self.host_id + " sends BROADCAST message")
         self._packet_queue.put(packet)
 
-    def send_classical(self, receiver_id, message, await_ack=False):
+    def send_classical(self, receiver_id, message, await_ack=False, no_ack=False):
         """
         Sends the classical message to the receiver host with
         ID:receiver
@@ -749,10 +749,15 @@ class Host:
             receiver_id (str): The ID of the host to send the message.
             message (str): The classical message to send.
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = -1
+        if no_ack:
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         message = Message(sender=self.host_id, content=message, seq_num=seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
@@ -769,7 +774,7 @@ class Host:
             self._log_ack('classical', receiver_id, seq_num)
             return self.await_ack(packet.seq_num, receiver_id)
 
-    def send_epr(self, receiver_id, q_id=None, await_ack=False, block=False):
+    def send_epr(self, receiver_id, q_id=None, await_ack=False, no_ack=False, block=False):
         """
         Establish an EPR pair with the receiver and return the qubit
         ID of pair.
@@ -778,6 +783,7 @@ class Host:
             receiver_id (str): The receiver ID
             q_id (str): The ID of the qubit
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
             string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
@@ -785,7 +791,11 @@ class Host:
         if q_id is None:
             q_id = str(uuid.uuid4())
 
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = -1
+        if no_ack:
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_EPR,
@@ -802,7 +812,7 @@ class Host:
 
         return q_id
 
-    def send_ghz(self, receiver_list, q_id=None, await_ack=False, distribute=False):
+    def send_ghz(self, receiver_list, q_id=None, await_ack=False, no_ack=False, distribute=False):
         """
         Share GHZ state with all receiver ids in the list. GHZ state is generated
         locally.
@@ -812,6 +822,7 @@ class Host:
                                   should be shared.
             q_id (str): The ID of the GHZ qubits
             await_ack (bool): If the sender should await an ACK from all receivers
+            no_ack (bool): If this message should not use any ACK and sequencing.
             distribute (bool): If the sender should keep part of the GHZ state, or just
                                distribute one
         Returns:
@@ -837,7 +848,11 @@ class Host:
 
         seq_num_list = []
         for receiver_id in receiver_list:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = -1
+            if no_ack:
+                await_ack = False
+            else:
+                seq_num = self._get_sequence_number(receiver_id)
             seq_num_list.append(seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
@@ -889,7 +904,7 @@ class Host:
         else:
             return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
 
-    def send_teleport(self, receiver_id, q, await_ack=False, payload=None, generate_epr_if_none=True):
+    def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
@@ -897,19 +912,25 @@ class Host:
             receiver_id (str): The ID of the host to establish the EPR pair with
             q (Qubit): The qubit to teleport
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
             payload:
             generate_epr_if_none: Generate an EPR pair with receiver if one doesn't exist
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
+        seq_num = -1
+        if no_ack:
+            # if no ACKs are send, await_ack is always false
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_TELEPORT,
                                   payload={
                                       'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(
-                                      receiver_id),
+                                  sequence_num=seq_num,
                                   await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
@@ -921,7 +942,7 @@ class Host:
             self._log_ack('TELEPORT', receiver_id, packet.seq_num)
             return self.await_ack(packet.seq_num, receiver_id)
 
-    def send_superdense(self, receiver_id, message, await_ack=False):
+    def send_superdense(self, receiver_id, message, await_ack=False, no_ack=False):
         """
         Send the two bit binary (i.e. '00', '01', '10', '11) message via superdense
         coding to the receiver with receiver ID *receiver_id*.
@@ -930,6 +951,7 @@ class Host:
             receiver_id (str): The receiver ID to send the message to
             message (str): The two bit binary message
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
            boolean: If await_ack=True, return the status of the ACK
         """
@@ -937,13 +959,18 @@ class Host:
             raise ValueError(
                 "Can only sent one of '00', '01', '10', or '11' as a superdense message")
 
+        seq_num = -1
+        if no_ack:
+            # if no ACKs are send, await_ack is always false
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_SUPERDENSE,
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
-                                  sequence_num=self._get_sequence_number(
-                                      receiver_id),
+                                  sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
@@ -952,19 +979,26 @@ class Host:
             self._log_ack('SUPERDENSE', receiver_id, packet.seq_num)
             return self.await_ack(packet.seq_num, receiver_id)
 
-    def send_qubit(self, receiver_id, q, await_ack=False):
+    def send_qubit(self, receiver_id, q, await_ack=False, no_ack=False):
         """
         Send the qubit *q* to the receiver with ID *receiver_id*.
+
         Args:
             receiver_id (str): The receiver ID to send the message to
             q (Qubit): The qubit to send
             await_ack (bool): If sender should wait for an ACK.
+            no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q.blocked = True
         q_id = q.id
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = -1
+        if no_ack:
+            # if no ACKs are send, await_ack is always false
+            await_ack = False
+        else:
+            seq_num = self._get_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
                                   protocol=protocols.SEND_QUBIT,
@@ -998,6 +1032,7 @@ class Host:
         """
         Change an EPR pair ID to another. If *old_id* is set, then change that specific
         EPR half, otherwise change the first unblocked EPR half to the *new_id*.
+
         Args:
             host_id (str): The partner ID of the EPR pair.
             new_id (str): The new ID to change the qubit too
@@ -1120,6 +1155,7 @@ class Host:
     def add_checksum(self, qubits, size_per_qubit=2):
         """
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
+
         Args:
             qubits: The set of qubits to encode
             size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
@@ -1279,6 +1315,7 @@ class Host:
     def run_protocol(self, protocol, arguments=(), blocking=False):
         """
         Run the protocol *protocol*.
+
         Args:
             protocol (function): The protocol that the host should run.
             arguments (tuple): The set of (ordered) arguments for the protocol

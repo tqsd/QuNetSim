@@ -1,5 +1,5 @@
 CHSH Game
-----------------
+---------
 
 In this example, we show how to play the CHSH game with QuNetSim. The CHSH game is an example where
 a quantum strategy outperforms or wins more often, than any classical strategy. In the game, there are three parties.
