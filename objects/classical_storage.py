@@ -69,7 +69,7 @@ class ClassicalStorage(object):
             delete (bool): optional, True if returned messages should be removed from storage.
 
         Returns:
-            List of messages of the sender. If there are none, an empyt list is
+            List of messages of the sender. If there are none, an empty list is
             returned.
         """
         if delete:
