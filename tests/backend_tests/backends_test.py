@@ -1,13 +1,14 @@
+from objects.qubit import Qubit
+from components.network import Network
+from components.host import Host
+from backends.cqc_backend import CQCBackend
 from cqc.pythonLib import CQCConnection
 import sys
 import time
 
 sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
 all_backends = [(CQCBackend, "Simulaqron")]
+
 
 def test_adding_hosts_to_backend(backend_generator):
     print("Starrting adding a host test...")
@@ -20,6 +21,7 @@ def test_adding_hosts_to_backend(backend_generator):
     network.add_host(alice)
     network.stop(True)
     print("Test was successfull!")
+
 
 def test_epr_generation(backend_generator):
     print("Starting EPR generation backend.")
@@ -43,10 +45,12 @@ def test_epr_generation(backend_generator):
     network.stop(True)
     print("Test was successful")
 
+
 def test_qubit_with_backend(backend_generator):
     print("Starting backend qubit test...")
     # # TODO: Write test
     print("Test was successfull!")
+
 
 def test_multiple_backends(backend_generator):
     print("Starting multiple backends test...")
@@ -61,6 +65,7 @@ def test_multiple_backends(backend_generator):
     assert str(backend1._hosts) == str(backend2._hosts)
     network.stop(True)
     print("Test was successfull!")
+
 
 if __name__ == "__main__":
     for backend, name in all_backends:
