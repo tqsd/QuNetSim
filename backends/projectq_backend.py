@@ -1,3 +1,5 @@
+import time
+
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
@@ -15,6 +17,7 @@ class ProjectQBackend(object):
         self._hosts = ProjectQBackend.Hosts.get_instance()
         self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
         self.engine = projectq.MainEngine()
+        self.measuring = False
 
     def __del__(self):
         self.engine.flush(deallocate_qubits=True)
@@ -285,7 +288,7 @@ class ProjectQBackend(object):
             qubit(Qubit): Qubit to which the gate is applied.
             gate(np.ndarray): 2x2 array of the gate.
         """
-        raise(EnvironmentError("Not implemented for this backend!"))
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def custom_controlled_gate(self, qubit, target, gate):
         """
@@ -296,7 +299,7 @@ class ProjectQBackend(object):
             target(Qubit): Qubit on which the gate is applied.
             gate(nd.array): 2x2 array for the gate applied to target.
         """
-        raise(EnvironmentError("Not implemented for this backend!"))
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
@@ -307,7 +310,7 @@ class ProjectQBackend(object):
             qubit2(Qubit): Second qubit of the gate.
             gate(np.ndarray): 4x4 array for the gate applied.
         """
-        raise(EnvironmentError("Not implemented for this backend!"))
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def measure(self, qubit, non_destructive):
         """
@@ -321,14 +324,18 @@ class ProjectQBackend(object):
         Returns:
             The value which has been measured.
         """
+        while self.measuring:
+            time.sleep(0.1)
+            pass
+
+        self.measuring = True
         projectq.ops.Measure | qubit.qubit
         m = int(qubit.qubit)
 
-        # TODO: This causes threading issues
-        # if not non_destructive:
-        #     self.release(qubit)
-        #     self.engine.flush()
-
+        if not non_destructive:
+            self.release(qubit)
+            self.engine.flush()
+        self.measuring = False
         return m
 
     def release(self, qubit):
