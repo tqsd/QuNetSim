@@ -390,6 +390,7 @@ class Host:
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and m is None:
                 filter_messages()
+                time.sleep(self.delay)
 
         def filter_messages():
             nonlocal m
@@ -895,6 +896,7 @@ class Host:
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
                 q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
+                time.sleep(self.delay)
             return q
 
         if wait > 0:
@@ -1201,6 +1203,7 @@ class Host:
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and len(cla) == 0:
                 process_messages()
+                time.sleep(self.delay)
             return cla
 
         if seq_num > -1:
@@ -1252,6 +1255,7 @@ class Host:
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
                 q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
+                time.sleep(self.delay)
             return q
 
         if wait > 0:
@@ -1282,6 +1286,7 @@ class Host:
             wait_start_time = time.time()
             while time.time() - wait_start_time < wait and q is None:
                 q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT)
+                time.sleep(self.delay)
             return q
 
         if wait > 0:
