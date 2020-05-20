@@ -345,5 +345,10 @@ class ProjectQBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
+        while self.measuring:
+            time.sleep(0.1)
+            pass
+        self.measuring = True
         projectq.ops.Measure | qubit.qubit
         self.engine.flush()
+        self.measuring = False

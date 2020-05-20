@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 1.2
 Name: qunetsim
-Version: 0.0.12.post1
+Version: 0.0.12.post2
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
 Author: Stephen Diadamo
@@ -26,4 +26,3 @@ Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.6
 Requires-Python: >=3.6
-Description-Content-Type: text/markdown

@@ -1,4 +1,3 @@
-README.md
 setup.py
 backends/RWLock.py
 backends/SafeDict.py
