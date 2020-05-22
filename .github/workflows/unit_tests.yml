@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2      
+    - uses: actions/checkout@v2
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
@@ -25,4 +25,7 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_multi_hop
-
+    - name: Run backend tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_backend
