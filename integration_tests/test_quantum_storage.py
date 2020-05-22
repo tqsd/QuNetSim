@@ -23,7 +23,7 @@ class FakeQubit(object):
         return "Qubit with id %s" % self.id
 
 # @unittest.skip('')
-class TestClassicalStorage(unittest.TestCase):
+class TestQuantumStorage(unittest.TestCase):
     backends = []
 
     @classmethod
