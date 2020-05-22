@@ -37,3 +37,7 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_quantum_storage
+    - name: Run host tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_host
