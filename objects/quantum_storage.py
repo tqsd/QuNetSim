@@ -1,4 +1,5 @@
 from backends.RWLock import RWLock
+import queue
 
 STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2
@@ -26,6 +27,11 @@ class QuantumStorage(object):
         self._amount_qubit_stored = 0
         # read write lock, for threaded access
         self.lock = RWLock()
+
+        # for callbacks
+        self._callback_dict = {}
+        self._callback_id = 0
+        self._pending_callbacks = 0
 
     def __str__(self):
         out = ""
@@ -180,6 +186,9 @@ class QuantumStorage(object):
 
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
+
+        # Check if a Qubit of one of the callbacks has arrived
+        self._check_all_callbacks()
         self.lock.release_write()
 
     def get_all_qubits_from_host(self, from_host_id, purpose=None):
@@ -198,6 +207,55 @@ class QuantumStorage(object):
         self.lock.release_write()
         return []
 
+    def _check_all_callbacks(self):
+        for id, args in self._callback_dict.items():
+            ret = self._get_qubit_from_host(args[1], args[2], args[3])
+            if ret is not None:
+                args[0].put(ret)
+                self._remove_callback(id)
+                return ret
+
+    def _add_callback(self, args):
+        """
+        Adds a callback.
+        Args:
+            args(list): [Queue, from_host_id, q_id, purpose]
+        """
+        self._callback_dict[self._callback_id] = args
+        self._callback_id += 1
+        self._pending_callbacks += 1
+
+    def _remove_callback(self, id):
+        """
+        Removes a callback from the pending callbacks.
+        """
+        if id in self._callback_dict:
+            del self._callback_dict[id]
+        self._pending_callbacks -= 1
+
+    def get_qubit_from_host_with_callback(self, from_host_id, q_id=None, purpose=None, wait=0):
+        """
+        """
+        self.lock.acquire_write()
+        ret = self.get_qubit_from_host(from_host_id, q_id, purpose)
+        if ret is not None:
+            self.lock.release_write()
+            return ret
+        q = queue.Queue()
+        args = [q, from_host_id, q_id, purpose]
+        id = self._add_callback(args)
+        self.lock.release_write()
+        ret = None
+        try:
+            ret = q.get(timeout=wait)
+        except queue.Empty:
+            pass
+        if ret is None:
+            self.lock.acquire_write()
+            self._remove_callback(id)
+            self.lock.release_write()
+        return ret
+
     def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None):
         """
         Returns next qubit which has been received from a host. If id is
@@ -214,6 +272,11 @@ class QuantumStorage(object):
             is returned.
         """
         self.lock.acquire_write()
+        ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
+        self.lock.release_write()
+        return ret
+
+    def _get_qubit_from_host(self, from_host_id, q_id, purpose):
         if q_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id, purpose=purpose)
             if qubit is not None:
@@ -225,21 +288,17 @@ class QuantumStorage(object):
                     return None
                 self._host_dict[from_host_id].remove(qubit)
                 self._decrease_qubit_counter(from_host_id)
-            self.lock.release_write()
             return qubit
 
         if from_host_id not in self._host_dict:
-            self.lock.release_write()
             return None
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
             out = self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)
             if out is not None:
                 self._decrease_qubit_counter(from_host_id)
-                self.lock.release_write()
                 return out[0]
             self._host_dict[from_host_id].append(qubit)
-        self.lock.release_write()
         return None
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
