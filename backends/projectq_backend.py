@@ -1,3 +1,5 @@
+import time
+
 from backends.SafeDict import SafeDict
 from objects.qubit import Qubit
 from queue import Queue
@@ -15,6 +17,7 @@ class ProjectQBackend(object):
         self._hosts = ProjectQBackend.Hosts.get_instance()
         self._entaglement_pairs = ProjectQBackend.EntanglementPairs.get_instance()
         self.engine = projectq.MainEngine()
+        self.measuring = False
 
     def __del__(self):
         self.engine.flush(deallocate_qubits=True)
@@ -321,13 +324,18 @@ class ProjectQBackend(object):
         Returns:
             The value which has been measured.
         """
+        while self.measuring:
+            time.sleep(0.1)
+            pass
+
+        self.measuring = True
         projectq.ops.Measure | qubit.qubit
         m = int(qubit.qubit)
 
         if not non_destructive:
             self.release(qubit)
             self.engine.flush()
-
+        self.measuring = False
         return m
 
     def release(self, qubit):
