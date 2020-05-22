@@ -29,3 +29,11 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_backend
+    - name: Run classical storage tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_classical_storage
+    - name: Run quantum storage tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_quantum_storage
