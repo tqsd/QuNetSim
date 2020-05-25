@@ -5,7 +5,7 @@ components/__pycache__/
 tests/__pycache__/*
 backends/__pycache__/*
 objects/__pycache__/*
-
+**/__pycache__/
 build_docs.sh
 
 venv/
