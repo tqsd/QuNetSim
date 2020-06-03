@@ -12,6 +12,28 @@ from backends.cqc_backend import CQCBackend
 import uuid
 import time
 
+class Q_Connection:
+
+    def __init__(self, receiver_id, length, alpha):
+        self._receiver_id = repeated_id
+        self._length = length
+        self._alpha = alpha
+
+    @property
+    def receiver_id(self):
+        return self._receiver_id
+
+    @property
+    def length(self):
+        return self._length
+
+    @property
+    def alpha(self):
+        return self._alpha
+
+    @property
+    def transmission_p(self):
+        return 10.0**(-1.0*self._alpha*self._length/10.0)
 
 class Host:
     """ Host object acting as either a router node or an application host node. """
@@ -99,7 +121,7 @@ class Host:
         for c in self._classical_connections:
             connection_list.append({'type': 'classical', 'connection': c})
         for q in self._quantum_connections:
-            connection_list.append({'type': 'quantum', 'connection': q})
+            connection_list.append({'type': 'quantum', 'connection': q.receiver_id()})
         return connection_list
 
     @property
@@ -542,47 +564,60 @@ class Host:
         for receiver_id in receiver_ids:
             self.classical_connections.append(receiver_id)
 
-    def add_q_connection(self, receiver_id):
+    def add_q_connection(self, receiver_id, length, alpha):
         """
-        Adds the quantum connection to host with ID *receiver_id*.
+        Adds the quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
         Args:
             receiver_id (str): The ID of the host to connect with.
+            length (float): The distance from self to the host to connect with (in Km).
+            alpha (float): Absorption coefficient of the channel (in dB/Km)
         """
-        self.quantum_connections.append(receiver_id)
+        self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_q_connections(self, receiver_ids):
+    def add_q_connections(self, receiver_ids, lengths, alphas):
         """
-        Adds the quantum connection to host with ID *receiver_id*.
+        Adds a set of quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 
         Args:
             receiver_ids (list): The IDs of the hosts to connect with.
+            lengths (list): The distance from self to the hosts to connect with (in Km).
+            alphas (list): Absorption coefficient of the corresponding channel (in dB/Km).
         """
-        for receiver_id in receiver_ids:
-            self.quantum_connections.append(receiver_id)
+        if len(receiver_ids) != len(lengths) or len(receiver_ids) != len(alphas):
+            raise ValueError('Number of receivers should be same as the number of lengths and alphas')
 
-    def add_connection(self, receiver_id):
+        for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
+            self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
+
+    def add_connection(self, receiver_id, lengths, alphas):
         """
-        Adds the classical and quantum connection to host with ID *receiver_id*.
+        Adds the classical and quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
         Args:
             receiver_id (str): The ID of the host to connect with.
-
+            length (float): The distance from self to the host to connect with (in Km).
+            alpha (float): Absorption coefficient of the channel (in dB/Km)
         """
         self.classical_connections.append(receiver_id)
-        self.quantum_connections.append(receiver_id)
+        self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connections(self, receiver_ids):
+    def add_connections(self, receiver_ids, lengths, alphas):
         """
-        Adds the classical and quantum connections to host with ID *receiver_id*.
+        Adds a set of classical and quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 
         Args:
-            receiver_ids (list): A list of receiver IDs to connect with
-
+            receiver_ids (list): The IDs of the hosts to connect with.
+            lengths (list): The distance from self to the hosts to connect with (in Km).
+            alphas (list): Absorption coefficient of the corresponding channel (in dB/Km).
         """
-        for receiver_id in receiver_ids:
+
+        if len(receiver_ids) != len(lengths) or len(receiver_ids) != len(alphas):
+            raise ValueError('Number of receivers should be same as the number of lengths and alphas')
+
+        for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
             self.classical_connections.append(receiver_id)
-            self.quantum_connections.append(receiver_id)
+            self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
     def remove_connection(self, receiver_id):
         """
@@ -599,12 +634,11 @@ class Host:
 
     def remove_c_connection(self, receiver_id):
         """
-
         Args:
-            receiver_id:
-
-        Returns:
-
+            receiver_id: Removes the classical connection with given receiver ID
+        Returns
+            True if receiver ID found
+            False otherwise
         """
         c_index = self.classical_connections.index(receiver_id)
         if c_index > -1:
@@ -613,7 +647,18 @@ class Host:
         return False
 
     def remove_q_connection(self, receiver_id):
-        q_index = self.quantum_connections.index(receiver_id)
+        """
+        Args:
+            receiver_id: Removes the quantum connection with given receiver ID
+        Returns
+            True if receiver ID found
+            False otherwise
+        """
+        for q_index, connection in enumerate(self.quantum_connections):
+            if connection.receiver_id() == receiver_id:
+                break
+            else:
+                q_index = -1
         if q_index > -1:
             del self.classical_connections[q_index]
             return True
