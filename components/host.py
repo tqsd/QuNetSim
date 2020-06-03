@@ -7,7 +7,8 @@ from objects.qubit import Qubit
 from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
-from backends.eqsn_backend import EQSNBackend
+#from backends.eqsn_backend import EQSNBackend
+from backends.cqc_backend import CQCBackend
 import uuid
 import time
 
@@ -35,7 +36,7 @@ class Host:
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = EQSNBackend()
+            self._backend = CQCBackend()
         else:
             self._backend = backend
         # add this host to the backend
