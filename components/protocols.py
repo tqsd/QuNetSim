@@ -262,34 +262,34 @@ def _send_teleport(packet):
     else:
         epr_teleport = host_sender.get_epr(packet.receiver, wait=WAIT_TIME)
 
-    assert epr_teleport is not None
-    q.cnot(epr_teleport)
-    q.H()
+    if epr_teleport is not None:
+        q.cnot(epr_teleport)
+        q.H()
 
-    m1 = q.measure()
-    m2 = epr_teleport.measure()
+        m1 = q.measure()
+        m2 = epr_teleport.measure()
 
-    data = {
-        'measurements': [m1, m2],
-        'type': q_type,
-        'node': node
-    }
+        data = {
+            'measurements': [m1, m2],
+            'type': q_type,
+            'node': node
+        }
 
-    if q_type == EPR:
-        data['q_id'] = packet.payload['eq_id']
-        data['eq_id'] = packet.payload['eq_id']
-    else:
-        data['q_id'] = q.id
-        data['eq_id'] = epr_teleport.id
+        if q_type == EPR:
+            data['q_id'] = packet.payload['eq_id']
+            data['eq_id'] = packet.payload['eq_id']
+        else:
+            data['q_id'] = q.id
+            data['eq_id'] = epr_teleport.id
 
-    if 'o_seq_num' in packet.payload:
-        data['o_seq_num'] = packet.payload['o_seq_num']
-    if 'ack' in packet.payload:
-        data['ack'] = packet.payload['ack']
+        if 'o_seq_num' in packet.payload:
+            data['o_seq_num'] = packet.payload['o_seq_num']
+        if 'ack' in packet.payload:
+            data['ack'] = packet.payload['ack']
 
-    packet.payload = data
-    packet.protocol = REC_TELEPORT
-    network.send(packet)
+        packet.payload = data
+        packet.protocol = REC_TELEPORT
+        network.send(packet)
 
 
 def _rec_teleport(packet):

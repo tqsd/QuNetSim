@@ -19,15 +19,19 @@ class Q_Connection:
         self._length = length
         self._alpha = alpha
 
+    @property
     def receiver_id(self):
         return self._receiver_id
 
+    @property
     def length(self):
         return self._length
 
+    @property
     def alpha(self):
         return self._alpha
 
+    @property
     def transmission_p(self):
         return 10.0**(-1.0*self._alpha*self._length/10.0)
 

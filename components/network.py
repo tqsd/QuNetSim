@@ -301,8 +301,8 @@ class Network:
                 self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
-            if not self.quantum_network.has_edge(host.host_id, connection.receiver_id()):
-                edge = (host.host_id, connection.receiver_id(), {'weight': 1})
+            if not self.quantum_network.has_edge(host.host_id, connection.receiver_id):
+                edge = (host.host_id, connection.receiver_id, {'weight': 1, 'transmission_p': connection.transmission_p})
                 self.quantum_network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):
@@ -399,12 +399,20 @@ class Network:
 
         def establish_epr(net, s, r):
             if not net.shares_epr(s, r):
-                self.get_host(s).send_epr(r, q_id, await_ack=True)
+                connections = self.get_host(s).quantum_connections
+                establishment_probability = 0
+                for connection in connections:
+                    if connection.receiver_id == self.get_host(r).host_id:
+                        establishment_probability = connection.transmission_p
+                        break
+                if (random.random() < establishment_probability):
+                    self.get_host(s).send_epr(r, q_id, await_ack=True)
+                #self._establish_epr(s, r, q_id, o_seq_num, blocked)
             else:
                 old_id = self.get_host(s).change_epr_qubit_id(r, q_id)
                 net.get_host(r).change_epr_qubit_id(route[i], q_id, old_id)
 
-        # Create EPR pairs on the route, where all EPR qubits have the id q_id
+        #Create EPR pairs on the route, where all EPR qubits have the id q_id
         threads = []
         for i in range(len(route) - 1):
             threads.append(DaemonThread(establish_epr, args=(self, route[i], route[i + 1])))
@@ -412,17 +420,20 @@ class Network:
         for t in threads:
             t.join()
 
+        # for i in range(len(route)-1):
+        #     establish_epr(self, route[i], route[i+1])
+
         for i in range(len(route) - 2):
             host = self.get_host(route[i + 1])
             q = host.get_epr(route[0], q_id, wait=10)
             if q is None:
-                print("Host is %s" % host.host_id)
-                print("Search host is %s" % route[0])
-                print("Search id is %s" % q_id)
-                print("EPR storage is")
-                print(host.EPR_store)
+                # print("Host is %s" % host.host_id)
+                # print("Search host is %s" % route[0])
+                # print("Search id is %s" % q_id)
+                # print("EPR storage is")
+                # print(host.EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
-                return
+                return False
             data = {'q': q,
                     'eq_id': q_id,
                     'node': sender,
@@ -445,10 +456,14 @@ class Network:
         Logger.get_instance().log('Entanglement swap was successful for pair with id '
                                   + q_id + ' between ' + sender + ' and ' + receiver)
 
+        return True
+
     def _establish_epr(self, sender, receiver, q_id, o_seq_num, blocked):
         """
         Instead doing an entanglement swap, for efficiency we establish EPR pairs
         directly for simulation, if an entanglement swap would have been possible.
+
+        EPR Pair transmission probability is set to 1 if sender and receiver are not directly connected for simulation purposes
 
         Args:
             sender (Host): Sender of the EPR pair
@@ -459,13 +474,23 @@ class Network:
         """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
-        q1 = Qubit(host_sender)
-        q2 = Qubit(host_sender)
-        q1.H()
-        q1.cnot(q2)
-        host_sender.add_epr(receiver, q1, q_id, blocked)
-        host_receiver.add_epr(sender, q2, q_id, blocked)
-        host_receiver.send_ack(sender, o_seq_num)
+
+        connections = host_sender.quantum_connections
+        rand = random.random()
+        transmission_probability = 1
+        for connection in connections:
+            if connection.receiver_id == host_receiver.host_id:
+                transmission_probability = connection.transmission_p
+                break
+        #print('Transmission probability = %f'%transmission_probability)
+        if (rand < transmission_probability):
+            q1 = Qubit(host_sender)
+            q2 = Qubit(host_sender)
+            q1.H()
+            q1.cnot(q2)
+            host_sender.add_epr(receiver, q1, q_id, blocked)
+            host_receiver.add_epr(sender, q2, q_id, blocked)
+            host_receiver.send_ack(sender, o_seq_num)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
@@ -477,7 +502,14 @@ class Network:
             qubits (List of Qubits): The qubits to be sent
         """
 
-        def transfer_qubits(r, store=False, original_sender=None):
+        def transfer_qubits(p, r, store=False, original_sender=None):
+            """
+            Transfers qubits from p to r
+
+            Args:
+                p (ARP index): Sender of qubits
+                r (ARP index): Receiver of qubits
+            """
             for q in qubits:
                 Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
                 x_err_var = random.random()
@@ -487,8 +519,19 @@ class Network:
                 if z_err_var > (1 - self.z_error_rate):
                     q.Z()
 
-                q.send_to(self.ARP[r].host_id)
-                Logger.get_instance().log('transfer qubits - received ' + q.id)
+                rand = random.random()
+                transmission_probability = 0
+                connections = self.ARP[p].quantum_connections
+                for connection in connections:
+                    if connection.receiver_id == self.ARP[r].host_id:
+                        transmission_probability = connection.transmission_p
+                        break
+                if (rand < transmission_probability):   #Transmit qubit with probability given by transmission probability of the channel connecting the two hosts
+                    q.send_to(self.ARP[r].host_id)
+                    Logger.get_instance().log('transfer qubits - received ' + q.id)
+                else:
+                    Logger.get_instance().log('transfer qubits - lost ' + q.id)
+                    return False
 
                 # Unblock qubits in case they were blocked
                 q.blocked = False
@@ -499,15 +542,22 @@ class Network:
                 if store and original_sender is not None:
                     self.ARP[r].add_data_qubit(original_sender, q)
 
+                return True
+
         route = self.get_quantum_route(sender, receiver)
+        success = True
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
             if len(route[i:]) != 2:
-                transfer_qubits(route[i + 1], original_sender=route[0])
+                success = transfer_qubits(route[i], route[i + 1], original_sender=route[0])
             else:
-                transfer_qubits(route[i + 1], store=True, original_sender=route[0])
+                success = transfer_qubits(route[i], route[i + 1], store=True, original_sender=route[0])
             i += 1
+            if success != True:
+                return success
+
+        return success
 
     def _process_queue(self):
         """
