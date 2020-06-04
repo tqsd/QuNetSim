@@ -12,9 +12,10 @@ class Qubit(object):
     EPR_QUBIT = "EPR"
     GHZ_QUBIT = "GHZ"
 
-    def __init__(self, host, qubit=None, q_id=None, blocked=False):
+    def __init__(self, host, qubit=None, q_id=None, blocked=False, fidelity = 1.0):
         self._blocked = blocked
         self._host = host
+        self._fidelity = fidelity
         if q_id is not None:
             self._id = str(q_id)
         else:
@@ -63,6 +64,26 @@ class Qubit(object):
             (backend.qubit) qubit: Return the physical qubit.
         """
         return self._qubit
+
+    @property
+    def fidelity(self):
+        """
+        Returns the fidelity of the qubit
+
+        Returns:
+            (float) Return the fidelity of the qubit
+        """
+        return self._fidelity
+
+    @fidelity.setter
+    def fidelity(self, fidelity):
+        """
+        Set the fidelity of the qubit
+
+        Args:
+            fidelity (float): The fidelity of the qubit
+        """
+        self._fidelity = fidelity
 
     @qubit.setter
     def qubit(self, qubit):

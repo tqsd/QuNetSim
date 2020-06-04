@@ -406,7 +406,8 @@ class Network:
                         establishment_probability = connection.transmission_p
                         break
                 if (random.random() < establishment_probability):
-                    self.get_host(s).send_epr(r, q_id, await_ack=True)
+                    fidelity = self.get_host(s).fidelity
+                    self.get_host(s).send_epr(r, q_id, await_ack=True, fidelity=fidelity)
                 #self._establish_epr(s, r, q_id, o_seq_num, blocked)
             else:
                 old_id = self.get_host(s).change_epr_qubit_id(r, q_id)
@@ -611,7 +612,7 @@ class Network:
                                                 receiver,
                                                 q_id=packet.payload['q_id'],
                                                 block=packet.payload['blocked'])
-                                host_sender.add_epr(receiver, q)
+                                host_sender.add_epr(receiver, q, fidelity=packet.payload['fidelity'])
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet.payload)

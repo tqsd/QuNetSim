@@ -364,7 +364,9 @@ def _rec_epr(packet):
                                           sender_id=sender,
                                           q_id=payload['q_id'],
                                           block=payload['blocked'])
-    host_receiver.add_epr(sender, q)
+    #q.fidelity = payload['fidelity']
+    #print('Received fidelity %f'%q.fidelity)
+    host_receiver.add_epr(sender, q, fidelity=payload['fidelity'])
     # Send an ACK if sequence number is not -1
     if packet.seq_num != -1:
         _send_ack(sender, receiver, packet.seq_num)
