@@ -301,8 +301,8 @@ class Network:
                 self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
-            if not self.quantum_network.has_edge(host.host_id, connection):
-                edge = (host.host_id, connection, {'weight': 1})
+            if not self.quantum_network.has_edge(host.host_id, connection.receiver_id()):
+                edge = (host.host_id, connection.receiver_id(), {'weight': 1})
                 self.quantum_network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):

@@ -15,23 +15,19 @@ import time
 class Q_Connection:
 
     def __init__(self, receiver_id, length, alpha):
-        self._receiver_id = repeated_id
+        self._receiver_id = receiver_id
         self._length = length
         self._alpha = alpha
 
-    @property
     def receiver_id(self):
         return self._receiver_id
 
-    @property
     def length(self):
         return self._length
 
-    @property
     def alpha(self):
         return self._alpha
 
-    @property
     def transmission_p(self):
         return 10.0**(-1.0*self._alpha*self._length/10.0)
 
@@ -590,7 +586,7 @@ class Host:
         for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
             self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connection(self, receiver_id, lengths, alphas):
+    def add_connection(self, receiver_id, length, alpha):
         """
         Adds the classical and quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
