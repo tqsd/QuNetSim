@@ -271,6 +271,7 @@ def _send_teleport(packet):
 
         data = {
             'measurements': [m1, m2],
+            'fidelity': q.fidelity,
             'type': q_type,
             'node': node
         }
@@ -318,12 +319,12 @@ def _rec_teleport(packet):
         q.Z()
     if b == 1:
         q.X()
-
+    q.fidelity = payload['fidelity']
     if payload['type'] == EPR:
-        host_receiver.add_epr(epr_host, q)
+        host_receiver.add_epr(epr_host, q, fidelity=q.fidelity)
 
     elif payload['type'] == DATA:
-        host_receiver.add_data_qubit(epr_host, q, q_id=q_id)
+        host_receiver.add_data_qubit(epr_host, q, q_id=q_id, fidelity=q.fidelity)
 
     # Always send ACK!
     if 'o_seq_num' in payload and 'ack' in payload:

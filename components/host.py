@@ -1168,6 +1168,10 @@ class Host:
         Returns:
              (string) *q_id*: The qubit ID
         """
+
+        # if fidelity is None:
+        #     raise ValueError('Fidelity of EPR to be added must be specified')
+
         if q_id is not None:
             qubit.id = q_id
         qubit.blocked = blocked
@@ -1321,6 +1325,16 @@ class Host:
             return q
         else:
             return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
+
+    def update_fidelity(self, q_id, host_id, fidelity):
+        """
+        Updates the fidelity of an EPR qubit present in the host's memory
+
+        Args
+            q_id (str): The qubit ID of the EPR
+            fidelity (float): The new fidelity of the EPR qubit
+        """
+        return self._qubit_storage._update_fidelity(q_id, host_id, fidelity)
 
     def get_data_qubit(self, host_id, q_id=None, wait=-1):
         """

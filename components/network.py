@@ -396,6 +396,7 @@ class Network:
             blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)
+        lastfidelity = 1.0
 
         def establish_epr(net, s, r):
             if not net.shares_epr(s, r):
@@ -421,9 +422,6 @@ class Network:
         for t in threads:
             t.join()
 
-        # for i in range(len(route)-1):
-        #     establish_epr(self, route[i], route[i+1])
-
         for i in range(len(route) - 2):
             host = self.get_host(route[i + 1])
             q = host.get_epr(route[0], q_id, wait=10)
@@ -435,6 +433,10 @@ class Network:
                 # print(host.EPR_store)
                 Logger.get_instance().error('Entanglement swap failed')
                 return False
+
+            q.fidelity = (1-2*q.fidelity+4*q.fidelity*q.fidelity)/3.0
+            lastfidelity = q.fidelity
+            
             data = {'q': q,
                     'eq_id': q_id,
                     'node': sender,
@@ -453,7 +455,8 @@ class Network:
 
         # Change in the storage that the EPR qubit is shared with the receiver
         q2 = host_sender.get_epr(route[1], q_id=q_id)
-        host_sender.add_epr(receiver, q2, q_id, blocked)
+        #host_sender.update_fidelity(q_id, host_sender.host_id, q.fidelity)
+        host_sender.add_epr(receiver, q2, q_id, blocked, lastfidelity)
         Logger.get_instance().log('Entanglement swap was successful for pair with id '
                                   + q_id + ' between ' + sender + ' and ' + receiver)
 

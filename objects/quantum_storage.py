@@ -127,6 +127,10 @@ class QuantumStorage(object):
         self.lock.release_write()
         return False
 
+    def _update_fidelity(self, q_id, host_id, fidelity):
+        print(host_id)
+        print(self._host_dict.keys())
+
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
         Changes the ID of a qubit. If the ID is not given, a random
