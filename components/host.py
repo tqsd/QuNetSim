@@ -569,7 +569,7 @@ class Host:
         for receiver_id in receiver_ids:
             self.classical_connections.append(receiver_id)
 
-    def add_q_connection(self, receiver_id, length, alpha):
+    def add_q_connection(self, receiver_id, length=1, alpha=0):
         """
         Adds the quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
@@ -580,7 +580,7 @@ class Host:
         """
         self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_q_connections(self, receiver_ids, lengths, alphas):
+    def add_q_connections(self, receiver_ids, lengths=[1], alphas=[0]):
         """
         Adds a set of quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 
@@ -595,7 +595,7 @@ class Host:
         for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
             self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connection(self, receiver_id, length, alpha):
+    def add_connection(self, receiver_id, length=1, alpha=0):
         """
         Adds the classical and quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
@@ -1179,7 +1179,7 @@ class Host:
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id
 
-    def add_data_qubit(self, host_id, qubit, q_id=None):
+    def add_data_qubit(self, host_id, qubit, q_id=None, fidelity=None):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
@@ -1193,6 +1193,9 @@ class Host:
         """
         if q_id is not None:
             qubit.id = q_id
+
+        if fidelity is not None:
+            qubit.fidelity = fidelity
 
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.DATA_QUBIT, host_id)
         return qubit.id
