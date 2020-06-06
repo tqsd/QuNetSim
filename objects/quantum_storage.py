@@ -1,3 +1,4 @@
+import random
 from backends.RWLock import RWLock
 
 STORAGE_LIMIT_ALL = 1
@@ -24,6 +25,7 @@ class QuantumStorage(object):
         self._default_storage_limit_per_host = -1
         self._storage_limit = -1
         self._amount_qubit_stored = 0
+        self._heralding_probability = 1.0
         # read write lock, for threaded access
         self.lock = RWLock()
 
@@ -48,6 +50,10 @@ class QuantumStorage(object):
     @property
     def storage_limit(self):
         return self._storage_limit
+
+    @property
+    def heralding_probability(self):
+        return self._heralding_probability
 
     @property
     def storage_limit_mode(self):
@@ -87,6 +93,19 @@ class QuantumStorage(object):
         else:
             raise ValueError(
                 "Internal Value Error, this storage mode does not exist.")
+
+    @heralding_probability.setter
+    def set_heralding_probability(self, heralding_probability):
+        """
+        Set the probability with which an incoming qubit is heralded
+
+        Args:
+            heralding_probability (float): New heralding probability
+        """
+        if not isinstance(heralding_probability, int) and not isinstance(heralding_probability, float):
+            raise Exception("Heralding probability must be a floating point number")
+        else:
+            self._heralding_probability = heralding_probability
 
     def reset_storage(self):
         """
@@ -166,21 +185,21 @@ class QuantumStorage(object):
                              been received.
             purpose (String): Purpose of the Qubit, for example EPR or data.
         """
+        if random.random() < self.heralding_probability:
+            self.lock.acquire_write()
+            if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
+                print(self)
+                raise ValueError("Qubit with these parameters already in storage!")
+            if from_host_id not in self._host_dict:
+                self._add_new_host(from_host_id)
+            if not self._increase_qubit_counter(from_host_id):
+                qubit.release()
+                self.lock.release_write()
+                return
 
-        self.lock.acquire_write()
-        if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
-            print(self)
-            raise ValueError("Qubit with these parameters already in storage!")
-        if from_host_id not in self._host_dict:
-            self._add_new_host(from_host_id)
-        if not self._increase_qubit_counter(from_host_id):
-            qubit.release()
+            self._host_dict[from_host_id].append(qubit)
+            self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
             self.lock.release_write()
-            return
-
-        self._host_dict[from_host_id].append(qubit)
-        self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
-        self.lock.release_write()
 
     def get_all_qubits_from_host(self, from_host_id, purpose=None):
         """
