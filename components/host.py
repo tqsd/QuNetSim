@@ -197,6 +197,26 @@ class Host:
         self._qubit_storage.set_heralding_probability = heralding_probability
 
     @property
+    def reading_efficiency(self):
+        """
+        Get the reading efficiency of the quantum storage associated with this host
+
+        Returns:
+            Probability that a stored qubit is retrieved
+        """
+        return self._qubit_storage.reading_efficiency
+
+    @reading_efficiency.setter
+    def set_reading_efficiency(self, reading_efficiency):
+        """
+        Set the reading efficiency of this host's quantum storage
+
+        Args:
+            reading_efficiency (float): Probability that a stored qubit is retrieved
+        """
+        self._qubit_storage.set_reading_efficiency = reading_efficiency
+
+    @property
     def max_ack_wait(self):
         """
         Get the maximum amount of time to wait for an ACK

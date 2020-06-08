@@ -308,7 +308,8 @@ def _rec_teleport(packet):
 
     q = host_receiver.get_epr(packet.sender, eq_id, wait=WAIT_TIME)
     if q is None:
-        raise Exception("failed to get EPR")
+        #raise Exception("failed to get EPR")
+        return None
 
     a = payload['measurements'][0]
     b = payload['measurements'][1]

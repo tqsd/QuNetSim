@@ -26,6 +26,7 @@ class QuantumStorage(object):
         self._storage_limit = -1
         self._amount_qubit_stored = 0
         self._heralding_probability = 1.0
+        self._reading_efficiency = 1.0
         # read write lock, for threaded access
         self.lock = RWLock()
 
@@ -54,6 +55,10 @@ class QuantumStorage(object):
     @property
     def heralding_probability(self):
         return self._heralding_probability
+
+    @property
+    def reading_efficiency(self):
+        return self._reading_efficiency
 
     @property
     def storage_limit_mode(self):
@@ -97,7 +102,8 @@ class QuantumStorage(object):
     @heralding_probability.setter
     def set_heralding_probability(self, heralding_probability):
         """
-        Set the probability with which an incoming qubit is heralded
+        Set the probability with which an incoming qubit is heralded, i.e.,
+        the probability that the incoming qubit is detected and stored
 
         Args:
             heralding_probability (float): New heralding probability
@@ -106,6 +112,20 @@ class QuantumStorage(object):
             raise Exception("Heralding probability must be a floating point number")
         else:
             self._heralding_probability = heralding_probability
+
+    @reading_efficiency.setter
+    def set_reading_efficiency(self, reading_efficiency):
+        """
+        Set the reading efficiency of the quantum storage, i.e.,
+        the probability that a qubit can be retrieved after storage
+
+        Args:
+            reading_efficiency (float): New reading efficiency
+        """
+        if not isinstance(reading_efficiency, int) and not isinstance(reading_efficiency, float):
+            raise Exception("Reading efficiency must be a floating point number")
+        else:
+            self._reading_efficiency = reading_efficiency
 
     def reset_storage(self):
         """
@@ -232,6 +252,11 @@ class QuantumStorage(object):
             If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
+
+        if random.random() > self.reading_efficiency:
+            #print('Returning none')
+            return None
+
         self.lock.acquire_write()
         if q_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id, purpose=purpose)
