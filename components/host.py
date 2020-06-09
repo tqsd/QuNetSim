@@ -217,6 +217,27 @@ class Host:
         self._qubit_storage.set_reading_efficiency = reading_efficiency
 
     @property
+    def coherence_time(self):
+        """
+        Get the coherence time of the quantum storage associated with this host
+
+        Returns:
+            Time for which a stored qubit remains coherent
+            A negative value indicates that the qubit always remains coherent
+        """
+        return self._qubit_storage.coherence_time
+
+    @coherence_time.setter
+    def set_coherence_time(self, coherence_time):
+        """
+        Set the coherence time of this host's quantum storage
+
+        Args:
+            coherence_time (float): Time for which a stored qubit remains coherent
+        """
+        self._qubit_storage.set_coherence_time = coherence_time
+
+    @property
     def max_ack_wait(self):
         """
         Get the maximum amount of time to wait for an ACK

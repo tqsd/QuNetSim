@@ -1,4 +1,5 @@
 import random
+import time
 from backends.RWLock import RWLock
 
 STORAGE_LIMIT_ALL = 1
@@ -27,6 +28,7 @@ class QuantumStorage(object):
         self._amount_qubit_stored = 0
         self._heralding_probability = 1.0
         self._reading_efficiency = 1.0
+        self._coherence_time = -1.0
         # read write lock, for threaded access
         self.lock = RWLock()
 
@@ -59,6 +61,10 @@ class QuantumStorage(object):
     @property
     def reading_efficiency(self):
         return self._reading_efficiency
+
+    @property
+    def coherence_time(self):
+        return self._coherence_time
 
     @property
     def storage_limit_mode(self):
@@ -126,6 +132,20 @@ class QuantumStorage(object):
             raise Exception("Reading efficiency must be a floating point number")
         else:
             self._reading_efficiency = reading_efficiency
+
+    @coherence_time.setter
+    def set_coherence_time(self, coherence_time):
+        """
+        Set the coherence time of the quantum storage, i.e.,
+        the maximum time after which a stored qubit becomes a perfectly mixed state
+        
+        Args:
+            coherence time (float): Coherence time in seconds
+        """
+        if not isinstance(coherence_time, int) and not isinstance(coherence_time, float):
+            raise Exception("Coherence time must be an integer or floating point number")
+        else:
+            self._coherence_time = coherence_time
 
     def reset_storage(self):
         """
@@ -300,8 +320,12 @@ class QuantumStorage(object):
         purp = _pop_purpose_from_purpose_dict(q_id, from_host_id)
         if purp is not None:
             if purpose is None or purpose == purp:
-                qubit = self._qubit_dict[q_id].pop(from_host_id, None)
-                if qubit is not None:
+                (qubit, storetime) = self._qubit_dict[q_id].pop(from_host_id, None)
+                if time.time() - storetime > self.coherence_time and self.coherence_time >= 0.0:
+                    if not self._qubit_dict[q_id]:
+                        del self._qubit_dict[q_id]
+                    return None
+                elif qubit is not None:
                     if not self._qubit_dict[q_id]:
                         del self._qubit_dict[q_id]
                 return qubit, purp
@@ -319,7 +343,7 @@ class QuantumStorage(object):
 
         if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
-        self._qubit_dict[qubit.id][from_host_id] = qubit
+        self._qubit_dict[qubit.id][from_host_id] = (qubit, time.time())
         _add_purpose_to_purpose_dict(purpose, qubit.id, from_host_id)
 
     def _add_new_host(self, host_id):
