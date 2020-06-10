@@ -2,7 +2,7 @@ class Q_Connection:
     """
     An object that stores quantum connection details
     """
-    def __init__(self, receiver_id, length, alpha):
+    def __init__(self, receiver_id, length=1.0, alpha=0.0):
         self._receiver_id = receiver_id
         self._length = length
         self._alpha = alpha
