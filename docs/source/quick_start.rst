@@ -44,7 +44,7 @@ of commands that are built into hosts, see the Design Overview section.
 
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
-    from qunetsim.objects.qubit import Qubit
+    from qunetsim.objects import Qubit
     from qunetsim.components.logger import Logger
     Logger.DISABLED = True
 

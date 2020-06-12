@@ -40,5 +40,5 @@ The most commonly used methods for Network are:
     * Generate a depiction of the quantum network (via matplotlib)
 
 
-.. automodule:: components.network
+.. automodule:: qunetsim.components.network
    :members:

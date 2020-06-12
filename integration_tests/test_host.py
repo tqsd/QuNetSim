@@ -1,5 +1,5 @@
 import unittest
-from qunetsim.components import Host
+from qunetsim.components.host import Host
 from random import randint
 
 
@@ -23,8 +23,8 @@ class TestHost(unittest.TestCase):
         for x in neighbor:
             a.add_connection(x)
 
-        list = a.get_connections()
-        for i in list:
+        connections = a.get_connections()
+        for i in connections:
             self.assertTrue(i['connection'] in neighbor)
         a.backend.stop()
 
@@ -35,9 +35,9 @@ class TestHost(unittest.TestCase):
         random = [randint(0, 200) for _ in range(10)]
         for n, i in zip(neighbor, random):
             for _ in range(i):
-                _ = a._get_sequence_number(n)
+                _ = a.get_next_sequence_number(n)
 
         for n, i in zip(neighbor, random):
-            self.assertEqual(i, a._get_sequence_number(n))
+            self.assertEqual(i, a.get_next_sequence_number(n))
 
         a.backend.stop()

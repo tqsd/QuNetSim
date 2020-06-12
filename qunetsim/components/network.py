@@ -4,14 +4,11 @@ from queue import Queue
 import time
 import random
 
-from qunetsim.objects.qubit import Qubit
+from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
 
-from qunetsim.components import protocols
-from qunetsim.objects import Logger
-from qunetsim.objects.daemon_thread import DaemonThread
+from qunetsim.utils.constants import Constants
 from inspect import signature
 
-from qunetsim.objects import RoutingPacket
 from qunetsim.backends import EQSNBackend
 
 
@@ -425,7 +422,7 @@ class Network:
                     'eq_id': q_id,
                     'node': sender,
                     'o_seq_num': o_seq_num,
-                    'type': protocols.EPR}
+                    'type': Constants.EPR}
 
             if route[i + 2] == route[-1]:
                 data = {'q': q,
@@ -433,7 +430,7 @@ class Network:
                         'node': sender,
                         'ack': True,
                         'o_seq_num': o_seq_num,
-                        'type': protocols.EPR}
+                        'type': Constants.EPR}
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
@@ -527,21 +524,21 @@ class Network:
                 packet_drop_var = random.random()
                 if packet_drop_var > (1 - self.packet_drop_rate):
                     Logger.get_instance().log("PACKET DROPPED")
-                    if packet.payload_type == protocols.QUANTUM:
+                    if packet.payload_type == Constants.QUANTUM:
                         packet.payload.release()
                     continue
 
                 sender, receiver = packet.sender, packet.receiver
 
-                if packet.payload_type == protocols.QUANTUM:
+                if packet.payload_type == Constants.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
 
                 try:
-                    if packet.protocol == protocols.RELAY and not self.use_hop_by_hop:
+                    if packet.protocol == Constants.RELAY and not self.use_hop_by_hop:
                         full_route = packet.route
                         route = full_route[full_route.index(sender):]
                     else:
-                        if packet.protocol == protocols.REC_EPR:
+                        if packet.protocol == Constants.REC_EPR:
                             route = self.get_classical_route(sender, receiver)
                         else:
                             route = self.get_classical_route(sender, receiver)
@@ -550,8 +547,8 @@ class Network:
                         raise Exception('No route exists')
 
                     elif len(route) == 2:
-                        if packet.protocol != protocols.RELAY:
-                            if packet.protocol == protocols.REC_EPR:
+                        if packet.protocol != Constants.RELAY:
+                            if packet.protocol == Constants.REC_EPR:
                                 host_sender = self.get_host(sender)
                                 q = host_sender \
                                     .backend \
@@ -564,7 +561,7 @@ class Network:
                         else:
                             self.ARP[receiver].rec_packet(packet.payload)
                     else:
-                        if packet.protocol == protocols.REC_EPR:
+                        if packet.protocol == Constants.REC_EPR:
                             q_id = packet.payload['q_id']
                             blocked = packet.payload['blocked']
                             q_route = self.get_quantum_route(sender, receiver)
@@ -659,8 +656,8 @@ class Network:
         Returns:
             RoutingPacket: Encoded RELAY packet
         """
-        if payload.protocol != protocols.RELAY:
-            packet = RoutingPacket(route[1], '', protocols.RELAY, protocols.SIGNAL,
+        if payload.protocol != Constants.RELAY:
+            packet = RoutingPacket(route[1], '', Constants.RELAY, Constants.SIGNAL,
                                    payload, ttl, route)
         else:
             packet = payload

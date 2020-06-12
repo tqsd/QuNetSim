@@ -1,6 +1,6 @@
-from qunetsim.components import Host
-from qunetsim.components import Network
-from qunetsim.objects.qubit import Qubit
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
+from qunetsim.objects import Qubit
 from qunetsim.objects import Logger
 
 Logger.DISABLED = True

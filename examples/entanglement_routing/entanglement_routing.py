@@ -2,8 +2,8 @@ import time
 import networkx as nx
 import random
 
-from qunetsim.components import Host
-from qunetsim.components import Network
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
 from qunetsim.objects import Logger
 
 network = Network.get_instance()

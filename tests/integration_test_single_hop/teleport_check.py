@@ -3,9 +3,9 @@ import time
 
 sys.path.append("../..")
 from qunetsim.backends import CQCBackend
-from qunetsim.components import Host
-from qunetsim.components import Network
-from qunetsim.objects.qubit import Qubit
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
+from qunetsim.objects import Qubit
 
 
 def main():
@@ -16,7 +16,6 @@ def main():
     network.delay = 0.0
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
-
 
     # A <-> B
     hosts['alice'].add_connection('Bob')

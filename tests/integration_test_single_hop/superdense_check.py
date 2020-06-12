@@ -3,8 +3,8 @@ import time
 
 sys.path.append("../..")
 from qunetsim.backends import CQCBackend
-from qunetsim.components import Host
-from qunetsim.components import Network
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
 
 
 def main():

@@ -187,7 +187,7 @@ The full example is below:
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
     from qunetsim.objects.logger import Logger
-    from qunetsim.objects.qubit import Qubit
+    from qunetsim.objects import Qubit
     from random import randint, random
     from qunetsim.backends.projectq_backend import ProjectQBackend
 

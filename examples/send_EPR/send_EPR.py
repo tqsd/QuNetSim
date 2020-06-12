@@ -1,6 +1,6 @@
-from qunetsim.components import Host
+from qunetsim.components.host import Host
 from qunetsim.objects import Logger
-from qunetsim.components import Network
+from qunetsim.components.network import Network
 
 Logger.DISABLED = False
 

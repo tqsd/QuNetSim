@@ -1,6 +1,6 @@
 import time
 
-from qunetsim.backends import SafeDict
+from qunetsim.backends.safe_dict import SafeDict
 from qunetsim.objects.qubit import Qubit
 from queue import Queue
 

@@ -1,7 +1,6 @@
-from qunetsim.components import Host
-from qunetsim.components import Network
-from qunetsim.objects import Logger
-from qunetsim.objects.qubit import Qubit
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
+from qunetsim.objects import Qubit, Logger
 from random import randint
 
 #Logger(file='./trial4.log')

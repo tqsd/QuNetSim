@@ -1,5 +1,5 @@
 Protocols
 ==========
 
-.. automodule:: components.protocols
+.. automodule:: qunetsim.components.protocols
    :members:

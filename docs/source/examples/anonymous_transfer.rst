@@ -93,7 +93,7 @@ Full example:
     from qunetsim.components.network import Network
     import random
 
-    from qunetsim.objects.qubit import Qubit
+    from qunetsim.objects import Qubit
 
 
     def distribute(host, nodes):

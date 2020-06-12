@@ -270,14 +270,14 @@ for if Alice and Bob won or lost.</p>
         <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">alice_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bob_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X, Y, A, B --- </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;X, Y, A, B --- </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">a</span> <span class="o">^</span> <span class="n">b</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Winners!&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Winners!&#39;</span><span class="p">)</span>
             <span class="n">wins</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Losers!&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Losers!&#39;</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Win ratio: &quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{0:.2%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">wins</span> <span class="o">/</span> <span class="n">PLAYS</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Win ratio: &quot;</span> <span class="o">+</span> <span class="s2">&quot;{0:.2%}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">wins</span> <span class="o">/</span> <span class="n">PLAYS</span><span class="p">))</span>
 </pre></div>
 </td></tr></table></div>
 <p>Next we see Alice’s protocols for the classical and quantum strategies. In the classical strategy, she simply awaits
@@ -619,16 +619,16 @@ of those here. The full example is below, with the backends imported and set.</p
 184
 185</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">components.host</span> <span class="kn">import</span> <span class="n">Host</span>
-<span class="kn">from</span> <span class="nn">components.network</span> <span class="kn">import</span> <span class="n">Network</span>
-<span class="kn">from</span> <span class="nn">components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">qunetsim.components.host</span> <span class="kn">import</span> <span class="n">Host</span>
+<span class="kn">from</span> <span class="nn">qunetsim.components.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">qunetsim.components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 
 <span class="c1"># We have to import the ProjectQ backend.</span>
 <span class="c1"># One  should ensure the python library &quot;projectq&quot; is installed.</span>
-<span class="kn">from</span> <span class="nn">backends.projectq_backend</span> <span class="kn">import</span> <span class="n">ProjectQBackend</span>
+<span class="kn">from</span> <span class="nn">qunetsim.backends.projectq_backend</span> <span class="kn">import</span> <span class="n">ProjectQBackend</span>
 
 <span class="c1"># Disable QuNetSim logging</span>
-<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
 
 <span class="c1"># Number of times to play the game.</span>
 <span class="n">PLAYS</span> <span class="o">=</span> <span class="mi">20</span>
@@ -734,14 +734,14 @@ of those here. The full example is below, with the backends imported and set.</p
         <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">alice_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bob_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X, Y, A, B --- </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;X, Y, A, B --- </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">a</span> <span class="o">^</span> <span class="n">b</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Winners!&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Winners!&#39;</span><span class="p">)</span>
             <span class="n">wins</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Losers!&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Losers!&#39;</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Win ratio: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.</span> <span class="o">*</span> <span class="n">wins</span> <span class="o">/</span> <span class="n">PLAYS</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Win ratio: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.</span> <span class="o">*</span> <span class="n">wins</span> <span class="o">/</span> <span class="n">PLAYS</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -774,10 +774,10 @@ of those here. The full example is below, with the backends imported and set.</p
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;QUANTUM&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Generating initial entanglement&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generating initial entanglement&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PLAYS</span><span class="p">):</span>
-            <span class="n">host_A</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done generating initial entanglement&#39;</span><span class="p">)</span>
+            <span class="n">host_A</span><span class="o">.</span><span class="n">send_epr</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Done generating initial entanglement&#39;</span><span class="p">)</span>
 
     <span class="c1"># Remove the connection from Alice and Bob</span>
     <span class="n">host_A</span><span class="o">.</span><span class="n">remove_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
@@ -785,7 +785,7 @@ of those here. The full example is below, with the backends imported and set.</p
     <span class="n">network</span><span class="o">.</span><span class="n">update_host</span><span class="p">(</span><span class="n">host_A</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">update_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting game. Strategy: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">strategy</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Starting game. Strategy: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">strategy</span><span class="p">)</span>
 
     <span class="c1"># Play the game classically</span>
     <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;CLASSICAL&#39;</span><span class="p">:</span>
@@ -797,7 +797,7 @@ of those here. The full example is below, with the backends imported and set.</p
         <span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">alice_quantum</span><span class="p">,</span> <span class="p">(</span><span class="n">host_C</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_B</span><span class="o">.</span><span class="n">host_id</span><span class="p">))</span>
         <span class="n">host_B</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">bob_quantum</span><span class="p">,</span> <span class="p">(</span><span class="n">host_C</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">))</span>
 
-    <span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">referee</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_B</span><span class="o">.</span><span class="n">host_id</span><span class="p">),</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">referee</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_B</span><span class="o">.</span><span class="n">host_id</span><span class="p">),</span> <span class="n">blocking</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

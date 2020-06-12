@@ -213,7 +213,7 @@ The full example is given below.
 
     import numpy as np
 
-    from qunetsim.objects.qubit import Qubit
+    from qunetsim.objects import Qubit
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
     from qunetsim.backends.eqsn_backend import EQSNBackend

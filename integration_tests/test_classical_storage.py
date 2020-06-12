@@ -1,7 +1,6 @@
 import unittest
-from qunetsim.objects import ClassicalStorage
-from qunetsim.objects import Message
-from qunetsim import components as protocols
+from qunetsim.objects import ClassicalStorage, Message
+from qunetsim.utils.constants import Constants
 
 
 # @unittest.skip('')
@@ -21,7 +20,7 @@ class TestClassicalStorage(unittest.TestCase):
         storage = ClassicalStorage()
         self.assertEqual(len(storage.get_all()), 0)
 
-        ack_msg = Message("Alice", protocols.ACK, 1)
+        ack_msg = Message("Alice", Constants.ACK, 1)
         storage.add_msg_to_storage(ack_msg)
 
         self.assertEqual(len(storage.get_all()), 1)

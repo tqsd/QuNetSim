@@ -1,18 +1,13 @@
 from queue import Queue
 from qunetsim.components import protocols
-from qunetsim.objects import Logger
-from qunetsim.objects.daemon_thread import DaemonThread
-from qunetsim.objects.packet import Packet
-from qunetsim.objects.qubit import Qubit
-from qunetsim.objects import QuantumStorage
-from qunetsim.objects import ClassicalStorage
-from qunetsim.objects import Message
+from qunetsim.utils.constants import Constants
+from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage
 from qunetsim.backends import EQSNBackend
 import uuid
 import time
 
 
-class Host:
+class Host(object):
     """ Host object acting as either a router node or an application host node. """
 
     WAIT_TIME = 10
@@ -197,7 +192,7 @@ class Host:
         if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._qubit_storage.set_storage_limit(storage_limit, None)
+        self._qubit_storage.storage_limit = storage_limit
 
     @property
     def storage_limit(self):
@@ -221,7 +216,7 @@ class Host:
         if not isinstance(storage_limit, int):
             raise Exception('memory limit should be an integer')
 
-        self._qubit_storage.set_storage_limit(storage_limit, None)
+        self._qubit_storage.storage_limit(storage_limit)
 
     @property
     def quantum_connections(self):
@@ -264,7 +259,7 @@ class Host:
                 and isinstance(transport_packet, Packet) \
                 and isinstance(transport_packet.payload, Message):
             if not self._sniff_exclude_ACKs or \
-                    (self._sniff_exclude_ACKs and transport_packet.payload.content != protocols.ACK):
+                    (self._sniff_exclude_ACKs and transport_packet.payload.content != Constants.ACK):
                 if self._sniff_full_packet:
                     self._c_relay_sniffing_fn(sender, receiver, transport_packet)
                 else:
@@ -326,7 +321,7 @@ class Host:
         if self._q_relay_sniffing_fn is not None:
             self._q_relay_sniffing_fn(sender, receiver, qubit)
 
-    def _get_sequence_number(self, host):
+    def get_next_sequence_number(self, host):
         """
         Get and set the next sequence number of connection with a receiver.
 
@@ -345,14 +340,13 @@ class Host:
 
     def get_sequence_number(self, host):
         """
-        Get and set the next sequence number of connection with a receiver.
+        Get the sequence number on the sending side of connection with a host *host*.
 
         Args:
-            host(str): The ID of the receiver
+            host (str): The ID of the sender
 
         Returns:
             (int): The next sequence number of connection with a receiver.
-
         """
         if host not in self._seq_number_sender:
             return 0
@@ -360,13 +354,14 @@ class Host:
         return self._seq_number_sender[host]
 
     def get_sequence_number_receiver(self, host):
+        """
+        Get the sequence number on the receiving side of the connection with host *host*.
 
-        '''
-
-        :param host:
-        :return:
-        '''
-
+        Args:
+            host (str): The ID of the connected host
+        Returns:
+            (int): The receiver sequence number.
+        """
         if host not in self._seq_number_receiver:
             return 0
 
@@ -433,14 +428,13 @@ class Host:
         Args:
             packet (Packet): The received packet
         """
-
         if self._c_relay_sniffing:
             # if it is a classical relay message, sniff it
-            if packet.protocol == protocols.RELAY:
+            if packet.protocol == Constants.RELAY:
                 # RELAY is a network layer protocol, the transport layer packet
                 # is in the payload
                 transport_packet = packet.payload
-                if transport_packet.protocol == protocols.REC_CLASSICAL:
+                if transport_packet.protocol == Constants.REC_CLASSICAL:
                     receiver = packet.receiver
                     sender = packet.sender
                     self.relay_sniffing_function(sender, receiver, transport_packet)
@@ -448,7 +442,7 @@ class Host:
         result = protocols.process(packet)
         if result is not None:  # classical message if not None
             msg = result
-            if msg.content != protocols.ACK:
+            if msg.content != Constants.ACK:
                 self._classical_messages.add_msg_to_storage(msg)
                 self.logger.log(self.host_id + ' received ' + str(msg.content)
                                 + ' with sequence number ' + str(msg.seq_num))
@@ -462,6 +456,7 @@ class Host:
         """
         Processes an ACK msg.
         """
+
         def check_task(q, _sender, _seq_num, timeout, start_time):
             if timeout is not None and time.time() - timeout > start_time:
                 q.put(False)
@@ -500,7 +495,6 @@ class Host:
         """
         Runs a thread for processing the packets in the packet queue.
         """
-
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
             if self._stop_thread:
@@ -598,12 +592,12 @@ class Host:
 
     def remove_c_connection(self, receiver_id):
         """
-
+        Remove the classical connection with receiver with receiver ID *receiver_id*.
         Args:
-            receiver_id:
+            receiver_id (str): The ID of the receiving side of the classical connection
 
         Returns:
-
+            (bool): Success status of the removal
         """
         c_index = self.classical_connections.index(receiver_id)
         if c_index > -1:
@@ -612,9 +606,17 @@ class Host:
         return False
 
     def remove_q_connection(self, receiver_id):
+        """
+        Remove the quantum connection with receiver with receiver ID *receiver_id*.
+        Args:
+            receiver_id (str): The ID of the receiving side of the quantum connection
+
+        Returns:
+            (bool): Success status of the removal
+        """
         q_index = self.quantum_connections.index(receiver_id)
         if q_index > -1:
-            del self.classical_connections[q_index]
+            del self.quantum_connections[q_index]
             return True
         return False
 
@@ -626,13 +628,12 @@ class Host:
         Args:
             receiver (str): The ID of the host to send the message.
             seq_number (int): Sequence number of the acknowleged packet.
-
         """
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
-                                  protocol=protocols.SEND_CLASSICAL,
-                                  payload=Message(sender=self.host_id, content=protocols.ACK, seq_num=seq_number),
-                                  payload_type=protocols.SIGNAL,
+                                  protocol=Constants.SEND_CLASSICAL,
+                                  payload=Message(sender=self.host_id, content=Constants.ACK, seq_num=seq_number),
+                                  payload_type=Constants.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
         self._packet_queue.put(packet)
@@ -642,7 +643,8 @@ class Host:
         expected_seq = self._seq_number_receiver[receiver][1]
 
         while expected_seq + self._max_window < seq_number:
-            self.logger.log("%s: Msg with sequence number %d was not received within the receiving window." % (self.host_id, expected_seq))
+            self.logger.log("%s: Msg with sequence number %d was not received within the receiving window." % (
+                self.host_id, expected_seq))
             # just jump over this sequence number
             expected_seq += 1
             self._seq_number_receiver[receiver][1] += 1
@@ -714,10 +716,10 @@ class Host:
 
         last_send_seq = self._seq_number_sender[sender]
         lowest_waiting_seq = 0
-        all_remaining_acks = range(lowest_waiting_seq, last_send_seq + 1)
+        all_remaining_acks = list(range(lowest_waiting_seq, last_send_seq + 1))
         if sender in self._seq_number_sender_ack:
             lowest_waiting_seq = self._seq_number_sender_ack[sender][1]
-            all_remaining_acks = range(lowest_waiting_seq, last_send_seq + 1)
+            all_remaining_acks = list(range(lowest_waiting_seq, last_send_seq + 1))
             for received_ack in self._seq_number_sender_ack[sender][0]:
                 all_remaining_acks.remove(received_ack)
         return wait_multiple_seqs(all_remaining_acks)
@@ -733,9 +735,9 @@ class Host:
         message = Message(sender=self.host_id, content=message, seq_num=seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
-                                  protocol=protocols.SEND_BROADCAST,
+                                  protocol=Constants.SEND_BROADCAST,
                                   payload=message,
-                                  payload_type=protocols.CLASSICAL,
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=False)
         self.logger.log(self.host_id + " sends BROADCAST message")
@@ -758,13 +760,13 @@ class Host:
         if no_ack:
             await_ack = False
         else:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = self.get_next_sequence_number(receiver_id)
         message = Message(sender=self.host_id, content=message, seq_num=seq_num)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_CLASSICAL,
+                                  protocol=Constants.SEND_CLASSICAL,
                                   payload=message,
-                                  payload_type=protocols.CLASSICAL,
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends CLASSICAL to "
@@ -796,12 +798,12 @@ class Host:
         if no_ack:
             await_ack = False
         else:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = self.get_next_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_EPR,
+                                  protocol=Constants.SEND_EPR,
                                   payload={'q_id': q_id, 'blocked': block},
-                                  payload_type=protocols.SIGNAL,
+                                  payload_type=Constants.SIGNAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
@@ -853,13 +855,14 @@ class Host:
             if no_ack:
                 await_ack = False
             else:
-                seq_num = self._get_sequence_number(receiver_id)
+                seq_num = self.get_next_sequence_number(receiver_id)
             seq_num_list.append(seq_num)
+
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
-                                  protocol=protocols.SEND_GHZ,
-                                  payload={'qubits': q_list, 'hosts': receiver_list},
-                                  payload_type=protocols.CLASSICAL,
+                                  protocol=Constants.SEND_GHZ,
+                                  payload={Constants.QUBITS: q_list, Constants.HOSTS: receiver_list},
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num_list,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends GHZ to " + str(receiver_list))
@@ -925,13 +928,13 @@ class Host:
             # if no ACKs are send, await_ack is always false
             await_ack = False
         else:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = self.get_next_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_TELEPORT,
+                                  protocol=Constants.SEND_TELEPORT,
                                   payload={
                                       'q': q, 'generate_epr_if_none': generate_epr_if_none},
-                                  payload_type=protocols.CLASSICAL,
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         if payload is not None:
@@ -966,12 +969,12 @@ class Host:
             # if no ACKs are send, await_ack is always false
             await_ack = False
         else:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = self.get_next_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_SUPERDENSE,
+                                  protocol=Constants.SEND_SUPERDENSE,
                                   payload=message,
-                                  payload_type=protocols.CLASSICAL,
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
@@ -1000,12 +1003,12 @@ class Host:
             # if no ACKs are send, await_ack is always false
             await_ack = False
         else:
-            seq_num = self._get_sequence_number(receiver_id)
+            seq_num = self.get_next_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_QUBIT,
+                                  protocol=Constants.SEND_QUBIT,
                                   payload=q,
-                                  payload_type=protocols.QUANTUM,
+                                  payload_type=Constants.QUANTUM,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
 
@@ -1086,7 +1089,10 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             host_id (str): (optional) The partner ID to set the limit with
         """
-        self._qubit_storage.set_storage_limit(limit, host_id)
+        if host_id is not None:
+            self._qubit_storage.set_storage_limit_with_host(limit, host_id)
+        else:
+            self._qubit_storage.storage_limit = limit
 
     def set_data_qubit_memory_limit(self, limit, host_id=None):
         """
@@ -1097,7 +1103,10 @@ class Host:
             limit (int): The maximum number of qubits for the memory
             host_id (str): (optional) The partner ID to set the limit with
         """
-        self._qubit_storage.set_storage_limit(limit, host_id)
+        if host_id is not None:
+            self._qubit_storage.set_storage_limit_with_host(limit, host_id)
+        else:
+            self._qubit_storage.storage_limit = limit
 
     def add_epr(self, host_id, qubit, q_id=None, blocked=False):
         """
@@ -1368,12 +1377,12 @@ class Host:
             bool
         """
 
-        seq_num = self._get_sequence_number(receiver_id)
+        seq_num = self.get_next_sequence_number(receiver_id)
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver_id,
-                                  protocol=protocols.SEND_KEY,
+                                  protocol=Constants.SEND_KEY,
                                   payload={'keysize': key_size},
-                                  payload_type=protocols.CLASSICAL,
+                                  payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num,
                                   await_ack=await_ack)
         self.logger.log(self.host_id + " sends KEY to " + receiver_id)
