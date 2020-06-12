@@ -1,13 +1,13 @@
 import time
 import sys
 import numpy as np
-from components.host import Host
-from components.network import Network
-from objects.logger import Logger
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.objects import Logger
 
-from objects.qubit import Qubit
+from qunetsim.objects.qubit import Qubit
 #from backends.eqsn_backend import EQSNBackend
-from backends.cqc_backend import CQCBackend
+from qunetsim.backends import CQCBackend
 #from backends.projectq_backend import ProjectQBackend
 
 thread_1_return = None

@@ -90,9 +90,9 @@ The full example is below:
 ..  code-block:: python
     :linenos:
 
-    from components.host import Host
-    from components.network import Network
-    from objects.qubit import Qubit
+    from qunetsim.components.host import Host
+    from qunetsim.components.network import Network
+    from qunetsim.objects.qubit import Qubit
 
 
     def main():

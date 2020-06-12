@@ -1,10 +1,10 @@
 import unittest
 import time
 
-from backends.eqsn_backend import EQSNBackend
-from components.host import Host
-from objects.qubit import Qubit
-from components.network import Network
+from qunetsim.backends import EQSNBackend
+from qunetsim.components import Host
+from qunetsim.objects.qubit import Qubit
+from qunetsim.components import Network
 
 network = Network.get_instance()
 hosts = None

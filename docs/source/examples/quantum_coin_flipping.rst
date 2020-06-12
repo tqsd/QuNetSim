@@ -213,12 +213,12 @@ The full example is given below.
 
     import numpy as np
 
-    from objects.qubit import Qubit
-    from components.host import Host
-    from components.network import Network
-    from backends.eqsn_backend import EQSNBackend
-    # from backends.cqc_backend import CQCBackend
-    # from backends.projectq_backend import ProjectQBackend
+    from qunetsim.objects.qubit import Qubit
+    from qunetsim.components.host import Host
+    from qunetsim.components.network import Network
+    from qunetsim.backends.eqsn_backend import EQSNBackend
+    # from qunetsim.backends.cqc_backend import CQCBackend
+    # from qunetsim.backends.projectq_backend import ProjectQBackend
 
 
     def quantum_coin_flipping(host, m, n, partner_id, rot_angle):

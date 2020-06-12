@@ -1,13 +1,13 @@
 from queue import Queue
-from components import protocols
-from objects.logger import Logger
-from objects.daemon_thread import DaemonThread
-from objects.packet import Packet
-from objects.qubit import Qubit
-from objects.quantum_storage import QuantumStorage
-from objects.classical_storage import ClassicalStorage
-from objects.message import Message
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.components import protocols
+from qunetsim.objects import Logger
+from qunetsim.objects.daemon_thread import DaemonThread
+from qunetsim.objects.packet import Packet
+from qunetsim.objects.qubit import Qubit
+from qunetsim.objects import QuantumStorage
+from qunetsim.objects import ClassicalStorage
+from qunetsim.objects import Message
+from qunetsim.backends import EQSNBackend
 import uuid
 import time
 

@@ -1,6 +1,6 @@
-from components.host import Host
-from components.network import Network
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.backends import EQSNBackend
 
 
 def main():

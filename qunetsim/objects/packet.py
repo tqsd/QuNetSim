@@ -1,5 +1,5 @@
-from objects.qubit import Qubit
-from components import protocols
+from qunetsim.objects.qubit import Qubit
+from qunetsim.components import protocols
 
 # DATA KINDS
 SIGNAL = 'signal'

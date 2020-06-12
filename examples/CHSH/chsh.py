@@ -1,8 +1,8 @@
 import math
 import random
-from components.host import Host
-from components.network import Network
-from backends.projectq_backend import ProjectQBackend
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.backends.projectq_backend import ProjectQBackend
 
 PLAYS = 20
 

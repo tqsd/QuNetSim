@@ -4,16 +4,15 @@ from queue import Queue
 import time
 import random
 
-from objects.qubit import Qubit
+from qunetsim.objects.qubit import Qubit
 
-from components import protocols
-from objects.logger import Logger
-from objects.daemon_thread import DaemonThread
+from qunetsim.components import protocols
+from qunetsim.objects import Logger
+from qunetsim.objects.daemon_thread import DaemonThread
 from inspect import signature
 
-from objects.packet import Packet
-from objects.routing_packet import RoutingPacket
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.objects import RoutingPacket
+from qunetsim.backends import EQSNBackend
 
 
 # Network singleton

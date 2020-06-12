@@ -1,7 +1,7 @@
-import components.protocols as protocols
-from components.network import Network
-from components.host import Host
-from backends.cqc_backend import CQCBackend
+from qunetsim import components as protocols
+from qunetsim.components import Network
+from qunetsim.components import Host
+from qunetsim.backends import CQCBackend
 
 
 def main():

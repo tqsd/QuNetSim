@@ -1,5 +1,5 @@
 import unittest
-from components.host import Host
+from qunetsim.components import Host
 from random import randint
 
 

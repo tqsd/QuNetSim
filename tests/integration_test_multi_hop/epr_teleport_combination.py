@@ -2,9 +2,9 @@ import sys
 import time
 
 sys.path.append("../..")
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.objects.qubit import Qubit
 
 MAX_WAIT = 20
 

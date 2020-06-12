@@ -125,11 +125,11 @@ The full example is below.
 ..  code-block:: python
     :linenos:
 
-    from components.host import Host
-    from components.network import Network
-    from objects.message import Message
-    from objects.qubit import Qubit
-    from components.logger import Logger
+    from qunetsim.components.host import Host
+    from qunetsim.components.network import Network
+    from qunetsim.objects.message import Message
+    from qunetsim.objects.qubit import Qubit
+    from qunetsim.components.logger import Logger
 
     Logger.DISABLED = True
 

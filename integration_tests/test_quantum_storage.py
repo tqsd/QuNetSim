@@ -1,7 +1,7 @@
 import unittest
 import uuid
 
-from objects.quantum_storage import QuantumStorage, STORAGE_LIMIT_ALL,\
+from qunetsim.objects import QuantumStorage, STORAGE_LIMIT_ALL,\
                                     STORAGE_LIMIT_PER_HOST,\
                                     STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
 

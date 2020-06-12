@@ -157,13 +157,13 @@ of those here. The full example is below, with the backends imported and set.
 
     import math
     import random
-    from components.host import Host
-    from components.network import Network
-    from components.logger import Logger
+    from qunetsim.components.host import Host
+    from qunetsim.components.network import Network
+    from qunetsim.components.logger import Logger
 
     # We have to import the ProjectQ backend.
     # One  should ensure the python library "projectq" is installed.
-    from backends.projectq_backend import ProjectQBackend
+    from qunetsim.backends.projectq_backend import ProjectQBackend
 
     # Disable QuNetSim logging
     Logger.DISABLED = True

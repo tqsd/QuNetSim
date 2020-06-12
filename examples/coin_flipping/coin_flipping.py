@@ -1,9 +1,9 @@
 import numpy as np
 
-from objects.qubit import Qubit
-from components.host import Host
-from components.network import Network
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.objects.qubit import Qubit
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.backends import EQSNBackend
 # from backends.cqc_backend import CQCBackend
 # from backends.projectq_backend import ProjectQBackend
 

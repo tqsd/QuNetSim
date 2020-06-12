@@ -1,7 +1,7 @@
 import unittest
-from objects.classical_storage import ClassicalStorage
-from objects.message import Message
-import components.protocols as protocols
+from qunetsim.objects import ClassicalStorage
+from qunetsim.objects import Message
+from qunetsim import components as protocols
 
 
 # @unittest.skip('')

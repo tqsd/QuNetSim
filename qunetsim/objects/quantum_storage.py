@@ -1,4 +1,4 @@
-from backends.RWLock import RWLock
+from qunetsim.backends.RWLock import RWLock
 
 STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2

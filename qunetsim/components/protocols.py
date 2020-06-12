@@ -1,10 +1,10 @@
-from objects.message import Message
-from objects.qubit import Qubit
+from qunetsim.objects import Message
+from qunetsim.objects.qubit import Qubit
 
 # DATA TYPES
-from objects.logger import Logger
-from components.network import Network
-from objects.packet import Packet
+from qunetsim.objects import Logger
+from qunetsim.components import Network
+from qunetsim.objects.packet import Packet
 import numpy as np
 import random
 

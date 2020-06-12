@@ -45,5 +45,5 @@ The most commonly used methods for Hosts are:
     * Run the function *protocol* with the parameters *protocol_params*.
 
 
-.. automodule:: components.host
+.. automodule:: qunetsim.components.host
    :members:

@@ -1,8 +1,7 @@
-from objects.qubit import Qubit
-from components.host import Host
-from components.network import Network
-from components import protocols
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.objects.qubit import Qubit
+from qunetsim.components import Host, protocols
+from qunetsim.components import Network
+from qunetsim.backends import EQSNBackend
 import unittest
 import time
 

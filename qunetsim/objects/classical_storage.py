@@ -1,4 +1,4 @@
-import components.protocols as protocols
+from qunetsim import components as protocols
 
 
 class ClassicalStorage(object):

@@ -1,7 +1,7 @@
 import random
-from components.host import Host
-from components.network import Network
-from cqc.pythonLib import CQCConnection, qubit
+from qunetsim.components import Host
+from qunetsim.components import Network
+from cqc.pythonLib import qubit
 import time
 
 WAIT_TIME = 15
