@@ -1050,6 +1050,18 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
+        connections = self.quantum_connections
+        establishment_probability = 0
+        for connection in connections:
+            if connection.receiver_id == receiver_id:
+                establishment_probability = connection.transmission_p
+                break
+        if (random.random() >= establishment_probability):
+            if await_ack:
+                return None, None
+            else:
+                return None
+
         seq_num = -1
         if no_ack:
             # if no ACKs are send, await_ack is always false
@@ -1087,6 +1099,18 @@ class Host:
         Returns:
            boolean: If await_ack=True, return the status of the ACK
         """
+        connections = self.quantum_connections
+        establishment_probability = 0
+        for connection in connections:
+            if connection.receiver_id == receiver_id:
+                establishment_probability = connection.transmission_p
+                break
+        if (random.random() >= establishment_probability):
+            if await_ack:
+                return None, None
+            else:
+                return None
+
         if message not in ['00', '01', '10', '11']:
             raise ValueError(
                 "Can only sent one of '00', '01', '10', or '11' as a superdense message")
@@ -1123,6 +1147,18 @@ class Host:
         Returns:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
+        connections = self.quantum_connections
+        establishment_probability = 0
+        for connection in connections:
+            if connection.receiver_id == receiver_id:
+                establishment_probability = connection.transmission_p
+                break
+        if (random.random() >= establishment_probability):
+            if await_ack:
+                return None, None
+            else:
+                return None
+
         q.blocked = True
         q_id = q.id
         seq_num = -1
