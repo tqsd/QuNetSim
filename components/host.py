@@ -1,3 +1,4 @@
+import random
 from queue import Queue
 from components import protocols
 from objects.logger import Logger
@@ -902,6 +903,19 @@ class Host:
         Returns:
             string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
+
+        connections = self.quantum_connections
+        establishment_probability = 0
+        for connection in connections:
+            if connection.receiver_id == receiver_id:
+                establishment_probability = connection.transmission_p
+                break
+        if (random.random() >= establishment_probability):
+            if await_ack:
+                return None, None
+            else:
+                return None
+
         if q_id is None:
             q_id = str(uuid.uuid4())
 

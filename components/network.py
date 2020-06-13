@@ -397,18 +397,12 @@ class Network:
         """
         host_sender = self.get_host(sender)
         lastfidelity = 1.0
+        print('Using ent swap')
 
         def establish_epr(net, s, r):
             if not net.shares_epr(s, r):
-                connections = self.get_host(s).quantum_connections
-                establishment_probability = 0
-                for connection in connections:
-                    if connection.receiver_id == self.get_host(r).host_id:
-                        establishment_probability = connection.transmission_p
-                        break
-                if (random.random() < establishment_probability):
-                    fidelity = self.get_host(s).fidelity
-                    self.get_host(s).send_epr(r, q_id, await_ack=True, fidelity=fidelity)
+                fidelity = self.get_host(s).fidelity
+                self.get_host(s).send_epr(r, q_id, await_ack=True, fidelity=fidelity)
                 #self._establish_epr(s, r, q_id, o_seq_num, blocked)
             else:
                 old_id = self.get_host(s).change_epr_qubit_id(r, q_id)
@@ -467,8 +461,6 @@ class Network:
         Instead doing an entanglement swap, for efficiency we establish EPR pairs
         directly for simulation, if an entanglement swap would have been possible.
 
-        EPR Pair transmission probability is set to 1 if sender and receiver are not directly connected for simulation purposes
-
         Args:
             sender (Host): Sender of the EPR pair
             receiver (Host): Receiver of the EPR pair
@@ -479,22 +471,13 @@ class Network:
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
 
-        connections = host_sender.quantum_connections
-        rand = random.random()
-        transmission_probability = 1
-        for connection in connections:
-            if connection.receiver_id == host_receiver.host_id:
-                transmission_probability = connection.transmission_p
-                break
-        #print('Transmission probability = %f'%transmission_probability)
-        if (rand < transmission_probability):
-            q1 = Qubit(host_sender)
-            q2 = Qubit(host_sender)
-            q1.H()
-            q1.cnot(q2)
-            host_sender.add_epr(receiver, q1, q_id, blocked)
-            host_receiver.add_epr(sender, q2, q_id, blocked)
-            host_receiver.send_ack(sender, o_seq_num)
+        q1 = Qubit(host_sender)
+        q2 = Qubit(host_sender)
+        q1.H()
+        q1.cnot(q2)
+        host_sender.add_epr(receiver, q1, q_id, blocked)
+        host_receiver.add_epr(sender, q2, q_id, blocked)
+        host_receiver.send_ack(sender, o_seq_num)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
