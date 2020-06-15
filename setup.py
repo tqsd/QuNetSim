@@ -5,16 +5,16 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='qunetsim',
-    version='0.0.12.post2',
+    version='0.1.0',
     scripts=['bin/template'],
-    author="Stephen Diadamo",
+    author="Stephen DiAdamo",
     author_email="stephen.diadamo@gmail.com",
     description="A Quantum Network Simulation Framework",
     license='MIT',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tqsd/QuNetSim",
-    download_url="https://github.com/tqsd/QuNetSim/releases/tag/0.0.12",
+    download_url="https://github.com/tqsd/QuNetSim/releases/tag/0.1.0",
     keywords = ['quantum', 'networks', 'simulator', 'internet', 'QuNetSim'],
     install_requires=[
         'eqsn',

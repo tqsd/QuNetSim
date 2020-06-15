@@ -1,20 +1,22 @@
-Metadata-Version: 1.2
+Metadata-Version: 2.1
 Name: qunetsim
-Version: 0.0.12.post2
+Version: 0.1.0
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
-Author: Stephen Diadamo
+Author: Stephen DiAdamo
 Author-email: stephen.diadamo@gmail.com
 License: MIT
-Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.0.12
+Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.1.0
 Description: [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=for-the-badge)](http://unitary.fund)
-        # QuNetSim
+        # QuNetSim 
+        
+        ![QuNetSim Tests](https://github.com/tqsd/QuNetSim/workflows/QuNetSim%20Tests/badge.svg)
         
         QuNetSim is a quantum-enabled network simulator that adds common quantum networking tasks like teleportation, superdense coding, sharing EPR pairs, etc. With QuNetSim, one can design and test robust quantum network protocols under various network conditions.
         
         See https://tqsd.github.io/QuNetSim/ for documentation.
         
-        ![QuNetSim Tests](https://github.com/tqsd/QuNetSim/workflows/QuNetSim%20Tests/badge.svg)
+        
         
 Keywords: quantum,networks,simulator,internet,QuNetSim
 Platform: UNKNOWN
@@ -26,3 +28,4 @@ Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.6
 Requires-Python: >=3.6
+Description-Content-Type: text/markdown
