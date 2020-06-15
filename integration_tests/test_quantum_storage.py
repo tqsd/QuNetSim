@@ -5,6 +5,7 @@ from objects.quantum_storage import QuantumStorage, STORAGE_LIMIT_ALL,\
                                     STORAGE_LIMIT_PER_HOST,\
                                     STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
 
+
 class FakeQubit(object):
 
     def __init__(self, id=None):
@@ -22,7 +23,7 @@ class FakeQubit(object):
     def __str__(self):
         return "Qubit with id %s" % self.id
 
-# @unittest.skip('')
+
 class TestQuantumStorage(unittest.TestCase):
     backends = []
 
