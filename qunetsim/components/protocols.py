@@ -1,58 +1,10 @@
-from objects.message import Message
-from objects.qubit import Qubit
-
-# DATA TYPES
-from objects.logger import Logger
-from components.network import Network
-from objects.packet import Packet
+from qunetsim.objects import Logger, Packet, Message, Qubit
+from qunetsim.components.network import Network
+from qunetsim.utils.constants import Constants
 import numpy as np
 import random
 
-# CONSTANTS
-GENERATE_EPR_IF_NONE = 'generate_epr_if_none'
-AWAIT_ACK = 'await_ack'
-SEQUENCE_NUMBER = 'sequence_number'
-PAYLOAD = 'payload'
-PAYLOAD_TYPE = 'payload_type'
-SENDER = 'sender'
-RECEIVER = 'receiver'
-PROTOCOL = 'protocol'
-
 network = Network.get_instance()
-
-# WAIT_TIME
-WAIT_TIME = 10
-
-# QUBIT TYPES
-EPR = 0
-DATA = 1
-
-# DATA KINDS
-SIGNAL = 'signal'
-CLASSICAL = 'classical'
-QUANTUM = 'quantum'
-
-# SIGNALS
-ACK = 'qunetsim_ACK__'
-NACK = 'qunetsim_NACK__'
-
-# PROTOCOL IDs
-REC_EPR = 'rec_epr'
-SEND_EPR = 'send_epr'
-REC_TELEPORT = 'rec_teleport'
-SEND_TELEPORT = 'send_teleport'
-REC_SUPERDENSE = 'rec_superdense'
-SEND_SUPERDENSE = 'send_superdense'
-REC_CLASSICAL = 'rec_classical'
-SEND_CLASSICAL = 'send_classical'
-SEND_BROADCAST = 'send_broadcast'
-RELAY = 'relay'
-SEND_QUBIT = 'send_qubit'
-REC_QUBIT = 'rec_qubit'
-SEND_KEY = 'send_key'
-REC_KEY = 'rec_key'
-SEND_GHZ = 'send_ghz'
-REC_GHZ = 'rec_ghz'
 
 
 def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
@@ -73,16 +25,6 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
 
     packet = Packet(sender, receiver, protocol, payload_type, payload,
                     sequence_number=sequence_num, await_ack=await_ack)
-    # {
-    #     SENDER: sender,
-    #     RECEIVER: receiver,
-    #     PROTOCOL: protocol,
-    #     PAYLOAD_TYPE: payload_type,
-    #     PAYLOAD: payload,
-    #     SEQUENCE_NUMBER: sequence_num,
-    #     AWAIT_ACK: await_ack
-    # }
-
     return packet
 
 
@@ -99,40 +41,40 @@ def process(packet):
     """
 
     protocol = packet.protocol
-    if protocol == SEND_TELEPORT:
+    if protocol == Constants.SEND_TELEPORT:
         return _send_teleport(packet)
-    elif protocol == REC_TELEPORT:
+    elif protocol == Constants.REC_TELEPORT:
         return _rec_teleport(packet)
-    elif protocol == SEND_CLASSICAL:
+    elif protocol == Constants.SEND_CLASSICAL:
         return _send_classical(packet)
-    elif protocol == REC_CLASSICAL:
+    elif protocol == Constants.REC_CLASSICAL:
         return _rec_classical(packet)
-    elif protocol == REC_EPR:
+    elif protocol == Constants.REC_EPR:
         return _rec_epr(packet)
-    elif protocol == SEND_EPR:
+    elif protocol == Constants.SEND_EPR:
         return _send_epr(packet)
-    elif protocol == SEND_SUPERDENSE:
+    elif protocol == Constants.SEND_SUPERDENSE:
         return _send_superdense(packet)
-    elif protocol == REC_SUPERDENSE:
+    elif protocol == Constants.REC_SUPERDENSE:
         return _rec_superdense(packet)
-    elif protocol == SEND_QUBIT:
+    elif protocol == Constants.SEND_QUBIT:
         return _send_qubit(packet)
-    elif protocol == REC_QUBIT:
+    elif protocol == Constants.REC_QUBIT:
         return _rec_qubit(packet)
-    elif protocol == RELAY:
+    elif protocol == Constants.RELAY:
         return _relay_message(packet)
-    elif protocol == SEND_KEY:
+    elif protocol == Constants.SEND_KEY:
         return _send_key(packet)
-    elif protocol == REC_KEY:
+    elif protocol == Constants.REC_KEY:
         return _rec_key(packet)
-    elif protocol == SEND_GHZ:
+    elif protocol == Constants.SEND_GHZ:
         return _send_ghz(packet)
-    elif protocol == REC_GHZ:
+    elif protocol == Constants.REC_GHZ:
         return _rec_ghz(packet)
-    elif protocol == SEND_BROADCAST:
+    elif protocol == Constants.SEND_BROADCAST:
         return _send_broadcast(packet)
     else:
-        Logger.get_instance().error('protocol not defined')
+        Logger.get_instance().error('protocol not defined: ' + str(protocol))
 
 
 def _relay_message(packet):
@@ -158,13 +100,13 @@ def _send_broadcast(packet):
 
     for host in network.ARP.keys():
         if sender != host:
-            seq_num = host_sender._get_sequence_number(host)
+            seq_num = host_sender.get_next_sequence_number(host)
             message.seq_num = seq_num
             new_packet = Packet(sender=sender,
                                 receiver=host,
-                                protocol=REC_CLASSICAL,
+                                protocol=Constants.REC_CLASSICAL,
                                 payload=message,
-                                payload_type=CLASSICAL,
+                                payload_type=Constants.CLASSICAL,
                                 sequence_number=seq_num,
                                 await_ack=False)
             network.send(new_packet)
@@ -178,7 +120,7 @@ def _send_classical(packet):
        packet (Packet): The packet in which to transmit.
 
     """
-    packet.protocol = REC_CLASSICAL
+    packet.protocol = Constants.REC_CLASSICAL
     network.send(packet)
 
 
@@ -194,8 +136,8 @@ def _rec_classical(packet):
         dict : A dictionary consisting of 'message' and 'sequence number'
     """
     message = packet.payload
-    if packet.payload.content == ACK:
-        message = Message(sender=packet.sender, content=ACK, seq_num=packet.seq_num)
+    if packet.payload.content == Constants.ACK:
+        message = Message(sender=packet.sender, content=Constants.ACK, seq_num=packet.seq_num)
         Logger.get_instance().log(packet.receiver + " received ACK from " + packet.sender
                                   + " with sequence number " + str(packet.seq_num))
     else:
@@ -212,7 +154,7 @@ def _send_qubit(packet):
     Args:
         packet (Packet): The packet in which to transmit.
     """
-    packet.protocol = REC_QUBIT
+    packet.protocol = Constants.REC_QUBIT
     network.send(packet)
 
 
@@ -246,21 +188,21 @@ def _send_teleport(packet):
     if 'type' in packet.payload:
         q_type = packet.payload['type']
     else:
-        q_type = DATA
+        q_type = Constants.DATA
 
     q = packet.payload['q']
     host_sender = network.get_host(packet.sender)
 
-    if GENERATE_EPR_IF_NONE in packet.payload and packet.payload[GENERATE_EPR_IF_NONE]:
+    if Constants.GENERATE_EPR_IF_NONE in packet.payload and packet.payload[Constants.GENERATE_EPR_IF_NONE]:
         if not network.shares_epr(packet.sender, packet.receiver):
             Logger.get_instance().log(
                 'No shared EPRs - Generating one between ' + packet.sender + " and " + packet.receiver)
             host_sender.send_epr(packet.receiver, q_id=q.id, await_ack=True, block=True)
 
     if 'eq_id' in packet.payload:
-        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['eq_id'], wait=WAIT_TIME)
+        epr_teleport = host_sender.get_epr(packet.receiver, packet.payload['eq_id'], wait=Constants.WAIT_TIME)
     else:
-        epr_teleport = host_sender.get_epr(packet.receiver, wait=WAIT_TIME)
+        epr_teleport = host_sender.get_epr(packet.receiver, wait=Constants.WAIT_TIME)
 
     assert epr_teleport is not None
     q.cnot(epr_teleport)
@@ -275,7 +217,7 @@ def _send_teleport(packet):
         'node': node
     }
 
-    if q_type == EPR:
+    if q_type == Constants.EPR:
         data['q_id'] = packet.payload['eq_id']
         data['eq_id'] = packet.payload['eq_id']
     else:
@@ -288,7 +230,7 @@ def _send_teleport(packet):
         data['ack'] = packet.payload['ack']
 
     packet.payload = data
-    packet.protocol = REC_TELEPORT
+    packet.protocol = Constants.REC_TELEPORT
     network.send(packet)
 
 
@@ -305,7 +247,7 @@ def _rec_teleport(packet):
     q_id = payload['q_id']
     eq_id = payload['eq_id']
 
-    q = host_receiver.get_epr(packet.sender, eq_id, wait=WAIT_TIME)
+    q = host_receiver.get_epr(packet.sender, eq_id, wait=Constants.WAIT_TIME)
     if q is None:
         raise Exception("failed to get EPR")
 
@@ -319,10 +261,10 @@ def _rec_teleport(packet):
     if b == 1:
         q.X()
 
-    if payload['type'] == EPR:
+    if payload['type'] == Constants.EPR:
         host_receiver.add_epr(epr_host, q)
 
-    elif payload['type'] == DATA:
+    elif payload['type'] == Constants.DATA:
         host_receiver.add_data_qubit(epr_host, q, q_id=q_id)
 
     # Always send ACK!
@@ -341,7 +283,7 @@ def _send_epr(packet):
     Args:
         packet (Packet): The packet in which to transmit.
     """
-    packet.protocol = REC_EPR
+    packet.protocol = Constants.REC_EPR
     network.send(packet)
 
 
@@ -398,7 +340,7 @@ def _send_superdense(packet):
         Logger.get_instance().log('No shared EPRs - Generating one between ' + sender + " and " + receiver)
         q_id, _ = host_sender.send_epr(receiver, await_ack=True, block=True)
         assert q_id is not None
-        q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=WAIT_TIME)
+        q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=Constants.WAIT_TIME)
 
     else:
         q_superdense = host_sender.get_epr(receiver, wait=5)
@@ -412,8 +354,8 @@ def _send_superdense(packet):
     # change id, so that at receiving they are not the same
     q_superdense.id = "E" + q_superdense.id
     packet.payload = q_superdense
-    packet.protocol = REC_SUPERDENSE
-    packet.payload_type = QUANTUM
+    packet.protocol = Constants.REC_SUPERDENSE
+    packet.payload_type = Constants.QUANTUM
     network.send(packet)
 
 
@@ -433,9 +375,9 @@ def _rec_superdense(packet):
 
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=WAIT_TIME)
+    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=Constants.WAIT_TIME)
     # the shared EPR id is the DATA id without the first letter.
-    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=WAIT_TIME)
+    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=Constants.WAIT_TIME)
 
     assert q1 is not None and q2 is not None
 
@@ -449,9 +391,9 @@ def _rec_superdense(packet):
 def _send_key(packet):
     receiver = network.get_host(packet.receiver)
     sender = network.get_host(packet.sender)
-    key_size = packet.payload['keysize']
+    key_size = packet.payload[Constants.KEYSIZE]
 
-    packet.protocol = REC_KEY
+    packet.protocol = Constants.KEY
     network.send(packet)
 
     secret_key = np.random.randint(2, size=key_size)
@@ -481,7 +423,7 @@ def _send_key(packet):
             message = sender.get_next_classical_message(receiver.host_id, msg_buff, sequence_nr)
             # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
             # otherwise, send 1 and repeat.
-            if message == ("%d:%d") % (sequence_nr, base):
+            if message == "%d:%d" % (sequence_nr, base):
                 ack = True
                 sender.send_classical(receiver.host_id, ("%d:0" % sequence_nr), await_ack=True)
             else:
@@ -492,12 +434,17 @@ def _send_key(packet):
 
 
 def _rec_key(packet):
+    """
+    Receive a QKD key.
+
+    Args:
+        packet (Packet): The incoming packet
+    """
     receiver = network.get_host(packet.receiver)
     sender = network.get_host(packet.sender)
-    key_size = packet.payload['keysize']
+    key_size = packet.payload[Constants.KEYSIZE]
 
     msg_buff = []
-    key = None
 
     sequence_nr = 0
     received_counter = 0
@@ -508,9 +455,9 @@ def _rec_key(packet):
         measurement_base = random.randint(0, 1)
 
         # wait for the qubit
-        q_bit = receiver.get_data_qubit(sender.host_id, wait=WAIT_TIME)
+        q_bit = receiver.get_data_qubit(sender.host_id, wait=Constants.WAIT_TIME)
         while q_bit is None:
-            q_bit = receiver.get_data_qubit(sender.host_id, wait=WAIT_TIME)
+            q_bit = receiver.get_data_qubit(sender.host_id, wait=Constants.WAIT_TIME)
 
         # measure qubit in right measurement basis
         if measurement_base == 1:
@@ -537,9 +484,13 @@ def _send_ghz(packet):
     """
     Gets GHZ qubits and distributes the to all hosts.
     One qubit is stored in own storage.
+
+    Args:
+        packet (Packet): The incoming packet
+
     """
-    host_list = packet.payload['hosts']
-    qubits = packet.payload['qubits']
+    host_list = packet.payload[Constants.HOSTS]
+    qubits = packet.payload[Constants.QUBITS]
     sender = packet.sender
     await_ack = packet.await_ack
     seq_num_list = packet.seq_num
@@ -547,9 +498,9 @@ def _send_ghz(packet):
     for host, qubit, seq_num in zip(host_list, qubits, seq_num_list):
         new_packet = Packet(sender=sender,
                             receiver=host,
-                            protocol=REC_GHZ,
+                            protocol=Constants.REC_GHZ,
                             payload=qubit,
-                            payload_type=QUANTUM,
+                            payload_type=Constants.QUANTUM,
                             sequence_number=seq_num,
                             await_ack=await_ack)
         network.send(new_packet)
@@ -558,6 +509,9 @@ def _send_ghz(packet):
 def _rec_ghz(packet):
     """
     Receives a GHZ state and stores it in quantum storage.
+
+    Args:
+        packet (Packet): The incoming packet
     """
     from_host = packet.sender
     receiver = packet.receiver
@@ -597,12 +551,11 @@ def _decode_superdense(q1, q2):
     Return the message encoded into q1 with the support of q2.
 
     Args:
-    q1: the qubit the message is encoded into
-    q1: the supporting entangled pair
+        q1 (Qubit): The qubit the message is encoded into
+        q1 (Qubit): The supporting entangled pair
 
     Returns:
-        string: A string of decoded message.
-
+        (str): A string of decoded message.
     """
     q1.cnot(q2)
     q1.H()
@@ -611,4 +564,4 @@ def _decode_superdense(q1, q2):
     a = q1.measure()
     b = q2.measure()
 
-    return str(a) + str(b)
+    return "%d%d" % (a, b)

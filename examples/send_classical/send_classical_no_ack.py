@@ -1,7 +1,6 @@
 import time
-from components.host import Host
-from backends.cqc_backend import CQCBackend
-from components.network import Network
+from qunetsim.components import Host
+from qunetsim.components import Network
 
 
 def main():

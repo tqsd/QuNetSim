@@ -1,8 +1,9 @@
-from components.host import Host
-from components.network import Network
-from objects.logger import Logger
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.objects import Logger
+from qunetsim.backends import ProjectQBackend
 
-Logger.DISABLED = True
+Logger.DISABLED = False
 
 
 def main():

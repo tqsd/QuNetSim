@@ -1,10 +1,7 @@
-from objects.qubit import Qubit
-from components.network import Network
-from components.host import Host
-from backends.cqc_backend import CQCBackend
-from cqc.pythonLib import CQCConnection
+from qunetsim.components.network import Network
+from qunetsim.components.host import Host
+from qunetsim.backends import CQCBackend
 import sys
-import time
 
 sys.path.append("../..")
 all_backends = [(CQCBackend, "Simulaqron")]

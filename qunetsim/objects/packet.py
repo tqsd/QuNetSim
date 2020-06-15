@@ -1,12 +1,5 @@
-from objects.qubit import Qubit
-from components import protocols
-
-# DATA KINDS
-SIGNAL = 'signal'
-CLASSICAL = 'classical'
-QUANTUM = 'quantum'
-ACK = 'ACK'
-NACK = 'NACK'
+from .qubit import Qubit
+from qunetsim.utils.constants import Constants
 
 
 class Packet(object):
@@ -29,11 +22,11 @@ class Packet(object):
             sequence_number (int): Sequence number of the packet.
             await_ack(bool): If the sender should await an ACK
         """
-        if payload_type == QUANTUM:
+        if payload_type == Constants.QUANTUM:
             if not isinstance(payload, Qubit):
                 raise ValueError("For a quantum payload, the payload has to be a qubit!")
 
-        if protocol == protocols.RELAY:
+        if protocol == Constants.RELAY:
             raise ValueError("Use a Routing packet for the relay protocol.")
 
         self._sender = sender

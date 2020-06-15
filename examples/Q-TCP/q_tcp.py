@@ -1,14 +1,13 @@
 import time
 import sys
 import numpy as np
-from components.host import Host
-from components.network import Network
-from objects.logger import Logger
+from qunetsim.components import Host, Network
+from qunetsim.objects import Logger
 
-from objects.qubit import Qubit
-#from backends.eqsn_backend import EQSNBackend
-from backends.cqc_backend import CQCBackend
-#from backends.projectq_backend import ProjectQBackend
+from qunetsim.objects import Qubit
+# from backends import EQSNBackend
+# from backends import ProjectQBackend
+from qunetsim.backends import CQCBackend
 
 thread_1_return = None
 thread_2_return = None
@@ -291,7 +290,7 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
     if errors == 0:
         print('No error exist in TCP packet')
     else:
-       print('There were errors in the TCP transmission')
+        print('There were errors in the TCP transmission')
     print('---------')
 
     rec_bits = []
@@ -367,7 +366,7 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
     back = CQCBackend()
-    network.start(nodes,back)
+    network.start(nodes, back)
     network.delay = 0.0
 
     host_alice = Host('Alice', back)
@@ -415,7 +414,6 @@ def main():
             print('TCP Connection not successful : EXITING')
             sys.exit(1)
         pass
-
 
     start_time = time.time()
     while time.time() - start_time < 150:

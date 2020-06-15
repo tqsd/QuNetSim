@@ -1,7 +1,7 @@
-import components.protocols as protocols
-from components.network import Network
-from components.host import Host
-from backends.cqc_backend import CQCBackend
+from qunetsim import components as protocols
+from qunetsim.components.network import Network
+from qunetsim.components.host import Host
+from qunetsim.backends import CQCBackend
 
 
 def main():
@@ -39,9 +39,9 @@ def main():
     messages = hosts['alice'].classical
     # print([m.seq_num for m in messages])
     for m in messages:
-        if m.content == protocols.ACK and m.seq_num == 0:
+        if m.content == Constants.ACK and m.seq_num == 0:
             saw_ack_1 = True
-        if m.content == protocols.ACK and m.seq_num == 1:
+        if m.content == Constants.ACK and m.seq_num == 1:
             saw_ack_2 = True
         if saw_ack_1 and saw_ack_2:
             break

@@ -1,7 +1,5 @@
-import components.protocols as protocols
-from components.network import Network
-from components.host import Host
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.components import Host, Network
+from qunetsim.backends import EQSNBackend
 
 
 def main():
@@ -41,7 +39,7 @@ def main():
     saw_ack = [False, False, False, False]
     messages = hosts['alice'].classical
     for m in messages:
-        if m.content == protocols.ACK:
+        if m.content == Constants.ACK:
             saw_ack[m.seq_num] = True
 
     for ack in saw_ack:

@@ -134,6 +134,13 @@ The full example is below.
 ..  code-block:: python
     :linenos:
 
+    from qunetsim.components import Host
+    from qunetsim.components import Network
+    from qunetsim.objects import Logger
+    import networkx
+    import time
+
+
     def generate_entanglement(host):
         """
         Generate entanglement if the host has nothing to process (i.e. is idle).

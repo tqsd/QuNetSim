@@ -89,11 +89,11 @@ Full example:
 
     import time
 
-    from components.host import Host
-    from components.network import Network
+    from qunetsim.components import Host
+    from qunetsim.components import Network
     import random
 
-    from objects.qubit import Qubit
+    from qunetsim.objects import Qubit
 
 
     def distribute(host, nodes):

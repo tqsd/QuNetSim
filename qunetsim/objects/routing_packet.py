@@ -1,4 +1,4 @@
-from objects.packet import Packet
+from qunetsim.objects.packet import Packet
 
 
 class RoutingPacket(object):

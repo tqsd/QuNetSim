@@ -1,8 +1,7 @@
 import math
 import random
-from components.host import Host
-from components.network import Network
-from backends.projectq_backend import ProjectQBackend
+from qunetsim.components import Host
+from qunetsim.components import Network
 
 PLAYS = 20
 
@@ -112,10 +111,7 @@ def referee(ref, alice_id, bob_id):
 
 def main():
     network = Network.get_instance()
-
-    nodes = ['A', 'B', 'C']
-    network.delay = 0.1
-    network.start(nodes)
+    network.start()
 
     host_A = Host('A')
     host_A.add_c_connection('C')
@@ -153,7 +149,7 @@ def main():
         print('Generating initial entanglement...')
         for i in range(PLAYS):
             host_A.send_epr('B', await_ack=True)
-            print('created %d EPR pairs' % (i+1))
+            print('created %d EPR pairs' % (i + 1))
         print('Done generating initial entanglement')
     else:
         network.delay = 0.0

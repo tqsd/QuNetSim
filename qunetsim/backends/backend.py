@@ -1,12 +1,10 @@
-
-
 class Backend(object):
     """
     Definition of how a backend has to look and behave like.
     """
 
     def __init__(self):
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def start(self, **kwargs):
@@ -56,7 +54,7 @@ class Backend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
@@ -72,7 +70,7 @@ class Backend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
@@ -87,7 +85,7 @@ class Backend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     ##########################
@@ -101,7 +99,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def X(self, qubit):
@@ -111,7 +109,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def Y(self, qubit):
@@ -121,7 +119,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def Z(self, qubit):
@@ -131,7 +129,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def H(self, qubit):
@@ -141,7 +139,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def T(self, qubit):
@@ -151,7 +149,7 @@ class Backend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def rx(self, qubit, phi):
@@ -162,7 +160,7 @@ class Backend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of rotation in Rad.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def ry(self, qubit, phi):
@@ -173,7 +171,7 @@ class Backend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of rotation in Rad.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def rz(self, phi):
@@ -184,7 +182,7 @@ class Backend(object):
             qubit (Qubit): Qubit on which gate should be applied to.
             phi (float): Amount of rotation in Rad.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def cnot(self, qubit, target):
@@ -195,7 +193,7 @@ class Backend(object):
             qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def cphase(self, qubit, target):
@@ -206,7 +204,7 @@ class Backend(object):
             qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def custom_gate(self, qubit, gate):
@@ -217,7 +215,7 @@ class Backend(object):
             qubit(Qubit): Qubit to which the gate is applied.
             gate(np.ndarray): 2x2 array of the gate.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def custom_controlled_gate(self, qubit, target, gate):
@@ -229,7 +227,7 @@ class Backend(object):
             target(Qubit): Qubit on which the gate is applied.
             gate(nd.array): 2x2 array for the gate applied to target.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
@@ -241,7 +239,7 @@ class Backend(object):
             qubit2(Qubit): Second qubit of the gate.
             gate(np.ndarray): 4x4 array for the gate applied.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def measure(self, qubit, non_destructive):
@@ -256,7 +254,7 @@ class Backend(object):
         Returns:
             The value which has been measured.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
     def release(self, qubit):
@@ -266,5 +264,5 @@ class Backend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        raise(EnvironmentError("This is only an interface, not \
+        raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
