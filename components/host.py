@@ -1355,6 +1355,4 @@ def _get_qubit(store, host_id, q_id, purpose, wait=0):
     Returns:
          Qubit: Qubit received from the host with *host_id* and *q_id*.
     """
-    if wait > 0:
-        return store.get_qubit_from_host_with_callback(host_id, q_id, purpose, wait)
-    return store.get_qubit_from_host(host_id, q_id, purpose)
+    return store.get_qubit_from_host(host_id, q_id, purpose, wait)

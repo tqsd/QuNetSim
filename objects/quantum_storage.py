@@ -28,10 +28,13 @@ class QuantumStorage(object):
         # read write lock, for threaded access
         self.lock = RWLock()
 
-        # for callbacks
-        self._callback_dict = {}
-        self._callback_id = 0
-        self._pending_callbacks = 0
+        # for tracking pending requests
+        # dictionary tracks the request made by a pending request.
+        self._pending_request_dict = {}
+        # Determines a unique ID for a pending request.
+        self._request_id = 0
+        # Amount of pending requests
+        self._amount_pending_requests = 0
 
     def __str__(self):
         out = ""
@@ -188,7 +191,7 @@ class QuantumStorage(object):
         self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
 
         # Check if a Qubit of one of the callbacks has arrived
-        self._check_all_callbacks()
+        self._check_all_requests()
         self.lock.release_write()
 
     def get_all_qubits_from_host(self, from_host_id, purpose=None):
@@ -207,43 +210,70 @@ class QuantumStorage(object):
         self.lock.release_write()
         return []
 
-    def _check_all_callbacks(self):
-        for id, args in self._callback_dict.items():
+    def _check_all_requests(self):
+        """
+        Checks if any of the pending requests is now fullfilled.
+
+        Returns:
+            If a request is fullfilled, the request is handeled and the function
+            returns the qubit of this request.
+        """
+        for id, args in self._pending_request_dict.items():
             ret = self._get_qubit_from_host(args[1], args[2], args[3])
             if ret is not None:
                 args[0].put(ret)
-                self._remove_callback(id)
+                self._remove_request(id)
                 return ret
 
-    def _add_callback(self, args):
+    def _add_request(self, args):
         """
-        Adds a callback.
+        Adds a new request to the quantum storage. If a new qubit arrives, it
+        is checked if the request for the qubit is satisfied.
+
         Args:
-            args(list): [Queue, from_host_id, q_id, purpose]
+            args (list): [Queue, from_host_id, q_id, purpose]
         """
-        self._callback_dict[self._callback_id] = args
-        self._callback_id += 1
-        self._pending_callbacks += 1
+        self._pending_request_dict[self._request_id] = args
+        self._request_id += 1
+        self._amount_pending_requests += 1
 
-    def _remove_callback(self, id):
+    def _remove_request(self, id):
         """
-        Removes a callback from the pending callbacks.
-        """
-        if id in self._callback_dict:
-            del self._callback_dict[id]
-        self._pending_callbacks -= 1
+        Removes a pending request from the request dict.
 
-    def get_qubit_from_host_with_callback(self, from_host_id, q_id=None, purpose=None, wait=0):
+        Args:
+            id (int): The id of the request to remove.
         """
+        if id in self._pending_request_dict:
+            del self._pending_request_dict[id]
+        self._amount_pending_requests -= 1
+
+    def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None, wait=0):
+        """
+        Returns next qubit which has been received from a host. If the qubit has
+        not been receives yet, the thread is blocked for a maxumum of the wait time,
+        till the qubit arrives (The default is 0). If the id is given, the exact qubit with the id
+        is returned, or None if it does not exist.
+        The qubit is removed from the quantum storage.
+
+        Args:
+            from_host_id (String): Host id from who the qubit has been received.
+            q_id (String): Optional Id, to return the exact qubit with the Id.
+            purpose (String): Optional, purpose of the Qubit.
+            wait (int): Default is 0. The maximum blocking time.
+
+        Returns:
+            If such a qubit exists, it returns the qubit. Otherwise, None
+            is returned.
         """
         self.lock.acquire_write()
-        ret = self.get_qubit_from_host(from_host_id, q_id, purpose)
-        if ret is not None:
+        ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
+        if ret is not None or wait == 0:
             self.lock.release_write()
             return ret
         q = queue.Queue()
         args = [q, from_host_id, q_id, purpose]
-        id = self._add_callback(args)
+        id = self._add_request(args)
         self.lock.release_write()
         ret = None
         try:
@@ -252,33 +282,14 @@ class QuantumStorage(object):
             pass
         if ret is None:
             self.lock.acquire_write()
-            self._remove_callback(id)
+            self._remove_request(id)
             self.lock.release_write()
-        return ret
-
-    def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None):
-        """
-        Returns next qubit which has been received from a host. If id is
-        given, the exact qubit with the id is returned, or None if it does not exist.
-        The qubit is removed from the quantum storage.
-
-        Args:
-            from_host_id (String): Host id from who the qubit has been received.
-            q_id (String): Optional Id, to return the exact qubit with the Id.
-            purpose (String): Optional, purpose of the Qubit.
-
-        Returns:
-            If such a qubit exists, it returns the qubit. Otherwise, None
-            is returned.
-        """
-        self.lock.acquire_write()
-        ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
-        self.lock.release_write()
         return ret
 
     def _get_qubit_from_host(self, from_host_id, q_id, purpose):
         if q_id is not None:
-            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(q_id, from_host_id, purpose=purpose)
+            qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                q_id, from_host_id, purpose=purpose)
             if qubit is not None:
                 qubit, purp = qubit
                 if from_host_id not in self._host_dict or \
@@ -294,7 +305,8 @@ class QuantumStorage(object):
             return None
         if self._host_dict[from_host_id]:
             qubit = self._host_dict[from_host_id].pop(0)
-            out = self._pop_qubit_with_id_and_host_from_qubit_dict(qubit.id, from_host_id, purpose=purpose)
+            out = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                qubit.id, from_host_id, purpose=purpose)
             if out is not None:
                 self._decrease_qubit_counter(from_host_id)
                 return out[0]
