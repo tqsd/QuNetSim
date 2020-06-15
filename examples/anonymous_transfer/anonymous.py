@@ -1,7 +1,7 @@
 import time
 
-from qunetsim.components.host import Host
-from qunetsim.qunetsim.components import Network
+from qunetsim.components import Host
+from qunetsim.components import Network
 import random
 
 from qunetsim.objects import Qubit

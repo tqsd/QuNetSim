@@ -157,8 +157,8 @@ of those here. The full example is below, with the backends imported and set.
 
     import math
     import random
-    from qunetsim.components.host import Host
-    from qunetsim.components.network import Network
+    from qunetsim.components import Host
+    from qunetsim.components import Network
     from qunetsim.objects import Logger
 
     # Disable QuNetSim logging

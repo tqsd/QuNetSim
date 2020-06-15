@@ -1,25 +1,26 @@
-from qunetsim.components.host import Host
-from qunetsim.qunetsim.components import Network
+from qunetsim.components import Host
+from qunetsim.components import Network
 
+import time
 
 def main():
     network = Network.get_instance()
     network.start()
     network.delay = 0.2
 
-    host_alice = Host('Alice', backend)
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.start()
 
-    host_bob = Host('Bob', backend)
+    host_bob = Host('Bob')
     host_bob.add_connections(['Alice', 'Eve'])
     host_bob.start()
 
-    host_eve = Host('Eve', backend)
+    host_eve = Host('Eve')
     host_eve.add_connections(['Bob', 'Dean'])
     host_eve.start()
 
-    host_dean = Host('Dean', backend)
+    host_dean = Host('Dean')
     host_dean.add_connection('Eve')
     host_dean.start()
 
