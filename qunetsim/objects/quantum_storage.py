@@ -286,12 +286,16 @@ class QuantumStorage(object):
             from_host_id (String): Host id from who the qubit has been received.
             q_id (String): Optional Id, to return the exact qubit with the Id.
             purpose (String): Optional, purpose of the Qubit.
-            wait (int): Default is 0. The maximum blocking time.
+            wait (int): Default is 0. The maximum blocking time. -1 if blocking forever.
 
         Returns:
             (bool): If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
+        # Block forever if wait is -1
+        if wait == -1:
+            wait = None
+
         self.lock.acquire_write()
         ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
         if ret is not None or wait == 0:
