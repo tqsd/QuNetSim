@@ -22,7 +22,7 @@ import sys
 project = 'QuNetSim'
 copyright = '2019, Stephen DiAdamo, Janis Nötzel'
 author = 'TQSD'
-version = '0.0.1'
+version = '0.1.0'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
