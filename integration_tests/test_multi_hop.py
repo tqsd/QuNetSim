@@ -214,3 +214,20 @@ class TestTwoHop(unittest.TestCase):
         self.assertIsNotNone(q_teleport)
         self.assertEqual(q1_epr.measure(), q2_epr.measure())
         self.assertEqual(q_teleport.measure(), 1)
+
+    # @unittest.skip('')
+    def test_get_before_send(self):
+        def eve_do(eve):
+            q = hosts['eve'].get_data_qubit(hosts['alice'].host_id, wait=10)
+            self.assertNotEqual(q, None)
+
+        def alice_do(alice):
+            time.sleep(1)
+            q = Qubit(hosts['alice'])
+            _ = hosts['alice'].send_qubit(hosts['eve'].host_id, q)
+
+        t1 = hosts['eve'].run_protocol(eve_do)
+        t2 = hosts['alice'].run_protocol(alice_do)
+
+        t1.join()
+        t2.join()

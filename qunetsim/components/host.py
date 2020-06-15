@@ -878,7 +878,7 @@ class Host(object):
 
         return q_id
 
-    def get_ghz(self, host_id, q_id=None, wait=-1):
+    def get_ghz(self, host_id, q_id=None, wait=0):
         """
         Gets the GHZ qubit which has been created by the host with the host ID *host_id*.
         It is not necessary to know with whom the states are shared.
@@ -893,21 +893,7 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        def _wait():
-            nonlocal q
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
-                time.sleep(self.delay)
-            return q
-
-        if wait > 0:
-            q = None
-            DaemonThread(_wait).join()
-            return q
-        else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
 
     def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -1243,7 +1229,7 @@ class Host(object):
             ret = self._classical_messages.get_next_from_sender(sender_id)
         return ret
 
-    def get_epr(self, host_id, q_id=None, wait=-1):
+    def get_epr(self, host_id, q_id=None, wait=0):
         """
         Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
         EPR with that ID is returned, else, the last EPR added is returned.
@@ -1258,23 +1244,9 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        def _wait():
-            nonlocal q
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
-                time.sleep(self.delay)
-            return q
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
 
-        if wait > 0:
-            q = None
-            DaemonThread(_wait).join()
-            return q
-        else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
-
-    def get_data_qubit(self, host_id, q_id=None, wait=-1):
+    def get_data_qubit(self, host_id, q_id=None, wait=0):
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified,
         qubit with that ID is returned, else, the last qubit received is returned.
@@ -1289,21 +1261,7 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        def _wait():
-            nonlocal q
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and q is None:
-                q = _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT)
-                time.sleep(self.delay)
-            return q
-
-        if wait > 0:
-            q = None
-            DaemonThread(_wait).join()
-            return q
-        else:
-            return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT)
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT, wait)
 
     def stop(self, release_qubits=True):
         """
@@ -1393,7 +1351,7 @@ class Host(object):
             return self.await_ack(seq_num, receiver_id)
 
 
-def _get_qubit(store, host_id, q_id, purpose):
+def _get_qubit(store, host_id, q_id, purpose, wait=0):
     """
     Gets the data qubit received from another host in the network. If qubit ID is specified,
     qubit with that ID is returned, else, the last qubit received is returned.
@@ -1406,4 +1364,4 @@ def _get_qubit(store, host_id, q_id, purpose):
     Returns:
          Qubit: Qubit received from the host with *host_id* and *q_id*.
     """
-    return store.get_qubit_from_host(host_id, q_id, purpose)
+    return store.get_qubit_from_host(host_id, q_id, purpose, wait)
