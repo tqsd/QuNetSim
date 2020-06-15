@@ -1,9 +1,7 @@
 import unittest
 import uuid
 
-from objects.quantum_storage import QuantumStorage, STORAGE_LIMIT_ALL,\
-                                    STORAGE_LIMIT_PER_HOST,\
-                                    STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
+from qunetsim.objects import QuantumStorage
 
 
 class FakeQubit(object):
@@ -24,6 +22,7 @@ class FakeQubit(object):
         return "Qubit with id %s" % self.id
 
 
+# @unittest.skip('')
 class TestQuantumStorage(unittest.TestCase):
     backends = []
 
@@ -83,49 +82,49 @@ class TestQuantumStorage(unittest.TestCase):
 
     # @unittest.skip('')
     def test_storage_limits(self):
-        purp = "data"
+        purpose = "data"
         storage = QuantumStorage()
 
         # STORAGE_LIMIT_ALL mode test
-        storage.set_storage_limit_mode(STORAGE_LIMIT_ALL)
-        storage.set_storage_limit(10)
+        storage.storage_limit_mode = QuantumStorage.STORAGE_LIMIT_ALL
+        storage.storage_limit = 10
         for c in range(15):
             q = FakeQubit()
-            storage.add_qubit_from_host(q, purp, str(c))
+            storage.add_qubit_from_host(q, purpose, str(c))
         self.assertEqual(storage.amount_qubits_stored, 10)
 
         # STORAGE_LIMIT_PER_HOST mode test
         storage = QuantumStorage()
-        storage.set_storage_limit_mode(STORAGE_LIMIT_PER_HOST)
-        storage.set_storage_limit(10)
+        storage.storage_limit_mode = QuantumStorage.STORAGE_LIMIT_PER_HOST
+        storage.storage_limit = 10
         for c in range(15):
             q = FakeQubit()
-            storage.add_qubit_from_host(q, purp, str(1))
+            storage.add_qubit_from_host(q, purpose, str(1))
         for c in range(15):
             q = FakeQubit()
-            storage.add_qubit_from_host(q, purp, str(2))
+            storage.add_qubit_from_host(q, purpose, str(2))
         self.assertEqual(storage.amount_qubits_stored, 20)
 
         # STORAGE_LIMIT_INDIVIDUALLY_PER_HOST mode test
         storage = QuantumStorage()
-        storage.set_storage_limit_mode(STORAGE_LIMIT_INDIVIDUALLY_PER_HOST)
-        storage.set_storage_limit(10, str(1))
-        storage.set_storage_limit(12, str(2))
+        storage.storage_limit_mode = QuantumStorage.STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
+        storage.set_storage_limit_with_host(10, str(1))
+        storage.set_storage_limit_with_host(12, str(2))
         for c in range(15):
             q = FakeQubit()
-            storage.add_qubit_from_host(q, purp, str(1))
+            storage.add_qubit_from_host(q, purpose, str(1))
         for c in range(15):
             q = FakeQubit()
-            storage.add_qubit_from_host(q, purp, str(2))
+            storage.add_qubit_from_host(q, purpose, str(2))
         self.assertEqual(storage.amount_qubits_stored, 22)
 
     def test_change_id_of_qubits(self):
-        purp = "data"
+        purpose = "data"
         storage = QuantumStorage()
 
         for c in range(15):
             q = FakeQubit(c)
-            storage.add_qubit_from_host(q, purp, 'Bob')
+            storage.add_qubit_from_host(q, purpose, 'Bob')
 
         search_id = str(10)
         new_id = str(101)

@@ -1,9 +1,6 @@
-from cqc.pythonLib import CQCConnection
-from backends.cqc_backend import CQCBackend
-from backends.eqsn_backend import EQSNBackend
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
+from qunetsim.backends import EQSNBackend
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
 import time
 
 

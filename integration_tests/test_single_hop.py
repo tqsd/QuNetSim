@@ -1,19 +1,19 @@
-from objects.qubit import Qubit
-from components.host import Host
-from components.network import Network
-from components import protocols
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.objects import Qubit, Logger
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
+from qunetsim.backends import EQSNBackend
+from qunetsim.utils.constants import Constants
 import unittest
 import time
 
+Logger.DISABLED = True
+
 network = Network.get_instance()
-hosts = None
+hosts = {}
 
 
 # @unittest.skip('')
 class TestOneHop(unittest.TestCase):
-    network = None
-    hosts = None
     MAX_WAIT = 10
 
     @classmethod
@@ -126,9 +126,9 @@ class TestOneHop(unittest.TestCase):
         messages = hosts['alice'].get_classical('bob')
         print(messages)
         for m in messages:
-            if m.content == protocols.ACK and m.seq_num == 1:
+            if m.content == Constants.ACK and m.seq_num == 1:
                 saw_ack_1 = True
-            if m.content == protocols.ACK and m.seq_num == 2:
+            if m.content == Constants.ACK and m.seq_num == 2:
                 saw_ack_2 = True
             if saw_ack_1 and saw_ack_2:
                 break
@@ -143,7 +143,7 @@ class TestOneHop(unittest.TestCase):
         saw_ack = False
         messages = hosts['alice'].get_classical('bob')
         for m in messages:
-            if m.content == protocols.ACK and m.seq_num == 3:
+            if m.content == Constants.ACK and m.seq_num == 3:
                 saw_ack = True
                 break
 
@@ -158,7 +158,7 @@ class TestOneHop(unittest.TestCase):
         saw_ack = False
         messages = hosts['alice'].get_classical('bob')
         for m in messages:
-            if m.content == protocols.ACK and m.seq_num == 4:
+            if m.content == Constants.ACK and m.seq_num == 4:
                 saw_ack = True
                 break
 
@@ -171,7 +171,7 @@ class TestOneHop(unittest.TestCase):
         saw_ack = False
         messages = hosts['alice'].get_classical('bob')
         for m in messages:
-            if m['message'] == protocols.ACK and m['sequence_number'] == 5:
+            if m['message'] == Constants.ACK and m['sequence_number'] == 5:
                 saw_ack = True
                 break
 
@@ -210,6 +210,18 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
+    def test_ghz(self):
+        global hosts
+        hosts['alice'].send_ghz([hosts['bob'].host_id], await_ack=True)
+
+        q_alice = hosts['alice'].get_ghz(hosts['alice'].host_id)
+        q_bob = hosts['bob'].get_ghz(hosts['alice'].host_id)
+
+        self.assertIsNotNone(q_alice)
+        self.assertIsNotNone(q_bob)
+        self.assertEqual(q_alice.measure(), q_bob.measure())
+
+    @unittest.skip('')
     def test_teleport(self):
         global hosts
 
@@ -418,7 +430,7 @@ class TestOneHop(unittest.TestCase):
 
     @unittest.skip('')
     def test_packet_loss_classical(self):
-
+        global hosts
         hosts = {'alice': Host('Alice'),
                  'bob': Host('Bob')}
 

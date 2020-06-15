@@ -1,12 +1,12 @@
-from backends.RWLock import RWLock
+from qunetsim.backends.re_lock import RWLock
 import queue
-
-STORAGE_LIMIT_ALL = 1
-STORAGE_LIMIT_PER_HOST = 2
-STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
 
 
 class QuantumStorage(object):
+    STORAGE_LIMIT_ALL = 1
+    STORAGE_LIMIT_PER_HOST = 2
+    STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
+
     """
     An object which stores qubits.
     """
@@ -19,7 +19,7 @@ class QuantumStorage(object):
         # _purpose_dict stores qubit_id -> dict Host_id -> Purpose belonging to
         # the Qubit with the same Host and ID.
         self._purpose_dict = {}
-        self._storage_mode = STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
+        self._storage_mode = QuantumStorage.STORAGE_LIMIT_INDIVIDUALLY_PER_HOST
         self._storage_limits_per_host = {}
         self._amount_qubits_stored_per_host = {}
         self._default_storage_limit_per_host = -1
@@ -58,39 +58,54 @@ class QuantumStorage(object):
     def storage_limit(self):
         return self._storage_limit
 
-    @property
-    def storage_limit_mode(self):
-        return self._storage_mode
-
-    @property
-    def amount_qubits_stored(self):
-        return self._amount_qubit_stored
-
-    # TODO: refactor to use setter decorator
-    def set_storage_limit_mode(self, new_mode):
-        self._storage_mode = new_mode
-
-    # TODO: refactor to use setter decorator
-    def set_storage_limit(self, new_limit, host_id=None):
+    @storage_limit.setter
+    def storage_limit(self, new_limit):
         """
         Set a new storage limit for the storage. The implementations depends on
         the storage mode.
 
         Args:
             new_limit (int): The new max amount of qubit.
-            host_id (String): optional, if given, and the storage mode is
+        """
+        if self._storage_mode == QuantumStorage.STORAGE_LIMIT_ALL:
+            self._storage_limit = new_limit
+        elif self._storage_mode == QuantumStorage.STORAGE_LIMIT_PER_HOST:
+            self._storage_limit = new_limit
+        elif self._storage_mode == QuantumStorage.STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
+            self._default_storage_limit_per_host = new_limit
+            for id_ in list(self._storage_limits_per_host):
+                self._storage_limits_per_host[id_] = new_limit
+        else:
+            raise ValueError(
+                "Internal Value Error, this storage mode does not exist.")
+
+    @property
+    def storage_limit_mode(self):
+        return self._storage_mode
+
+    @storage_limit_mode.setter
+    def storage_limit_mode(self, new_mode):
+        self._storage_mode = new_mode
+
+    @property
+    def amount_qubits_stored(self):
+        return self._amount_qubit_stored
+
+    def set_storage_limit_with_host(self, new_limit, host_id):
+        """
+        Set a new storage limit for the storage. The implementations depends on
+        the storage mode.
+
+        Args:
+            new_limit (int): The new max amount of qubit.
+            host_id (str): optional, if given, and the storage mode is
                             STORAGE_LIMIT_INDIVIDUALLY_PER_HOST, the limit is only
                             set for this specific host.
         """
-        if self._storage_mode == STORAGE_LIMIT_ALL:
-            self._storage_limit = new_limit
-        elif self._storage_mode == STORAGE_LIMIT_PER_HOST:
-            self._storage_limit = new_limit
-        elif self._storage_mode == STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
+        if self._storage_mode == QuantumStorage.STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
             if host_id is None:
-                self._default_storage_limit_per_host = new_limit
-                for id_ in list(self._storage_limits_per_host):
-                    self._storage_limits_per_host[id_] = new_limit
+                raise ValueError(
+                    "Host ID must be given in this storage mode")
             else:
                 self._storage_limits_per_host[host_id] = new_limit
         else:
@@ -101,7 +116,7 @@ class QuantumStorage(object):
         """
         Reset the quantum storage.
         """
-        pass
+        raise Exception('Storage reset is not yet implemented')
 
     def release_storage(self):
         """
@@ -123,7 +138,7 @@ class QuantumStorage(object):
             purpose (String): Optional, purpose of the qubit which should exist.
 
         Returns:
-            True, if such a qubit is in the storage, false if not.
+            (bool): True, if such a qubit is in the storage, false if not.
         """
         self.lock.acquire_write()
         if from_host_id not in self._host_dict:
@@ -140,30 +155,34 @@ class QuantumStorage(object):
         """
         Changes the ID of a qubit. If the ID is not given, a random
         qubit which is from a host is changed to the new id.
+
+        Args:
+            from_host_id (str): The ID of the owner
+            new_id (str): The ID to change to
+            old_id (str): The old ID
+
+        Returns:
+            (str): The new ID
         """
         new_id = str(new_id)
         self.lock.acquire_write()
         if old_id is not None:
             old_id = str(old_id)
-            qubit, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
+            qubit, purpose = self._pop_qubit_with_id_and_host_from_qubit_dict(
                 old_id, from_host_id)
             if qubit is not None:
                 qubit.id = new_id
-                self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
-                self.lock.release_write()
-                return old_id
+                self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
         else:
             if from_host_id in self._host_dict and self._host_dict[from_host_id]:
                 qubit = self._host_dict[from_host_id][0]
                 old_id = qubit.id
-                _, purp = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                _, purpose = self._pop_qubit_with_id_and_host_from_qubit_dict(
                     old_id, from_host_id)
                 qubit.id = new_id
-                self._add_qubit_to_qubit_dict(qubit, purp, from_host_id)
-                self.lock.release_write()
-                return old_id
+                self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
         self.lock.release_write()
-        return None
+        return old_id
 
     def add_qubit_from_host(self, qubit, purpose, from_host_id):
         """
@@ -198,6 +217,13 @@ class QuantumStorage(object):
         """
         Get all Qubits from a specific host id.
         These qubits are not removed from storage!
+
+        Args:
+            from_host_id (str): The host who the qubits are from
+            purpose (str): The purpose of the qubits
+
+        Returns:
+            (list): The list of qubits
         """
         out = []
         self.lock.acquire_write()
@@ -263,7 +289,7 @@ class QuantumStorage(object):
             wait (int): Default is 0. The maximum blocking time.
 
         Returns:
-            If such a qubit exists, it returns the qubit. Otherwise, None
+            (bool): If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
         self.lock.acquire_write()
@@ -377,21 +403,21 @@ class QuantumStorage(object):
             True if no storage limit has been reached, False if a memory
             limit has occurred.
         """
-        if self._storage_mode == STORAGE_LIMIT_ALL:
+        if self._storage_mode == QuantumStorage.STORAGE_LIMIT_ALL:
             if self._storage_limit == -1:
                 return True
             if self._storage_limit <= self._amount_qubit_stored:
                 return False
             else:
                 return True
-        elif self._storage_mode == STORAGE_LIMIT_PER_HOST:
+        elif self._storage_mode == QuantumStorage.STORAGE_LIMIT_PER_HOST:
             if self._storage_limit == -1:
                 return True
             if self._storage_limit <= self._amount_qubits_stored_per_host[host_id]:
                 return False
             else:
                 return True
-        elif self._storage_mode == STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
+        elif self._storage_mode == QuantumStorage.STORAGE_LIMIT_INDIVIDUALLY_PER_HOST:
             if self._storage_limits_per_host[host_id] == -1:
                 return True
             if self._storage_limits_per_host[host_id] <= self._amount_qubits_stored_per_host[host_id]:

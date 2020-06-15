@@ -1,7 +1,7 @@
-from backends.cqc_backend import CQCBackend
-from components.host import Host
-from components.network import Network
-from objects.logger import Logger
+from qunetsim.backends import CQCBackend
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.objects import Logger
 
 Logger.DISABLED = True
 

@@ -1,11 +1,10 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
 sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
-from components.host import Host
-from components.network import Network
+from qunetsim.backends import CQCBackend
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
 MAX_WAIT = 10
 
 def main():

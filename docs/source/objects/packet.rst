@@ -6,5 +6,5 @@ packets in the Internet. They encode the sender and receiver of the packet along
 the other properties listed below. Generally, users will not need to interact with
 *Packet* objects directly.
 
-.. automodule:: objects.packet
+.. automodule:: qunetsim.objects.packet
    :members:

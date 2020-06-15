@@ -107,9 +107,9 @@ The full example is below.
 ..  code-block:: python
     :linenos:
 
-    from components.host import Host
-    from components.network import Network
-    from components.logger import Logger
+    from qunetsim.components import Host
+    from qunetsim.components import Network
+    from qunetsim.objects import Logger
 
     Logger.DISABLED = True
 

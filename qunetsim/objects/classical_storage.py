@@ -1,4 +1,4 @@
-import components.protocols as protocols
+from qunetsim.utils.constants import Constants
 
 
 class ClassicalStorage(object):
@@ -38,7 +38,7 @@ class ClassicalStorage(object):
 
         def delete_all_ack_for_sender(sender_id):
             for c, msg in enumerate(self._host_to_msg_dict[sender_id]):
-                if msg.content == protocols.ACK:
+                if msg.content == Constants.ACK:
                     del self._host_to_msg_dict[sender_id][c]
 
         if from_sender is None:

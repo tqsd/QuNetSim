@@ -1,10 +1,9 @@
 import unittest
-from components.host import Host
-from components.network import Network
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
 
-from backends.eqsn_backend import EQSNBackend
-from backends.cqc_backend import CQCBackend
-from backends.projectq_backend import ProjectQBackend
+from qunetsim.backends import EQSNBackend
+from qunetsim.backends import CQCBackend
 
 
 # @unittest.skip('')

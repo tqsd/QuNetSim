@@ -2,11 +2,11 @@ import numpy as np
 import random
 import time
 
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
-from objects.logger import Logger
-from backends.eqsn_backend import EQSNBackend
+from qunetsim.components import Host
+from qunetsim.components import Network
+from qunetsim.objects import Qubit
+from qunetsim.objects import Logger
+from qunetsim.backends import EQSNBackend
 
 Logger.DISABLED = True
 

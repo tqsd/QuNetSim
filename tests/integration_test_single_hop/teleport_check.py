@@ -1,12 +1,11 @@
-from cqc.pythonLib import CQCConnection
 import sys
 import time
 
 sys.path.append("../..")
-from backends.cqc_backend import CQCBackend
-from components.host import Host
-from components.network import Network
-from objects.qubit import Qubit
+from qunetsim.backends import CQCBackend
+from qunetsim.components.host import Host
+from qunetsim.components.network import Network
+from qunetsim.objects import Qubit
 
 
 def main():
@@ -17,7 +16,6 @@ def main():
     network.delay = 0.0
     hosts = {'alice': Host('Alice', backend),
              'bob': Host('Bob', backend)}
-
 
     # A <-> B
     hosts['alice'].add_connection('Bob')
