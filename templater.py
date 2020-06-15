@@ -3,10 +3,8 @@ from string import ascii_uppercase, ascii_lowercase
 
 def gen_imports():
     imports = ""
-    imports += "from qunetsim.components import Host\n"
-    imports += "from qunetsim.components import Network\n"
-    imports += "from objects.qubit import Qubit\n"
-    imports += "from objects.logger import Logger\n"
+    imports += "from qunetsim.components import Host, Network\n"
+    imports += "from qunetsim.objects import Qubit, Logger\n"
     imports += "Logger.DISABLED = True\n\n\n"
     return imports
 
