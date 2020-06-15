@@ -1,5 +1,5 @@
 from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.qunetsim.components import Network
 import time
 
 wait_time = 10

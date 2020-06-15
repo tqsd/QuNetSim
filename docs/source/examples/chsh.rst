@@ -159,11 +159,7 @@ of those here. The full example is below, with the backends imported and set.
     import random
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
-    from qunetsim.components.logger import Logger
-
-    # We have to import the ProjectQ backend.
-    # One  should ensure the python library "projectq" is installed.
-    from qunetsim.backends.projectq_backend import ProjectQBackend
+    from qunetsim.objects import Logger
 
     # Disable QuNetSim logging
     Logger.DISABLED = True
@@ -284,20 +280,17 @@ of those here. The full example is below, with the backends imported and set.
 
     def main():
         network = Network.get_instance()
-        backend = ProjectQBackend()
-        nodes = ['A', 'B', 'C']
-        network.delay = 0.1
-        network.start(nodes, backend)
+        network.start()
 
-        host_A = Host('A', backend)
+        host_A = Host('A')
         host_A.add_c_connection('C')
         host_A.start()
 
-        host_B = Host('B', backend)
+        host_B = Host('B')
         host_B.add_c_connection('C')
         host_B.start()
 
-        host_C = Host('C', backend)
+        host_C = Host('C')
         host_C.add_c_connection('A')
         host_C.add_c_connection('B')
         host_C.start()

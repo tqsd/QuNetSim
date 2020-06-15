@@ -21,7 +21,7 @@ to chose the EQSN backend is shown in the code snippet below.
 
     import numpy as np
     # import the eqsn backend
-    from qunetsim.backends.eqsn_backend import EQSNBackend
+    from qunetsim.backends import EQSNBackend
 
     # create the EQSN backend object
     backend = EQSNBackend()

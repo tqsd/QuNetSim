@@ -610,22 +610,11 @@ of those here. The full example is below, with the backends imported and set.</p
 175
 176
 177
-178
-179
-180
-181
-182
-183
-184
-185</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+178</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">from</span> <span class="nn">qunetsim.components.host</span> <span class="kn">import</span> <span class="n">Host</span>
 <span class="kn">from</span> <span class="nn">qunetsim.components.network</span> <span class="kn">import</span> <span class="n">Network</span>
-<span class="kn">from</span> <span class="nn">qunetsim.components.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
-
-<span class="c1"># We have to import the ProjectQ backend.</span>
-<span class="c1"># One  should ensure the python library &quot;projectq&quot; is installed.</span>
-<span class="kn">from</span> <span class="nn">qunetsim.backends.projectq_backend</span> <span class="kn">import</span> <span class="n">ProjectQBackend</span>
+<span class="kn">from</span> <span class="nn">qunetsim.objects</span> <span class="kn">import</span> <span class="n">Logger</span>
 
 <span class="c1"># Disable QuNetSim logging</span>
 <span class="n">Logger</span><span class="o">.</span><span class="n">DISABLED</span> <span class="o">=</span> <span class="bp">True</span>
@@ -746,20 +735,17 @@ of those here. The full example is below, with the backends imported and set.</p
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="n">ProjectQBackend</span><span class="p">()</span>
-    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]</span>
-    <span class="n">network</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.1</span>
-    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
     <span class="n">host_A</span><span class="o">.</span><span class="n">add_c_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
     <span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
     <span class="n">host_B</span><span class="o">.</span><span class="n">add_c_connection</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
     <span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
     <span class="n">host_C</span><span class="o">.</span><span class="n">add_c_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
     <span class="n">host_C</span><span class="o">.</span><span class="n">add_c_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
     <span class="n">host_C</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>

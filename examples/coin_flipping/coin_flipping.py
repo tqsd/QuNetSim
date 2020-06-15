@@ -2,10 +2,8 @@ import numpy as np
 
 from qunetsim.objects import Qubit
 from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.qunetsim.components import Network
 from qunetsim.backends import EQSNBackend
-# from backends.cqc_backend import CQCBackend
-# from backends.projectq_backend import ProjectQBackend
 
 
 def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
@@ -188,17 +186,18 @@ def main():
 
     m = 2
     n = 4
-    rot_angle = np.pi/9
+    rot_angle = np.pi / 9
 
     t1 = host_A.run_protocol(quantum_coin_flipping,
-                            arguments=(m, n, host_B.host_id, rot_angle))
+                             arguments=(m, n, host_B.host_id, rot_angle))
     t2 = host_B.run_protocol(quantum_coin_flipping,
-                            arguments=(m, n, host_A.host_id, rot_angle))
+                             arguments=(m, n, host_A.host_id, rot_angle))
 
     t1.join()
     t2.join()
 
     network.stop(True)
+
 
 if __name__ == "__main__":
     main()

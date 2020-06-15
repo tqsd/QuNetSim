@@ -1,7 +1,7 @@
 from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.qunetsim.components import Network
 from qunetsim.objects import Logger
-from qunetsim.backends.projectq_backend import ProjectQBackend
+from qunetsim.backends import ProjectQBackend
 
 Logger.DISABLED = False
 

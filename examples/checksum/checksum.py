@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.qunetsim.components import Network
 from qunetsim.objects import Logger
 from qunetsim.objects import Qubit
 

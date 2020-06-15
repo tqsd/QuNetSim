@@ -1,6 +1,6 @@
 import time
 from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.qunetsim.components import Network
 from qunetsim.objects import Logger
 
 Logger.DISABLED = False

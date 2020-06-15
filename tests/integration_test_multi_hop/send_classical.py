@@ -1,16 +1,13 @@
-import sys
 import time
 
-sys.path.append("../..")
-from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.components import Host, Network
 
 MAX_WAIT = 20
 
+
 def main():
     network = Network.get_instance()
-    nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
+    network.start()
     hosts = {'alice': Host('Alice'),
              'bob': Host('Bob'),
              'eve': Host('Eve')}

@@ -136,7 +136,7 @@ The full example is below.
 
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
-    from qunetsim.components.logger import Logger
+    from qunetsim.objects import Logger
     import networkx
     import time
 

@@ -232,7 +232,7 @@ The full example is below:
     from qunetsim.components.host import Host
     from qunetsim.components.network import Network
     from qunetsim.objects import Qubit
-    from qunetsim.components.logger import Logger
+    from qunetsim.objects import Logger
 
     Logger.DISABLED = True
 
