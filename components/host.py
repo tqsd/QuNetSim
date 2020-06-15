@@ -910,11 +910,11 @@ class Host:
             if connection.receiver_id == receiver_id:
                 establishment_probability = connection.transmission_p
                 break
-        if (random.random() >= establishment_probability):
-            if await_ack:
-                return None, None
-            else:
-                return None
+        # if (random.random() >= establishment_probability):
+        #     if await_ack:
+        #         return None, None
+        #     else:
+        #         return None
 
         if q_id is None:
             q_id = str(uuid.uuid4())
@@ -933,7 +933,8 @@ class Host:
                                   payload={'q_id': q_id, 'blocked': block, 'fidelity': fidelity},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack)
+                                  await_ack=await_ack,
+                                  probability=establishment_probability)
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
 
@@ -1056,11 +1057,11 @@ class Host:
             if connection.receiver_id == receiver_id:
                 establishment_probability = connection.transmission_p
                 break
-        if (random.random() >= establishment_probability):
-            if await_ack:
-                return None, None
-            else:
-                return None
+        # if (random.random() >= establishment_probability):
+        #     if await_ack:
+        #         return None, None
+        #     else:
+        #         return None
 
         seq_num = -1
         if no_ack:
@@ -1075,7 +1076,8 @@ class Host:
                                       'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack)
+                                  await_ack=await_ack,
+                                  probability=establishment_probability)
         if payload is not None:
             packet.payload = payload
 
@@ -1127,7 +1129,8 @@ class Host:
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack)
+                                  await_ack=await_ack,
+                                  probability=establishment_probability)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
@@ -1153,11 +1156,11 @@ class Host:
             if connection.receiver_id == receiver_id:
                 establishment_probability = connection.transmission_p
                 break
-        if (random.random() >= establishment_probability):
-            if await_ack:
-                return None, None
-            else:
-                return None
+        # if (random.random() >= establishment_probability):
+        #     if await_ack:
+        #         return None, None
+        #     else:
+        #         return None
 
         q.blocked = True
         q_id = q.id
@@ -1173,7 +1176,8 @@ class Host:
                                   payload=q,
                                   payload_type=protocols.QUANTUM,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack)
+                                  await_ack=await_ack,
+                                  probability=establishment_probability)
 
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
         self._packet_queue.put(packet)

@@ -15,7 +15,7 @@ class Packet(object):
     """
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                 sequence_number=-1, await_ack=False):
+                 sequence_number=-1, await_ack=False, probability=1.0):
         """
         Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
         with data and the header.
@@ -43,6 +43,7 @@ class Packet(object):
         self._payload = payload
         self._seq_num = sequence_number
         self._await_ack = await_ack
+        self._probability = probability
 
     @property
     def sender(self):
@@ -141,3 +142,19 @@ class Packet(object):
     @await_ack.setter
     def await_ack(self, await_ack):
         self._await_ack = await_ack
+
+    @property
+    def probability(self):
+        """
+        Probability that the packet get transmitted through the network
+
+        Returns
+            probability (float): The probability that a packet gets transmitted
+        """
+        return self._probability
+
+    @probability.setter
+    def probability(self, probability):
+        if not isinstance(probability, float) and not isinstance(probability, int):
+            raise Exception('Transmission probability must be a floating point number')
+        self._probability = probability

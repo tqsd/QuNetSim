@@ -55,7 +55,7 @@ SEND_GHZ = 'send_ghz'
 REC_GHZ = 'rec_ghz'
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False, probability=1.0):
     """
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
     with data and the header.
@@ -72,7 +72,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
     """
 
     packet = Packet(sender, receiver, protocol, payload_type, payload,
-                    sequence_number=sequence_num, await_ack=await_ack)
+                    sequence_number=sequence_num, await_ack=await_ack, probability=probability)
     # {
     #     SENDER: sender,
     #     RECEIVER: receiver,
@@ -343,6 +343,7 @@ def _send_epr(packet):
     Args:
         packet (Packet): The packet in which to transmit.
     """
+    print('Send Protocol')
     packet.protocol = REC_EPR
     network.send(packet)
 

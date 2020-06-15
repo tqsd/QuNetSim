@@ -635,8 +635,9 @@ class Network:
         Args:
             packet (Packet): Packet to be sent
         """
-
-        self._packet_queue.put(packet)
+        if random.random() <= packet.probability:
+            print(packet.probability)
+            self._packet_queue.put(packet)
 
     def stop(self, stop_hosts=False):
         """
