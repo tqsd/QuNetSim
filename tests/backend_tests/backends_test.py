@@ -1,6 +1,6 @@
 from qunetsim.components.network import Network
 from qunetsim.components.host import Host
-from qunetsim.backends import CQCBackend
+from qunetsim.backends.cqc_backend import CQCBackend
 import sys
 
 sys.path.append("../..")
