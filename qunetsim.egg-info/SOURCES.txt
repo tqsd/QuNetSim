@@ -12,7 +12,7 @@ qunetsim/backends/backend.py
 qunetsim/backends/cqc_backend.py
 qunetsim/backends/eqsn_backend.py
 qunetsim/backends/projectq_backend.py
-qunetsim/backends/re_lock.py
+qunetsim/backends/rw_lock.py
 qunetsim/backends/safe_dict.py
 qunetsim/components/__init__.py
 qunetsim/components/host.py
