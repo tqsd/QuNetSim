@@ -636,8 +636,9 @@ class Network:
             packet (Packet): Packet to be sent
         """
         if random.random() <= packet.probability:
-            print(packet.probability)
             self._packet_queue.put(packet)
+        else:
+            Logger.get_instance().log('Packet transmission failed')
 
     def stop(self, stop_hosts=False):
         """

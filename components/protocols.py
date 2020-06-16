@@ -343,7 +343,6 @@ def _send_epr(packet):
     Args:
         packet (Packet): The packet in which to transmit.
     """
-    print('Send Protocol')
     packet.protocol = REC_EPR
     network.send(packet)
 
