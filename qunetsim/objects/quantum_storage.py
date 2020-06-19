@@ -262,6 +262,7 @@ class QuantumStorage(object):
         self._pending_request_dict[self._request_id] = args
         self._request_id += 1
         self._amount_pending_requests += 1
+        return self._request_id
 
     def _remove_request(self, id):
         """
@@ -303,7 +304,7 @@ class QuantumStorage(object):
             return ret
         q = queue.Queue()
         args = [q, from_host_id, q_id, purpose]
-        id = self._add_request(args)
+        req_id = self._add_request(args)
         self.lock.release_write()
         ret = None
         try:
@@ -312,7 +313,7 @@ class QuantumStorage(object):
             pass
         if ret is None:
             self.lock.acquire_write()
-            self._remove_request(id)
+            self._remove_request(req_id)
             self.lock.release_write()
         return ret
 
