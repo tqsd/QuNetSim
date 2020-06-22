@@ -16,7 +16,7 @@ class ClassicalStorage(object):
         self._host_to_read_index = {}
 
         # read write lock, for threaded access
-        self.lock = RWLock()
+        self._lock = RWLock()
 
         # for tracking pending requests
         # dictionary tracks the request made by a pending request.
@@ -28,13 +28,13 @@ class ClassicalStorage(object):
 
     def _check_all_requests(self):
         """
-        Checks if any of the pending requests is now fullfilled.
+        Checks if any of the pending requests is now fulfilled.
 
         Returns:
-            If a request is fullfilled, the request is handeled and the function
+            If a request is fulfilled, the request is handled and the function
             returns the message of this request.
         """
-        for id, args in self._pending_request_dict.items():
+        for req_id, args in self._pending_request_dict.items():
             ret = None
             if args[2] == ClassicalStorage.GET_NEXT:
                 ret = self._get_next_from_sender(args[1])
@@ -45,7 +45,7 @@ class ClassicalStorage(object):
 
             if ret is not None:
                 args[0].put(ret)
-                self._remove_request(id)
+                self._remove_request(req_id)
                 return ret
 
     def _add_request(self, args):
@@ -61,25 +61,25 @@ class ClassicalStorage(object):
         self._amount_pending_requests += 1
         return self._request_id
 
-    def _remove_request(self, id):
+    def _remove_request(self, req_id):
         """
         Removes a pending request from the request dict.
 
         Args:
-            id (int): The id of the request to remove.
+            req_id (int): The id of the request to remove.
         """
-        if id in self._pending_request_dict:
-            del self._pending_request_dict[id]
+        if req_id in self._pending_request_dict:
+            del self._pending_request_dict[req_id]
         self._amount_pending_requests -= 1
 
     def empty(self):
         """
         Empty the classical storage.
         """
-        self.lock.acquire_write()
+        self._lock.acquire_write()
         self._host_to_msg_dict = {}
         self._host_to_read_index = {}
-        self.lock.release_write()
+        self._lock.release_write()
 
     def _add_new_host_id(self, host_id):
         """
@@ -100,7 +100,7 @@ class ClassicalStorage(object):
             from_sender (String): Host id of the sender, whos ACKs should be delted.
         """
 
-        self.lock.acquire_write()
+        self._lock.acquire_write()
 
         def delete_all_ack_for_sender(sender_id):
             for c, msg in enumerate(self._host_to_msg_dict[sender_id]):
@@ -112,7 +112,7 @@ class ClassicalStorage(object):
                 delete_all_ack_for_sender(sender)
         elif from_sender in self._host_to_msg_dict:
             delete_all_ack_for_sender(from_sender)
-        self.lock.release_write()
+        self._lock.release_write()
 
     # TODO: refactor to "add_msg"
     def add_msg_to_storage(self, message):
@@ -120,12 +120,12 @@ class ClassicalStorage(object):
         Adds a message to the storage.
         """
         sender_id = message.sender
-        self.lock.acquire_write()
+        self._lock.acquire_write()
         if sender_id not in list(self._host_to_msg_dict):
             self._add_new_host_id(sender_id)
         self._host_to_msg_dict[sender_id].append(message)
         self._check_all_requests()
-        self.lock.release_write()
+        self._lock.release_write()
 
     def get_all_from_sender(self, sender_id, wait=0):
         """
@@ -144,16 +144,16 @@ class ClassicalStorage(object):
         if wait == -1:
             wait = None
 
-        self.lock.acquire_write()
+        self._lock.acquire_write()
         msg = self._get_all_from_sender(sender_id)
         if msg is not None or wait == 0:
-            self.lock.release_write()
+            self._lock.release_write()
             return msg if msg is not None else []
 
         q = queue.Queue()
         request = [q, sender_id, ClassicalStorage.GET_ALL]
         req_id = self._add_request(request)
-        self.lock.release_write()
+        self._lock.release_write()
 
         try:
             msg = q.get(timeout=wait)
@@ -161,9 +161,9 @@ class ClassicalStorage(object):
             pass
 
         if msg is None:
-            self.lock.acquire_write()
+            self._lock.acquire_write()
             self._remove_request(req_id)
-            self.lock.release_write()
+            self._lock.release_write()
             return []
         return msg
 
@@ -188,16 +188,16 @@ class ClassicalStorage(object):
         if wait == -1:
             wait = None
 
-        self.lock.acquire_write()
+        self._lock.acquire_write()
         next_msg = self._get_next_from_sender(sender_id)
         if next_msg is not None or wait == 0:
-            self.lock.release_write()
+            self._lock.release_write()
             return next_msg
 
         q = queue.Queue()
         request = [q, sender_id, ClassicalStorage.GET_NEXT]
         req_id = self._add_request(request)
-        self.lock.release_write()
+        self._lock.release_write()
 
         try:
             next_msg = q.get(timeout=wait)
@@ -205,9 +205,9 @@ class ClassicalStorage(object):
             pass
 
         if next_msg is None:
-            self.lock.acquire_write()
+            self._lock.acquire_write()
             self._remove_request(req_id)
-            self.lock.release_write()
+            self._lock.release_write()
         return next_msg
 
     def _get_next_from_sender(self, sender_id):
@@ -226,9 +226,9 @@ class ClassicalStorage(object):
         Returns:
             (list) messages: All Messages as a list.
         """
-        self.lock.acquire_write()
+        self._lock.acquire_write()
         ret = []
         for host_id in list(self._host_to_msg_dict):
             ret += self._host_to_msg_dict[host_id]
-        self.lock.release_write()
+        self._lock.release_write()
         return ret
