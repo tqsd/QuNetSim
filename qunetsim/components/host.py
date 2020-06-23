@@ -1057,7 +1057,7 @@ class Host(object):
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (int): The host id from which the data qubit have been received.
+            host_id (str): The host id from which the data qubit have been received.
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of data qubits.

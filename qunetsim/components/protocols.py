@@ -165,9 +165,16 @@ def _rec_qubit(packet):
     Args:
         packet (Packet): The packet in which to receive.
     """
+    from_host = packet.sender
+    receiver = packet.receiver
+    qubit = packet.payload
+    receiver = network.get_host(receiver)
+    receiver.add_data_qubit(from_host, qubit)
+
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
     # Send ACK if seq_num is not -1
+
     if packet.seq_num != -1:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 

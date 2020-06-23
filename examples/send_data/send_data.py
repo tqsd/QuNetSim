@@ -44,10 +44,8 @@ def main():
     q.X()
     # Send the qubit and await an ACK from Dean
     q_id, _ = host_alice.send_qubit('Dean', q, await_ack=True)
-
     # Get the qubit on Dean's side from Alice
     q_rec = host_dean.get_data_qubit('Alice', q_id)
-
     # Ensure the qubit arrived and then measure and print the results.
     if q_rec is not None:
         m = q_rec.measure()

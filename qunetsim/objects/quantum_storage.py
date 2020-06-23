@@ -248,11 +248,11 @@ class QuantumStorage(object):
             If a request is fullfilled, the request is handeled and the function
             returns the qubit of this request.
         """
-        for id, args in self._pending_request_dict.items():
+        for req_id, args in self._pending_request_dict.items():
             ret = self._get_qubit_from_host(args[1], args[2], args[3])
             if ret is not None:
                 args[0].put(ret)
-                self._remove_request(id)
+                self._remove_request(req_id)
                 return ret
 
     def _add_request(self, args):
@@ -268,15 +268,15 @@ class QuantumStorage(object):
         self._amount_pending_requests += 1
         return self._request_id
 
-    def _remove_request(self, id):
+    def _remove_request(self, req_id):
         """
         Removes a pending request from the request dict.
 
         Args:
-            id (int): The id of the request to remove.
+            req_id (int): The id of the request to remove.
         """
-        if id in self._pending_request_dict:
-            del self._pending_request_dict[id]
+        if req_id in self._pending_request_dict:
+            del self._pending_request_dict[req_id]
         self._amount_pending_requests -= 1
 
     def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None, wait=0):
