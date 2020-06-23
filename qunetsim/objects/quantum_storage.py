@@ -1,4 +1,5 @@
 from qunetsim.backends.rw_lock import RWLock
+from qunetsim.objects import Logger
 import queue
 
 
@@ -27,6 +28,8 @@ class QuantumStorage(object):
         self._amount_qubit_stored = 0
         # read write lock, for threaded access
         self.lock = RWLock()
+
+        self.logger = Logger.get_instance()
 
         # for tracking pending requests
         # dictionary tracks the request made by a pending request.
@@ -197,7 +200,8 @@ class QuantumStorage(object):
 
         self.lock.acquire_write()
         if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
-            print(self)
+            self.logger.log("Qubit with id %s, purpose %s and from host %s"
+                            " already in storage" % (qubit.id, purpose, from_host_id))
             raise ValueError("Qubit with these parameters already in storage!")
         if from_host_id not in self._host_dict:
             self._add_new_host(from_host_id)
