@@ -350,7 +350,7 @@ def _send_superdense(packet):
         q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=Constants.WAIT_TIME)
 
     else:
-        q_superdense = host_sender.get_epr(receiver, wait=5)
+        q_superdense = host_sender.get_epr(receiver)
 
     if q_superdense is None:
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
@@ -358,7 +358,7 @@ def _send_superdense(packet):
 
     _encode_superdense(packet.payload, q_superdense)
 
-    # change id, so that at receiving they are not the same
+    # change ID, so that at receiving they are not the same
     q_superdense.id = "E" + q_superdense.id
     packet.payload = q_superdense
     packet.protocol = Constants.REC_SUPERDENSE
@@ -378,15 +378,14 @@ def _rec_superdense(packet):
     """
     receiver = packet.receiver
     sender = packet.sender
-    payload = packet.payload
-
+    q1 = packet.payload
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=Constants.WAIT_TIME)
     # the shared EPR id is the DATA id without the first letter.
-    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=Constants.WAIT_TIME)
+    q2 = host_receiver.get_epr(sender, q1.id[1:], wait=Constants.WAIT_TIME)
 
-    assert q1 is not None and q2 is not None
+    assert q1 is not None
+    assert q2 is not None
 
     # Send ACK if seq_num is not -1
     if packet.seq_num != -1:
