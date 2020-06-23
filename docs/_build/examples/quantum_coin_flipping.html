@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -111,11 +111,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
@@ -314,11 +314,11 @@ received and stored in <em>partner_qubits</em>.</p>
             <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
 
         <span class="c1"># send and get q1 from our partner</span>
-        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
         <span class="c1"># send and get q2 from our partner</span>
-        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
         <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
@@ -505,7 +505,7 @@ agree on is generated. The final random number is <span class="math notranslate 
 
 <span class="c1"># concatenation of both random numbers</span>
 <span class="n">random_bit</span> <span class="o">=</span> <span class="n">randomnes_from_partner</span> <span class="o">^</span> <span class="n">own_randomnes</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
 <span class="k">return</span> <span class="n">random_bit</span>
 </pre></div>
 </td></tr></table></div>
@@ -713,7 +713,7 @@ agree on is generated. The final random number is <span class="math notranslate 
 201
 202
 203
-204</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+204</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
  <span class="kn">from</span> <span class="nn">qunetsim.objects</span> <span class="kn">import</span> <span class="n">Qubit</span>
  <span class="kn">from</span> <span class="nn">qunetsim.components</span> <span class="kn">import</span> <span class="n">Host</span>
@@ -785,11 +785,11 @@ agree on is generated. The final random number is <span class="math notranslate 
                  <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
 
              <span class="c1"># send and get q1 from our partner</span>
-             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
              <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
              <span class="c1"># send and get q2 from our partner</span>
-             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
              <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
              <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
@@ -873,7 +873,7 @@ agree on is generated. The final random number is <span class="math notranslate 
 
      <span class="c1"># concatenation of both random numbers</span>
      <span class="n">random_bit</span> <span class="o">=</span> <span class="n">randomnes_from_partner</span> <span class="o">^</span> <span class="n">own_randomnes</span>
-     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
+     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
      <span class="k">return</span> <span class="n">random_bit</span>
 
 
@@ -913,7 +913,7 @@ agree on is generated. The final random number is <span class="math notranslate 
      <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
      <span class="n">t2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
-     <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+     <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
      <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
          <span class="n">main</span><span class="p">()</span>

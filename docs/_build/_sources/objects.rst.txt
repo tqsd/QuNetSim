@@ -6,7 +6,12 @@ Network Objects
    :maxdepth: 2
    :glob:
 
-   objects/*
+   objects/message
+   objects/qubit
+   objects/quantum_storage
+   objects/classical_storage
+   objects/packet
+   objects/routing_packet
 
 Network Objects in QuNetSim represent the objects that are used by the network components. The use of the word "objects" is quite general, but as further iterations of QuNetSim are made, we plan to categorize these better.
 
