@@ -893,7 +893,7 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.GHZ_QUBIT, wait)
 
     def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -1057,7 +1057,7 @@ class Host(object):
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (int): The host id from which the data qubit have been received.
+            host_id (str): The host id from which the data qubit have been received.
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of data qubits.
@@ -1146,7 +1146,7 @@ class Host(object):
         if q_id is not None:
             qubit.id = q_id
 
-        self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.GHZ_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
