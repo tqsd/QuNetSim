@@ -893,7 +893,7 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.GHZ_QUBIT, wait)
 
     def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -1057,7 +1057,7 @@ class Host(object):
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (int): The host id from which the data qubit have been received.
+            host_id (str): The host id from which the data qubit have been received.
 
         Returns:
             dict: If *host_id* is not set, then return the entire dictionary of data qubits.
@@ -1146,7 +1146,7 @@ class Host(object):
         if q_id is not None:
             qubit.id = q_id
 
-        self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.GHZ_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
@@ -1188,30 +1188,8 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        def process_messages():
-            nonlocal cla
-            cla = self._classical_messages.get_all_from_sender(host_id)
-
-        def _wait():
-            nonlocal cla
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and len(cla) == 0:
-                process_messages()
-                time.sleep(self.delay)
-            return cla
-
-        if seq_num > -1:
-            return self._get_message_w_seq_num(host_id, seq_num, wait)
-
-        if wait > 0:
-            cla = []
-            DaemonThread(_wait).join()
-            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
-        else:
-            cla = []
-            process_messages()
-            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
+        cla = self._classical_messages.get_all_from_sender(host_id, wait)
+        return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
     def get_next_classical(self, sender_id, wait=-1):
         """
@@ -1221,13 +1199,10 @@ class Host(object):
         Args:
             sender_id (str): ID of the sender from the returned message.
             wait (int): waiting time, default forever.
+        Returns:
+            The message or None
         """
-        ret = None
-        wait_start_time = time.time()
-        while (time.time() - wait_start_time < wait or wait == -1) \
-                and ret == None:
-            ret = self._classical_messages.get_next_from_sender(sender_id)
-        return ret
+        return self._classical_messages.get_next_from_sender(sender_id)
 
     def get_epr(self, host_id, q_id=None, wait=0):
         """

@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Routing Packet" href="routing_packet.html" />
-    <link rel="prev" title="Quantum Storage" href="quantum_storage.html" /> 
+    <link rel="next" title="Quantum Storage" href="quantum_storage.html" />
+    <link rel="prev" title="Message" href="message.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -111,11 +111,11 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="message.html">Message</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
 </ul>
 </li>
@@ -208,79 +208,70 @@
 <p>The <em>Qubit</em> object is mainly a wrapper for the underlying qubit that is defined in the <em>Backend</em>. We add
 our own properties such that we can better manage the qubits in the system, for example, <em>Qubits</em> have a unique
 ID and they know which <em>Host</em> they belong to.</p>
-<span class="target" id="module-qunetsim.objects.qubit"></span><dl class="exception">
+<span class="target" id="module-qunetsim.objects.qubit"></span><dl class="py exception">
 <dt id="qunetsim.objects.qubit.InputError">
-<em class="property">exception </em><code class="sig-prename descclassname">qunetsim.objects.qubit.</code><code class="sig-name descname">InputError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.InputError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Exception raised for errors in the input.</p>
-<dl class="attribute">
+<em class="property">exception </em><code class="sig-prename descclassname">qunetsim.objects.qubit.</code><code class="sig-name descname">InputError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.InputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised for errors in the input.</p>
+<dl class="py attribute">
 <dt>
 <code class="sig-name descname">expression -- input expression in which the error occurred</code></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt>
 <code class="sig-name descname">message -- explanation of the error</code></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="qunetsim.objects.qubit.InputError.with_traceback">
-<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.InputError.with_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception.with_traceback(tb) –
-set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="class">
+<dl class="py class">
 <dt id="qunetsim.objects.qubit.Qubit">
-<em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.qubit.</code><code class="sig-name descname">Qubit</code><span class="sig-paren">(</span><em class="sig-param">host</em>, <em class="sig-param">qubit=None</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">blocked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A Qubit object. It is a wrapper class of qubits of different
+<em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.qubit.</code><code class="sig-name descname">Qubit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">qubit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blocked</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Qubit object. It is a wrapper class of qubits of different
 backends, which adds additional information needed for QuNetSim.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.H">
 <code class="sig-name descname">H</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.H" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a Hadamard gate on the qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.I">
 <code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.I" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform Identity operation on the qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.K">
 <code class="sig-name descname">K</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.K" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a K gate on the qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.T">
 <code class="sig-name descname">T</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a T gate on the qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.X">
 <code class="sig-name descname">X</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.X" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform pauli x gate on qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.Y">
 <code class="sig-name descname">Y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.Y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform pauli y gate on qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.Z">
 <code class="sig-name descname">Z</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.Z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform pauli z gate on qubit.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.blocked">
 <em class="property">property </em><code class="sig-name descname">blocked</code><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.blocked" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give the block state of the qubit.</p>
@@ -291,9 +282,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.cnot">
-<code class="sig-name descname">cnot</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.cnot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cnot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.cnot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a controlled x gate to the target qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -302,9 +293,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.cphase">
-<code class="sig-name descname">cphase</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.cphase" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cphase</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.cphase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a controlled z gate to the target qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -313,9 +304,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.custom_controlled_gate">
-<code class="sig-name descname">custom_controlled_gate</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">gate</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_controlled_gate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">custom_controlled_gate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">gate</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_controlled_gate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a custom 2x2 unitary on the qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -327,9 +318,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.custom_gate">
-<code class="sig-name descname">custom_gate</code><span class="sig-paren">(</span><em class="sig-param">gate</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_gate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">custom_gate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gate</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_gate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a custom 2x2 unitary on the qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -338,9 +329,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.custom_two_qubit_gate">
-<code class="sig-name descname">custom_two_qubit_gate</code><span class="sig-paren">(</span><em class="sig-param">other_qubit</em>, <em class="sig-param">gate</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_two_qubit_gate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">custom_two_qubit_gate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_qubit</span></em>, <em class="sig-param"><span class="n">gate</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_two_qubit_gate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a custom 2 qubit gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -352,7 +343,7 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.host">
 <em class="property">property </em><code class="sig-name descname">host</code><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give the host of who the qubit belongs to.</p>
@@ -363,7 +354,7 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.id">
 <em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give the ID of the qubit.</p>
@@ -374,9 +365,9 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.measure">
-<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param">non_destructive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">non_destructive</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Measures the state of a qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -392,7 +383,7 @@ system or be eliminated.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.qubit">
 <em class="property">property </em><code class="sig-name descname">qubit</code><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the physical qubit.</p>
@@ -406,15 +397,15 @@ system or be eliminated.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.release">
 <code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Releases a qubit from the system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.rx">
-<code class="sig-name descname">rx</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.rx" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phi</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.rx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a rotation pauli x gate with an angle of phi.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -423,9 +414,9 @@ system or be eliminated.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.ry">
-<code class="sig-name descname">ry</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.ry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phi</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.ry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a rotation pauli y gate with an angle of phi.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -434,9 +425,9 @@ system or be eliminated.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.rz">
-<code class="sig-name descname">rz</code><span class="sig-paren">(</span><em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.rz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phi</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.rz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a rotation pauli z gate with an angle of phi.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -445,9 +436,9 @@ system or be eliminated.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="qunetsim.objects.qubit.Qubit.send_to">
-<code class="sig-name descname">send_to</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.send_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.send_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the Qubit to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
