@@ -335,13 +335,15 @@ class QuantumStorage(object):
         if from_host_id not in self._host_dict:
             return None
         if self._host_dict[from_host_id]:
-            qubit = self._host_dict[from_host_id].pop(0)
-            out = self._pop_qubit_with_id_and_host_from_qubit_dict(
-                qubit.id, from_host_id, purpose=purpose)
-            if out is not None:
-                self._decrease_qubit_counter(from_host_id)
-                return out[0]
-            self._host_dict[from_host_id].append(qubit)
+            # check purposes of all qubits
+            for _ in range(self._host_dict[from_host_id]):
+                qubit = self._host_dict[from_host_id].pop(0)
+                out = self._pop_qubit_with_id_and_host_from_qubit_dict(
+                    qubit.id, from_host_id, purpose=purpose)
+                if out is not None:
+                    self._decrease_qubit_counter(from_host_id)
+                    return out[0]
+                self._host_dict[from_host_id].append(qubit)
         return None
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
