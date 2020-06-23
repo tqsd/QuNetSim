@@ -340,7 +340,7 @@ class QuantumStorage(object):
             return None
         if self._host_dict[from_host_id]:
             # check purposes of all qubits
-            for _ in range(self._host_dict[from_host_id]):
+            for _ in range(len(self._host_dict[from_host_id])):
                 qubit = self._host_dict[from_host_id].pop(0)
                 out = self._pop_qubit_with_id_and_host_from_qubit_dict(
                     qubit.id, from_host_id, purpose=purpose)
