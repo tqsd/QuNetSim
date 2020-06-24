@@ -367,7 +367,7 @@ class Host(object):
 
         return self._seq_number_receiver[host][1]
 
-    def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+    def _get_message_w_seq_num(self, sender_id, seq_num, wait=0):
         """
         Get a message from a sender with a specific sequence number.
         Args:
@@ -378,14 +378,20 @@ class Host(object):
         Returns:
 
         """
-
         def _wait():
             nonlocal m
             nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and m is None:
-                filter_messages()
-                time.sleep(self.delay)
+            nonlocal wait_forever
+
+            if not wait_forever:
+                wait_start_time = time.time()
+                while time.time() - wait_start_time < wait and m is None:
+                    filter_messages()
+                    time.sleep(self.delay)
+            else:
+                while m is None:
+                    filter_messages()
+                    time.sleep(self.delay)
 
         def filter_messages():
             nonlocal m
@@ -395,8 +401,12 @@ class Host(object):
 
         m = None
         if wait > 0:
+            wait_forever = False
             DaemonThread(_wait).join()
             return m
+        elif wait == -1:
+            wait_forever = True
+            DaemonThread(_wait).join()
         else:
             filter_messages()
             return m
@@ -1173,7 +1183,7 @@ class Host(object):
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, host_id, seq_num=-1, wait=0):
+    def get_classical(self, host_id, seq_num=None, wait=0):
         """
         Get the classical messages from partner host *host_id*.
 
@@ -1188,7 +1198,7 @@ class Host(object):
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        if seq_num > -1:
+        if seq_num is not None:
             return self._get_message_w_seq_num(host_id, seq_num, wait)
 
         cla = self._classical_messages.get_all_from_sender(host_id, wait)
