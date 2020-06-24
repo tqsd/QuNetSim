@@ -1,4 +1,4 @@
-from queue import Queue
+from queue import Queue, Empty
 from qunetsim.components import protocols
 from qunetsim.utils.constants import Constants
 from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage
