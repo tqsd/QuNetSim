@@ -309,7 +309,7 @@ class Network:
             sender (Host): The sender
 
         Returns:
-             boolean: whether the sender and receiver share an EPR pair.
+             (bool) whether the sender and receiver share an EPR pair.
         """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)

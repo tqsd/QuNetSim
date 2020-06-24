@@ -86,6 +86,30 @@ class TestTwoHop(unittest.TestCase):
         self.assertEqual(messages[0].content, 'testing123')
 
     # @unittest.skip('')
+    def test_send_classical_w_seq_number(self):
+        hosts['alice'].send_classical(hosts['eve'].host_id, 'M0', await_ack=True)
+        hosts['alice'].send_classical(hosts['eve'].host_id, 'M1', await_ack=True)
+        hosts['alice'].send_classical(hosts['eve'].host_id, 'M2', await_ack=True)
+
+        eve_messages = hosts['eve'].classical
+        self.assertTrue(len(eve_messages) == 3)
+
+        m0 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=0)
+        m1 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=1)
+        m2 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=2)
+
+        self.assertTrue(m0.seq_num == 0)
+        self.assertTrue(m1.seq_num == 1)
+        self.assertTrue(m2.seq_num == 2)
+
+        self.assertTrue(m0.content == 'M0')
+        self.assertTrue(m1.seq_num == 'M1')
+        self.assertTrue(m2.seq_num == 'M2')
+
+        hosts['eve'].empty_classical()
+        self.assertTrue(len(hosts['eve'].classical) == 0)
+
+    # @unittest.skip('')
     def test_full_network_routing(self):
         network.use_hop_by_hop = False
         hosts['alice'].send_classical(hosts['eve'].host_id, 'testing123')
