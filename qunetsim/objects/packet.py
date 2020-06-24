@@ -37,6 +37,12 @@ class Packet(object):
         self._seq_num = sequence_number
         self._await_ack = await_ack
 
+    def __str__(self):
+        return 'Sender: %s\nReceiver: ' \
+               '%s\nProtocol: %s\nSequence number: %d\n' \
+               'Payload type: %s' % \
+               (self._sender, self._receiver, self._protocol, self._seq_num, str(self._payload_type))
+
     @property
     def sender(self):
         """

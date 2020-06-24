@@ -25,10 +25,6 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_multi_hop
-    - name: Run backend tests
-      run: |
-        export PYTHONPATH=$PWD
-        nose2 -s integration_tests test_backend
     - name: Run classical storage tests
       run: |
         export PYTHONPATH=$PWD

@@ -52,11 +52,12 @@ class TestOneHop(unittest.TestCase):
         hosts['alice'].set_data_qubit_memory_limit(-1)
         hosts['bob'].set_data_qubit_memory_limit(-1)
 
+    def tearDown(self):
+        global hosts
+        hosts['alice'].max_ack_wait = -1
+        hosts['bob'].max_ack_wait = -1
         hosts['alice'].empty_classical()
         hosts['bob'].empty_classical()
-
-    def tearDown(self):
-        pass
 
     # @unittest.skip('')
     def test_shares_epr(self):
@@ -87,10 +88,8 @@ class TestOneHop(unittest.TestCase):
 
     # @unittest.skip('')
     def test_send_classical(self):
-        hosts['alice'].send_classical(
-            hosts['bob'].host_id, 'Hello Bob', await_ack=False)
-        hosts['bob'].send_classical(
-            hosts['alice'].host_id, 'Hello Alice', await_ack=False)
+        hosts['alice'].send_classical(hosts['bob'].host_id, 'Hello Bob', await_ack=False)
+        hosts['bob'].send_classical(hosts['alice'].host_id, 'Hello Alice', await_ack=False)
         i = 0
         bob_messages = hosts['bob'].classical
 
@@ -114,73 +113,32 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(bob_messages[0].sender, hosts['alice'].host_id)
         self.assertEqual(bob_messages[0].content, 'Hello Bob')
 
-    @unittest.skip('')
-    def test_await_ack(self):
-        global hosts
+    # @unittest.skip('')
+    def test_send_classical_w_seq_number(self):
+        hosts['alice'].reset_sequence_numbers()
+        hosts['bob'].reset_sequence_numbers()
 
-        # print(f"ack test - SEND CLASSICAL - started at {time.strftime('%X')}")
-        hosts['alice'].send_classical(
-            hosts['bob'].host_id, 'hello bob one', await_ack=True)
-        hosts['alice'].send_classical(
-            hosts['bob'].host_id, 'hello bob two', await_ack=True)
-        # print(f"ack test - SEND CLASSICAL - finished at {time.strftime('%X')}")
+        hosts['alice'].send_classical(hosts['bob'].host_id, 'M0', await_ack=True)
+        hosts['alice'].send_classical(hosts['bob'].host_id, 'M1', await_ack=True)
+        hosts['alice'].send_classical(hosts['bob'].host_id, 'M2', await_ack=True)
 
-        saw_ack_1 = False
-        saw_ack_2 = False
-        messages = hosts['alice'].get_classical('bob')
-        print(messages)
-        for m in messages:
-            if m.content == Constants.ACK and m.seq_num == 1:
-                saw_ack_1 = True
-            if m.content == Constants.ACK and m.seq_num == 2:
-                saw_ack_2 = True
-            if saw_ack_1 and saw_ack_2:
-                break
+        bob_messages = hosts['bob'].classical
+        self.assertTrue(len(bob_messages) == 3)
 
-        self.assertTrue(saw_ack_1)
-        self.assertTrue(saw_ack_2)
+        m0 = hosts['bob'].get_classical(hosts['alice'].host_id, seq_num=0)
+        m1 = hosts['bob'].get_classical(hosts['alice'].host_id, seq_num=1)
+        m2 = hosts['bob'].get_classical(hosts['alice'].host_id, seq_num=2)
 
-        # print(f"ack test - SEND SUPERDENSE - started at {time.strftime('%X')}")
-        hosts['alice'].send_superdense(
-            hosts['bob'].host_id, '00', await_ack=True)
-        # print(f"ack test - SEND SUPERDENSE - finished at {time.strftime('%X')}")
+        self.assertTrue(m0.seq_num == 0)
+        self.assertTrue(m1.seq_num == 1)
+        self.assertTrue(m2.seq_num == 2)
 
-        saw_ack = False
-        messages = hosts['alice'].get_classical('bob')
-        for m in messages:
-            if m.content == Constants.ACK and m.seq_num == 3:
-                saw_ack = True
-                break
+        self.assertTrue(m0.content == 'M0')
+        self.assertTrue(m1.content == 'M1')
+        self.assertTrue(m2.content == 'M2')
 
-        self.assertTrue(saw_ack)
-
-        q = Qubit(hosts['alice'])
-
-        # print(f"ack test - SEND TELEPORT - started at {time.strftime('%X')}")
-        hosts['alice'].send_teleport(hosts['bob'].host_id, q, await_ack=True)
-        # print(f"ack test - SEND TELEPORT - finished at {time.strftime('%X')}")
-
-        saw_ack = False
-        messages = hosts['alice'].get_classical('bob')
-        for m in messages:
-            if m.content == Constants.ACK and m.seq_num == 4:
-                saw_ack = True
-                break
-
-        self.assertTrue(saw_ack)
-
-        # print(f"ack test - SEND EPR - started at {time.strftime('%X')}")
-        hosts['alice'].send_epr(hosts['bob'].host_id, await_ack=True)
-        # print(f"ack test - SEND EPR - finished at {time.strftime('%X')}")
-
-        saw_ack = False
-        messages = hosts['alice'].get_classical('bob')
-        for m in messages:
-            if m['message'] == Constants.ACK and m['sequence_number'] == 5:
-                saw_ack = True
-                break
-
-        self.assertTrue(saw_ack)
+        hosts['bob'].empty_classical()
+        self.assertTrue(len(hosts['bob'].classical) == 0)
 
     # @unittest.skip('')
     def test_max_wait_for_ack(self):
@@ -214,6 +172,8 @@ class TestOneHop(unittest.TestCase):
             time.sleep(1)
 
         self.assertIsNotNone(q2)
+        assert q1 is not None
+        assert q2 is not None
         self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
@@ -228,7 +188,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q_bob)
         self.assertEqual(q_alice.measure(), q_bob.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport(self):
         global hosts
 
@@ -245,6 +205,7 @@ class TestOneHop(unittest.TestCase):
             time.sleep(1)
 
         self.assertIsNotNone(q2)
+        assert q2 is not None
         self.assertEqual(q2.measure(), 1)
 
     # @unittest.skip('')
@@ -331,6 +292,7 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(messages[0].content, '11')
 
         self.assertIsNotNone(q2)
+        assert q2 is not None
         self.assertEqual(q2.measure(), 1)
 
     @unittest.skip('')
@@ -467,13 +429,13 @@ class TestOneHop(unittest.TestCase):
     def test_get_before_send(self):
         global hosts
 
-        def alice_do(alice):
+        def alice_do(s):
             q = Qubit(hosts['alice'])
             q.X()
             time.sleep(1)
             _ = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
 
-        def bob_do(bob):
+        def bob_do(s):
             rec_q = hosts['bob'].get_data_qubit(
                 hosts['alice'].host_id, wait=-1)
             self.assertIsNotNone(rec_q)
@@ -484,41 +446,3 @@ class TestOneHop(unittest.TestCase):
 
         t1.join()
         t2.join()
-
-    @unittest.skip('')
-    def test_packet_loss_classical(self):
-        global hosts
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.network.packet_drop_rate = 0.75
-        self.network.delay = 0
-        self.hosts = hosts
-
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
-
-        # ACKs for 1 hop take at most 2 seconds
-        hosts['alice'].max_ack_wait = 3
-        num_acks = 0
-        num_messages = 15
-        for _ in range(num_messages):
-            ack = hosts['alice'].send_classical(
-                hosts['bob'].host_id, 'Hello Bob', await_ack=True)
-            if ack:
-                num_acks += 1
-
-        num_messages_bob_received = len(hosts['bob'].classical)
-        self.assertTrue(num_acks != num_messages)
-        self.assertTrue(num_acks < num_messages)
-        self.assertTrue(num_messages_bob_received < num_messages)
-
-        # ACKs can also get dropped
-        self.assertTrue(num_messages_bob_received > num_acks)
-        self.assertTrue(float(num_acks) / num_messages < 0.9)

@@ -6,8 +6,7 @@ class RoutingPacket(object):
     A network layer packet.
     """
 
-    def __init__(self, sender, receiver, protocol, payload_type, payload,
-                 ttl, route, ):
+    def __init__(self, sender, receiver, protocol, payload_type, payload, ttl, route):
         """
         Encodes a packet into another packet, which has a ttl and route in
         addition.
