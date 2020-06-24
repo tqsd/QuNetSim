@@ -88,13 +88,16 @@ class Host(object):
         Gets the received classical messages sorted with the sequence number.
 
         Returns:
-             Array: Sorted array of classical messages.
+             (list): Sorted list of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
 
     def empty_classical(self, reset_seq_nums=False):
         """
         Empty the classical message buffers.
+
+        Args:
+            reset_seq_nums (bool): if all sequence number should also be reset.
         """
         if reset_seq_nums:
             self.reset_sequence_numbers()
@@ -120,7 +123,7 @@ class Host(object):
         Get the delay of the queue processor.
 
         Returns:
-            The delay per tick for the queue processor.
+            (float): The delay per tick for the queue processor.
         """
         return self._delay
 
@@ -131,7 +134,6 @@ class Host(object):
 
         Args:
             delay (float): The delay per tick for the queue processor.
-
         """
         if not (isinstance(delay, int) or isinstance(delay, float)):
             raise Exception('delay should be a number')
@@ -636,7 +638,7 @@ class Host(object):
             receiver_id (str): The ID of the connection to remove
 
         Returns:
-            list: a two element array of the status of the removals.
+            (list): a two element list of the status of the removals.
         """
         c = self.remove_c_connection(receiver_id)
         q = self.remove_q_connection(receiver_id)
@@ -882,8 +884,7 @@ class Host(object):
             distribute (bool): If the sender should keep part of the GHZ state, or just
                                distribute one
         Returns:
-            Q_id, Qubit: Qubit which belongs to the host and is part of the
-                        GHZ state and ID which all Qubits will have.
+            (str, bool): Qubit ID of the shared GHZ and ACK status
         """
         own_qubit = Qubit(self, q_id=q_id)
         q_id = own_qubit.id
@@ -928,7 +929,6 @@ class Host(object):
                 if self.await_ack(seq_num, receiver_id) is False:
                     ret = False
             return q_id, ret
-
         return q_id
 
     def get_ghz(self, host_id, q_id=None, wait=0):
@@ -959,6 +959,7 @@ class Host(object):
             no_ack (bool): If this message should not use any ACK and sequencing.
             payload:
             generate_epr_if_none: Generate an EPR pair with receiver if one doesn't exist
+
         Returns:
             (bool) If await_ack=True, return the status of the ACK
         """
