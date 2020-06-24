@@ -63,10 +63,6 @@ class TestTwoHop(unittest.TestCase):
         hosts['bob'].set_data_qubit_memory_limit(-1)
         hosts['eve'].set_data_qubit_memory_limit(-1)
 
-        hosts['alice'].empty_classical()
-        hosts['bob'].empty_classical()
-        hosts['eve'].empty_classical()
-
     def tearDown(self):
         hosts['alice'].max_ack_wait = -1
         hosts['bob'].max_ack_wait = -1
@@ -92,12 +88,18 @@ class TestTwoHop(unittest.TestCase):
 
     # @unittest.skip('')
     def test_send_classical_w_seq_number(self):
+        hosts['alice'].reset_sequence_numbers()
+        hosts['bob'].reset_sequence_numbers()
+        hosts['eve'].reset_sequence_numbers()
+
         hosts['alice'].send_classical(hosts['eve'].host_id, 'M0', await_ack=True)
         hosts['alice'].send_classical(hosts['eve'].host_id, 'M1', await_ack=True)
         hosts['alice'].send_classical(hosts['eve'].host_id, 'M2', await_ack=True)
 
         eve_messages = hosts['eve'].classical
         self.assertTrue(len(eve_messages) == 3)
+        for i in eve_messages:
+            print(i)
 
         m0 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=0)
         m1 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=1)
@@ -108,8 +110,8 @@ class TestTwoHop(unittest.TestCase):
         self.assertTrue(m2.seq_num == 2)
 
         self.assertTrue(m0.content == 'M0')
-        self.assertTrue(m1.seq_num == 'M1')
-        self.assertTrue(m2.seq_num == 'M2')
+        self.assertTrue(m1.content == 'M1')
+        self.assertTrue(m2.content == 'M2')
 
         hosts['eve'].empty_classical()
         self.assertTrue(len(hosts['eve'].classical) == 0)

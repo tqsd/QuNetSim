@@ -118,7 +118,7 @@ class TestOneHop(unittest.TestCase):
         hosts['alice'].reset_sequence_numbers()
         hosts['bob'].reset_sequence_numbers()
 
-        d = hosts['alice'].send_classical(hosts['bob'].host_id, 'M0', await_ack=True)
+        hosts['alice'].send_classical(hosts['bob'].host_id, 'M0', await_ack=True)
         hosts['alice'].send_classical(hosts['bob'].host_id, 'M1', await_ack=True)
         hosts['alice'].send_classical(hosts['bob'].host_id, 'M2', await_ack=True)
 
@@ -172,6 +172,8 @@ class TestOneHop(unittest.TestCase):
             time.sleep(1)
 
         self.assertIsNotNone(q2)
+        assert q1 is not None
+        assert q2 is not None
         self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
@@ -186,7 +188,7 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q_bob)
         self.assertEqual(q_alice.measure(), q_bob.measure())
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_teleport(self):
         global hosts
 
@@ -203,6 +205,7 @@ class TestOneHop(unittest.TestCase):
             time.sleep(1)
 
         self.assertIsNotNone(q2)
+        assert q2 is not None
         self.assertEqual(q2.measure(), 1)
 
     # @unittest.skip('')
@@ -289,6 +292,7 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(messages[0].content, '11')
 
         self.assertIsNotNone(q2)
+        assert q2 is not None
         self.assertEqual(q2.measure(), 1)
 
     @unittest.skip('')
@@ -425,13 +429,13 @@ class TestOneHop(unittest.TestCase):
     def test_get_before_send(self):
         global hosts
 
-        def alice_do(alice):
+        def alice_do(s):
             q = Qubit(hosts['alice'])
             q.X()
             time.sleep(1)
             _ = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
 
-        def bob_do(bob):
+        def bob_do(s):
             rec_q = hosts['bob'].get_data_qubit(
                 hosts['alice'].host_id, wait=-1)
             self.assertIsNotNone(rec_q)
@@ -442,41 +446,3 @@ class TestOneHop(unittest.TestCase):
 
         t1.join()
         t2.join()
-
-    @unittest.skip('')
-    def test_packet_loss_classical(self):
-        global hosts
-        hosts = {'alice': Host('Alice'),
-                 'bob': Host('Bob')}
-
-        self.network.packet_drop_rate = 0.75
-        self.network.delay = 0
-        self.hosts = hosts
-
-        hosts['alice'].add_connection('Bob')
-        hosts['bob'].add_connection('Alice')
-
-        hosts['alice'].start()
-        hosts['bob'].start()
-
-        for h in hosts.values():
-            self.network.add_host(h)
-
-        # ACKs for 1 hop take at most 2 seconds
-        hosts['alice'].max_ack_wait = 3
-        num_acks = 0
-        num_messages = 15
-        for _ in range(num_messages):
-            ack = hosts['alice'].send_classical(
-                hosts['bob'].host_id, 'Hello Bob', await_ack=True)
-            if ack:
-                num_acks += 1
-
-        num_messages_bob_received = len(hosts['bob'].classical)
-        self.assertTrue(num_acks != num_messages)
-        self.assertTrue(num_acks < num_messages)
-        self.assertTrue(num_messages_bob_received < num_messages)
-
-        # ACKs can also get dropped
-        self.assertTrue(num_messages_bob_received > num_acks)
-        self.assertTrue(float(num_acks) / num_messages < 0.9)
