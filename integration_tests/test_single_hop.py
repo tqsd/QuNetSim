@@ -52,11 +52,12 @@ class TestOneHop(unittest.TestCase):
         hosts['alice'].set_data_qubit_memory_limit(-1)
         hosts['bob'].set_data_qubit_memory_limit(-1)
 
-        hosts['alice'].empty_classical(reset_seq_nums=True)
-        hosts['bob'].empty_classical(reset_seq_nums=True)
-
     def tearDown(self):
-        pass
+        global hosts
+        hosts['alice'].max_ack_wait = -1
+        hosts['bob'].max_ack_wait = -1
+        hosts['alice'].empty_classical()
+        hosts['bob'].empty_classical()
 
     # @unittest.skip('')
     def test_shares_epr(self):
@@ -114,14 +115,14 @@ class TestOneHop(unittest.TestCase):
 
     # @unittest.skip('')
     def test_send_classical_w_seq_number(self):
-        hosts['alice'].send_classical(hosts['bob'].host_id, 'M0', await_ack=True)
+        hosts['alice'].reset_sequence_numbers()
+        hosts['bob'].reset_sequence_numbers()
+
+        d = hosts['alice'].send_classical(hosts['bob'].host_id, 'M0', await_ack=True)
         hosts['alice'].send_classical(hosts['bob'].host_id, 'M1', await_ack=True)
         hosts['alice'].send_classical(hosts['bob'].host_id, 'M2', await_ack=True)
 
         bob_messages = hosts['bob'].classical
-        for i in bob_messages:
-            print(i)
-
         self.assertTrue(len(bob_messages) == 3)
 
         m0 = hosts['bob'].get_classical(hosts['alice'].host_id, seq_num=0)
@@ -136,8 +137,8 @@ class TestOneHop(unittest.TestCase):
         self.assertTrue(m1.content == 'M1')
         self.assertTrue(m2.content == 'M2')
 
-        # hosts['bob'].empty_classical()
-        # self.assertTrue(len(hosts['bob'].classical) == 0)
+        hosts['bob'].empty_classical()
+        self.assertTrue(len(hosts['bob'].classical) == 0)
 
     # @unittest.skip('')
     def test_max_wait_for_ack(self):

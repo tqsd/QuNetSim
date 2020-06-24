@@ -68,7 +68,12 @@ class TestTwoHop(unittest.TestCase):
         hosts['eve'].empty_classical()
 
     def tearDown(self):
-        pass
+        hosts['alice'].max_ack_wait = -1
+        hosts['bob'].max_ack_wait = -1
+        hosts['eve'].max_ack_wait = -1
+        hosts['alice'].empty_classical()
+        hosts['bob'].empty_classical()
+        hosts['eve'].empty_classical()
 
     # @unittest.skip('')
     def test_send_classical(self):
