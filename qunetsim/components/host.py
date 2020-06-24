@@ -1173,7 +1173,7 @@ class Host(object):
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, host_id, seq_num=-1, wait=-1):
+    def get_classical(self, host_id, seq_num=-1, wait=0):
         """
         Get the classical messages from partner host *host_id*.
 
@@ -1187,6 +1187,9 @@ class Host(object):
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
+
+        if seq_num > -1:
+            return self._get_message_w_seq_num(host_id, seq_num, wait)
 
         cla = self._classical_messages.get_all_from_sender(host_id, wait)
         return sorted(cla, key=lambda x: x.seq_num, reverse=True)
