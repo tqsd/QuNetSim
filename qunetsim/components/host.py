@@ -376,7 +376,7 @@ class Host(object):
             wait (int):
 
         Returns:
-
+            Message: The message
         """
         def _wait():
             nonlocal m
@@ -403,13 +403,12 @@ class Host(object):
         if wait > 0:
             wait_forever = False
             DaemonThread(_wait).join()
-            return m
         elif wait == -1:
             wait_forever = True
             DaemonThread(_wait).join()
         else:
             filter_messages()
-            return m
+        return m
 
     def _log_ack(self, protocol, receiver, seq):
         """
