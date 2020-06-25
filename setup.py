@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='qunetsim',
-    version='0.1.0post2',
+    version='0.1.0post4',
     scripts=['bin/template'],
     author="Stephen DiAdamo",
     author_email="stephen.diadamo@gmail.com",
@@ -14,8 +14,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tqsd/QuNetSim",
-    download_url="https://github.com/tqsd/QuNetSim/releases/tag/0.1.0",
-    keywords = ['quantum', 'networks', 'simulator', 'internet', 'QuNetSim'],
+    download_url="https://github.com/tqsd/QuNetSim/releases/tag/0.1.0.post4",
+    keywords=['quantum', 'networks', 'simulator', 'internet', 'QuNetSim'],
     install_requires=[
         'eqsn',
         'networkx',
