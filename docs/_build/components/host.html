@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -320,13 +320,77 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </li>
 </ul>
-<span class="target" id="module-qunetsim.components.host"></span><dl class="py class">
+<span class="target" id="module-qunetsim.components.host"></span><dl class="class">
 <dt id="qunetsim.components.host.Host">
-<em class="property">class </em><code class="sig-prename descclassname">qunetsim.components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host" title="Permalink to this definition">¶</a></dt>
-<dd><p>Host object acting as either a router node or an application host node.</p>
-<dl class="py method">
+<em class="property">class </em><code class="sig-prename descclassname">qunetsim.components.host.</code><code class="sig-name descname">Host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">backend=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Host object acting as either a router node or an application host node.</p>
+<dl class="method">
+<dt id="qunetsim.components.host.Host._get_message_w_seq_num">
+<code class="sig-name descname">_get_message_w_seq_num</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">seq_num</em>, <em class="sig-param">wait</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host._get_message_w_seq_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a message from a sender with a specific sequence number.
+:param sender_id: The ID of the sender
+:type sender_id: str
+:param seq_num: The sequence number
+:type seq_num: int
+:param wait: The amount of time to wait. (-1 to wait forever)
+:type wait: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The message</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="../objects/message.html#qunetsim.objects.message.Message" title="qunetsim.objects.message.Message">Message</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host._log_ack">
+<code class="sig-name descname">_log_ack</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host._log_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs acknowledgement messages.
+:param protocol: The protocol for the ACK
+:type protocol: str
+:param receiver: The sender of the ACK
+:type receiver: str
+:param seq: The sequence number of the packet
+:type seq: int</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host._process_ack">
+<code class="sig-name descname">_process_ack</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">seq_num</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host._process_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes an ACK msg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<em>str</em>) – The sender of the ack</p></li>
+<li><p><strong>seq_num</strong> (<em>int</em>) – The sequence number of the ack</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host._process_packet">
+<code class="sig-name descname">_process_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host._process_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the received packet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The received packet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host._process_queue">
+<code class="sig-name descname">_process_queue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host._process_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a thread for processing the packets in the packet queue.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_c_connection">
-<code class="sig-name descname">add_c_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_c_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_c_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_c_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the classical connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -335,9 +399,9 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_c_connections">
-<code class="sig-name descname">add_c_connections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_ids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_c_connections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_c_connections</code><span class="sig-paren">(</span><em class="sig-param">receiver_ids</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_c_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the classical connections to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -346,9 +410,9 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_checksum">
-<code class="sig-name descname">add_checksum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qubits</span></em>, <em class="sig-param"><span class="n">size_per_qubit</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_checksum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_checksum</code><span class="sig-paren">(</span><em class="sig-param">qubits</em>, <em class="sig-param">size_per_qubit=2</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_checksum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of qubits that represent a quantum checksum for the set of qubits <em>qubits</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -366,9 +430,9 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_connection">
-<code class="sig-name descname">add_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the classical and quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -377,9 +441,9 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_connections">
-<code class="sig-name descname">add_connections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_ids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_connections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_connections</code><span class="sig-paren">(</span><em class="sig-param">receiver_ids</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the classical and quantum connections to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -388,9 +452,9 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_data_qubit">
-<code class="sig-name descname">add_data_qubit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">qubit</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_data_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_data_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
 otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dl class="field-list simple">
@@ -410,9 +474,9 @@ otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_epr">
-<code class="sig-name descname">add_epr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">qubit</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blocked</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_epr</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">blocked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
 otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <dl class="field-list simple">
@@ -433,9 +497,9 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_ghz_qubit">
-<code class="sig-name descname">add_ghz_qubit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">qubit</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_ghz_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_ghz_qubit</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_ghz_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the GHZ qubit to the storage of the host. The host id corresponds
 to the generator of the GHZ state.</p>
 <dl class="field-list simple">
@@ -455,9 +519,9 @@ to the generator of the GHZ state.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_q_connection">
-<code class="sig-name descname">add_q_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_q_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_q_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_q_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -466,9 +530,9 @@ to the generator of the GHZ state.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.add_q_connections">
-<code class="sig-name descname">add_q_connections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_ids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_q_connections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_q_connections</code><span class="sig-paren">(</span><em class="sig-param">receiver_ids</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_q_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the quantum connection to host with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -477,9 +541,9 @@ to the generator of the GHZ state.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.await_ack">
-<code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence_number</span></em>, <em class="sig-param"><span class="n">sender</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param">sequence_number</em>, <em class="sig-param">sender</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Block until an ACK for packet with sequence number arrives.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -497,9 +561,9 @@ to the generator of the GHZ state.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.await_remaining_acks">
-<code class="sig-name descname">await_remaining_acks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_remaining_acks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">await_remaining_acks</code><span class="sig-paren">(</span><em class="sig-param">sender</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_remaining_acks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Awaits all remaining ACKs of one sender.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -508,9 +572,9 @@ to the generator of the GHZ state.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.change_epr_qubit_id">
-<code class="sig-name descname">change_epr_qubit_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">new_id</span></em>, <em class="sig-param"><span class="n">old_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.change_epr_qubit_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">change_epr_qubit_id</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">new_id</em>, <em class="sig-param">old_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.change_epr_qubit_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change an EPR pair ID to another. If <em>old_id</em> is set, then change that specific
 EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.</p>
 <dl class="field-list simple">
@@ -530,7 +594,7 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.classical">
 <em class="property">property </em><code class="sig-name descname">classical</code><a class="headerlink" href="#qunetsim.components.host.Host.classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the received classical messages sorted with the sequence number.</p>
@@ -544,7 +608,7 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.classical_connections">
 <em class="property">property </em><code class="sig-name descname">classical_connections</code><a class="headerlink" href="#qunetsim.components.host.Host.classical_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the classical connections of the host.</p>
@@ -555,7 +619,7 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.delay">
 <em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#qunetsim.components.host.Host.delay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the delay of the queue processor.</p>
@@ -569,9 +633,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.empty_classical">
-<code class="sig-name descname">empty_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reset_seq_nums</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.empty_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">empty_classical</code><span class="sig-paren">(</span><em class="sig-param">reset_seq_nums=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.empty_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Empty the classical message buffers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -580,9 +644,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_classical">
-<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">seq_num</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">seq_num=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the classical messages from partner host <em>host_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -601,7 +665,7 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_connections">
 <code class="sig-name descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of the connections with the types.</p>
@@ -615,9 +679,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_data_qubit">
-<code class="sig-name descname">get_data_qubit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_data_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data_qubit</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_data_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the data qubit received from another host in the network. If qubit ID is specified,
 qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dl class="field-list simple">
@@ -637,9 +701,9 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_data_qubits">
-<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
 Does not remove the qubits from storage like <em>get_data_qubit</em> does.</p>
 <dl class="field-list simple">
@@ -660,9 +724,9 @@ Return an empty list otherwise.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_epr">
-<code class="sig-name descname">get_epr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_epr</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
 EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dl class="field-list simple">
@@ -682,9 +746,9 @@ EPR with that ID is returned, else, the last EPR added is returned.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_epr_pairs">
-<code class="sig-name descname">get_epr_pairs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_epr_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_epr_pairs</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_epr_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
 Does not remove the qubits from storage like <em>get_epr_pair</em> does.</p>
 <dl class="field-list simple">
@@ -705,9 +769,9 @@ Return an empty list otherwise.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_ghz">
-<code class="sig-name descname">get_ghz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_ghz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ghz</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_ghz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the GHZ qubit which has been created by the host with the host ID <em>host_id</em>.
 It is not necessary to know with whom the states are shared.</p>
 <dl class="field-list simple">
@@ -727,9 +791,9 @@ It is not necessary to know with whom the states are shared.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_next_classical">
-<code class="sig-name descname">get_next_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender_id</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_next_classical</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the next classical message available from a sender.
 If wait is -1 (default), it is waited till a message arrives.</p>
 <dl class="field-list simple">
@@ -748,9 +812,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_next_classical_message">
-<code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receive_from_id</span></em>, <em class="sig-param"><span class="n">buffer</span></em>, <em class="sig-param"><span class="n">sequence_nr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param">receive_from_id</em>, <em class="sig-param">buffer</em>, <em class="sig-param">sequence_nr</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>WILL BE DELETED</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -769,9 +833,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_next_sequence_number">
-<code class="sig-name descname">get_next_sequence_number</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_sequence_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_next_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_sequence_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get and set the next sequence number of connection with a receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -786,9 +850,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_sequence_number">
-<code class="sig-name descname">get_sequence_number</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_sequence_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_sequence_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the sequence number on the sending side of connection with a host <em>host</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -803,9 +867,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_sequence_number_receiver">
-<code class="sig-name descname">get_sequence_number_receiver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_sequence_number_receiver" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sequence_number_receiver</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_sequence_number_receiver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the sequence number on the receiving side of the connection with host <em>host</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -820,7 +884,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.host_id">
 <em class="property">property </em><code class="sig-name descname">host_id</code><a class="headerlink" href="#qunetsim.components.host.Host.host_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the <em>host_id</em> of the host.</p>
@@ -834,7 +898,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.is_idle">
 <code class="sig-name descname">is_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.is_idle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns if the host has packets to process or is idle.</p>
@@ -848,7 +912,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.max_ack_wait">
 <em class="property">property </em><code class="sig-name descname">max_ack_wait</code><a class="headerlink" href="#qunetsim.components.host.Host.max_ack_wait" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the maximum amount of time to wait for an ACK</p>
@@ -862,7 +926,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.q_relay_sniffing">
 <em class="property">property </em><code class="sig-name descname">q_relay_sniffing</code><a class="headerlink" href="#qunetsim.components.host.Host.q_relay_sniffing" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the host should sniff quantum packets.</p>
@@ -876,7 +940,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.q_relay_sniffing_fn">
 <em class="property">property </em><code class="sig-name descname">q_relay_sniffing_fn</code><a class="headerlink" href="#qunetsim.components.host.Host.q_relay_sniffing_fn" title="Permalink to this definition">¶</a></dt>
 <dd><p>The function to apply to the qubits in transit.</p>
@@ -890,7 +954,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.quantum_connections">
 <em class="property">property </em><code class="sig-name descname">quantum_connections</code><a class="headerlink" href="#qunetsim.components.host.Host.quantum_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the quantum connections for the host.</p>
@@ -904,15 +968,15 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.quantum_relay_sniffing_function">
-<code class="sig-name descname">quantum_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">receiver</span></em>, <em class="sig-param"><span class="n">qubit</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.quantum_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">quantum_relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.quantum_relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the quantum relay sniffing function if one is set.</p>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.rec_packet">
-<code class="sig-name descname">rec_packet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">packet</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.rec_packet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rec_packet</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.rec_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Puts the packet into the packet queue of the host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -921,9 +985,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.relay_sniffing_function">
-<code class="sig-name descname">relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">receiver</span></em>, <em class="sig-param"><span class="n">transport_packet</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">transport_packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>The function called for packet sniffing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -936,9 +1000,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.remove_c_connection">
-<code class="sig-name descname">remove_c_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_c_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_c_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_c_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the classical connection with receiver with receiver ID <em>receiver_id</em>.
 :param receiver_id: The ID of the receiving side of the classical connection
 :type receiver_id: str</p>
@@ -952,9 +1016,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.remove_connection">
-<code class="sig-name descname">remove_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a classical and quantum connection from a host.
 :param receiver_id: The ID of the connection to remove
 :type receiver_id: str</p>
@@ -968,9 +1032,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.remove_q_connection">
-<code class="sig-name descname">remove_q_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_q_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_q_connection</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_q_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the quantum connection with receiver with receiver ID <em>receiver_id</em>.
 :param receiver_id: The ID of the receiving side of the quantum connection
 :type receiver_id: str</p>
@@ -984,15 +1048,15 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.reset_sequence_numbers">
 <code class="sig-name descname">reset_sequence_numbers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.reset_sequence_numbers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset all sequence numbers.</p>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.run_protocol">
-<code class="sig-name descname">run_protocol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">protocol</span></em>, <em class="sig-param"><span class="n">arguments</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.run_protocol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_protocol</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">arguments=()</em>, <em class="sig-param">blocking=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.run_protocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the protocol <em>protocol</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1011,9 +1075,9 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_ack">
-<code class="sig-name descname">send_ack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver</span></em>, <em class="sig-param"><span class="n">seq_number</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_ack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_ack</code><span class="sig-paren">(</span><em class="sig-param">receiver</em>, <em class="sig-param">seq_number</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the classical message to the receiver host with
 ID:receiver</p>
 <dl class="field-list simple">
@@ -1026,9 +1090,9 @@ ID:receiver</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_broadcast">
-<code class="sig-name descname">send_broadcast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_broadcast" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_broadcast</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_broadcast" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a broadcast message to all of the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1037,9 +1101,9 @@ ID:receiver</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_classical">
-<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_classical</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends the classical message to the receiver host with
 ID:receiver</p>
 <dl class="field-list simple">
@@ -1057,9 +1121,9 @@ ID:receiver</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_epr">
-<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em>, <em class="sig-param">block=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Establish an EPR pair with the receiver and return the qubit
 ID of pair.</p>
 <dl class="field-list simple">
@@ -1081,9 +1145,9 @@ ID of pair.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_ghz">
-<code class="sig-name descname">send_ghz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_list</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">distribute</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_ghz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_ghz</code><span class="sig-paren">(</span><em class="sig-param">receiver_list</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em>, <em class="sig-param">distribute=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_ghz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Share GHZ state with all receiver ids in the list. GHZ state is generated
 locally.</p>
 <dl class="field-list simple">
@@ -1107,9 +1171,9 @@ distribute one</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_key">
-<code class="sig-name descname">send_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">key_size</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_key" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_key</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">key_size</em>, <em class="sig-param">await_ack=True</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a secret key via QKD of length <em>key_size</em> to host with ID <em>receiver_id</em>.
 :param receiver_id: The ID of the receiver
 :type receiver_id: str
@@ -1127,9 +1191,9 @@ distribute one</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_qubit">
-<code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_qubit</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the qubit <em>q</em> to the receiver with ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1149,9 +1213,9 @@ distribute one</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_superdense">
-<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_superdense</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">message</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_superdense" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the two bit binary (i.e. ‘00’, ‘01’, ‘10’, ‘11) message via superdense
 coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 <dl class="field-list simple">
@@ -1169,9 +1233,9 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.send_teleport">
-<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_ack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">payload</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generate_epr_if_none</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_teleport</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">q</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">generate_epr_if_none=True</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_teleport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teleports the qubit <em>q</em> with the receiver with host ID <em>receiver</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1190,9 +1254,9 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.set_data_qubit_memory_limit">
-<code class="sig-name descname">set_data_qubit_memory_limit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limit</span></em>, <em class="sig-param"><span class="n">host_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.set_data_qubit_memory_limit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_qubit_memory_limit</code><span class="sig-paren">(</span><em class="sig-param">limit</em>, <em class="sig-param">host_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.set_data_qubit_memory_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the limit to how many data qubits can be stored from host_id, or if host_id is not set,
 use the limit for all connections.</p>
 <dl class="field-list simple">
@@ -1205,9 +1269,9 @@ use the limit for all connections.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.set_epr_memory_limit">
-<code class="sig-name descname">set_epr_memory_limit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limit</span></em>, <em class="sig-param"><span class="n">host_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.set_epr_memory_limit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_epr_memory_limit</code><span class="sig-paren">(</span><em class="sig-param">limit</em>, <em class="sig-param">host_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.set_epr_memory_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the limit to how many EPR pair halves can be stored from host_id, or if host_id is not set,
 use the limit for all connections.</p>
 <dl class="field-list simple">
@@ -1220,9 +1284,9 @@ use the limit for all connections.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.shares_epr">
-<code class="sig-name descname">shares_epr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.shares_epr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">shares_epr</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.shares_epr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns boolean value dependent on if the host shares an EPR pair
 with receiver with ID <em>receiver_id</em></p>
 <dl class="field-list simple">
@@ -1238,7 +1302,7 @@ with receiver with ID <em>receiver_id</em></p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.sniff_full_packet">
 <em class="property">property </em><code class="sig-name descname">sniff_full_packet</code><a class="headerlink" href="#qunetsim.components.host.Host.sniff_full_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the eavesdropper should get the whole packet or just the
@@ -1257,15 +1321,15 @@ payload.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.start">
 <code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts the host.</p>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.stop">
-<code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">release_qubits</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param">release_qubits=True</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the host. If release_qubit is true, clear the quantum memories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1274,7 +1338,7 @@ payload.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.storage_epr_limit">
 <em class="property">property </em><code class="sig-name descname">storage_epr_limit</code><a class="headerlink" href="#qunetsim.components.host.Host.storage_epr_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the maximum number of qubits that can be held in EPR memory.</p>
@@ -1288,7 +1352,7 @@ payload.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.components.host.Host.storage_limit">
 <em class="property">property </em><code class="sig-name descname">storage_limit</code><a class="headerlink" href="#qunetsim.components.host.Host.storage_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the maximum number of qubits that can be held in data qubit memory.</p>
@@ -1302,6 +1366,29 @@ payload.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.host._get_qubit">
+<code class="sig-prename descclassname">qunetsim.components.host.</code><code class="sig-name descname">_get_qubit</code><span class="sig-paren">(</span><em class="sig-param">store</em>, <em class="sig-param">host_id</em>, <em class="sig-param">q_id</em>, <em class="sig-param">purpose</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host._get_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the data qubit received from another host in the network. If qubit ID is specified,
+qubit with that ID is returned, else, the last qubit received is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store</strong> – The qubit storage to retrieve the qubit</p></li>
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that data qubit to be returned is received from.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the data qubit to get.</p></li>
+<li><p><strong>purpose</strong> (<em>str</em>) – The intended use of the qubit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Qubit received from the host with <em>host_id</em> and <em>q_id</em>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

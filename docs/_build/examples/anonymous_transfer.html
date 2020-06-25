@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -209,7 +209,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
 2
 3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">distribute</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
     <span class="c1"># distribute=True =&gt; sender doesn&#39;t keep part of the GHZ</span>
-    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>The next type of behaviour we would like to simulate is that of a node in the group that is not attempting to establish an EPR pair. In the anonymous entanglement protocol, the behaviour of such a node is to simply receive a piece of a GHZ state, perform a Hadamard operation on the received qubit, measure it, and broadcast to the remaining participating parties the outcome of a measurement in the computational basis. Below we see how to accomplish this. In the <code class="code docutils literal notranslate"><span class="pre">node</span></code> function below, the first parameter is, as always, the host that is performing the protocol. The second is the ID of the node distribution the GHZ state, which in this example, is host <span class="math notranslate nohighlight">\(A\)</span>. The host fetches its GHZ state where, if it is not available at the time, they will wait ten seconds for it, accomplished by setting the <code class="code docutils literal notranslate"><span class="pre">wait</span></code> parameter. If they have not received part of the GHZ state, then the protocol has failed, otherwise they simply perform the Hadamard operation on the received qubit, measures it, and broadcasts the message to the network. QuNetSim includes the task of broadcasting as a built-in function and therefore the task of sending classical messages to the whole network is not only simplified, but the host performing the network does not need to know the entire network to send a broadcast.</p>
@@ -222,8 +222,8 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
 7
 8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">node</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">):</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
@@ -256,11 +256,11 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
     <span class="n">sending_qubit</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
     <span class="n">sending_qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="c1"># Generate EPR if none shouldn&#39;t change anything, but if there is</span>
     <span class="c1"># no shared entanglement between s and r, then there should</span>
     <span class="c1"># be a mistake in the protocol</span>
-    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
@@ -302,7 +302,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
         <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">content</span> <span class="o">!=</span> <span class="s1">&#39;ACK&#39;</span><span class="p">]</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
     <span class="n">parity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sender</span> <span class="o">!=</span> <span class="n">s</span><span class="p">:</span>
@@ -311,11 +311,11 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
     <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
 </pre></div>
 </td></tr></table></div>
 <p>Full example:</p>
@@ -437,7 +437,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
 
 <span class="k">def</span> <span class="nf">distribute</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
     <span class="c1"># distribute=True =&gt; sender doesn&#39;t keep part of the GHZ</span>
-    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">sender</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">):</span>
@@ -450,11 +450,11 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
     <span class="n">sending_qubit</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
     <span class="n">sending_qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="c1"># Generate EPR if none shouldn&#39;t change anything, but if there is</span>
     <span class="c1"># no shared entanglement between s and r, then there should</span>
     <span class="c1"># be a mistake in the protocol</span>
-    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
 
 
@@ -470,7 +470,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
         <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">content</span> <span class="o">!=</span> <span class="s1">&#39;ACK&#39;</span><span class="p">]</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
     <span class="n">parity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sender</span> <span class="o">!=</span> <span class="n">s</span><span class="p">:</span>
@@ -479,17 +479,17 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
     <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
 
 
 <span class="k">def</span> <span class="nf">node</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">):</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
@@ -527,9 +527,9 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
         <span class="n">host_B</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
         <span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
         <span class="n">host_D</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_E</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">))</span>
-        <span class="n">host_E</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_D</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">),</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">host_E</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_D</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">),</span> <span class="n">blocking</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
