@@ -397,7 +397,7 @@ class Network:
         """
         host_sender = self.get_host(sender)
         lastfidelity = 1.0
-        print('Using ent swap')
+        #print('Using ent swap')
 
         def establish_epr(net, s, r):
             if not net.shares_epr(s, r):
@@ -562,15 +562,37 @@ class Network:
 
                 packet = self._packet_queue.get()
 
+                sender, receiver = packet.sender, packet.receiver
+                host_sender = self.get_host(sender)
+
+                # Find transmission probability of the quantum connection if the packet is a qubit or an EPR signal
+                if packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                    transmission_probability = 1.0
+                    for connection in host_sender.quantum_connections:
+                        if connection.receiver_id == receiver:
+                            transmission_probability = connection.transmission_p
+                            break
+
                 # Simulate packet loss
                 packet_drop_var = random.random()
+                transmission_var = random.random()
+
+                # Simulate packet loss as a property of the overall network
                 if packet_drop_var > (1 - self.packet_drop_rate):
                     Logger.get_instance().log("PACKET DROPPED")
                     if packet.payload_type == protocols.QUANTUM:
                         packet.payload.release()
                     continue
-
-                sender, receiver = packet.sender, packet.receiver
+                # Simulate packet loss due to absorption of qubits in the quantum channel
+                elif packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                    if transmission_var > transmission_probability:
+                        # print('Prob = %f'%transmission_probability)
+                        # print(host_sender.host_id)
+                        # print(self.get_host(receiver).host_id)
+                        Logger.get_instance().log("PACKET TRANSMISSION FAILED")
+                        if packet.payload_type == protocols.QUANTUM:
+                            packet.payload.release()
+                        continue
 
                 if packet.payload_type == protocols.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
@@ -635,10 +657,7 @@ class Network:
         Args:
             packet (Packet): Packet to be sent
         """
-        if random.random() <= packet.probability:
-            self._packet_queue.put(packet)
-        else:
-            Logger.get_instance().log('Packet transmission failed')
+        self._packet_queue.put(packet)
 
     def stop(self, stop_hosts=False):
         """

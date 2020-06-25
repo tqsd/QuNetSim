@@ -904,12 +904,12 @@ class Host:
             string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
 
-        connections = self.quantum_connections
-        establishment_probability = 0
-        for connection in connections:
-            if connection.receiver_id == receiver_id:
-                establishment_probability = connection.transmission_p
-                break
+        # connections = self.quantum_connections
+        # establishment_probability = 0
+        # for connection in connections:
+        #     if connection.receiver_id == receiver_id:
+        #         establishment_probability = connection.transmission_p
+        #         break
         # if (random.random() >= establishment_probability):
         #     if await_ack:
         #         return None, None
@@ -933,8 +933,8 @@ class Host:
                                   payload={'q_id': q_id, 'blocked': block, 'fidelity': fidelity},
                                   payload_type=protocols.SIGNAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack,
-                                  probability=establishment_probability)
+                                  await_ack=await_ack
+                                  )
         self.logger.log(self.host_id + " sends EPR to " + receiver_id)
         self._packet_queue.put(packet)
 
@@ -1051,12 +1051,12 @@ class Host:
         Returns:
             boolean: If await_ack=True, return the status of the ACK
         """
-        connections = self.quantum_connections
-        establishment_probability = 0
-        for connection in connections:
-            if connection.receiver_id == receiver_id:
-                establishment_probability = connection.transmission_p
-                break
+        # connections = self.quantum_connections
+        # establishment_probability = 0
+        # for connection in connections:
+        #     if connection.receiver_id == receiver_id:
+        #         establishment_probability = connection.transmission_p
+        #         break
         # if (random.random() >= establishment_probability):
         #     if await_ack:
         #         return None, None
@@ -1076,8 +1076,7 @@ class Host:
                                       'q': q, 'generate_epr_if_none': generate_epr_if_none},
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack,
-                                  probability=establishment_probability)
+                                  await_ack=await_ack)
         if payload is not None:
             packet.payload = payload
 
@@ -1101,17 +1100,17 @@ class Host:
         Returns:
            boolean: If await_ack=True, return the status of the ACK
         """
-        connections = self.quantum_connections
-        establishment_probability = 0
-        for connection in connections:
-            if connection.receiver_id == receiver_id:
-                establishment_probability = connection.transmission_p
-                break
-        if (random.random() >= establishment_probability):
-            if await_ack:
-                return None, None
-            else:
-                return None
+        # connections = self.quantum_connections
+        # establishment_probability = 0
+        # for connection in connections:
+        #     if connection.receiver_id == receiver_id:
+        #         establishment_probability = connection.transmission_p
+        #         break
+        # if (random.random() >= establishment_probability):
+        #     if await_ack:
+        #         return None, None
+        #     else:
+        #         return None
 
         if message not in ['00', '01', '10', '11']:
             raise ValueError(
@@ -1129,8 +1128,7 @@ class Host:
                                   payload=message,
                                   payload_type=protocols.CLASSICAL,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack,
-                                  probability=establishment_probability)
+                                  await_ack=await_ack)
         self.logger.log(self.host_id + " sends SUPERDENSE to " + receiver_id)
         self._packet_queue.put(packet)
 
@@ -1150,12 +1148,12 @@ class Host:
         Returns:
             string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
         """
-        connections = self.quantum_connections
-        establishment_probability = 0
-        for connection in connections:
-            if connection.receiver_id == receiver_id:
-                establishment_probability = connection.transmission_p
-                break
+        # connections = self.quantum_connections
+        # establishment_probability = 0
+        # for connection in connections:
+        #     if connection.receiver_id == receiver_id:
+        #         establishment_probability = connection.transmission_p
+        #         break
         # if (random.random() >= establishment_probability):
         #     if await_ack:
         #         return None, None
@@ -1176,8 +1174,7 @@ class Host:
                                   payload=q,
                                   payload_type=protocols.QUANTUM,
                                   sequence_num=seq_num,
-                                  await_ack=await_ack,
-                                  probability=establishment_probability)
+                                  await_ack=await_ack)
 
         self.logger.log(self.host_id + " sends QUBIT to " + receiver_id)
         self._packet_queue.put(packet)

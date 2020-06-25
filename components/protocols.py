@@ -55,7 +55,7 @@ SEND_GHZ = 'send_ghz'
 REC_GHZ = 'rec_ghz'
 
 
-def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False, probability=1.0):
+def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_num=-1, await_ack=False):
     """
     Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
     with data and the header.
@@ -72,7 +72,7 @@ def encode(sender, receiver, protocol, payload=None, payload_type='', sequence_n
     """
 
     packet = Packet(sender, receiver, protocol, payload_type, payload,
-                    sequence_number=sequence_num, await_ack=await_ack, probability=probability)
+                    sequence_number=sequence_num, await_ack=await_ack)
     # {
     #     SENDER: sender,
     #     RECEIVER: receiver,
