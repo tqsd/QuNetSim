@@ -353,7 +353,7 @@ through them. We see an example of that in the examples section.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>qubits</strong> – The set of qubits to encode</p></li>
+<li><p><strong>qubits</strong> (<em>list</em>) – The set of qubits to encode</p></li>
 <li><p><strong>size_per_qubit</strong> (<em>int</em>) – The size of the checksum per qubit (i.e. 1 qubit encoded into <em>size</em>)</p></li>
 </ul>
 </dd>
@@ -361,7 +361,7 @@ through them. We see an example of that in the examples section.</p>
 <dd class="field-even"><p>A list of qubits that are encoded for <em>qubits</em></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
+<dd class="field-odd"><p>(list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -405,7 +405,7 @@ otherwise generates an ID for the qubit and adds the qubit with that ID.</p>
 <dd class="field-even"><p>The qubit ID</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(string) <em>q_id</em></p>
+<dd class="field-odd"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -421,14 +421,14 @@ otherwise generates an ID for the EPR and adds the qubit with that ID.</p>
 <li><p><strong>host_id</strong> (<em>String</em>) – The ID of the host to pair the qubit</p></li>
 <li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
 <li><p><strong>q_id</strong> (<em>str</em>) – The ID of the qubit to be added.</p></li>
-<li><p><strong>blocked</strong> – If the qubit should be stored as blocked or not</p></li>
+<li><p><strong>blocked</strong> (<em>bool</em>) – If the qubit should be stored as blocked or not</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The qubit ID</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(string) <em>q_id</em></p>
+<dd class="field-odd"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -450,7 +450,7 @@ to the generator of the GHZ state.</p>
 <dd class="field-even"><p>The qubit ID</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(string) <em>q_id</em></p>
+<dd class="field-odd"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -480,12 +480,19 @@ to the generator of the GHZ state.</p>
 <dl class="py method">
 <dt id="qunetsim.components.host.Host.await_ack">
 <code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence_number</span></em>, <em class="sig-param"><span class="n">sender</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Block until an ACK for packet with sequence number arrives.
-:param sequence_number: The sequence number to wait for.
-:param sender: The sender of the ACK</p>
+<dd><p>Block until an ACK for packet with sequence number arrives.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The status of the ACK</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence_number</strong> (<em>int</em>) – The sequence number to wait for.</p></li>
+<li><p><strong>sender</strong> (<em>str</em>) – The sender of the ACK</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The status of the ACK</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -517,6 +524,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Old if of the qubit which has been changed.</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str)</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -526,10 +536,10 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dd><p>Gets the received classical messages sorted with the sequence number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Sorted array of classical messages.</p>
+<dd class="field-odd"><p>Sorted list of classical messages.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Array</p>
+<dd class="field-even"><p>(list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -553,18 +563,26 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The delay per tick for the queue processor.</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="qunetsim.components.host.Host.empty_classical">
-<code class="sig-name descname">empty_classical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.empty_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">empty_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reset_seq_nums</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.empty_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Empty the classical message buffers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reset_seq_nums</strong> (<em>bool</em>) – if all sequence number should also be reset.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="qunetsim.components.host.Host.get_classical">
-<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">seq_num</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_id</span></em>, <em class="sig-param"><span class="n">seq_num</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the classical messages from partner host <em>host_id</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -577,6 +595,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of classical messages from Host with ID <em>host_id</em>.</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list)</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -584,7 +605,14 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dt id="qunetsim.components.host.Host.get_connections">
 <code class="sig-name descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of the connections with the types.</p>
-<p>Returns:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of connections for this host.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(list)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -604,7 +632,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 <dd class="field-even"><p>Qubit received from the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -616,7 +644,7 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 Does not remove the qubits from storage like <em>get_data_qubit</em> does.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>host_id</strong> (<em>int</em>) – The host id from which the data qubit have been received.</p>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – The host id from which the data qubit have been received.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
@@ -627,7 +655,7 @@ Return an empty list otherwise.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>(dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -649,7 +677,7 @@ EPR with that ID is returned, else, the last EPR added is returned.</p>
 <dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -672,7 +700,7 @@ Return an empty list otherwise.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>(dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -694,7 +722,7 @@ It is not necessary to know with whom the states are shared.</p>
 <dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -714,13 +742,17 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The message or None</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str)</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="qunetsim.components.host.Host.get_next_classical_message">
 <code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receive_from_id</span></em>, <em class="sig-param"><span class="n">buffer</span></em>, <em class="sig-param"><span class="n">sequence_nr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p><em>WILL BE DELETED</em></p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>receive_from_id</strong> – </p></li>
@@ -728,8 +760,13 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 <li><p><strong>sequence_nr</strong> – </p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The message</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/message.html#qunetsim.objects.message.Message" title="qunetsim.objects.message.Message">Message</a>)</p>
+</dd>
 </dl>
-<p>Returns:</p>
 </dd></dl>
 
 <dl class="py method">
@@ -806,7 +843,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 <dd class="field-odd"><p>If the host is idle or not.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(boolean)</p>
+<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -821,6 +858,34 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qunetsim.components.host.Host.q_relay_sniffing">
+<em class="property">property </em><code class="sig-name descname">q_relay_sniffing</code><a class="headerlink" href="#qunetsim.components.host.Host.q_relay_sniffing" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the host should sniff quantum packets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the host should sniff quantum packets.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qunetsim.components.host.Host.q_relay_sniffing_fn">
+<em class="property">property </em><code class="sig-name descname">q_relay_sniffing_fn</code><a class="headerlink" href="#qunetsim.components.host.Host.q_relay_sniffing_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function to apply to the qubits in transit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The function to apply to the qubits in transit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(function)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -857,6 +922,21 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="qunetsim.components.host.Host.relay_sniffing_function">
+<code class="sig-name descname">relay_sniffing_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">receiver</span></em>, <em class="sig-param"><span class="n">transport_packet</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.relay_sniffing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function called for packet sniffing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<em>str</em>) – the sender of the packet</p></li>
+<li><p><strong>receiver</strong> (<em>str</em>) – the receiver of the packet</p></li>
+<li><p><strong>transport_packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – the packet itself</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="qunetsim.components.host.Host.remove_c_connection">
 <code class="sig-name descname">remove_c_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.remove_c_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the classical connection with receiver with receiver ID <em>receiver_id</em>.
@@ -880,10 +960,10 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 :type receiver_id: str</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>a two element array of the status of the removals.</p>
+<dd class="field-odd"><p>a two element list of the status of the removals.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list</p>
+<dd class="field-even"><p>(list)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -905,6 +985,12 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="qunetsim.components.host.Host.reset_sequence_numbers">
+<code class="sig-name descname">reset_sequence_numbers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.reset_sequence_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset all sequence numbers.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="qunetsim.components.host.Host.run_protocol">
 <code class="sig-name descname">run_protocol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">protocol</span></em>, <em class="sig-param"><span class="n">arguments</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">blocking</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.run_protocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the protocol <em>protocol</em>.</p>
@@ -920,7 +1006,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 <dd class="field-even"><p>The thread the protocol is running on</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DaemonThread</p>
+<dd class="field-odd"><p>(DaemonThread)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -966,10 +1052,7 @@ ID:receiver</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If await_ack=True, return the status of the ACK</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>boolean</p>
+<dd class="field-even"><p>(bool) If await_ack=True, return the status of the ACK</p>
 </dd>
 </dl>
 </dd></dl>
@@ -993,7 +1076,7 @@ ID of pair.</p>
 <dd class="field-even"><p>If await_ack=True, return the ID of the EPR pair and the status of the ACK</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>string, boolean</p>
+<dd class="field-odd"><p>(str, bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1016,14 +1099,10 @@ distribute one</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Qubit which belongs to the host and is part of the</dt><dd><p>GHZ state and ID which all Qubits will have.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>Qubit ID of the shared GHZ and ACK status</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Q_id, <a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a></p>
+<dd class="field-odd"><p>(str, bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1032,15 +1111,18 @@ distribute one</p></li>
 <dt id="qunetsim.components.host.Host.send_key">
 <code class="sig-name descname">send_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_id</span></em>, <em class="sig-param"><span class="n">key_size</span></em>, <em class="sig-param"><span class="n">await_ack</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a secret key via QKD of length <em>key_size</em> to host with ID <em>receiver_id</em>.
-:param receiver_id:
+:param receiver_id: The ID of the receiver
 :type receiver_id: str
-:param key_size:
+:param key_size: The size of the key
 :type key_size: int
-:param await_ack:
+:param await_ack: If the host should wait for an ACk
 :type await_ack: bool</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>bool</p>
+<dd class="field-odd"><p>Status of ACK</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1062,7 +1144,7 @@ distribute one</p></li>
 <dd class="field-even"><p>If await_ack=True, return the ID of the qubit and the status of the ACK</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>string, boolean</p>
+<dd class="field-odd"><p>(str, bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1082,10 +1164,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If await_ack=True, return the status of the ACK</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>boolean</p>
+<dd class="field-even"><p>(bool) If await_ack=True, return the status of the ACK</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1106,10 +1185,7 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If await_ack=True, return the status of the ACK</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>boolean</p>
+<dd class="field-even"><p>(bool) If await_ack=True, return the status of the ACK</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1157,7 +1233,7 @@ with receiver with ID <em>receiver_id</em></p>
 <dd class="field-even"><p>Whether the host shares an EPR pair with receiver with ID <em>receiver_id</em></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>boolean</p>
+<dd class="field-odd"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1193,7 +1269,7 @@ payload.</p>
 <dd><p>Stops the host. If release_qubit is true, clear the quantum memories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>release_qubits</strong> (<em>boolean</em>) – If release_qubit is true, clear the quantum memories.</p>
+<dd class="field-odd"><p><strong>(</strong><strong>boolean</strong><strong>)</strong> – If release_qubit is true, clear the quantum memories.</p>
 </dd>
 </dl>
 </dd></dl>
