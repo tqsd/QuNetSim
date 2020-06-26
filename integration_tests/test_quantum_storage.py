@@ -157,9 +157,9 @@ class TestQuantumStorage(unittest.TestCase):
         q3 = FakeQubit()
 
         storage = QuantumStorage()
-        storage.add_qubit_from_host('T', Constants.DATA, q1)
-        storage.add_qubit_from_host('T', Constants.EPR, q2)
-        storage.add_qubit_from_host('T', Constants.GHZ, q3)
+        storage.add_qubit_from_host(q1, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q2, from_host_id='T', purpose=Constants.EPR)
+        storage.add_qubit_from_host(q3, from_host_id='V', purpose=Constants.GHZ)
 
         self.assertEqual(q1, storage.get_qubit_by_id(q1.id))
         self.assertEqual(q2, storage.get_qubit_by_id(q2.id))
