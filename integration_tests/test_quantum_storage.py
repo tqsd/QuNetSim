@@ -2,9 +2,13 @@ import unittest
 import uuid
 
 from qunetsim.objects import QuantumStorage
+from qunetsim.utils.constants import Constants
 
 
 class FakeQubit(object):
+    """
+    A qubit object that has fewer properties to test quantum storage.
+    """
 
     def __init__(self, id=None):
         if id is not None:
@@ -146,3 +150,17 @@ class TestQuantumStorage(unittest.TestCase):
         self.assertEqual(q1, None)
         q2 = storage.get_qubit_from_host('Bob', new_id2)
         self.assertNotEqual(q2, None)
+
+    def test_get_qubit_by_id(self):
+        q1 = FakeQubit()
+        q2 = FakeQubit()
+        q3 = FakeQubit()
+
+        storage = QuantumStorage()
+        storage.add_qubit_from_host('T', Constants.DATA, q1)
+        storage.add_qubit_from_host('T', Constants.EPR, q2)
+        storage.add_qubit_from_host('T', Constants.GHZ, q3)
+
+        self.assertEqual(q1, storage.get_qubit_by_id(q1.id))
+        self.assertEqual(q2, storage.get_qubit_by_id(q2.id))
+        self.assertEqual(q3, storage.get_qubit_by_id(q3.id))

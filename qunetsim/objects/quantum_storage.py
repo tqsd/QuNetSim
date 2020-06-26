@@ -154,6 +154,20 @@ class QuantumStorage(object):
         self.lock.release_write()
         return False
 
+    def get_qubit_by_id(self, q_id):
+        """
+        Return the qubit that has the id *q_id*
+
+        Args:
+            q_id (str): The ID of the qubit
+        Returns:
+            (Qubit): The qubit with the id *q_id* or None if it does not exist
+        """
+        matching_qubits = [q for q_list in self._qubit_dict.values() for q in q_list if q.id == q_id]
+        if len(matching_qubits) > 0:
+            return matching_qubits[0]
+        return None
+
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
         Changes the ID of a qubit. If the ID is not given, a random

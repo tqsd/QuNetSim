@@ -1334,6 +1334,17 @@ class Host(object):
         else:
             return DaemonThread(protocol, args=arguments)
 
+    def get_qubit_by_id(self, q_id):
+        """
+        Return the qubit that has the id *q_id* from the quantum storage.
+
+        Args:
+            q_id (str): The ID of the qubit
+        Returns:
+            (Qubit): The qubit with the id *q_id* or None if it does not exist
+        """
+        return self._qubit_storage.get_qubit_by_id(q_id)
+
     def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
         """
         *WILL BE DELETED*
