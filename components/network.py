@@ -46,6 +46,7 @@ class Network:
             self._x_error_rate = 0
             self._z_error_rate = 0
             self._backend = None
+            self._tick = 0
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -226,6 +227,17 @@ class Network:
             raise Exception('Z error rate should be a number')
 
         self._z_error_rate = error_rate
+
+    @property
+    def tick(self):
+        """
+        Returns the current tick of the network.
+        Used for timing operations.
+
+        Args:
+            tick (int): Current tick of the network
+        """
+        return self._tick
 
     def add_host(self, host):
         """
@@ -555,10 +567,12 @@ class Network:
             if self._stop_thread:
                 break
 
+            # Artificially delay the network and increment tick
+            if self.delay > 0:
+                time.sleep(self.delay)
+            self._tick += 1
+
             if not self._packet_queue.empty():
-                # Artificially delay the network
-                if self.delay > 0:
-                    time.sleep(self.delay)
 
                 packet = self._packet_queue.get()
 

@@ -409,6 +409,17 @@ class Host:
         """
         self._q_relay_sniffing_fn = func
 
+    @property
+    def get_network_tick(self):
+        """
+        Returns the current tick of the network.
+        Used for timing operations.
+
+        Args:
+            tick (int): Current tick of the network
+        """
+        return protocols.network.tick
+
     def quantum_relay_sniffing_function(self, sender, receiver, qubit):
         """
         Calls the quantum relay sniffing function if one is set.

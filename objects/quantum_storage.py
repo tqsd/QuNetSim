@@ -1,11 +1,13 @@
 import random
-import time
+from components.network import Network      #For getting network ticks
 from backends.RWLock import RWLock
 
+# Constants
 STORAGE_LIMIT_ALL = 1
 STORAGE_LIMIT_PER_HOST = 2
 STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
 
+network = Network.get_instance()
 
 class QuantumStorage(object):
     """
@@ -28,7 +30,7 @@ class QuantumStorage(object):
         self._amount_qubit_stored = 0
         self._heralding_probability = 1.0
         self._reading_efficiency = 1.0
-        self._coherence_time = -1.0
+        self._coherence_time = -1
         # read write lock, for threaded access
         self.lock = RWLock()
 
@@ -140,10 +142,10 @@ class QuantumStorage(object):
         the maximum time after which a stored qubit becomes a perfectly mixed state
         
         Args:
-            coherence time (float): Coherence time in seconds
+            coherence time (int): Coherence time in network ticks
         """
-        if not isinstance(coherence_time, int) and not isinstance(coherence_time, float):
-            raise Exception("Coherence time must be an integer or floating point number")
+        if not isinstance(coherence_time, int):
+            raise Exception("Coherence time must be an integer")
         else:
             self._coherence_time = coherence_time
 
@@ -321,7 +323,7 @@ class QuantumStorage(object):
         if purp is not None:
             if purpose is None or purpose == purp:
                 (qubit, storetime) = self._qubit_dict[q_id].pop(from_host_id, None)
-                if time.time() - storetime > self.coherence_time and self.coherence_time >= 0.0:
+                if self.coherence_time > 0 and network.tick - storetime > self.coherence_time:
                     if not self._qubit_dict[q_id]:
                         del self._qubit_dict[q_id]
                     return None
@@ -343,7 +345,7 @@ class QuantumStorage(object):
 
         if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
-        self._qubit_dict[qubit.id][from_host_id] = (qubit, time.time())
+        self._qubit_dict[qubit.id][from_host_id] = (qubit, network.tick)
         _add_purpose_to_purpose_dict(purpose, qubit.id, from_host_id)
 
     def _add_new_host(self, host_id):
