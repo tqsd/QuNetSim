@@ -9,6 +9,7 @@ from objects.quantum_storage import QuantumStorage
 from objects.classical_storage import ClassicalStorage
 from objects.message import Message
 from objects.quantum_connection import Q_Connection
+from objects.classical_connection import C_Connection
 #from backends.eqsn_backend import EQSNBackend
 from backends.cqc_backend import CQCBackend
 import uuid
@@ -629,18 +630,23 @@ class Host:
 
         Args:
             receiver_id (str): The ID of the host to connect with.
+            length (float): The distance from self to the host to connect with (in Km).
         """
-        self.classical_connections.append(receiver_id)
+        self.classical_connections.append(C_Connection(receiver_id, length))
 
-    def add_c_connections(self, receiver_ids):
+    def add_c_connections(self, receiver_ids, lengths=[0.0]):
         """
-        Adds the classical connections to host with ID *receiver_id*.
+        Adds the classical connections to host with IDs *receiver_ids*, separations *lengths*.
 
         Args:
             receiver_ids (list): The IDs of the hosts to connect with.
+            lengths (list): The distance from self to the hosts to connect with (in Km).
         """
-        for receiver_id in receiver_ids:
-            self.classical_connections.append(receiver_id)
+        if len(receiver_ids) != len(lengths) or len(receiver_ids) != len(alphas):
+            raise ValueError('Number of receivers should be same as the number of lengths and alphas')
+
+        for (receiver_id, length) in zip(receiver_ids, lengths):
+            self.classical_connections.append(C_Connection(receiver_id, length))
 
     def add_q_connection(self, receiver_id, length=1, alpha=0):
         """
@@ -653,7 +659,7 @@ class Host:
         """
         self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_q_connections(self, receiver_ids, lengths=[1], alphas=[0]):
+    def add_q_connections(self, receiver_ids, lengths=[0], alphas=[0]):
         """
         Adds a set of quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 
@@ -668,7 +674,7 @@ class Host:
         for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
             self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connection(self, receiver_id, length=1, alpha=0):
+    def add_connection(self, receiver_id, length=0, alpha=0):
         """
         Adds the classical and quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
@@ -677,7 +683,7 @@ class Host:
             length (float): The distance from self to the host to connect with (in Km).
             alpha (float): Absorption coefficient of the channel (in dB/Km)
         """
-        self.classical_connections.append(receiver_id)
+        self.classical_connections.append(C_Connection(receiver_id, length))
         self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
     def add_connections(self, receiver_ids, lengths, alphas):
@@ -694,7 +700,7 @@ class Host:
             raise ValueError('Number of receivers should be same as the number of lengths and alphas')
 
         for (receiver_id, length, alpha) in zip(receiver_ids, lengths, alphas):
-            self.classical_connections.append(receiver_id)
+            self.classical_connections.append(C_Connection(receiver_id, length))
             self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
     def remove_connection(self, receiver_id):
@@ -718,7 +724,11 @@ class Host:
             True if receiver ID found
             False otherwise
         """
-        c_index = self.classical_connections.index(receiver_id)
+        for c_index, classical_connection in enumerate(self.classical_connections):
+            if classical_connection.receiver_id == receiver_id:
+                break
+            else:
+                c_index = -1
         if c_index > -1:
             del self.classical_connections[c_index]
             return True
@@ -732,13 +742,13 @@ class Host:
             True if receiver ID found
             False otherwise
         """
-        for q_index, connection in enumerate(self.quantum_connections):
-            if connection.receiver_id() == receiver_id:
+        for q_index, quantum_connection in enumerate(self.quantum_connections):
+            if quantum_connection.receiver_id == receiver_id:
                 break
             else:
                 q_index = -1
         if q_index > -1:
-            del self.classical_connections[q_index]
+            del self.quantum_connections[q_index]
             return True
         return False
 
