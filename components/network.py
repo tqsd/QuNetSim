@@ -47,6 +47,7 @@ class Network:
             self._z_error_rate = 0
             self._backend = None
             self._tick = 0
+            self._tickspan = 1e-8       # 10 ns
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -234,10 +235,35 @@ class Network:
         Returns the current tick of the network.
         Used for timing operations.
 
-        Args:
-            tick (int): Current tick of the network
+        Returns:
+            (int): Current tick of the network
         """
         return self._tick
+
+    @property
+    def tickspan(self):
+        """
+        Returns the real world time corresponding to one tick
+
+        Returns
+            (float): Span of real world time corresponding to a single tick
+        """
+        return self._tickspan
+
+    @tickspan.setter
+    def tickspan(self, tickspan):
+        """
+        Set the span of time corresponding to one network tick (defaults to 10 ns)
+
+        Args
+            tickspan (float): Span of real world time corresponding to a single tick
+        """
+        if not (isinstance(tickspan, int) or isinstance(tickspan, float)):
+            raise Exception("Tickspan must be an integer or floating point number")
+        elif tickspan <= 0:
+            raise ValueError("Tickspan must be positive")
+
+        self._tickspan = tickspan
 
     def add_host(self, host):
         """
@@ -308,13 +334,13 @@ class Network:
         self.quantum_network.add_node(host.host_id)
 
         for connection in host.classical_connections:
-            if not self.classical_network.has_edge(host.host_id, connection):
+            if not self.classical_network.has_edge(host.host_id, connection.receiver_id):
                 edge = (host.host_id, connection, {'weight': 1})
                 self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
             if not self.quantum_network.has_edge(host.host_id, connection.receiver_id):
-                edge = (host.host_id, connection.receiver_id, {'weight': 1, 'transmission_p': connection.transmission_p})
+                edge = (host.host_id, connection.receiver_id, {'weight': 1})
                 self.quantum_network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):
@@ -567,7 +593,7 @@ class Network:
             if self._stop_thread:
                 break
 
-            # Artificially delay the network and increment tick
+            # Artificially delay the network
             if self.delay > 0:
                 time.sleep(self.delay)
             self._tick += 1
@@ -579,12 +605,13 @@ class Network:
                 sender, receiver = packet.sender, packet.receiver
                 host_sender = self.get_host(sender)
 
-                # Find transmission probability of the quantum connection if the packet is a qubit or an EPR signal
+                # Find transmission probability of the quantum connection and update network ticks if the packet is a qubit or an EPR signal
                 if packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
                     transmission_probability = 1.0
                     for connection in host_sender.quantum_connections:
                         if connection.receiver_id == receiver:
                             transmission_probability = connection.transmission_p
+                            self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
                             break
 
                 # Simulate packet loss
@@ -600,13 +627,19 @@ class Network:
                 # Simulate packet loss due to absorption of qubits in the quantum channel
                 elif packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
                     if transmission_var > transmission_probability:
-                        # print('Prob = %f'%transmission_probability)
-                        # print(host_sender.host_id)
-                        # print(self.get_host(receiver).host_id)
                         Logger.get_instance().log("PACKET TRANSMISSION FAILED")
                         if packet.payload_type == protocols.QUANTUM:
                             packet.payload.release()
                         continue
+
+                # Update network ticks for classical packets
+                sending_host = self.get_host(route[0])
+                receiving_host = self.get_host(route[1])
+                if packet.payload_type == protocols.CLASSICAL:
+                    for connection in sending_host.classical_connections:
+                        if connection.receiver_id == receiving_host.host_id:
+                            self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+
 
                 if packet.payload_type == protocols.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
@@ -625,6 +658,7 @@ class Network:
                         raise Exception('No route exists')
 
                     elif len(route) == 2:
+
                         if packet.protocol != protocols.RELAY:
                             if packet.protocol == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)

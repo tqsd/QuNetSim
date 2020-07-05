@@ -624,7 +624,7 @@ class Host:
         """
         self._packet_queue.put(packet)
 
-    def add_c_connection(self, receiver_id):
+    def add_c_connection(self, receiver_id, length=0):
         """
         Adds the classical connection to host with ID *receiver_id*.
 
@@ -648,7 +648,7 @@ class Host:
         for (receiver_id, length) in zip(receiver_ids, lengths):
             self.classical_connections.append(C_Connection(receiver_id, length))
 
-    def add_q_connection(self, receiver_id, length=1, alpha=0):
+    def add_q_connection(self, receiver_id, length=0, alpha=0):
         """
         Adds the quantum connection to host with ID *receiver_id*, separation *length* and absorption coefficient *alpha*
 
@@ -686,7 +686,7 @@ class Host:
         self.classical_connections.append(C_Connection(receiver_id, length))
         self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connections(self, receiver_ids, lengths, alphas):
+    def add_connections(self, receiver_ids, lengths=[0], alphas):
         """
         Adds a set of classical and quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 
