@@ -686,7 +686,7 @@ class Host:
         self.classical_connections.append(C_Connection(receiver_id, length))
         self.quantum_connections.append(Q_Connection(receiver_id, length, alpha))
 
-    def add_connections(self, receiver_ids, lengths=[0], alphas):
+    def add_connections(self, receiver_ids, lengths=[0], alphas=0):
         """
         Adds a set of classical and quantum connections to host with IDs *receiver_ids*, separations *lengths* and absorption coefficients *alphas*
 

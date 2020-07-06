@@ -335,7 +335,7 @@ class Network:
 
         for connection in host.classical_connections:
             if not self.classical_network.has_edge(host.host_id, connection.receiver_id):
-                edge = (host.host_id, connection, {'weight': 1})
+                edge = (host.host_id, connection.receiver_id, {'weight': 1})
                 self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
@@ -611,7 +611,7 @@ class Network:
                     for connection in host_sender.quantum_connections:
                         if connection.receiver_id == receiver:
                             transmission_probability = connection.transmission_p
-                            self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                            #self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
                             break
 
                 # Simulate packet loss
@@ -633,13 +633,13 @@ class Network:
                         continue
 
                 # Update network ticks for classical packets
-                sending_host = self.get_host(route[0])
-                receiving_host = self.get_host(route[1])
-                if packet.payload_type == protocols.CLASSICAL:
-                    for connection in sending_host.classical_connections:
-                        if connection.receiver_id == receiving_host.host_id:
-                            self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
-
+                # sending_host = self.get_host(sender)
+                # receiving_host = self.get_host(receiver)
+                # if packet.payload_type == protocols.CLASSICAL:
+                #     for connection in sending_host.classical_connections:
+                #         if connection.receiver_id == receiving_host.host_id:
+                #             self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                #             break
 
                 if packet.payload_type == protocols.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
@@ -659,6 +659,22 @@ class Network:
 
                     elif len(route) == 2:
 
+                        # Update network ticks
+                        sending_host = self.get_host(route[0])
+                        receiving_host = self.get_host(route[1])
+                        # print(sending_host.host_id, end='')
+                        # print(receiving_host.host_id)
+                        if packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                            for connection in sending_host.quantum_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
+                        else:
+                            for connection in sending_host.classical_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
+
                         if packet.protocol != protocols.RELAY:
                             if packet.protocol == protocols.REC_EPR:
                                 host_sender = self.get_host(sender)
@@ -672,7 +688,26 @@ class Network:
                             self.ARP[receiver].rec_packet(packet)
                         else:
                             self.ARP[receiver].rec_packet(packet.payload)
+
                     else:
+
+                        # Update network ticks
+                        for routeidx in range(len(route)-2):
+                            sending_host = self.get_host(route[routeidx])
+                            receiving_host = self.get_host(route[routeidx+1])
+                            # print(sending_host.host_id, end='')
+                            # print(receiving_host.host_id)
+                            if packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                                for connection in sending_host.quantum_connections:
+                                    if connection.receiver_id == receiving_host.host_id:
+                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                        break
+                            else:
+                                for connection in sending_host.classical_connections:
+                                    if connection.receiver_id == receiving_host.host_id:
+                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                        break
+
                         if packet.protocol == protocols.REC_EPR:
                             q_id = packet.payload['q_id']
                             blocked = packet.payload['blocked']
