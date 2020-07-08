@@ -416,10 +416,20 @@ class Host:
         Returns the current tick of the network.
         Used for timing operations.
 
-        Args:
-            tick (int): Current tick of the network
+        Returns:
+            (int): Current tick of the network
         """
         return protocols.network.tick
+
+    @property
+    def get_network_time(self):
+        """
+        Returns the simulated time (not real time) elapsed since the network was initialized
+
+        Returns:
+            (float): Simulation time elapsed in seconds
+        """
+        return protocols.network.tick/protocols.network.tickspan
 
     def quantum_relay_sniffing_function(self, sender, receiver, qubit):
         """
