@@ -429,7 +429,7 @@ class Host:
         Returns:
             (float): Simulation time elapsed in seconds
         """
-        return protocols.network.tick/protocols.network.tickspan
+        return protocols.network.tick*protocols.network.tickspan
 
     def quantum_relay_sniffing_function(self, sender, receiver, qubit):
         """
