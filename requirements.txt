@@ -5,4 +5,4 @@ numpy==1.18.1
 projectq==0.4.2
 cqc==3.2.2
 simulaqron==3.0.15
-eqsn
+eqsn==0.0.8
