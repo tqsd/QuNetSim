@@ -21,7 +21,7 @@ decorator==4.4.1
 defusedxml==0.6.0
 docutils==0.15.2
 entrypoints==0.3
-EQSN==0.0.7
+eqsn
 flake8==3.7.9
 future==0.18.2
 hyperlink==19.0.0
