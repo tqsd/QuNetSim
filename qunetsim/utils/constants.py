@@ -17,6 +17,7 @@ class Constants:
     # QUBIT TYPES
     EPR = 0
     DATA = 1
+    GHZ = 2
 
     # DATA KINDS
     SIGNAL = 'signal'

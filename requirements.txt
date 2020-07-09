@@ -3,6 +3,6 @@ networkx==2.4
 nose2==0.9.1
 numpy==1.18.1
 projectq==0.4.2
-eqsn==0.0.7
 cqc==3.2.2
 simulaqron==3.0.15
+eqsn
