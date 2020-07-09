@@ -189,7 +189,7 @@ class Host:
         return self._qubit_storage.heralding_probability
 
     @heralding_probability.setter
-    def set_heralding_probability(self, heralding_probability):
+    def heralding_probability(self, heralding_probability):
         """
         Set the heralding probability of this host's quantum storage
 
@@ -209,7 +209,7 @@ class Host:
         return self._qubit_storage.reading_efficiency
 
     @reading_efficiency.setter
-    def set_reading_efficiency(self, reading_efficiency):
+    def reading_efficiency(self, reading_efficiency):
         """
         Set the reading efficiency of this host's quantum storage
 
@@ -224,20 +224,20 @@ class Host:
         Get the coherence time of the quantum storage associated with this host
 
         Returns:
-            Time for which a stored qubit remains coherent
+            (float) Time in seconds for which a stored qubit remains coherent
             A negative value indicates that the qubit always remains coherent
         """
-        return self._qubit_storage.coherence_time
+        return self._qubit_storage.coherence_time*protocols.network.tickspan
 
     @coherence_time.setter
-    def set_coherence_time(self, coherence_time):
+    def coherence_time(self, coherence_time):
         """
         Set the coherence time of this host's quantum storage
 
         Args:
             coherence_time (float): Time for which a stored qubit remains coherent
         """
-        self._qubit_storage.set_coherence_time = coherence_time
+        self._qubit_storage.set_coherence_time = int(coherence_time/protocols.network.tickspan)
 
     @property
     def max_ack_wait(self):
