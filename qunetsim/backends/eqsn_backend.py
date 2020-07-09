@@ -373,6 +373,18 @@ class EQSNBackend(object):
         """
         self.eqsn.custom_controlled_gate(target.qubit, qubit.qubit, gate)
 
+    def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
+        """
+        Applies a custom gate to the target qubit, controlled by the qubit.
+
+        Args:
+            qubit (Qubit): Qubit to control the gate.
+            target_1 (Qubit): Qubit on which the gate is applied.
+            target_2 (Qubit): Qubit on which the gate is applied.
+            gate (nd.array): 4x4 array for the gate applied to target.
+        """
+        self.eqsn.custom_two_qubit_control_gate(qubit.qubit, target_1.qubit, target_2.qubit, gate)
+
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
         Applies a custom two qubit gate to qubit1 \\otimes qubit2.

@@ -1,5 +1,5 @@
-QuNetSim: A quantum network simulation framework
-================================================
+QuNetSim: A Software Framework for Quantum Networks
+===================================================
 
 ..  toctree::
     :caption: Contents

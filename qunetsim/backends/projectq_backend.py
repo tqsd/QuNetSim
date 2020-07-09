@@ -312,6 +312,18 @@ class ProjectQBackend(object):
         """
         raise (EnvironmentError("Not implemented for this backend!"))
 
+    def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
+        """
+        Applies a custom gate to the target qubit, controlled by the qubit.
+
+        Args:
+            qubit (Qubit): Qubit to control the gate.
+            target_1 (Qubit): Qubit on which the gate is applied.
+            target_2 (Qubit): Qubit on which the gate is applied.
+            gate (nd.array): 4x4 array for the gate applied to target.
+        """
+        raise (EnvironmentError("Not implemented for this backend!"))
+
     def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.

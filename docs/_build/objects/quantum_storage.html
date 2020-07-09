@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -209,13 +209,100 @@
 one for EPR pairs and the other for data qubits, but in both cases, they store <em>Qubit</em> objects. As
 further iterations of QuNetSim are developed, we plan to add parameters such that we can better simulate
 quantum memories.</p>
-<span class="target" id="module-qunetsim.objects.quantum_storage"></span><dl class="py class">
+<span class="target" id="module-qunetsim.objects.quantum_storage"></span><dl class="class">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage">
 <em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.quantum_storage.</code><code class="sig-name descname">QuantumStorage</code><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage" title="Permalink to this definition">¶</a></dt>
-<dd><p>An object which stores qubits.</p>
-<dl class="py method">
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An object which stores qubits.</p>
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._add_request">
+<code class="sig-name descname">_add_request</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._add_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new request to the quantum storage. If a new qubit arrives, it
+is checked if the request for the qubit is satisfied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>list</em>) – [Queue, from_host_id, q_id, purpose]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._check_all_requests">
+<code class="sig-name descname">_check_all_requests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._check_all_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if any of the pending requests is now fullfilled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If a request is fullfilled, the request is handeled and the function
+returns the qubit of this request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._check_memory_limits">
+<code class="sig-name descname">_check_memory_limits</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._check_memory_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if another qubit can be added to the storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>String</em>) – The host_id the qubit should be added to.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if no storage limit has been reached, False if a memory
+limit has occurred.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._check_qubit_in_system">
+<code class="sig-name descname">_check_qubit_in_system</code><span class="sig-paren">(</span><em class="sig-param">qubit</em>, <em class="sig-param">from_host_id</em>, <em class="sig-param">purpose=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._check_qubit_in_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if qubit with same parameters already in the systems</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._decrease_qubit_counter">
+<code class="sig-name descname">_decrease_qubit_counter</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._decrease_qubit_counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the qubit counter can be decreased
+and decreases the counter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>String</em>) – From who the qubit comes from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True, if the counter could be decreased, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._increase_qubit_counter">
+<code class="sig-name descname">_increase_qubit_counter</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._increase_qubit_counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the qubit counter can be increased, because of memory limits,
+and increases the counter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>String</em>) – From who the qubit comes from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True, if the counter could be increased, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.quantum_storage.QuantumStorage._remove_request">
+<code class="sig-name descname">_remove_request</code><span class="sig-paren">(</span><em class="sig-param">req_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage._remove_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a pending request from the request dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>req_id</strong> (<em>int</em>) – The id of the request to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.add_qubit_from_host">
-<code class="sig-name descname">add_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qubit</span></em>, <em class="sig-param"><span class="n">purpose</span></em>, <em class="sig-param"><span class="n">from_host_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.add_qubit_from_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param">qubit</em>, <em class="sig-param">purpose</em>, <em class="sig-param">from_host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.add_qubit_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a qubit which has been received from a host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -229,9 +316,9 @@ been received.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.change_qubit_id">
-<code class="sig-name descname">change_qubit_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_host_id</span></em>, <em class="sig-param"><span class="n">new_id</span></em>, <em class="sig-param"><span class="n">old_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.change_qubit_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">change_qubit_id</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">new_id</em>, <em class="sig-param">old_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.change_qubit_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes the ID of a qubit. If the ID is not given, a random
 qubit which is from a host is changed to the new id.</p>
 <dl class="field-list simple">
@@ -251,9 +338,9 @@ qubit which is from a host is changed to the new id.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.check_qubit_from_host_exists">
-<code class="sig-name descname">check_qubit_from_host_exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_host_id</span></em>, <em class="sig-param"><span class="n">purpose</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.check_qubit_from_host_exists" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_qubit_from_host_exists</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">purpose=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.check_qubit_from_host_exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a qubit from a host exists in this quantum storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -271,9 +358,9 @@ qubit which is from a host is changed to the new id.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.get_all_qubits_from_host">
-<code class="sig-name descname">get_all_qubits_from_host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_host_id</span></em>, <em class="sig-param"><span class="n">purpose</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.get_all_qubits_from_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_qubits_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">purpose=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.get_all_qubits_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all Qubits from a specific host id.
 These qubits are not removed from storage!</p>
 <dl class="field-list simple">
@@ -292,9 +379,9 @@ These qubits are not removed from storage!</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.get_qubit_from_host">
-<code class="sig-name descname">get_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_host_id</span></em>, <em class="sig-param"><span class="n">q_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">purpose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.get_qubit_from_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_qubit_from_host</code><span class="sig-paren">(</span><em class="sig-param">from_host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">purpose=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.get_qubit_from_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns next qubit which has been received from a host. If the qubit has
 not been receives yet, the thread is blocked for a maxumum of the wait time,
 till the qubit arrives (The default is 0). If the id is given, the exact qubit with the id
@@ -319,22 +406,22 @@ is returned.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.release_storage">
 <code class="sig-name descname">release_storage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.release_storage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Releases all qubits in this storage. The storage is not
 usable anymore after this function has been called.</p>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.reset_storage">
 <code class="sig-name descname">reset_storage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.reset_storage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the quantum storage.</p>
 </dd></dl>
 
-<dl class="py method">
+<dl class="method">
 <dt id="qunetsim.objects.quantum_storage.QuantumStorage.set_storage_limit_with_host">
-<code class="sig-name descname">set_storage_limit_with_host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_limit</span></em>, <em class="sig-param"><span class="n">host_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.set_storage_limit_with_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_storage_limit_with_host</code><span class="sig-paren">(</span><em class="sig-param">new_limit</em>, <em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.quantum_storage.QuantumStorage.set_storage_limit_with_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a new storage limit for the storage. The implementations depends on
 the storage mode.</p>
 <dl class="field-list simple">
