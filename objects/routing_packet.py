@@ -7,7 +7,7 @@ class RoutingPacket(object):
     """
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                 ttl, route, probability=1.0,):
+                 ttl, route,):
         """
         Encodes a packet into another packet, which has a ttl and route in
         addition.
@@ -142,18 +142,18 @@ class RoutingPacket(object):
         if self.ttl > 0:
             self.ttl = self.ttl - 1
 
-    @property
-    def probability(self):
-        """
-        Probability that the packet get transmitted through the network
+    # @property
+    # def probability(self):
+    #     """
+    #     Probability that the packet get transmitted through the network
 
-        Returns
-            probability (float): The probability that a packet gets transmitted
-        """
-        return self._probability
+    #     Returns
+    #         probability (float): The probability that a packet gets transmitted
+    #     """
+    #     return self._probability
 
-    @probability.setter
-    def probability(self, probability):
-        if not isinstance(probability, float) and not isinstance(probability, int):
-            raise Exception('Transmission probability must be a floating point number')
-        self._probability = probability
+    # @probability.setter
+    # def probability(self, probability):
+    #     if not isinstance(probability, float) and not isinstance(probability, int):
+    #         raise Exception('Transmission probability must be a floating point number')
+    #     self._probability = probability

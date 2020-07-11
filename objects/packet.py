@@ -15,7 +15,7 @@ class Packet(object):
     """
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
-                 sequence_number=-1, await_ack=False, probability=1.0):
+                 sequence_number=-1, await_ack=False):
         """
         Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
         with data and the header.

@@ -596,7 +596,6 @@ class Network:
             # Artificially delay the network
             if self.delay > 0:
                 time.sleep(self.delay)
-            self._tick += 1
 
             if not self._packet_queue.empty():
 
@@ -611,12 +610,11 @@ class Network:
                     for connection in host_sender.quantum_connections:
                         if connection.receiver_id == receiver:
                             transmission_probability = connection.transmission_p
-                            #self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
                             break
 
                 # Simulate packet loss
-                packet_drop_var = random.random()
                 transmission_var = random.random()
+                packet_drop_var = random.random()
 
                 # Simulate packet loss as a property of the overall network
                 if packet_drop_var > (1 - self.packet_drop_rate):
@@ -626,7 +624,7 @@ class Network:
                     continue
                 # Simulate packet loss due to absorption of qubits in the quantum channel
                 elif packet.payload_type == protocols.QUANTUM or (packet.payload_type == protocols.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
-                    if transmission_var > transmission_probability:
+                    if transmission_var < 1 - transmission_probability:
                         Logger.get_instance().log("PACKET TRANSMISSION FAILED")
                         if packet.payload_type == protocols.QUANTUM:
                             packet.payload.release()
