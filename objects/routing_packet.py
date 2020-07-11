@@ -31,7 +31,6 @@ class RoutingPacket(object):
         self._payload = payload
         self._payload_type = payload_type
         self._protocol = protocol
-        self._probability = probability
 
     @property
     def ttl(self):
