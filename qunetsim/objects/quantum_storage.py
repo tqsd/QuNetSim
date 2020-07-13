@@ -1,4 +1,5 @@
 import random
+
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects import Logger
 import queue
@@ -268,6 +269,7 @@ class QuantumStorage(object):
                              been received.
             purpose (String): Purpose of the Qubit, for example EPR or data.
         """
+
         if random.random() < self.heralding_probability:
             self.lock.acquire_write()
             if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
@@ -376,7 +378,6 @@ class QuantumStorage(object):
         # Return none if memory fails to read qubit
         if random.random() > self.reading_efficiency:
             return None
-
         self.lock.acquire_write()
         ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
         if ret is not None or wait == 0:
@@ -427,8 +428,10 @@ class QuantumStorage(object):
         return None
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
+
         from qunetsim.components.network import Network     #For getting network ticks
         network = Network.get_instance()
+
         def _pop_purpose_from_purpose_dict():
             nonlocal q_id, from_host_id
 

@@ -5,17 +5,12 @@ import time
 import random
 
 from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
-# from qunetsim.objects.qubit import Qubit
-# from qunetsim.objects.routing_packet import RoutingPacket
-# from qunetsim.objects.logger import Logger
-# from qunetsim.objects.daemon_thread import DaemonThread
 
 from qunetsim.utils.constants import Constants
 from inspect import signature
 
 #from qunetsim.backends import EQSNBackend
 from qunetsim.backends import CQCBackend
-
 
 # Network singleton
 class Network:
@@ -264,7 +259,7 @@ class Network:
             raise ValueError("Tickspan must be positive")
 
         self._tickspan = tickspan
-
+        
     def add_host(self, host):
         """
         Adds the *host* to ARP table and updates the network graph.
@@ -572,11 +567,13 @@ class Network:
                 # Simulate packet loss
                 packet_drop_var = random.random()
                 transmission_var = random.random()
+
                 if packet_drop_var > (1 - self.packet_drop_rate):
                     Logger.get_instance().log("PACKET DROPPED")
                     if packet.payload_type == Constants.QUANTUM:
                         packet.payload.release()
                     continue
+
                 # Simulate packet loss due to absorption of qubits in the quantum channel
                 elif packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
                     if transmission_var < 1 - transmission_probability:
