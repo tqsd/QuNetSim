@@ -1,3 +1,4 @@
+import random
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects import Logger
 import queue
@@ -26,6 +27,9 @@ class QuantumStorage(object):
         self._default_storage_limit_per_host = -1
         self._storage_limit = -1
         self._amount_qubit_stored = 0
+        self._heralding_probability = 1.0
+        self._reading_efficiency = 1.0
+        self._coherence_time = -1
         # read write lock, for threaded access
         self.lock = RWLock()
 
@@ -94,6 +98,18 @@ class QuantumStorage(object):
     def amount_qubits_stored(self):
         return self._amount_qubit_stored
 
+    @property
+    def heralding_probability(self):
+        return self._heralding_probability
+
+    @property
+    def reading_efficiency(self):
+        return self._reading_efficiency
+
+    @property
+    def coherence_time(self):
+        return self._coherence_time
+
     def set_storage_limit_with_host(self, new_limit, host_id):
         """
         Set a new storage limit for the storage. The implementations depends on
@@ -114,6 +130,48 @@ class QuantumStorage(object):
         else:
             raise ValueError(
                 "Internal Value Error, this storage mode does not exist.")
+
+    @heralding_probability.setter
+    def set_heralding_probability(self, heralding_probability):
+        """
+        Set the probability with which an incoming qubit is heralded, i.e.,
+        the probability that the incoming qubit is detected and stored
+
+        Args:
+            heralding_probability (float): New heralding probability
+        """
+        if not isinstance(heralding_probability, int) and not isinstance(heralding_probability, float):
+            raise Exception("Heralding probability must be a floating point number")
+        else:
+            self._heralding_probability = heralding_probability
+
+    @reading_efficiency.setter
+    def set_reading_efficiency(self, reading_efficiency):
+        """
+        Set the reading efficiency of the quantum storage, i.e.,
+        the probability that a qubit can be retrieved after storage
+
+        Args:
+            reading_efficiency (float): New reading efficiency
+        """
+        if not isinstance(reading_efficiency, int) and not isinstance(reading_efficiency, float):
+            raise Exception("Reading efficiency must be a floating point number")
+        else:
+            self._reading_efficiency = reading_efficiency
+
+    @coherence_time.setter
+    def set_coherence_time(self, coherence_time):
+        """
+        Set the coherence time of the quantum storage, i.e.,
+        the maximum time after which a stored qubit becomes a perfectly mixed state
+        
+        Args:
+            coherence time (int): Coherence time in network ticks
+        """
+        if not isinstance(coherence_time, int):
+            raise Exception("Coherence time must be an integer")
+        else:
+            self._coherence_time = coherence_time
 
     def reset_storage(self):
         """
@@ -210,18 +268,18 @@ class QuantumStorage(object):
                              been received.
             purpose (String): Purpose of the Qubit, for example EPR or data.
         """
-
-        self.lock.acquire_write()
-        if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
-            self.logger.log("Qubit with id %s, purpose %s and from host %s"
-                            " already in storage" % (qubit.id, purpose, from_host_id))
-            raise ValueError("Qubit with these parameters already in storage!")
-        if from_host_id not in self._host_dict:
-            self._add_new_host(from_host_id)
-        if not self._increase_qubit_counter(from_host_id):
-            qubit.release()
-            self.lock.release_write()
-            return
+        if random.random() < self.heralding_probability:
+            self.lock.acquire_write()
+            if self._check_qubit_in_system(qubit, from_host_id, purpose=purpose):
+                self.logger.log("Qubit with id %s, purpose %s and from host %s"
+                                " already in storage" % (qubit.id, purpose, from_host_id))
+                raise ValueError("Qubit with these parameters already in storage!")
+            if from_host_id not in self._host_dict:
+                self._add_new_host(from_host_id)
+            if not self._increase_qubit_counter(from_host_id):
+                qubit.release()
+                self.lock.release_write()
+                return
 
         self._host_dict[from_host_id].append(qubit)
         self._add_qubit_to_qubit_dict(qubit, purpose, from_host_id)
@@ -310,9 +368,14 @@ class QuantumStorage(object):
             (bool): If such a qubit exists, it returns the qubit. Otherwise, None
             is returned.
         """
+
         # Block forever if wait is -1
         if wait == -1:
             wait = None
+
+        # Return none if memory fails to read qubit
+        if random.random() > self.reading_efficiency:
+            return None
 
         self.lock.acquire_write()
         ret = self._get_qubit_from_host(from_host_id, q_id, purpose)
@@ -364,6 +427,8 @@ class QuantumStorage(object):
         return None
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
+        from qunetsim.components.network import Network     #For getting network ticks
+        network = Network.get_instance()
         def _pop_purpose_from_purpose_dict():
             nonlocal q_id, from_host_id
 
@@ -379,8 +444,12 @@ class QuantumStorage(object):
         purp = _pop_purpose_from_purpose_dict()
         if purp is not None:
             if purpose is None or purpose == purp:
-                qubit = self._qubit_dict[q_id].pop(from_host_id, None)
-                if qubit is not None:
+                (qubit, storetime) = self._qubit_dict[q_id].pop(from_host_id, None)
+                if self.coherence_time > 0 and network.tick - storetime > self.coherence_time:
+                    if not self._qubit_dict[q_id]:
+                        del self._qubit_dict[q_id]
+                    return None
+                elif qubit is not None:
                     if not self._qubit_dict[q_id]:
                         del self._qubit_dict[q_id]
                 return qubit, purp
@@ -391,6 +460,8 @@ class QuantumStorage(object):
         return None
 
     def _add_qubit_to_qubit_dict(self, qubit, purpose, from_host_id):
+        from qunetsim.components.network import Network
+        network = Network.get_instance()
         def _add_purpose_to_purpose_dict(q_id):
             nonlocal purpose, from_host_id
             if q_id not in self._purpose_dict:
@@ -399,7 +470,7 @@ class QuantumStorage(object):
 
         if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
-        self._qubit_dict[qubit.id][from_host_id] = qubit
+        self._qubit_dict[qubit.id][from_host_id] = (qubit, network.tick)
         _add_purpose_to_purpose_dict(qubit.id)
 
     def _add_new_host(self, host_id):

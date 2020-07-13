@@ -5,11 +5,16 @@ import time
 import random
 
 from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
+# from qunetsim.objects.qubit import Qubit
+# from qunetsim.objects.routing_packet import RoutingPacket
+# from qunetsim.objects.logger import Logger
+# from qunetsim.objects.daemon_thread import DaemonThread
 
 from qunetsim.utils.constants import Constants
 from inspect import signature
 
-from qunetsim.backends import EQSNBackend
+#from qunetsim.backends import EQSNBackend
+from qunetsim.backends import CQCBackend
 
 
 # Network singleton
@@ -41,6 +46,8 @@ class Network:
             self._x_error_rate = 0
             self._z_error_rate = 0
             self._backend = None
+            self._tick = 0
+            self._tickspan = 1e-8       # 10 ns
             Network.__instance = self
         else:
             raise Exception('this is a singleton class')
@@ -222,6 +229,42 @@ class Network:
 
         self._z_error_rate = error_rate
 
+    @property
+    def tick(self):
+        """
+        Returns the current tick of the network.
+        Used for timing operations.
+
+        Returns:
+            (int): Current tick of the network
+        """
+        return self._tick
+
+    @property
+    def tickspan(self):
+        """
+        Returns the real world time corresponding to one tick
+
+        Returns
+            (float): Span of real world time corresponding to a single tick
+        """
+        return self._tickspan
+
+    @tickspan.setter
+    def tickspan(self, tickspan):
+        """
+        Set the span of time corresponding to one network tick (defaults to 10 ns)
+
+        Args
+            tickspan (float): Span of real world time corresponding to a single tick
+        """
+        if not (isinstance(tickspan, int) or isinstance(tickspan, float)):
+            raise Exception("Tickspan must be an integer or floating point number")
+        elif tickspan <= 0:
+            raise ValueError("Tickspan must be positive")
+
+        self._tickspan = tickspan
+
     def add_host(self, host):
         """
         Adds the *host* to ARP table and updates the network graph.
@@ -291,13 +334,13 @@ class Network:
         self.quantum_network.add_node(host.host_id)
 
         for connection in host.classical_connections:
-            if not self.classical_network.has_edge(host.host_id, connection):
-                edge = (host.host_id, connection, {'weight': 1})
+            if not self.classical_network.has_edge(host.host_id, connection.receiver_id):
+                edge = (host.host_id, connection.receiver_id, {'weight': 1})
                 self.classical_network.add_edges_from([edge])
 
         for connection in host.quantum_connections:
-            if not self.quantum_network.has_edge(host.host_id, connection):
-                edge = (host.host_id, connection, {'weight': 1})
+            if not self.quantum_network.has_edge(host.host_id, connection.receiver_id):
+                edge = (host.host_id, connection.receiver_id, {'weight': 1})
                 self.quantum_network.add_edges_from([edge])
 
     def shares_epr(self, sender, receiver):
@@ -391,6 +434,7 @@ class Network:
             blocked (bool): If the pair being distributed is blocked or not
         """
         host_sender = self.get_host(sender)
+        lastfidelity = 1.0
 
         def establish_epr(net, s, r):
             if not net.shares_epr(s, r):
@@ -514,15 +558,32 @@ class Network:
 
                 packet = self._packet_queue.get()
 
+                sender, receiver = packet.sender, packet.receiver
+                host_sender = self.get_host(sender)
+
+                # Find transmission probability of the quantum connection and update network ticks if the packet is a qubit or an EPR signal
+                if packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                    transmission_probability = 1.0
+                    for connection in host_sender.quantum_connections:
+                        if connection.receiver_id == receiver:
+                            transmission_probability = connection.transmission_p
+                            break
+
                 # Simulate packet loss
                 packet_drop_var = random.random()
+                transmission_var = random.random()
                 if packet_drop_var > (1 - self.packet_drop_rate):
                     Logger.get_instance().log("PACKET DROPPED")
                     if packet.payload_type == Constants.QUANTUM:
                         packet.payload.release()
                     continue
-
-                sender, receiver = packet.sender, packet.receiver
+                # Simulate packet loss due to absorption of qubits in the quantum channel
+                elif packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                    if transmission_var < 1 - transmission_probability:
+                        Logger.get_instance().log("QUBIT TRANSMISSION FAILED")
+                        if packet.payload_type == Constants.QUANTUM:
+                            packet.payload.release()
+                        continue
 
                 if packet.payload_type == Constants.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
@@ -541,6 +602,21 @@ class Network:
                         raise Exception('No route exists')
 
                     elif len(route) == 2:
+
+                        # Update network ticks
+                        sending_host = self.get_host(route[0])
+                        receiving_host = self.get_host(route[1])
+                        if packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                            for connection in sending_host.quantum_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
+                        else:
+                            for connection in sending_host.classical_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
+
                         if packet.protocol != Constants.RELAY:
                             if packet.protocol == Constants.REC_EPR:
                                 host_sender = self.get_host(sender)
@@ -555,6 +631,22 @@ class Network:
                         else:
                             self.ARP[receiver].rec_packet(packet.payload)
                     else:
+
+                        # Update network ticks
+                        for routeidx in range(len(route)-2):
+                            sending_host = self.get_host(route[routeidx])
+                            receiving_host = self.get_host(route[routeidx+1])
+                            if packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                                for connection in sending_host.quantum_connections:
+                                    if connection.receiver_id == receiving_host.host_id:
+                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                        break
+                            else:
+                                for connection in sending_host.classical_connections:
+                                    if connection.receiver_id == receiving_host.host_id:
+                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                        break
+
                         if packet.protocol == Constants.REC_EPR:
                             q_id = packet.payload['q_id']
                             blocked = packet.payload['blocked']
@@ -613,7 +705,7 @@ class Network:
 
         """
         if backend is None:
-            self._backend = EQSNBackend()
+            self._backend = CQCBackend()
         else:
             self._backend = backend
         if nodes is not None:

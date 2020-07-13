@@ -1,4 +1,9 @@
-from qunetsim.objects import Logger, Packet, Message, Qubit
+from qunetsim.objects import Qubit, Logger, Packet, Message
+# from qunetsim.objects.qubit import Qubit
+# from qunetsim.objects.logger import Logger
+# from qunetsim.objects.packet import Packet
+# from qunetsim.objects.message import Message
+
 from qunetsim.components.network import Network
 from qunetsim.utils.constants import Constants
 import numpy as np
