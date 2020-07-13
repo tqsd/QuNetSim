@@ -1,0 +1,964 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quantum Coin Flipping &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GHZ Based Anonymous Entanglement" href="anonymous_transfer.html" />
+    <link rel="prev" title="Quantum Key Distribution" href="QKD.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../examples.html">Examples</a> &raquo;</li>
+        
+      <li>Quantum Coin Flipping</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/quantum_coin_flipping.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quantum-coin-flipping">
+<h1>Quantum Coin Flipping<a class="headerlink" href="#quantum-coin-flipping" title="Permalink to this headline">¶</a></h1>
+<p>This example implements the Quantum Coin Flipping protocol.
+A detailed description can be found
+<a class="reference external" href="https://arxiv.org/abs/quant-ph/9904078">here</a> and
+a description about
+its implementation is briefly summarized
+<a class="reference external" href="https://wiki.veriqloud.fr/index.php?title=Quantum_Coin_Flipping">here</a>.</p>
+<p>We chose the two quantum states needed for the protocol as</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\Psi = c |0\rangle + s |1\rangle\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\Psi = c |0\rangle - s |1\rangle\)</span></p></li>
+</ul>
+<p>where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(c = \Re(e^{i \theta})\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(s = \Im(e^{i \theta})\)</span></p></li>
+</ul>
+<p>and Θ can be chosen. It is suggested that <span class="math notranslate nohighlight">\(\theta = \frac{\pi}{9}\)</span>.</p>
+<p>For the implementation of the protocol, first, we allocate all variables
+we need during the protocol. They consist of:</p>
+<ul class="simple">
+<li><p>The hosts own random bits, <span class="math notranslate nohighlight">\(b_j\)</span> and <span class="math notranslate nohighlight">\(d_ij\)</span></p></li>
+<li><p>The random bits of the partner host, <span class="math notranslate nohighlight">\(a_j\)</span></p></li>
+<li><p>The qubits from the partner, <span class="math notranslate nohighlight">\(\Psi_{e_{ij}}\)</span> and <span class="math notranslate nohighlight">\(\Psi_{\bar{e}_{ij}}\)</span></p></li>
+<li><p>The final sorted qubits which are left at the end of the protocol in this host, <span class="math notranslate nohighlight">\(\Psi_{a_j}\)</span> and <span class="math notranslate nohighlight">\(\Psi_{\bar{b}_{j}}\)</span></p></li>
+</ul>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># own random bits</span>
+<span class="n">random_bits_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">random_bits_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># random bits received from partner</span>
+<span class="n">random_bits_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># qubits received by partner</span>
+<span class="c1"># Qubits are Ψ_e_ij and Ψ_e_ij_bar</span>
+<span class="n">partner_qubits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+
+<span class="c1"># Qubits which are at the end of the protocol</span>
+<span class="c1"># at this host. First index determines the state,</span>
+<span class="c1"># Ψ_a_j and Ψ_b_j_bar, where the second index (1,...,m)</span>
+<span class="c1"># should be m copies of this state.</span>
+<span class="n">psi_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+<span class="n">psi_b_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the first step, for every random number <span class="math notranslate nohighlight">\(d_{ij}\)</span>,
+two qubits are prepared; The first in the state <span class="math notranslate nohighlight">\(\Psi_{d_{ij}}\)</span> and the second
+in the state <span class="math notranslate nohighlight">\(\Psi_{\bar{d}_{ij}}\)</span>. This two states are send
+to the partner. The states of the partner, from his random bits, are
+received and stored in <em>partner_qubits</em>.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">q1</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">q2</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+        <span class="c1"># Generate q1 as Ψ_d and</span>
+        <span class="c1"># q2 as Ψ_d_bar</span>
+        <span class="k">if</span> <span class="n">random_bits_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># q1 is Ψ_0</span>
+            <span class="n">q1</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+            <span class="c1"># q2 is Ψ_1</span>
+            <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># q1 is Ψ_1</span>
+            <span class="n">q1</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+            <span class="c1"># q2 is Ψ_0</span>
+            <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+
+        <span class="c1"># send and get q1 from our partner</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+
+        <span class="c1"># send and get q2 from our partner</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+
+        <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
+        <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q2</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the second step, a new bit, <span class="math notranslate nohighlight">\(f_{ij}\)</span>, is generated from the random bits generated
+in the beginning. This bit is send to the partner and determines which of
+the two quantum states, which
+have been send to the partner earlier, is in the state <span class="math notranslate nohighlight">\(\Psi_{b_j}\)</span>.
+However, the partner only knows if it is the first or second of the qubits
+received, but does not gain any information about the random variable <span class="math notranslate nohighlight">\(b_j\)</span>.
+The partner returns the qubit in the state <span class="math notranslate nohighlight">\(\Psi_{\bar{b}_j}\)</span>.
+The partner also generates such a bit, <span class="math notranslate nohighlight">\(e_{ij}\)</span>,
+and the host returns the quantum state <span class="math notranslate nohighlight">\(\Psi_{\bar{a}_j}\)</span>.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="c1"># random bit generated from own two random bits</span>
+        <span class="n">f_ij</span> <span class="o">=</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">^</span> <span class="n">random_bits_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+        <span class="c1"># give partner information about this two bits</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">f_ij</span><span class="p">))</span>
+
+        <span class="c1"># get the partners generated bit of his two</span>
+        <span class="c1"># random bits by a XOR operation</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_next_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+        <span class="n">e_ij</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="c1"># dependent on this bit, send him one of the</span>
+        <span class="c1"># qubits received. The other qubit should be</span>
+        <span class="c1"># in the state Ψ_a_j.</span>
+        <span class="k">if</span> <span class="n">e_ij</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># The partner should send the qubit Ψ_b_j_bar back.</span>
+        <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>After this procedure, the host has m qubits of the state
+<span class="math notranslate nohighlight">\(\Psi_{\bar{b}_j}\)</span> and m qubits of <span class="math notranslate nohighlight">\(\Psi_{a_j}\)</span>, for all j.
+If one of the two partners of the protocol want to cheat and manipulate
+the outcome of the final random bit, they first have to know the numbers chosen
+by their partner.
+However, at this point the host has a stack of quantum states from the chosen
+numbers of his partner, making it impossible for the partner to change its prior chosen
+numbers.
+Therefore, the two partners can now start to share their chosen random
+numbers and measure their stack of qubits to verify the numbers haven’t been tampered with.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="c1"># Send own random bits b_j to partner</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+    <span class="c1"># Get partner base to decode her qubits</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_next_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+    <span class="n">a_j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="c1"># Meaure in Psi_0 basis or Psi_1 basis</span>
+        <span class="c1"># Because Partner has to tell us the right basis,</span>
+        <span class="c1"># our measurement outcome should always be 0.</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">a_j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+        <span class="c1"># Check if all results match the random number</span>
+        <span class="c1"># partner has shared with us.</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cheater!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># a_j got accepted</span>
+    <span class="n">random_bits_a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_j</span>
+
+    <span class="c1"># Check if returned psi_b_bar is valid</span>
+    <span class="c1"># or if partner has measured it to gain information</span>
+    <span class="c1"># about b.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cheater!&quot;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the last step, the final random number on which both partners can
+agree on is generated. The final random number is <span class="math notranslate nohighlight">\(\left(\oplus_j a_j\right) \oplus \left(\oplus_j b_j\right)\)</span>.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># random number generated by singe random numbers</span>
+<span class="c1"># of partner</span>
+<span class="n">randomnes_from_partner</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="n">randomnes_from_partner</span> <span class="o">^=</span> <span class="n">random_bits_a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+<span class="c1"># random number generated by own single random numbers</span>
+<span class="n">own_randomnes</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="n">own_randomnes</span> <span class="o">^=</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+<span class="c1"># concatenation of both random numbers</span>
+<span class="n">random_bit</span> <span class="o">=</span> <span class="n">randomnes_from_partner</span> <span class="o">^</span> <span class="n">own_randomnes</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
+<span class="k">return</span> <span class="n">random_bit</span>
+</pre></div>
+</td></tr></table></div>
+<p>The full example is given below.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+ <span class="kn">from</span> <span class="nn">qunetsim.objects</span> <span class="kn">import</span> <span class="n">Qubit</span>
+ <span class="kn">from</span> <span class="nn">qunetsim.components</span> <span class="kn">import</span> <span class="n">Host</span>
+ <span class="kn">from</span> <span class="nn">qunetsim.components</span> <span class="kn">import</span> <span class="n">Network</span>
+ <span class="kn">from</span> <span class="nn">qunetsim.backends</span> <span class="kn">import</span> <span class="n">EQSNBackend</span>
+ <span class="c1"># from qunetsim.backends import CQCBackend</span>
+ <span class="c1"># from qunetsim.backends import ProjectQBackend</span>
+
+
+ <span class="k">def</span> <span class="nf">quantum_coin_flipping</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">partner_id</span><span class="p">,</span> <span class="n">rot_angle</span><span class="p">):</span>
+     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Quantum Coin Flipping Protocol.</span>
+<span class="sd">     see https://arxiv.org/abs/quant-ph/9904078</span>
+<span class="sd">     or https://wiki.veriqloud.fr/index.php?title=Quantum_Coin_Flipping</span>
+
+<span class="sd">     The two quantum states we use are:</span>
+<span class="sd">     Ψ_0 = c |0&gt; + s |1&gt;</span>
+<span class="sd">     Ψ_1 = c |0&gt; - s |1&gt;</span>
+<span class="sd">     where</span>
+<span class="sd">     c = Re{e^(iΘ)}</span>
+<span class="sd">     s = Im{e^(iΘ)}</span>
+<span class="sd">     and Θ is given by the rot_angle.</span>
+
+<span class="sd">     Own random bits are b_j and d_ij.</span>
+<span class="sd">     Partners random variables are a_j and c_ij.</span>
+
+<span class="sd">     Own shared: f_ij = b_j ^ d_ij</span>
+<span class="sd">     Partner shared: e_ij = a_j ^ c_ij</span>
+
+<span class="sd">     final own: B = ^b_j for all j</span>
+<span class="sd">     final partner: A_tilde = ^a_j for all j</span>
+
+<span class="sd">     final random bit: A_tilde ^ B</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+     <span class="c1"># own random bits</span>
+     <span class="n">random_bits_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+     <span class="n">random_bits_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+     <span class="c1"># random bits received from partner</span>
+     <span class="n">random_bits_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+     <span class="c1"># qubits received by partner</span>
+     <span class="c1"># Qubits are Ψ_e_ij and Ψ_e_ij_bar</span>
+     <span class="n">partner_qubits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+
+     <span class="c1"># Qubits which are at the end of the protocol</span>
+     <span class="c1"># at this host. First index determines the state,</span>
+     <span class="c1"># Ψ_a_j and Ψ_b_j_bar, where the second index (1,...,m)</span>
+     <span class="c1"># should be m copies of this state.</span>
+     <span class="n">psi_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+     <span class="n">psi_b_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Qubit</span><span class="p">)</span>
+
+     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+             <span class="n">q1</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+             <span class="n">q2</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+             <span class="c1"># Generate q1 as Ψ_d and</span>
+             <span class="c1"># q2 as Ψ_d_bar</span>
+             <span class="k">if</span> <span class="n">random_bits_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="c1"># q1 is Ψ_0</span>
+                 <span class="n">q1</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+                 <span class="c1"># q2 is Ψ_1</span>
+                 <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+             <span class="k">else</span><span class="p">:</span>
+                 <span class="c1"># q1 is Ψ_1</span>
+                 <span class="n">q1</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+                 <span class="c1"># q2 is Ψ_0</span>
+                 <span class="n">q2</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+
+             <span class="c1"># send and get q1 from our partner</span>
+             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+             <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+
+             <span class="c1"># send and get q2 from our partner</span>
+             <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+             <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+
+             <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
+             <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q2</span>
+
+     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+             <span class="c1"># random bit generated from own two random bits</span>
+             <span class="n">f_ij</span> <span class="o">=</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">^</span> <span class="n">random_bits_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+             <span class="c1"># give partner information about this two bits</span>
+             <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">f_ij</span><span class="p">))</span>
+
+             <span class="c1"># get the partners generated bit of his two</span>
+             <span class="c1"># random bits by a XOR operation</span>
+             <span class="n">msg</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_next_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+             <span class="n">e_ij</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+             <span class="c1"># dependent on this bit, send him one of the</span>
+             <span class="c1"># qubits received. The other qubit should be</span>
+             <span class="c1"># in the state Ψ_a_j.</span>
+             <span class="k">if</span> <span class="n">e_ij</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                 <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+             <span class="k">else</span><span class="p">:</span>
+                 <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                 <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+             <span class="c1"># The partner should send the qubit Ψ_b_j_bar back.</span>
+             <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+         <span class="c1"># Send own random bits b_j to partner</span>
+         <span class="n">host</span><span class="o">.</span><span class="n">send_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+         <span class="c1"># Get partner base to decode her qubits</span>
+         <span class="n">msg</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_next_classical</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+         <span class="n">a_j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+             <span class="c1"># Meaure in Psi_0 basis or Psi_1 basis</span>
+             <span class="c1"># Because Partner has to tell us the right basis,</span>
+             <span class="c1"># our measurement outcome should always be 0.</span>
+             <span class="n">q</span> <span class="o">=</span> <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+             <span class="n">res</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+             <span class="k">if</span> <span class="n">a_j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+             <span class="k">else</span><span class="p">:</span>
+                 <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+
+             <span class="n">res</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+             <span class="c1"># Check if all results match the random number</span>
+             <span class="c1"># partner has shared with us.</span>
+             <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cheater!&quot;</span><span class="p">)</span>
+
+         <span class="c1"># a_j got accepted</span>
+         <span class="n">random_bits_a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_j</span>
+
+         <span class="c1"># Check if returned psi_b_bar is valid</span>
+         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+             <span class="n">q</span> <span class="o">=</span> <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+             <span class="k">if</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">rot_angle</span><span class="p">)</span>
+             <span class="k">else</span><span class="p">:</span>
+                 <span class="n">q</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rot_angle</span><span class="p">)</span>
+             <span class="n">res</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+             <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cheater!&quot;</span><span class="p">)</span>
+
+     <span class="c1"># random number generated by singe random numbers</span>
+     <span class="c1"># of partner</span>
+     <span class="n">randomnes_from_partner</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+         <span class="n">randomnes_from_partner</span> <span class="o">^=</span> <span class="n">random_bits_a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+     <span class="c1"># random number generated by own single random numbers</span>
+     <span class="n">own_randomnes</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+         <span class="n">own_randomnes</span> <span class="o">^=</span> <span class="n">random_bits_b</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+     <span class="c1"># concatenation of both random numbers</span>
+     <span class="n">random_bit</span> <span class="o">=</span> <span class="n">randomnes_from_partner</span> <span class="o">^</span> <span class="n">own_randomnes</span>
+     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: random bit is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">random_bit</span><span class="p">))</span>
+     <span class="k">return</span> <span class="n">random_bit</span>
+
+
+ <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+     <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+
+     <span class="c1"># backend = ProjectQBackend()</span>
+     <span class="c1"># backend = CQCBackend()</span>
+     <span class="n">backend</span> <span class="o">=</span> <span class="n">EQSNBackend</span><span class="p">()</span>
+
+     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+     <span class="n">network</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mf">0.1</span>
+     <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+
+     <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+     <span class="n">host_A</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+     <span class="n">host_A</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+     <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+     <span class="n">host_B</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+     <span class="n">host_B</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_A</span><span class="p">)</span>
+     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_B</span><span class="p">)</span>
+
+     <span class="n">m</span> <span class="o">=</span> <span class="mi">2</span>
+     <span class="n">n</span> <span class="o">=</span> <span class="mi">4</span>
+     <span class="n">rot_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">9</span>
+
+     <span class="n">t1</span> <span class="o">=</span> <span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">quantum_coin_flipping</span><span class="p">,</span>
+                             <span class="n">arguments</span><span class="o">=</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">host_B</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">rot_angle</span><span class="p">))</span>
+     <span class="n">t2</span> <span class="o">=</span> <span class="n">host_B</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">quantum_coin_flipping</span><span class="p">,</span>
+                             <span class="n">arguments</span><span class="o">=</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">rot_angle</span><span class="p">))</span>
+
+     <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+     <span class="n">t2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+     <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+     <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+         <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

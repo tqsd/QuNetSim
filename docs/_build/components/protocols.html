@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Protocols &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Network Objects" href="../objects.html" />
+    <link rel="prev" title="Network" href="network.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../components.html">Network Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="network.html">Network</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../design.html">Design Overview</a> &raquo;</li>
+        
+          <li><a href="../components.html">Network Components</a> &raquo;</li>
+        
+      <li>Protocols</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/protocols.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-qunetsim.components.protocols">
+<span id="protocols"></span><h1>Protocols<a class="headerlink" href="#module-qunetsim.components.protocols" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="qunetsim.components.protocols._decode_superdense">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_decode_superdense</code><span class="sig-paren">(</span><em class="sig-param">q1</em>, <em class="sig-param">q2</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._decode_superdense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the message encoded into q1 with the support of q2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q1</strong> (<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – The qubit the message is encoded into</p></li>
+<li><p><strong>q1</strong> – The supporting entangled pair</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string of decoded message.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._encode_superdense">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_encode_superdense</code><span class="sig-paren">(</span><em class="sig-param">message</em>, <em class="sig-param">q</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._encode_superdense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode qubit q with the 2 bit message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – the message to encode</p></li>
+<li><p><strong>q</strong> – the qubit to encode the message</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_classical">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_classical</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_classical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an
+ACK message to receiver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_epr">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_epr</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message packet , parses it into sequence number and message and sends an ACK message to
+receiver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_ghz">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_ghz</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a GHZ state and stores it in quantum storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_key">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_key</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a QKD key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_qubit">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_qubit</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a packet containing qubit information (qubit is transmitted externally)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_superdense">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_superdense</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_superdense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a superdense qubit and decodes it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary consisting of decoded superdense message and sequence number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._rec_teleport">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_rec_teleport</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._rec_teleport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a classical message and applies the required operations to EPR pair entangled with the sender to
+retrieve the teleported qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._relay_message">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_relay_message</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._relay_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce TTL of network packet and if TTL &gt; 0, sends the message to be relayed to the next
+node in the network and modifies the header.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket" title="qunetsim.objects.routing_packet.RoutingPacket"><em>RoutingPacket</em></a>) – Packet to be relayed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_ack">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_ack</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">seq_number</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an acknowledge message from the sender to the receiver.
+:param sender: The sender ID
+:type sender: str
+:param receiver: The receiver ID
+:type receiver: str
+:param seq_number: The sequence number which to ACK
+:type seq_number: int</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_classical">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_classical</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_classical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a classical message to another host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_epr">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_epr</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends an EPR to another host in the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_ghz">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_ghz</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_ghz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets GHZ qubits and distributes the to all hosts.
+One qubit is stored in own storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_qubit">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_qubit</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transmit the qubit
+:param packet: The packet in which to transmit.
+:type packet: Packet</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_superdense">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_superdense</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_superdense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes and sends a qubit to send a superdense message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols._send_teleport">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">_send_teleport</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols._send_teleport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the measurements for teleportation of a qubit and sends the measurement results to another host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols.encode">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload=None</em>, <em class="sig-param">payload_type=''</em>, <em class="sig-param">sequence_num=-1</em>, <em class="sig-param">await_ack=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes the data with the sender, receiver, protocol, payload type and sequence number and forms the packet
+with data and the header.
+:param sender: ID of the sender
+:type sender: str
+:param receiver: ID of the receiver
+:type receiver: str
+:param protocol: ID of the protocol of which the packet should be processed.
+:type protocol: str
+:param payload: The message that is intended to send with the packet. Type of payload depends on the protocol.
+:param payload_type: Type of the payload.
+:type payload_type: str
+:param sequence_num: Sequence number of the packet.
+:type sequence_num: int
+:param await_ack: If the sender should await an ACK
+:type await_ack: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Encoded packet</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet">Packet</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="qunetsim.components.protocols.process">
+<code class="sig-prename descclassname">qunetsim.components.protocols.</code><code class="sig-name descname">process</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.protocols.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes the packet and processes the packet according to the protocol in the packet header.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – Packet to be processed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns what protocol function returns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

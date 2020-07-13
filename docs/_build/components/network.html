@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Network &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Protocols" href="protocols.html" />
+    <link rel="prev" title="Host" href="host.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../components.html">Network Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="host.html">Host</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocols.html">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../design.html">Design Overview</a> &raquo;</li>
+        
+          <li><a href="../components.html">Network Components</a> &raquo;</li>
+        
+      <li>Network</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/network.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="network">
+<h1>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h1>
+<p>The Network component plays an important role in QuNetSim. In each simulation, one must configure a
+network with hosts. Each host defines its classical and quantum connections and when
+the host is added to the network, the network builds on the two graph objects for each type
+of connection it maintains. With these two network graphs, one can define their own routing algorithms for
+each type of network (e.g. there can be different routing algorithms for quantum and classical information).
+The default routing algorithm is set to the shortest path route between the two hosts.</p>
+<p>The most commonly used methods for Network are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">add_host(host)</span></code></dt><dd><ul>
+<li><p>Add a host to the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">remove_host(host)</span></code></dt><dd><ul>
+<li><p>Remove a host from the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">update_host(host)</span></code></dt><dd><ul>
+<li><p>Updates the network graph when the connections of a host change</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">get_host(host_id)</span></code></dt><dd><ul>
+<li><p>Get the host object given the host_id</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">get_APR()</span></code></dt><dd><ul>
+<li><p>Get the information for all the hosts in the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">quantum_routing_algo(function)</span></code></dt><dd><ul>
+<li><p>Property for the quantum routing algorithm. It should be a function with parameters that take a source ID and a destination ID and returns an ordered list which represents the route.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">classical_routing_algo(function)</span></code></dt><dd><ul>
+<li><p>Property for the classical routing algorithm. It should be a function with parameters that take a source ID and a destination ID and returns an ordered list which represents the route.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">use_hop_by_hop(bool)</span></code></dt><dd><ul>
+<li><p>If the network should recalculate the route at each node in the route (set to True) or just once at the beginning (set to False)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">delay(float)</span></code></dt><dd><ul>
+<li><p>the amount of delay the network should have. The network has the ability to throttle packet transmissions which is sometimes neccessary for different types of qubit / network backends.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">packet_drop_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a packet is dropped on transmission in the network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">x_error_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a qubit has an <span class="math notranslate nohighlight">\(X\)</span> gate applied to in at each host in the route</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">(property)</span> <span class="pre">z_error_rate(float)</span></code></dt><dd><ul>
+<li><p>The probability that a qubit has an <span class="math notranslate nohighlight">\(Z\)</span> gate applied to in at each host in the route</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">draw_classical_network</span></code></dt><dd><ul>
+<li><p>Generate a depiction of the classical network</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="code docutils literal notranslate"><span class="pre">draw_quantum_network</span></code></dt><dd><ul>
+<li><p>Generate a depiction of the quantum network (via matplotlib)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<span class="target" id="module-qunetsim.components.network"></span><dl class="class">
+<dt id="qunetsim.components.network.Network">
+<em class="property">class </em><code class="sig-prename descclassname">qunetsim.components.network.</code><code class="sig-name descname">Network</code><a class="headerlink" href="#qunetsim.components.network.Network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A network control singleton object.</p>
+<dl class="method">
+<dt id="qunetsim.components.network.Network._encode">
+<code class="sig-name descname">_encode</code><span class="sig-paren">(</span><em class="sig-param">route</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl=10</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds another layer to the packet if route length between sender and receiver is greater than 2. Sets the
+protocol flag in this layer to RELAY and payload_type as SIGNAL and adds a variable
+Time-To-Live information in this layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>route</strong> – route of the packet from sender to receiver</p></li>
+<li><p><strong>payload</strong> (<em>Object</em>) – Lower layers of the packet</p></li>
+<li><p><strong>ttl</strong> (<em>int</em>) – Time-to-Live parameter</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Encoded RELAY packet</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket" title="qunetsim.objects.routing_packet.RoutingPacket">RoutingPacket</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._entanglement_swap">
+<code class="sig-name descname">_entanglement_swap</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">route</em>, <em class="sig-param">q_id</em>, <em class="sig-param">o_seq_num</em>, <em class="sig-param">blocked</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._entanglement_swap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
+between sender and receiver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Sender of the EPR pair</p></li>
+<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
+<li><p><strong>route</strong> (<em>list</em>) – Route between the sender and receiver</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>o_seq_num</strong> (<em>int</em>) – The original sequence number</p></li>
+<li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._establish_epr">
+<code class="sig-name descname">_establish_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">q_id</em>, <em class="sig-param">o_seq_num</em>, <em class="sig-param">blocked</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._establish_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instead doing an entanglement swap, for efficiency we establish EPR pairs
+directly for simulation, if an entanglement swap would have been possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Sender of the EPR pair</p></li>
+<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Receiver of the EPR pair</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – Qubit ID of the sent EPR pair</p></li>
+<li><p><strong>o_seq_num</strong> (<em>int</em>) – The original sequence number</p></li>
+<li><p><strong>blocked</strong> (<em>bool</em>) – If the pair being distributed is blocked or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._process_queue">
+<code class="sig-name descname">_process_queue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._process_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a thread for processing the packets in the packet queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._remove_network_node">
+<code class="sig-name descname">_remove_network_node</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._remove_network_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the host from the ARP table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – The host to be removed from the network.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._route_quantum_info">
+<code class="sig-name descname">_route_quantum_info</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._route_quantum_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routes qubits from sender to receiver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Sender of qubits</p></li>
+<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – Receiver qubits</p></li>
+<li><p><strong>qubits</strong> (<em>List of Qubits</em>) – The qubits to be sent</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network._update_network_graph">
+<code class="sig-name descname">_update_network_graph</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network._update_network_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add host <em>host</em> to the network and update the graph representation of the network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> – The host to be added</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.add_host">
+<code class="sig-name descname">add_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.add_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the <em>host</em> to ARP table and updates the network graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – The host to be added to the network.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.add_hosts">
+<code class="sig-name descname">add_hosts</code><span class="sig-paren">(</span><em class="sig-param">hosts</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.add_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the <em>hosts</em> to ARP table and updates the network graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>hosts</strong> (<em>list</em>) – The hosts to be added to the network.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.classical_routing_algo">
+<em class="property">property </em><code class="sig-name descname">classical_routing_algo</code><a class="headerlink" href="#qunetsim.components.network.Network.classical_routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the routing algorithm for the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.delay">
+<em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#qunetsim.components.network.Network.delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the delay interval of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.draw_classical_network">
+<code class="sig-name descname">draw_classical_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.draw_classical_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a plot of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.draw_quantum_network">
+<code class="sig-name descname">draw_quantum_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.draw_quantum_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a plot of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.get_ARP">
+<code class="sig-name descname">get_ARP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_ARP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ARP table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The ARP table</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.get_classical_route">
+<code class="sig-name descname">get_classical_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_classical_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the route for classical information from source to destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>str</em>) – ID of the destination host</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ordered list of ID numbers on the shortest path from source to destination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>route (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.get_host">
+<code class="sig-name descname">get_host</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the host with the <em>host_id</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – ID number of the host that is returned.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Host with the <em>host_id</em></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host">Host</a> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host">Host</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.get_host_name">
+<code class="sig-name descname">get_host_name</code><span class="sig-paren">(</span><em class="sig-param">host_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_host_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host_id</strong> (<em>str</em>) – ID number of the host whose name is returned if it is in ARP table</p>
+</dd>
+</dl>
+<p>Returns the name of the host with <em>host_id</em> if the host is in ARP table , otherwise returns None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Name of the host</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.get_quantum_route">
+<code class="sig-name descname">get_quantum_route</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">dest</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_quantum_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the route for quantum information from source to destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – ID of the source host</p></li>
+<li><p><strong>dest</strong> (<em>str</em>) – ID of the destination host</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ordered list of ID numbers on the shortest path from source to destination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>route (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.packet_drop_rate">
+<em class="property">property </em><code class="sig-name descname">packet_drop_rate</code><a class="headerlink" href="#qunetsim.components.network.Network.packet_drop_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the drop rate of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.quantum_routing_algo">
+<em class="property">property </em><code class="sig-name descname">quantum_routing_algo</code><a class="headerlink" href="#qunetsim.components.network.Network.quantum_routing_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the quantum routing algorithm of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The quantum routing algorithm of the network</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>algorithm (function)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.remove_host">
+<code class="sig-name descname">remove_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.remove_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the host from the ARP table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – The host to be removed from the network.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.send">
+<code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param">packet</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the packet to the packet queue of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – Packet to be sent</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.shares_epr">
+<code class="sig-name descname">shares_epr</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.shares_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns boolean value dependent on if the sender and receiver share an EPR pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – The receiver</p></li>
+<li><p><strong>sender</strong> (<a class="reference internal" href="host.html#qunetsim.components.host.Host" title="qunetsim.components.host.Host"><em>Host</em></a>) – The sender</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool) whether the sender and receiver share an EPR pair.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><em class="sig-param">nodes=None</em>, <em class="sig-param">backend=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param">stop_hosts=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.update_host">
+<code class="sig-name descname">update_host</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.update_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the connections of a host in the network.
+:param host:</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.use_hop_by_hop">
+<em class="property">property </em><code class="sig-name descname">use_hop_by_hop</code><a class="headerlink" href="#qunetsim.components.network.Network.use_hop_by_hop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the routing style for the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the network uses hop by hop routing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.x_error_rate">
+<em class="property">property </em><code class="sig-name descname">x_error_rate</code><a class="headerlink" href="#qunetsim.components.network.Network.x_error_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the X error rate of the network.
+:returns: The <em>x_error_rate</em> of the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.z_error_rate">
+<em class="property">property </em><code class="sig-name descname">z_error_rate</code><a class="headerlink" href="#qunetsim.components.network.Network.z_error_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Z error rate of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Z error rate of the network.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
