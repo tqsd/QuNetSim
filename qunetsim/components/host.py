@@ -4,8 +4,8 @@ from qunetsim.utils.constants import Constants
 
 from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage, Q_Connection, C_Connection
 
-#from qunetsim.backends import EQSNBackend
-from qunetsim.backends import CQCBackend
+from qunetsim.backends import EQSNBackend
+#from qunetsim.backends import CQCBackend
 
 import uuid
 import time
@@ -34,7 +34,7 @@ class Host(object):
         self._classical_connections = []
         self._quantum_connections = []
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = EQSNBackend()
         else:
             self._backend = backend
         # add this host to the backend

@@ -9,8 +9,8 @@ from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
 from qunetsim.utils.constants import Constants
 from inspect import signature
 
-#from qunetsim.backends import EQSNBackend
-from qunetsim.backends import CQCBackend
+from qunetsim.backends import EQSNBackend
+#from qunetsim.backends import CQCBackend
 
 # Network singleton
 class Network:
@@ -702,7 +702,7 @@ class Network:
 
         """
         if backend is None:
-            self._backend = CQCBackend()
+            self._backend = EQSNBackend()
         else:
             self._backend = backend
         if nodes is not None:
