@@ -630,19 +630,19 @@ class Network:
                     else:
 
                         # Update network ticks
-                        for routeidx in range(len(route)-2):
-                            sending_host = self.get_host(route[routeidx])
-                            receiving_host = self.get_host(route[routeidx+1])
-                            if packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
-                                for connection in sending_host.quantum_connections:
-                                    if connection.receiver_id == receiving_host.host_id:
-                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
-                                        break
-                            else:
-                                for connection in sending_host.classical_connections:
-                                    if connection.receiver_id == receiving_host.host_id:
-                                        self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
-                                        break
+                        #for routeidx in range(len(route)-2):
+                        sending_host = self.get_host(route[0])
+                        receiving_host = self.get_host(route[1])
+                        if packet.payload_type == Constants.QUANTUM or (packet.payload_type == Constants.SIGNAL and isinstance(packet.payload, dict) and 'q_id' in packet.payload.keys()):
+                            for connection in sending_host.quantum_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
+                        else:
+                            for connection in sending_host.classical_connections:
+                                if connection.receiver_id == receiving_host.host_id:
+                                    self._tick += int(float(connection.length*1000/(self._tickspan))/300000000)
+                                    break
 
                         if packet.protocol == Constants.REC_EPR:
                             q_id = packet.payload['q_id']
