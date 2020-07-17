@@ -1,7 +1,7 @@
 from queue import Queue, Empty
 from qunetsim.components import protocols
 from qunetsim.utils.constants import Constants
-from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage
+from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage, Q_Connection, C_Connection
 from qunetsim.backends import EQSNBackend
 import uuid
 import time
@@ -27,8 +27,8 @@ class Host(object):
         self._queue_processor_thread = None
         self._qubit_storage = QuantumStorage()
         self._classical_messages = ClassicalStorage()
-        self._classical_connections = []
-        self._quantum_connections = []
+        self._classical_connections = {}
+        self._quantum_connections = {}
         if backend is None:
             self._backend = EQSNBackend()
         else:
@@ -579,7 +579,7 @@ class Host(object):
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.classical_connections.append(receiver_id)
+        self.classical_connections[receiver_id] = C_Connection(receiver_id)
 
     def add_c_connections(self, receiver_ids):
         """
@@ -589,7 +589,7 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.classical_connections.append(receiver_id)
+            self.classical_connections[receiver_id] = C_Connection(receiver_id)
 
     def add_q_connection(self, receiver_id):
         """
@@ -598,7 +598,7 @@ class Host(object):
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.quantum_connections.append(receiver_id)
+        self.quantum_connections[receiver_id] = Q_Connection(receiver_id)
 
     def add_q_connections(self, receiver_ids):
         """
@@ -608,7 +608,7 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.quantum_connections.append(receiver_id)
+            self.quantum_connections[receiver_id] = Q_Connection(receiver_id)
 
     def add_connection(self, receiver_id):
         """
@@ -617,8 +617,8 @@ class Host(object):
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.classical_connections.append(receiver_id)
-        self.quantum_connections.append(receiver_id)
+        self.classical_connections[receiver_id] = C_Connection(receiver_id)
+        self.quantum_connections[receiver_id] = Q_Connection(receiver_id)
 
     def add_connections(self, receiver_ids):
         """
@@ -628,8 +628,9 @@ class Host(object):
             receiver_ids (list): A list of receiver IDs to connect with
         """
         for receiver_id in receiver_ids:
-            self.classical_connections.append(receiver_id)
-            self.quantum_connections.append(receiver_id)
+            self.classical_connections[receiver_id] = C_Connection(receiver_id)
+            self.quantum_connections[receiver_id] = Q_Connection(receiver_id)
+
 
     def remove_connection(self, receiver_id):
         """
@@ -653,11 +654,11 @@ class Host(object):
         Returns:
             (bool): Success status of the removal
         """
-        c_index = self.classical_connections.index(receiver_id)
-        if c_index > -1:
-            del self.classical_connections[c_index]
+        try:
+            del self.classical_connections[receiver_id]
             return True
-        return False
+        except:
+            return False
 
     def remove_q_connection(self, receiver_id):
         """
@@ -668,11 +669,11 @@ class Host(object):
         Returns:
             (bool): Success status of the removal
         """
-        q_index = self.quantum_connections.index(receiver_id)
-        if q_index > -1:
-            del self.quantum_connections[q_index]
+        try:
+            del self.quantum_connections[receiver_id]
             return True
-        return False
+        except:
+            return False
 
     def send_ack(self, receiver, seq_number):
         """
