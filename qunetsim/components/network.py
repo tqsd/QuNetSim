@@ -523,6 +523,15 @@ class Network:
                     continue
 
                 sender, receiver = packet.sender, packet.receiver
+                sending_host = self.get_host(sender)
+
+                # Simulate Channel Properties
+                if packet.payload_type == Constants.QUANTUM:
+                    # Modify the packet according to the qubit_func method described by the model
+                    packet.payload = sending_host.quantum_connections[receiver].model.qubit_func(packet.payload)
+                    # Abort the loop if qubit has been lost
+                    if packet.payload is None:
+                        continue
 
                 if packet.payload_type == Constants.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])

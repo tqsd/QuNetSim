@@ -117,11 +117,14 @@ class Fibre_Model(object):
         """
         Function to modify the qubit based on channel properties
         In this case - Returns None if transmission fails or the original qubit if transmission succeeds
+        Required in all channel models
 
         Returns
             (object) : Modified qubit
         """
         if random.random() > self.transmission_p:
+            if qubit is not None:
+                qubit.release()
             return None
         else:
             return qubit
@@ -165,11 +168,14 @@ class Binary_Erasure_Model(object):
         """
         Function to modify the qubit based on channel properties
         In this case - Returns None if qubit is erased, otherwise returns the original qubit
+        Required in all channel models
 
         Returns
             (object) : Modified qubit
         """
         if random.random() > self.erasure_probability:
+            if qubit is not None:
+                qubit.release()
             return None
         else:
             return qubit
