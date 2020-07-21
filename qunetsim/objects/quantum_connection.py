@@ -131,11 +131,11 @@ class Fibre_Model(object):
 
 class Binary_Erasure_Model(object):
 
-    def __init__(self, probability=1.0):
+    def __init__(self, probability=0.0):
         if not isinstance(probability, int) and not isinstance(probability, float):
-            raise ValueError("Transmission probability must be float or int")
+            raise ValueError("Erasure probability must be float or int")
         elif probability < 0 or probability > 1:
-            raise ValueError("Transmission probability must lie in the interval [0, 1]")
+            raise ValueError("Erasure probability must lie in the interval [0, 1]")
         else:
             self._P = probability
 
@@ -158,9 +158,9 @@ class Binary_Erasure_Model(object):
             probability (float) : Probability that a qubit is erased during transmission
         """
         if not isinstance(probability, int) and not isinstance(probability, float):
-            raise ValueError("Transmission probability must be float or int")
+            raise ValueError("Erasure probability must be float or int")
         elif probability < 0 or probability > 1:
-            raise ValueError("Transmission probability must lie in the interval [0, 1]")
+            raise ValueError("Erasure probability must lie in the interval [0, 1]")
         else:
             self._P = probability
 
@@ -173,7 +173,7 @@ class Binary_Erasure_Model(object):
         Returns
             (object) : Modified qubit
         """
-        if random.random() > self.erasure_probability:
+        if random.random() > (1.0 - self.erasure_probability):
             if qubit is not None:
                 qubit.release()
             return None
