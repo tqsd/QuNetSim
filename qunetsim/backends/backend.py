@@ -230,6 +230,19 @@ class Backend(object):
         raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
+    def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
+        """
+        Applies a custom gate to the target qubit, controlled by the qubit.
+
+        Args:
+            qubit (Qubit): Qubit to control the gate.
+            target_1 (Qubit): Qubit on which the gate is applied.
+            target_2 (Qubit): Qubit on which the gate is applied.
+            gate (nd.array): 4x4 array for the gate applied to target.
+        """
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
+
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
         Applies a custom two qubit gate to qubit1 \\otimes qubit2.
