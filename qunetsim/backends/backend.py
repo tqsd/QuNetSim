@@ -255,6 +255,20 @@ class Backend(object):
         raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
+    def give_density_operator(self, qubit):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Args:
+            qubit (Qubit): Qubit of the density operator.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
+        """
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
+
     def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.

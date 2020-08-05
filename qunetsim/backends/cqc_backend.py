@@ -375,6 +375,19 @@ class CQCBackend(object):
         """
         raise (EnvironmentError("Not implemented for this backend!"))
 
+    def give_density_operator(self, qubit):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Args:
+            qubit (Qubit): Qubit of the density operator.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
+        """
+        raise (EnvironmentError("Not implemented for this backend!"))
+
     def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.
