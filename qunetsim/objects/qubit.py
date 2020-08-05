@@ -284,7 +284,7 @@ class Qubit(object):
         Returns:
             np.ndarray: The density operator of the qubit.
         """
-        self._host.backend.density_operator(self)
+        return self._host.backend.density_operator(self)
 
     def measure(self, non_destructive=False):
         """
