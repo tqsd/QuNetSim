@@ -64,7 +64,7 @@ class TestBackend(unittest.TestCase):
         q2 = backend.receive_epr(
             bob.host_id, alice.host_id, q_id=q1.id)
 
-        density_operator = backend.give_density_operator(q1)
+        density_operator = backend.density_operator(q1)
         expected = np.diag([0.5, 0.5])
         self.assertTrue(np.allclose(density_operator, expected))
 
