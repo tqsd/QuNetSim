@@ -41,11 +41,11 @@ class TestOneHop(unittest.TestCase):
     def setUp(self):
         global network
         global hosts
-        network.delay = 0.2
+        network.delay = 0.0
         network.packet_drop_rate = 0
 
-        hosts['alice'].delay = 0.1
-        hosts['bob'].delay = 0.1
+        hosts['alice'].delay = 0.0
+        hosts['bob'].delay = 0.0
 
         hosts['alice'].set_epr_memory_limit(-1)
         hosts['bob'].set_epr_memory_limit(-1)
