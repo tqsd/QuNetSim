@@ -189,6 +189,18 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(q_alice.measure(), q_bob.measure())
 
     # @unittest.skip('')
+    def test_qkd(self):
+        global hosts
+        key_size = 4
+        ack = hosts['alice'].send_key(hosts['bob'].host_id, key_size)
+
+        self.assertTrue(ack)
+        key_alice, _ = hosts['alice'].get_key(hosts['bob'].host_id)
+        key_bob, _ = hosts['bob'].get_key(hosts['alice'].host_id)
+
+        self.assertEqual(key_alice, key_bob)
+
+    # @unittest.skip('')
     def test_teleport(self):
         global hosts
 
