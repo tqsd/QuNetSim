@@ -472,30 +472,33 @@ class Network:
             qubits (List of Qubits): The qubits to be sent
         """
 
-        def transfer_qubits(r, original_sender=None):
+        def transfer_qubits(r, s, original_sender=None):
             for q in qubits:
-                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
-                x_err_var = random.random()
-                z_err_var = random.random()
-                if x_err_var > (1 - self.x_error_rate):
-                    q.X()
-                if z_err_var > (1 - self.z_error_rate):
-                    q.Z()
+                # Modify the qubit according to error function of the model
+                qubit_id = q.id
+                q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)   
 
-                q.send_to(self.ARP[r].host_id)
-                Logger.get_instance().log('transfer qubits - received ' + q.id)
+                if q is None:  
+                    # Log failure of transmission if qubit is lost
+                    Logger.get_instance().log('transfer qubits - transfer of qubit '+ qubit_id +' failed') 
 
-                # Unblock qubits in case they were blocked
-                q.blocked = False
+                else:
+                    Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
 
-                if self.ARP[r].q_relay_sniffing:
-                    self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
+                    q.send_to(self.ARP[r].host_id)
+                    Logger.get_instance().log('transfer qubits - received ' + q.id)
+
+                    # Unblock qubits in case they were blocked
+                    q.blocked = False
+
+                    if self.ARP[r].q_relay_sniffing:
+                        self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-            transfer_qubits(route[i + 1], original_sender=route[0])
+            transfer_qubits(route[i + 1], route[i], original_sender=route[0])
             i += 1
 
     def _process_queue(self):
@@ -523,17 +526,17 @@ class Network:
                     continue
 
                 sender, receiver = packet.sender, packet.receiver
-                sending_host = self.get_host(sender)
+                #sending_host = self.get_host(sender)
 
                 # Simulate Channel Properties
-                if packet.payload_type == Constants.QUANTUM:
+                #if packet.payload_type == Constants.QUANTUM:
                     # Check if direct connection exists
-                    if receiver in sending_host.quantum_connections:
+                 #   if receiver in sending_host.quantum_connections:
                         # Modify the packet according to the qubit_func method described by the model
-                        packet.payload = sending_host.quantum_connections[receiver].model.qubit_func(packet.payload)
+                  #      packet.payload = sending_host.quantum_connections[receiver].model.qubit_func(packet.payload)
                         # Abort the loop if qubit has been lost
-                        if packet.payload is None:
-                            continue
+                   #     if packet.payload is None:
+                    #        continue
 
                 if packet.payload_type == Constants.QUANTUM:
                     self._route_quantum_info(sender, receiver, [packet.payload])
