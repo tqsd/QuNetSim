@@ -420,8 +420,7 @@ class Network:
             for q in qubits:
                 # Modify the qubit according to error function of the model
                 qubit_id = q.id
-                q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)   
-                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
+                q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)
 
                 if q is None:  
                     # Log failure of transmission if qubit is lost
