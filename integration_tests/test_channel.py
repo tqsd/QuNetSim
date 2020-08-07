@@ -133,6 +133,3 @@ class TestChannel(unittest.TestCase):
 
         self.assertEqual(hosts['alice'].quantum_connections[hosts['bob'].host_id].model.transmission_p, 0.0)
         self.assertIsNone(rec_q)
-
-#if __name__ == '__main__':
-#    unittest.main()

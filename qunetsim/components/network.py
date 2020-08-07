@@ -38,8 +38,6 @@ class Network:
             self._queue_processor_thread = None
             self._delay = 0.1
             self._packet_drop_rate = 0
-            self._x_error_rate = 0
-            self._z_error_rate = 0
             self._backend = None
             Network.__instance = self
         else:
@@ -167,60 +165,6 @@ class Network:
             raise Exception('Packet drop rate should be a number')
 
         self._packet_drop_rate = drop_rate
-
-    @property
-    def x_error_rate(self):
-        """
-        Get the X error rate of the network.
-        Returns:
-              The *x_error_rate* of the network.
-        """
-
-        return self._x_error_rate
-
-    @x_error_rate.setter
-    def x_error_rate(self, error_rate):
-        """
-        Set the X error rate of the network.
-
-        Args:
-             error_rate (float): Probability of a X error during a qubit transmission in the network
-        """
-
-        if error_rate < 0 or error_rate > 1:
-            raise Exception('Error rate should be between 0 and 1.')
-
-        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
-            raise Exception('X error rate should be a number')
-
-        self._x_error_rate = error_rate
-
-    @property
-    def z_error_rate(self):
-        """
-        Get the Z error rate of the network.
-
-        Returns:
-            (float): The Z error rate of the network.
-        """
-        return self._z_error_rate
-
-    @z_error_rate.setter
-    def z_error_rate(self, error_rate):
-        """
-        Set the Z error rate of the network.
-
-        Args:
-             error_rate (float): Probability of a Z error during a qubit transmission in the network
-        """
-
-        if error_rate < 0 or error_rate > 1:
-            raise Exception('Error rate should be between 0 and 1.')
-
-        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
-            raise Exception('Z error rate should be a number')
-
-        self._z_error_rate = error_rate
 
     def add_host(self, host):
         """
@@ -474,9 +418,13 @@ class Network:
 
         def transfer_qubits(r, s, original_sender=None):
             for q in qubits:
+<<<<<<< HEAD
                 # Modify the qubit according to error function of the model
                 qubit_id = q.id
                 q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)   
+=======
+                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
+>>>>>>> 014ba00fab348f7893860786e1f68b7b67abaff3
 
                 if q is None:  
                     # Log failure of transmission if qubit is lost
