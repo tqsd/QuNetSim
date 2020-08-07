@@ -1345,27 +1345,6 @@ class Host(object):
         """
         return self._qubit_storage.get_qubit_by_id(q_id)
 
-    def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
-        """
-        *WILL BE DELETED*
-
-        Args:
-            receive_from_id:
-            buffer:
-            sequence_nr:
-
-        Returns:
-            (Message): The message
-        """
-        buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
-        msg = "ACK"
-        while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
-            if len(buffer) == 0:
-                buffer = buffer + self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
-            ele = buffer.pop(0)
-            msg = ele.content
-        return msg
-
     def send_key(self, receiver_id, key_size, await_ack=True):
         """
         Send a secret key via QKD of length *key_size* to host with ID *receiver_id*.
