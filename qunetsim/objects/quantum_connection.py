@@ -1,6 +1,6 @@
 import random
 
-class Q_Connection:
+class Q_Connection(object):
     """
     An object that stores quantum connection details
     """
