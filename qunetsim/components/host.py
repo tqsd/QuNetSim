@@ -699,11 +699,15 @@ class Host(object):
         while expected_seq + self._max_window < seq_number:
             self.logger.log("%s: Msg with sequence number %d was not received within the receiving window." % (
                 self.host_id, expected_seq))
+            self.logger.log("Already received messages after this message are %s." % (
+                str(self._seq_number_receiver[receiver][0])))
             # just jump over this sequence number
             expected_seq += 1
             self._seq_number_receiver[receiver][1] += 1
 
         if expected_seq < seq_number:
+            self.logger.log("Expected msg with seq num %d but received msg with seq num %d." % (
+                    expected_seq, seq_number))
             self._seq_number_receiver[receiver][0].append(seq_number)
 
         else:
@@ -1348,12 +1352,14 @@ class Host(object):
     def send_key(self, receiver_id, key_size, await_ack=True):
         """
         Send a secret key via QKD of length *key_size* to host with ID *receiver_id*.
+        The ACK is returned before the QKD protocol is completley finished!
+
         Args:
             receiver_id (str): The ID of the receiver
             key_size (int): The size of the key
             await_ack (bool): If the host should wait for an ACk
         Returns:
-            (bool): Status of ACK
+            (bool): Status of ACK, returned at the beginning of the protocol
         """
 
         seq_num = self.get_next_sequence_number(receiver_id)
@@ -1370,6 +1376,22 @@ class Host(object):
         if packet.await_ack:
             self._log_ack('EPR', receiver_id, seq_num)
             return self.await_ack(seq_num, receiver_id)
+
+    def get_key(self, receiver_id):
+        """
+        Should be called after *send_key* is called. Blocks, till the key sharing
+        is finished and returns the key and the amount of attemptes needed in QKD.
+        From this value, the user can decide if the transmission was assumed safe
+        or not.
+
+        Args:
+            receiver_id (str): The ID of the key partner
+        Returns:
+            (key, int): The key, as a list of ints, and the amount of attempts needed
+        """
+        while receiver_id not in self.qkd_keys:
+            time.sleep(0.2)
+        return self.qkd_keys[receiver_id]
 
 
 def _get_qubit(store, host_id, q_id, purpose, wait=0):

@@ -397,11 +397,11 @@ def _rec_superdense(packet):
 def _send_key(packet):
 
     def helper_recv(host, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + host.get_classical(receive_from_id, wait=host.WAIT_TIME)
+        buffer = buffer + host.get_classical(receive_from_id, wait=-1)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + host.get_classical(receive_from_id, wait=host.WAIT_TIME)
+                buffer = buffer + host.get_classical(receive_from_id, wait=-1)
             ele = buffer.pop(0)
             msg = ele.content
         return msg
@@ -410,12 +410,14 @@ def _send_key(packet):
     sender = network.get_host(packet.sender)
     key_size = packet.payload[Constants.KEYSIZE]
 
-    packet.protocol = Constants.KEY
+    packet.protocol = Constants.REC_KEY
     network.send(packet)
 
     secret_key = []
     msg_buff = []
     sequence_nr = 0
+    attempt_counter = 0
+
     # iterate over all bits in the secret key.
     for _ in range(key_size):
         ack = False
@@ -450,9 +452,10 @@ def _send_key(packet):
                 sender.send_classical(receiver.host_id, ("%d:1" % sequence_nr), await_ack=True)
 
             sequence_nr += 1
+            attempt_counter += 1
 
     # Add key to keys of sender
-    sender.qkd_keys[receiver.host_id] = secret_key
+    sender.qkd_keys[receiver.host_id] = (secret_key, attempt_counter)
 
 
 def _rec_key(packet):
@@ -464,11 +467,11 @@ def _rec_key(packet):
     """
 
     def helper_recv(host, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + host.get_classical(receive_from_id, wait=host.WAIT_TIME)
+        buffer = buffer + host.get_classical(receive_from_id, wait=-1)
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + host.get_classical(receive_from_id, wait=host.WAIT_TIME)
+                buffer = buffer + host.get_classical(receive_from_id, wait=-1)
             ele = buffer.pop(0)
             msg = ele.content
         return msg
@@ -477,10 +480,16 @@ def _rec_key(packet):
     sender = network.get_host(packet.sender)
     key_size = packet.payload[Constants.KEYSIZE]
 
+    # Send ACK if seq_num is not -1
+    # For QKD Ack is returned immediatley
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+
     msg_buff = []
 
     sequence_nr = 0
     received_counter = 0
+    attempt_counter = 0
     key_array = []
 
     while received_counter < key_size:
@@ -507,10 +516,10 @@ def _rec_key(packet):
         if msg == ("%d:0" % sequence_nr):
             received_counter += 1
             key_array.append(bit)
+        attempt_counter += 1
         sequence_nr += 1
 
-    key = key_array
-    receiver.qkd_keys[sender.host_id] = key
+    receiver.qkd_keys[sender.host_id] = (key_array, attempt_counter)
 
 
 def _send_ghz(packet):
