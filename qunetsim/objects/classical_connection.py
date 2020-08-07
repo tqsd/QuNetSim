@@ -1,4 +1,4 @@
-class C_Connection:
+class C_Connection(object):
     """
     An object that stores classical connection details
     """

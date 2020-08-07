@@ -1,12 +1,15 @@
 import random
 
-class Q_Connection:
+class Q_Connection(object):
     """
     An object that stores quantum connection details
     """
-    def __init__(self, receiver_id):
+    def __init__(self, receiver_id, model=None):
         self._receiver_id = receiver_id
-        self._model = Fibre_Model()                # Defaults to fibre model
+        if model is None:
+            self._model = Fibre_Model()                # Defaults to fibre model
+        else:
+            self._model = model
 
     @property
     def receiver_id(self):
