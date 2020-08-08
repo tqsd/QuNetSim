@@ -1,15 +1,16 @@
-from qunetsim.objects import Qubit, Logger, Q_Connection, C_Connection, Binary_Erasure_Model, Fibre_Model
+import unittest
+import time
+
+from qunetsim.objects import Qubit, Logger, BinaryErasure, Fibre
 from qunetsim.components.host import Host
 from qunetsim.components.network import Network
 from qunetsim.backends import EQSNBackend
-from qunetsim.utils.constants import Constants
-import unittest
-import time
 
 Logger.DISABLED = True
 
 network = Network.get_instance()
 hosts = {}
+
 
 # unittest.skip('')
 class TestChannel(unittest.TestCase):
@@ -62,7 +63,7 @@ class TestChannel(unittest.TestCase):
     def test_channel_BEC_success(self):
         global hosts
 
-        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Binary_Erasure_Model(probability=0.0)
+        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = BinaryErasure(probability=0.0)
         q = Qubit(hosts['alice'])
         q.X()
 
@@ -81,7 +82,7 @@ class TestChannel(unittest.TestCase):
     def test_channel_BEC_failure(self):
         global hosts
 
-        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Binary_Erasure_Model(probability=1.0)
+        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = BinaryErasure(probability=1.0)
         q = Qubit(hosts['alice'])
         q.X()
 
@@ -99,7 +100,7 @@ class TestChannel(unittest.TestCase):
     def test_channel_Fibre_success(self):
         global hosts
 
-        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Fibre_Model(length=0.0, alpha=0.0)
+        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Fibre(length=0.0, alpha=0.0)
         q = Qubit(hosts['alice'])
         q.X()
 
@@ -119,7 +120,7 @@ class TestChannel(unittest.TestCase):
     def test_channel_Fibre_failure(self):
         global hosts
 
-        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Fibre_Model(length=10000000.0, alpha=1.0)
+        hosts['alice'].quantum_connections[hosts['bob'].host_id].model = Fibre(length=10000000.0, alpha=1.0)
         q = Qubit(hosts['alice'])
         q.X()
 

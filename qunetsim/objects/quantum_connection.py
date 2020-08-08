@@ -1,13 +1,15 @@
 import random
 
-class Q_Connection(object):
+
+class QuantumConnection(object):
     """
     An object that stores quantum connection details
     """
+
     def __init__(self, receiver_id, model=None):
         self._receiver_id = receiver_id
         if model is None:
-            self._model = Fibre_Model()                # Defaults to fibre model
+            self._model = Fibre()  # Defaults to fibre model
         else:
             self._model = model
 
@@ -38,9 +40,10 @@ class Q_Connection(object):
         """
         self._model = model
 
-class Fibre_Model(object):
 
-    def __init__(self, length = 0.0, alpha = 0.0):
+class Fibre(object):
+
+    def __init__(self, length=0.0, alpha=0.0):
 
         if not isinstance(length, int) and not isinstance(length, float):
             raise ValueError("Length must be float or int")
@@ -114,7 +117,7 @@ class Fibre_Model(object):
         Returns:
             (float) : Probability that a qubit is transmitted
         """
-        return 10.0**(-1.0*self._alpha*self._length/10.0)
+        return 10.0 ** (-1.0 * self._alpha * self._length / 10.0)
 
     def qubit_func(self, qubit):
         """
@@ -132,7 +135,8 @@ class Fibre_Model(object):
         else:
             return qubit
 
-class Binary_Erasure_Model(object):
+
+class BinaryErasure(object):
 
     def __init__(self, probability=0.0):
         if not isinstance(probability, int) and not isinstance(probability, float):

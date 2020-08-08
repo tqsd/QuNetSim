@@ -1,10 +1,11 @@
-class C_Connection(object):
+class ClassicalConnection(object):
     """
     An object that stores classical connection details
     """
+
     def __init__(self, receiver_id):
         self._receiver_id = receiver_id
-        self._model = Classical_Model()
+        self._model = ClassicalModel()
 
     @property
     def receiver_id(self):
@@ -33,7 +34,8 @@ class C_Connection(object):
         """
         self._model = model
 
-class Classical_Model(object):
+
+class ClassicalModel(object):
 
     def __init__(self):
         self._length = 0
