@@ -42,11 +42,11 @@ class TestOneHop(unittest.TestCase):
     def setUp(self):
         global network
         global hosts
-        network.delay = 0.2
+        network.delay = 0.0
         network.packet_drop_rate = 0
 
-        hosts['alice'].delay = 0.1
-        hosts['bob'].delay = 0.1
+        hosts['alice'].delay = 0.0
+        hosts['bob'].delay = 0.0
 
         hosts['alice'].set_epr_memory_limit(-1)
         hosts['bob'].set_epr_memory_limit(-1)
@@ -223,6 +223,18 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q_alice)
         self.assertIsNotNone(q_bob)
         self.assertEqual(q_alice.measure(), q_bob.measure())
+
+    # @unittest.skip('')
+    def test_qkd(self):
+        global hosts
+        key_size = 4
+        ack = hosts['alice'].send_key(hosts['bob'].host_id, key_size)
+
+        self.assertTrue(ack)
+        key_alice, _ = hosts['alice'].get_key(hosts['bob'].host_id)
+        key_bob, _ = hosts['bob'].get_key(hosts['alice'].host_id)
+
+        self.assertEqual(key_alice, key_bob)
 
     # @unittest.skip('')
     def test_teleport(self):
