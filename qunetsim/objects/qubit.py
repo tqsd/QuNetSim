@@ -276,6 +276,16 @@ class Qubit(object):
 
         self._host.backend.custom_two_qubit_gate(self, other_qubit, gate)
 
+    def density_operator(self):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
+        """
+        return self._host.backend.density_operator(self)
+
     def measure(self, non_destructive=False):
         """
         Measures the state of a qubit.

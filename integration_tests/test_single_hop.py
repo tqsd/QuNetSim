@@ -5,6 +5,7 @@ from qunetsim.backends import EQSNBackend
 from qunetsim.utils.constants import Constants
 import unittest
 import time
+import numpy as np
 
 Logger.DISABLED = True
 
@@ -174,6 +175,41 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q2)
         assert q1 is not None
         assert q2 is not None
+        self.assertEqual(q1.measure(), q2.measure())
+
+    # @unittest.skip('')
+    def test_density_operator(self):
+        global hosts
+
+        q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
+        q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+        i = 0
+        while q1 is None and i < TestOneHop.MAX_WAIT:
+            q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+            i += 1
+            time.sleep(1)
+
+        self.assertIsNotNone(q1)
+        i = 0
+        q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+        while q2 is None and i < TestOneHop.MAX_WAIT:
+            q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+            i += 1
+            time.sleep(1)
+
+        self.assertIsNotNone(q2)
+        assert q1 is not None
+        assert q2 is not None
+
+        # Density operator test
+        density_operator1 = q1.density_operator()
+        density_operator2 = q2.density_operator()
+        expected_density_operator = np.diag([0.5, 0.5])
+
+        self.assertTrue(np.allclose(density_operator1, expected_density_operator))
+        self.assertTrue(np.allclose(density_operator2, expected_density_operator))
+
+        # Check that the statevector has not changed
         self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
