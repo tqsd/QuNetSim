@@ -9,6 +9,7 @@ from queue import Queue
 # From O'Reilly Python Cookbook by David Ascher, Alex Martelli
 # with some smaller adaptions
 class RWLock:
+
     def __init__(self):
         self._read_ready = threading.Condition(threading.RLock())
         self._num_reader = 0
@@ -51,6 +52,7 @@ class RWLock:
 
 
 class SafeDict(object):
+
     def __init__(self):
         self.lock = RWLock()
         self.dict = {}
@@ -413,10 +415,10 @@ class EQSNBackend(object):
         density_operator = np.outer(statevector, statevector)
         before = 2**index
         if before > 0:
-            other = 2**(len(qubits)-index)
+            other = 2**(len(qubits) - index)
             density_operator = density_operator.reshape([before, other, before, other])
             density_operator = np.trace(density_operator, axis1=0, axis2=2)
-        after = 2**(len(qubits)-index-1)
+        after = 2**(len(qubits) - index - 1)
         if after > 0:
             density_operator = density_operator.reshape([2, after, 2, after])
             density_operator = np.trace(density_operator, axis1=1, axis2=3)
