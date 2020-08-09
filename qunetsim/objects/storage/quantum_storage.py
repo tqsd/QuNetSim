@@ -1,5 +1,5 @@
 from qunetsim.backends.rw_lock import RWLock
-from qunetsim.objects import Logger
+from qunetsim.objects.logger import Logger
 import queue
 
 

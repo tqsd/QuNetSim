@@ -1,6 +1,6 @@
-from qunetsim.objects import Qubit, Logger
 from qunetsim.components.host import Host
 from qunetsim.components.network import Network
+from qunetsim.objects import Qubit, Logger
 from qunetsim.backends import EQSNBackend
 import unittest
 import time

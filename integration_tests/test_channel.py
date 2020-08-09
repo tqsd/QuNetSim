@@ -1,9 +1,9 @@
 import unittest
 import time
 
-from qunetsim.objects import Qubit, Logger, BinaryErasure, Fibre
-from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.objects import Qubit, Logger
+from qunetsim.objects.connections.channel_models import BinaryErasure, Fibre
+from qunetsim.components import Host, Network
 from qunetsim.backends import EQSNBackend
 
 Logger.DISABLED = True
@@ -20,6 +20,7 @@ class TestChannel(unittest.TestCase):
     def setUpClass(cls):
         global network
         global hosts
+
         nodes = ["Alice", "Bob"]
         backend = EQSNBackend()
         network.start(nodes=nodes, backend=backend)

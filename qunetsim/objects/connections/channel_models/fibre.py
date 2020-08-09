@@ -1,3 +1,6 @@
+import random
+
+
 class Fibre(object):
     """
     TODO: Add docstring
