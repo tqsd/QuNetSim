@@ -1,3 +1,3 @@
 from .eqsn_backend import EQSNBackend
-from .rw_lock import RWLock
-from .safe_dict import SafeDict
+from .cqc_backend import CQCBackend
+from .projectq_backend import ProjectQBackend
