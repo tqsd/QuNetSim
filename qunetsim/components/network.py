@@ -1,14 +1,12 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from queue import Queue
 import time
 import random
 
 from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
-
+from queue import Queue
 from qunetsim.utils.constants import Constants
 from inspect import signature
-
 from qunetsim.backends import EQSNBackend
 
 
@@ -422,9 +420,9 @@ class Network:
                 qubit_id = q.id
                 q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)
 
-                if q is None:  
+                if q is None:
                     # Log failure of transmission if qubit is lost
-                    Logger.get_instance().log('transfer qubits - transfer of qubit '+ qubit_id +' failed') 
+                    Logger.get_instance().log('transfer qubits - transfer of qubit ' + qubit_id + ' failed')
                     return False
 
                 else:
