@@ -1,8 +1,10 @@
 class Connection(object):
-    def __init__(self, sender_id, receiver_id, model=None):
-        self._sender_if = sender_id
-        self._receiver_id = receiver_id
-        self._model = model
+    """
+    A parent class to store methods used by QuantumConnection and ClassicalConnection objects
+    """
+
+    def __init__(self):
+        pass
 
     @property
     def sender_id(self):

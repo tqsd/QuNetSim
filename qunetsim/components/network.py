@@ -442,9 +442,10 @@ class Network:
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-            if transfer_qubits(route[i + 1], route[i], original_sender=route[0]) is False:
+            if not transfer_qubits(route[i + 1], route[i], original_sender=route[0]):
                 return False
             i += 1
+        return True
 
     def _process_queue(self):
         """
@@ -473,7 +474,7 @@ class Network:
                 sender, receiver = packet.sender, packet.receiver
 
                 if packet.payload_type == Constants.QUANTUM:
-                    if self._route_quantum_info(sender, receiver, [packet.payload]) is False:
+                    if not self._route_quantum_info(sender, receiver, [packet.payload]):
                         continue
 
                 try:
