@@ -25,10 +25,10 @@ class Fibre(object):
     @property
     def length(self):
         """
-        Length of the channel in Km
+        Length of the channel in m
 
         Returns:
-            (float) : Length of the channel in Km
+            (float) : Length of the channel in m
         """
         return self._length
 
@@ -38,7 +38,7 @@ class Fibre(object):
         Set the length of the channel
 
         Args:
-            length (float) : Length of the channel in Km
+            length (float) : Length of the channel in m
         """
         if not isinstance(length, int) and not isinstance(length, float):
             raise ValueError("Length must be float or int")
@@ -50,10 +50,10 @@ class Fibre(object):
     @property
     def alpha(self):
         """
-        Absorption coefficient of the channel in dB/Km
+        Absorption coefficient of the channel in dB/m
 
         Returns:
-            (float) : Absorption coefficient of the channel in dB/Km
+            (float) : Absorption coefficient of the channel in dB/m
         """
         return self._alpha
 
@@ -63,7 +63,7 @@ class Fibre(object):
         Set the absorption coefficient of the channel
 
         Args:
-            alpha (float) : Absorption coefficient of the channel in dB/Km
+            alpha (float) : Absorption coefficient of the channel in dB/m
         """
         if not isinstance(alpha, int) and not isinstance(alpha, float):
             raise ValueError("Alpha must be float or int")

@@ -7,8 +7,7 @@ class ClassicalConnection(object):
     """
 
     def __init__(self, sender_id, receiver_id):
-        self._connection = Connection(sender_id, receiver_id)       # Object that stores sender and receiver IDs
-        self._model = ClassicalModel()
+        self._connection = Connection(sender_id, receiver_id, model=ClassicalModel)       # Object that stores sender and receiver IDs
 
     @property
     def receiver_id(self):
@@ -32,7 +31,7 @@ class ClassicalConnection(object):
         Returns:
             (object) : An object containing model characteristics
         """
-        return self._model
+        return self._connection.model
 
     @model.setter
     def model(self, model):
@@ -42,4 +41,4 @@ class ClassicalConnection(object):
         Args
             model (object) : An object containing model characteristics and parameters
         """
-        self._model = model
+        self._connection.model = model

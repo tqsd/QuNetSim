@@ -23,7 +23,7 @@ class ClassicalModel(object):
         Set the length of the channel
 
         Args:
-            length (float) : Length of the channel in Km
+            length (float) : Length of the channel in m
         """
         if not isinstance(length, int) and not isinstance(length, float):
             raise ValueError("Length must be float or int")

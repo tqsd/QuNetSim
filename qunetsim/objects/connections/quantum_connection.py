@@ -1,4 +1,4 @@
-from qunetsim.objects.connections.channel_models.fibre import Fibre
+from qunetsim.objects.connections.channel_models.binary_erasure import BinaryErasure
 from qunetsim.objects.connections.connection import Connection
 
 class QuantumConnection(object):
@@ -7,11 +7,10 @@ class QuantumConnection(object):
     """
 
     def __init__(self, sender_id, receiver_id, model=None):
-        self._connection = Connection(sender_id, receiver_id)       # Object that stores sender and receiver IDs
         if model is None:
-            self._model = Fibre()  # Defaults to fibre model
+            self._connection = Connection(sender_id, receiver_id, BinaryErasure())       # Object that stores sender and receiver IDs, defaults to Identity channel
         else:
-            self._model = model
+            self._connection = Connection(sender_id, receiver_id, model)
 
     @property
     def receiver_id(self):
@@ -35,7 +34,7 @@ class QuantumConnection(object):
         Returns:
             (object) : An object containing model characteristics
         """
-        return self._model
+        return self._connection.model
 
     @model.setter
     def model(self, model):
@@ -45,4 +44,4 @@ class QuantumConnection(object):
         Args
             model (object) : An object containing model characteristics and parameters
         """
-        self._model = model
+        self._connection.model = model
