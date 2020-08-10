@@ -2,12 +2,14 @@ from eqsn import EQSN
 import uuid
 from qunetsim.objects.qubit import Qubit
 import threading
+import numpy as np
 from queue import Queue
 
 
 # From O'Reilly Python Cookbook by David Ascher, Alex Martelli
 # with some smaller adaptions
 class RWLock:
+
     def __init__(self):
         self._read_ready = threading.Condition(threading.RLock())
         self._num_reader = 0
@@ -50,6 +52,7 @@ class RWLock:
 
 
 class SafeDict(object):
+
     def __init__(self):
         self.lock = RWLock()
         self.dict = {}
@@ -395,6 +398,31 @@ class EQSNBackend(object):
             gate(np.ndarray): 4x4 array for the gate applied.
         """
         self.eqsn.custom_two_qubit_gate(qubit1.qubit, qubit2.qubit, gate)
+
+    def density_operator(self, qubit):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Args:
+            qubit (Qubit): Qubit of the density operator.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
+        """
+        qubits, statevector = self.eqsn.give_statevector_for(qubit.qubit)
+        index = qubits.index(qubit.qubit)
+        density_operator = np.outer(statevector, statevector)
+        before = 2**index
+        if before > 0:
+            other = 2**(len(qubits) - index)
+            density_operator = density_operator.reshape([before, other, before, other])
+            density_operator = np.trace(density_operator, axis1=0, axis2=2)
+        after = 2**(len(qubits) - index - 1)
+        if after > 0:
+            density_operator = density_operator.reshape([2, after, 2, after])
+            density_operator = np.trace(density_operator, axis1=1, axis2=3)
+        return density_operator
 
     def measure(self, qubit, non_destructive):
         """
