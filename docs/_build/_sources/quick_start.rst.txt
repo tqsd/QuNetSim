@@ -34,9 +34,9 @@ the parameters to the protocol as a tuple. One should note, a single element tup
 if we want to have a variable :code:`a` as a single element tuple, then we need to write :code:`(a,)`. For tuples with more than
 one item, one simple writes the tuple normally.
 
-By default, this template will generate a protocol can sends 5 qubits from the sender and received 5 qubits
+By default, this template will generate a protocol that sends 5 qubits from the sender and receives 5 qubits
 at the receiver. Here we leave it to the developers to get creative with their protocols. For a full list
-of commands that are built into hosts, see the Design Overview section.
+of commands that are built into hosts, see the [Design Overview section](https://tqsd.github.io/QuNetSim/_build/design.html).
 
 
 ..  code-block:: python

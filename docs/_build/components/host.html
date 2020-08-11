@@ -377,7 +377,7 @@ through them. We see an example of that in the examples section.</p>
 <dd><p>Processes the received packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The received packet</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The received packet</p>
 </dd>
 </dl>
 </dd></dl>
@@ -792,6 +792,26 @@ It is not necessary to know with whom the states are shared.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="qunetsim.components.host.Host.get_key">
+<code class="sig-name descname">get_key</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should be called after <em>send_key</em> is called. Blocks, till the key sharing
+is finished and returns the key and the amount of attemptes needed in QKD.
+From this value, the user can decide if the transmission was assumed safe
+or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the key partner</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The key, as a list of ints, and the amount of attempts needed</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(key, int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.components.host.Host.get_next_classical">
 <code class="sig-name descname">get_next_classical</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the next classical message available from a sender.
@@ -813,27 +833,6 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="qunetsim.components.host.Host.get_next_classical_message">
-<code class="sig-name descname">get_next_classical_message</code><span class="sig-paren">(</span><em class="sig-param">receive_from_id</em>, <em class="sig-param">buffer</em>, <em class="sig-param">sequence_nr</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_classical_message" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>WILL BE DELETED</em></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>receive_from_id</strong> – </p></li>
-<li><p><strong>buffer</strong> – </p></li>
-<li><p><strong>sequence_nr</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The message</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="../objects/message.html#qunetsim.objects.message.Message" title="qunetsim.objects.message.Message">Message</a>)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="qunetsim.components.host.Host.get_next_sequence_number">
 <code class="sig-name descname">get_next_sequence_number</code><span class="sig-paren">(</span><em class="sig-param">host</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_next_sequence_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get and set the next sequence number of connection with a receiver.</p>
@@ -846,6 +845,23 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host.get_qubit_by_id">
+<code class="sig-name descname">get_qubit_by_id</code><span class="sig-paren">(</span><em class="sig-param">q_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_qubit_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the qubit that has the id <em>q_id</em> from the quantum storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>q_id</strong> (<em>str</em>) – The ID of the qubit</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The qubit with the id <em>q_id</em> or None if it does not exist</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -994,7 +1010,7 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sender</strong> (<em>str</em>) – the sender of the packet</p></li>
 <li><p><strong>receiver</strong> (<em>str</em>) – the receiver of the packet</p></li>
-<li><p><strong>transport_packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – the packet itself</p></li>
+<li><p><strong>transport_packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – the packet itself</p></li>
 </ul>
 </dd>
 </dl>
@@ -1175,18 +1191,20 @@ distribute one</p></li>
 <dt id="qunetsim.components.host.Host.send_key">
 <code class="sig-name descname">send_key</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">key_size</em>, <em class="sig-param">await_ack=True</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a secret key via QKD of length <em>key_size</em> to host with ID <em>receiver_id</em>.
-:param receiver_id: The ID of the receiver
-:type receiver_id: str
-:param key_size: The size of the key
-:type key_size: int
-:param await_ack: If the host should wait for an ACk
-:type await_ack: bool</p>
+The ACK is returned before the QKD protocol is completley finished!</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Status of ACK</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the receiver</p></li>
+<li><p><strong>key_size</strong> (<em>int</em>) – The size of the key</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If the host should wait for an ACk</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Status of ACK, returned at the beginning of the protocol</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
