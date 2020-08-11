@@ -12,7 +12,7 @@ class BinaryErasure(object):
         elif probability < 0 or probability > 1:
             raise ValueError("Erasure probability must lie in the interval [0, 1]")
         else:
-            self._P = probability
+            self._p = probability
 
     @property
     def erasure_probability(self):
@@ -22,7 +22,7 @@ class BinaryErasure(object):
         Returns
             (float) : Probability that a qubit is erased during transmission
         """
-        return self._P
+        return self._p
 
     @erasure_probability.setter
     def erasure_probability(self, probability):
@@ -37,7 +37,7 @@ class BinaryErasure(object):
         elif probability < 0 or probability > 1:
             raise ValueError("Erasure probability must lie in the interval [0, 1]")
         else:
-            self._P = probability
+            self._p = probability
 
     def qubit_func(self, qubit):
         """

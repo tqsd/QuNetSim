@@ -3,8 +3,10 @@ class Connection(object):
     A parent class to store methods used by QuantumConnection and ClassicalConnection objects
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, sender_id, receiver_id, model):
+        self._sender_id = sender_id
+        self._receiver_id = receiver_id
+        self._model = model
 
     @property
     def sender_id(self):
