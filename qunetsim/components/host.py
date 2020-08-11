@@ -1235,7 +1235,9 @@ class Host(object):
 
     def get_classical(self, host_id, seq_num=None, wait=0):
         """
-        Get the classical messages from partner host *host_id*.
+        Get the classical messages from partner host *host_id*. If you need
+        the next classical message from the host, don't pass a seq_num, but
+        use *get_next_classical* instead. This is much faster.
 
         Args:
             host_id (str): The ID of the partner who sent the clasical messages
