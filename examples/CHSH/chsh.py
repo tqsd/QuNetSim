@@ -16,7 +16,7 @@ def alice_classical(alice_host, referee_id):
     """
     # Here we write the protocol code for a host.
     for i in range(PLAYS):
-        _ = alice_host.get_classical(referee_id, seq_num=i, wait=5)
+        _ = alice_host.get_next_classical(referee_id, wait=5)
         alice_host.send_classical(referee_id, "0")
 
 
@@ -30,7 +30,7 @@ def alice_quantum(alice_host, referee_id, bob_id):
         bob_id (str): Bob's Host ID (only for accessing shared EPR pairs)
     """
     for i in range(PLAYS):
-        referee_message = alice_host.get_classical(referee_id, seq_num=i, wait=5)
+        referee_message = alice_host.get_next_classical(referee_id, wait=5)
         x = int(referee_message.content)
         epr = alice_host.get_epr(bob_id)
 
@@ -46,7 +46,7 @@ def alice_quantum(alice_host, referee_id, bob_id):
 def bob_classical(bob_host, referee_id):
     # Here we write the protocol code for another host.
     for i in range(PLAYS):
-        _ = bob_host.get_classical(referee_id, seq_num=i, wait=5)
+        _ = bob_host.get_next_classical(referee_id, wait=5)
         bob_host.send_classical(referee_id, "0")
 
 
@@ -61,7 +61,7 @@ def bob_quantum(bob_host, referee_id, alice_id):
     """
 
     for i in range(PLAYS):
-        referee_message = bob_host.get_classical(referee_id, seq_num=i, wait=5)
+        referee_message = bob_host.get_next_classical(referee_id, wait=5)
 
         y = int(referee_message.content)
         epr = bob_host.get_epr(alice_id)
@@ -93,8 +93,8 @@ def referee(ref, alice_id, bob_id):
         y = random.choice([0, 1])
         ref.send_classical(bob_id, str(y))
 
-        alice_response = ref.get_classical(alice_id, seq_num=i, wait=5)
-        bob_response = ref.get_classical(bob_id, seq_num=i, wait=5)
+        alice_response = ref.get_next_classical(alice_id, wait=5)
+        bob_response = ref.get_next_classical(bob_id, wait=5)
 
         a = int(alice_response.content)
         b = int(bob_response.content)
@@ -112,6 +112,7 @@ def referee(ref, alice_id, bob_id):
 def main():
     network = Network.get_instance()
     network.start()
+    network.delay = 0.0
 
     host_A = Host('A')
     host_A.add_c_connection('C')
