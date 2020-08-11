@@ -46,13 +46,13 @@ class TestTwoHop(unittest.TestCase):
     def setUp(self):
         global network
         global hosts
-        network.delay = 0.2
+        network.delay = 0.0
         network.packet_drop_rate = 0
         network.use_hop_by_hop = True
 
-        hosts['alice'].delay = 0.1
-        hosts['bob'].delay = 0.1
-        hosts['eve'].delay = 0.1
+        hosts['alice'].delay = 0.0
+        hosts['bob'].delay = 0.0
+        hosts['eve'].delay = 0.0
 
         hosts['alice'].set_epr_memory_limit(-1)
         hosts['bob'].set_epr_memory_limit(-1)
@@ -97,8 +97,6 @@ class TestTwoHop(unittest.TestCase):
 
         eve_messages = hosts['eve'].classical
         self.assertTrue(len(eve_messages) == 3)
-        for i in eve_messages:
-            print(i)
 
         m0 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=0)
         m1 = hosts['eve'].get_classical(hosts['alice'].host_id, seq_num=1)
@@ -135,21 +133,14 @@ class TestTwoHop(unittest.TestCase):
     def test_epr(self):
         q_id = hosts['alice'].send_epr(hosts['eve'].host_id)
 
-        i = 0
         q1 = None
         q2 = None
-        while i < TestTwoHop.MAX_WAIT and q1 is None:
-            q1 = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
-            i += 1
-            time.sleep(1)
+
+        q1 = hosts['alice'].get_epr(hosts['eve'].host_id, q_id, wait=TestTwoHop.MAX_WAIT)
 
         self.assertIsNotNone(q1)
 
-        i = 0
-        while i < TestTwoHop.MAX_WAIT and q2 is None:
-            q2 = hosts['eve'].get_epr(hosts['alice'].host_id, q_id)
-            i += 1
-            time.sleep(1)
+        q2 = hosts['eve'].get_epr(hosts['alice'].host_id, q_id, wait=TestTwoHop.MAX_WAIT)
 
         self.assertIsNotNone(q2)
         self.assertEqual(q1.measure(), q2.measure())
@@ -191,11 +182,11 @@ class TestTwoHop(unittest.TestCase):
         hosts['alice'].send_classical(hosts['eve'].host_id, 'hello')
 
         messages = hosts['eve'].classical
-        i = 0
+        i = 0.0
         while i < TestTwoHop.MAX_WAIT and len(messages) < 3:
             messages = hosts['eve'].classical
-            i += 1
-            time.sleep(1)
+            i += 0.5
+            time.sleep(0.5)
 
         self.assertTrue(len(messages) > 0)
         self.assertEqual(messages[0].sender, hosts['alice'].host_id)
@@ -215,29 +206,11 @@ class TestTwoHop(unittest.TestCase):
         q2_epr = None
         q_teleport = None
 
-        i = 0
-        while q1_epr is None and i < TestTwoHop.MAX_WAIT:
-            q1_epr = hosts['alice'].get_epr(hosts['eve'].host_id, q_id)
-            if q1_epr is not None:
-                q1_epr = q1_epr
-            i += 1
-            time.sleep(1)
+        q1_epr = hosts['alice'].get_epr(hosts['eve'].host_id, q_id, wait=TestTwoHop.MAX_WAIT)
 
-        i = 0
-        while q2_epr is None and i < TestTwoHop.MAX_WAIT:
-            q2_epr = hosts['eve'].get_epr(hosts['alice'].host_id, q_id)
-            if q2_epr is not None:
-                q2_epr = q2_epr
-            i += 1
-            time.sleep(1)
+        q2_epr = hosts['eve'].get_epr(hosts['alice'].host_id, q_id, wait=TestTwoHop.MAX_WAIT)
 
-        i = 0
-        while q_teleport is None and i < TestTwoHop.MAX_WAIT:
-            q_teleport = hosts['eve'].get_data_qubit(hosts['alice'].host_id)
-            if q_teleport is not None:
-                q_teleport = q_teleport
-            i += 1
-            time.sleep(1)
+        q_teleport = hosts['eve'].get_data_qubit(hosts['alice'].host_id, wait=TestTwoHop.MAX_WAIT)
 
         self.assertIsNotNone(q1_epr)
         self.assertIsNotNone(q2_epr)
