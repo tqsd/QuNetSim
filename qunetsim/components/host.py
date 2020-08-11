@@ -555,15 +555,13 @@ class Host(object):
         """
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
-            if self._stop_thread:
+            packet = self._packet_queue.get()
+            if packet is None:
+                # stop thread
+                self._stop_thread = True
                 break
 
-            time.sleep(self.delay)
-            if not self._packet_queue.empty():
-                packet = self._packet_queue.get()
-                if not packet:
-                    raise Exception('empty message')
-                DaemonThread(self._process_packet, args=(packet,))
+            DaemonThread(self._process_packet, args=(packet,))
 
     def rec_packet(self, packet):
         """
@@ -1311,12 +1309,12 @@ class Host(object):
             (boolean): If release_qubit is true, clear the quantum memories.
         """
         self.logger.log('Host ' + self.host_id + " stopped")
+        self.rec_packet(None)  # stop Host by sending None to packet queue
         if release_qubits:
             try:
                 self._qubit_storage.release_storage()
             except ValueError:
                 Logger.get_instance().error('Releasing qubits was not successful')
-        self._stop_thread = True
 
     def start(self):
         """
