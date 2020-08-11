@@ -422,38 +422,7 @@ class Host(object):
         Returns:
             (Message): The message
         """
-
-        def _wait():
-            nonlocal m
-            nonlocal wait
-            nonlocal wait_forever
-
-            if not wait_forever:
-                wait_start_time = time.time()
-                while time.time() - wait_start_time < wait and m is None:
-                    filter_messages()
-                    time.sleep(self.delay)
-            else:
-                while m is None:
-                    filter_messages()
-                    time.sleep(self.delay)
-
-        def filter_messages():
-            nonlocal m
-            for message in self.classical:
-                if message.sender == sender_id and message.seq_num == seq_num:
-                    m = message
-
-        m = None
-        if wait > 0:
-            wait_forever = False
-            DaemonThread(_wait).join()
-        elif wait == -1:
-            wait_forever = True
-            DaemonThread(_wait).join()
-        else:
-            filter_messages()
-        return m
+        return self._classical_messages.get_with_seq_num_from_sender(sender_id, seq_num, wait)
 
     def _log_ack(self, protocol, receiver, seq):
         """
