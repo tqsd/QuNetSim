@@ -4,7 +4,7 @@ import time
 
 from qunetsim.components import Host, Network
 from qunetsim.objects import Qubit, Logger
-from qunetsim.backends import ProjectQBackend
+from qunetsim.backends.projectq_backend import ProjectQBackend
 
 Logger.DISABLED = True
 
