@@ -26,6 +26,17 @@ def decrypt(key, encrypted_text):
     return encrypt(key, encrypted_text)
 
 
+def get_next_classical_message(host, receive_from_id, buffer, sequence_nr):
+    buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+    msg = "ACK"
+    while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
+        if len(buffer) == 0:
+            buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+        ele = buffer.pop(0)
+        msg = ele.content
+    return msg
+
+
 def alice_qkd(alice, msg_buff, secret_key, receiver):
     sequence_nr = 0
     # iterate over all bits in the secret key.
@@ -51,8 +62,8 @@ def alice_qkd(alice, msg_buff, secret_key, receiver):
             alice.send_qubit(receiver, q_bit, await_ack=True)
 
             # Get measured basis of Bob
-            message = alice.get_next_classical_message(
-                receiver, msg_buff, sequence_nr)
+            message = get_next_classical_message(
+                alice, receiver, msg_buff, sequence_nr)
 
             # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
             # otherwise, send 1 and repeat.
@@ -92,7 +103,7 @@ def bob_qkd(bob, msg_buff, key_size, sender):
                            (sequence_nr, measurement_base), await_ack=True)
 
         # get the return message from Alice, to know if the bases have matched
-        msg = bob.get_next_classical_message(sender, msg_buff, sequence_nr)
+        msg = get_next_classical_message(bob, sender, msg_buff, sequence_nr)
 
         # Check if the bases have matched
         if msg == ("%d:0" % sequence_nr):
@@ -119,8 +130,8 @@ def alice_send_message(alice, secret_key, receiver):
 
 
 def bob_receive_message(bob, msg_buff, eve_key, sender):
-    encrypted_msg_from_alice = bob.get_next_classical_message(
-        sender, msg_buff, -1)
+    encrypted_msg_from_alice = get_next_classical_message(
+        bob, sender, msg_buff, -1)
     encrypted_msg_from_alice = encrypted_msg_from_alice.split(':')[1]
     secret_key_string = key_array_to_key_string(eve_key)
     decrypted_msg_from_alice = decrypt(
@@ -180,10 +191,12 @@ def main():
 
     # Run Bob and Alice
 
-    host_alice.run_protocol(alice_func, ())
-    host_bob.run_protocol(bob_func, (), blocking=True)
+    t1 = host_alice.run_protocol(alice_func, ())
+    t2 = host_bob.run_protocol(bob_func, ())
 
-    time.sleep(1)
+    t1.join()
+    t2.join()
+
     network.stop(True)
 
 
