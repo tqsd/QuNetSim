@@ -2,8 +2,7 @@ import unittest
 import time
 
 from qunetsim.backends import EQSNBackend
-from qunetsim.components.host import Host
-from qunetsim.components.network import Network
+from qunetsim.components import Host, Network
 from qunetsim.objects import Qubit
 
 network = Network.get_instance()

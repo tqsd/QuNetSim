@@ -25,6 +25,10 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_single_hop
+    - name: Run channel tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_channel
     - name: Run multi hop tests
       run: |
         export PYTHONPATH=$PWD
