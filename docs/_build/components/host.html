@@ -115,6 +115,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_connection.html">Classical Connection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
 </ul>
@@ -568,6 +570,34 @@ to the generator of the GHZ state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>sender</strong> (<em>str</em>) – sender for which to wait for all acks.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host.c_relay_sniffing">
+<em class="property">property </em><code class="sig-name descname">c_relay_sniffing</code><a class="headerlink" href="#qunetsim.components.host.Host.c_relay_sniffing" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the host should sniff classical packets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the host should sniff classical packets.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host.c_relay_sniffing_fn">
+<em class="property">property </em><code class="sig-name descname">c_relay_sniffing_fn</code><a class="headerlink" href="#qunetsim.components.host.Host.c_relay_sniffing_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function to apply to the qubits in transit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The function to apply to the qubits in transit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(function)</p>
 </dd>
 </dl>
 </dd></dl>

@@ -1,0 +1,286 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Classical Connection &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Packet" href="packet.html" />
+    <link rel="prev" title="Quantum Connection" href="quantum_connection.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../design.html">Design Overview</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../objects.html">Network Objects</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Classical Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/entanglement_routing.html">Routing with Entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../design.html">Design Overview</a> &raquo;</li>
+        
+          <li><a href="../objects.html">Network Objects</a> &raquo;</li>
+        
+      <li>Classical Connection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/objects/classical_connection.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="classical-connection">
+<h1>Classical Connection<a class="headerlink" href="#classical-connection" title="Permalink to this headline">¶</a></h1>
+<p>The <em>Classical Connection</em> object.</p>
+<span class="target" id="module-qunetsim.objects.connections.classical_connection"></span><dl class="class">
+<dt id="qunetsim.objects.connections.classical_connection.ClassicalConnection">
+<em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.connections.classical_connection.</code><code class="sig-name descname">ClassicalConnection</code><span class="sig-paren">(</span><em class="sig-param">sender_id</em>, <em class="sig-param">receiver_id</em>, <em class="sig-param">model=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.connections.classical_connection.ClassicalConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">qunetsim.objects.connections.connection.Connection</span></code></p>
+<p>An object that stores classical connection details</p>
+<dl class="method">
+<dt id="qunetsim.objects.connections.classical_connection.ClassicalConnection.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#qunetsim.objects.connections.classical_connection.ClassicalConnection.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object containing model characteristics</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.connections.classical_connection.ClassicalConnection.receiver_id">
+<em class="property">property </em><code class="sig-name descname">receiver_id</code><a class="headerlink" href="#qunetsim.objects.connections.classical_connection.ClassicalConnection.receiver_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receiver ID</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.connections.classical_connection.ClassicalConnection.sender_id">
+<em class="property">property </em><code class="sig-name descname">sender_id</code><a class="headerlink" href="#qunetsim.objects.connections.classical_connection.ClassicalConnection.sender_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sender ID</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
