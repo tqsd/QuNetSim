@@ -17,7 +17,6 @@ Overview Video
    </div>
 
 
-
 What is QuNetSim?
 -----------------
 
