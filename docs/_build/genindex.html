@@ -89,6 +89,7 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#overview-video">Overview Video</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
 </ul>
@@ -114,6 +115,8 @@
 <li class="toctree-l3"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="objects/classical_connection.html">Classical Connection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/packet.html">Packet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
 </ul>
@@ -227,27 +230,7 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage._add_new_host_id">_add_new_host_id() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-</li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage._add_request">_add_request() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-
-      <ul>
-        <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._add_request">(qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      </ul></li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage._check_all_requests">_check_all_requests() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-
-      <ul>
-        <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._check_all_requests">(qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      </ul></li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._check_memory_limits">_check_memory_limits() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._check_qubit_in_system">_check_qubit_in_system() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._decode_superdense">_decode_superdense() (in module qunetsim.components.protocols)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._decrease_qubit_counter">_decrease_qubit_counter() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network._encode">_encode() (qunetsim.components.network.Network method)</a>
 </li>
@@ -261,8 +244,6 @@
 </li>
       <li><a href="components/host.html#qunetsim.components.host._get_qubit">_get_qubit() (in module qunetsim.components.host)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._increase_qubit_counter">_increase_qubit_counter() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
       <li><a href="components/host.html#qunetsim.components.host.Host._log_ack">_log_ack() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host._process_ack">_process_ack() (qunetsim.components.host.Host method)</a>
@@ -275,14 +256,14 @@
         <li><a href="components/network.html#qunetsim.components.network.Network._process_queue">(qunetsim.components.network.Network method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_classical">_rec_classical() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_epr">_rec_epr() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_ghz">_rec_ghz() (in module qunetsim.components.protocols)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_key">_rec_key() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_qubit">_rec_qubit() (in module qunetsim.components.protocols)</a>
@@ -295,12 +276,6 @@
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network._remove_network_node">_remove_network_node() (qunetsim.components.network.Network method)</a>
 </li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage._remove_request">_remove_request() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-
-      <ul>
-        <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage._remove_request">(qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      </ul></li>
       <li><a href="components/network.html#qunetsim.components.network.Network._route_quantum_info">_route_quantum_info() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._send_ack">_send_ack() (in module qunetsim.components.protocols)</a>
@@ -339,26 +314,22 @@
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_epr">add_epr() (qunetsim.components.host.Host method)</a>
 </li>
-      <li><a href="components/host.html#qunetsim.components.host.Host.add_ghz_qubit">add_ghz_qubit() (qunetsim.components.host.Host method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#qunetsim.components.host.Host.add_ghz_qubit">add_ghz_qubit() (qunetsim.components.host.Host method)</a>
+</li>
       <li><a href="components/network.html#qunetsim.components.network.Network.add_host">add_host() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.add_hosts">add_hosts() (qunetsim.components.network.Network method)</a>
-</li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.add_msg_to_storage">add_msg_to_storage() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_q_connection">add_q_connection() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_q_connections">add_q_connections() (qunetsim.components.host.Host method)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.add_qubit_from_host">add_qubit_from_host() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
       <li><a href="components/host.html#qunetsim.components.host.Host.await_ack">await_ack() (qunetsim.components.host.Host method)</a>
 
       <ul>
-        <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.await_ack">(qunetsim.objects.packet.Packet property)</a>
+        <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.await_ack">(qunetsim.objects.packets.packet.Packet property)</a>
 </li>
       </ul></li>
       <li><a href="components/host.html#qunetsim.components.host.Host.await_remaining_acks">await_remaining_acks() (qunetsim.components.host.Host method)</a>
@@ -377,11 +348,11 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#qunetsim.components.host.Host.c_relay_sniffing">c_relay_sniffing() (qunetsim.components.host.Host property)</a>
+</li>
+      <li><a href="components/host.html#qunetsim.components.host.Host.c_relay_sniffing_fn">c_relay_sniffing_fn() (qunetsim.components.host.Host property)</a>
+</li>
       <li><a href="components/host.html#qunetsim.components.host.Host.change_epr_qubit_id">change_epr_qubit_id() (qunetsim.components.host.Host method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.change_qubit_id">change_qubit_id() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.check_qubit_from_host_exists">check_qubit_from_host_exists() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.classical">classical() (qunetsim.components.host.Host property)</a>
 </li>
@@ -389,10 +360,10 @@
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.classical_routing_algo">classical_routing_algo() (qunetsim.components.network.Network property)</a>
 </li>
+      <li><a href="objects/classical_connection.html#qunetsim.objects.connections.classical_connection.ClassicalConnection">ClassicalConnection (class in qunetsim.objects.connections.classical_connection)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage">ClassicalStorage (class in qunetsim.objects.classical_storage)</a>
-</li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.cnot">cnot() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
       <li><a href="objects/message.html#qunetsim.objects.message.Message.content">content() (qunetsim.objects.message.Message property)</a>
@@ -403,6 +374,8 @@
 </li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.custom_gate">custom_gate() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
+      <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.custom_two_qubit_control_gate">custom_two_qubit_control_gate() (qunetsim.objects.qubit.Qubit method)</a>
+</li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.custom_two_qubit_gate">custom_two_qubit_gate() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
   </ul></td>
@@ -411,7 +384,7 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.decrease_ttl">decrease_ttl() (qunetsim.objects.routing_packet.RoutingPacket method)</a>
+      <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.decrease_ttl">decrease_ttl() (qunetsim.objects.packets.routing_packet.RoutingPacket method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.delay">delay() (qunetsim.components.host.Host property)</a>
 
@@ -421,6 +394,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.density_operator">density_operator() (qunetsim.objects.qubit.Qubit method)</a>
+</li>
       <li><a href="components/network.html#qunetsim.components.network.Network.draw_classical_network">draw_classical_network() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.draw_quantum_network">draw_quantum_network() (qunetsim.components.network.Network method)</a>
@@ -431,12 +406,10 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.empty">empty() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
+      <li><a href="components/host.html#qunetsim.components.host.Host.empty_classical">empty_classical() (qunetsim.components.host.Host method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="components/host.html#qunetsim.components.host.Host.empty_classical">empty_classical() (qunetsim.components.host.Host method)</a>
-</li>
       <li><a href="components/protocols.html#qunetsim.components.protocols.encode">encode() (in module qunetsim.components.protocols)</a>
 </li>
   </ul></td>
@@ -445,12 +418,6 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.get_all">get_all() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-</li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.get_all_from_sender">get_all_from_sender() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.get_all_qubits_from_host">get_all_qubits_from_host() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
       <li><a href="components/network.html#qunetsim.components.network.Network.get_ARP">get_ARP() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_classical">get_classical() (qunetsim.components.host.Host method)</a>
@@ -467,25 +434,23 @@
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_epr_pairs">get_epr_pairs() (qunetsim.components.host.Host method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_ghz">get_ghz() (qunetsim.components.host.Host method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#qunetsim.components.network.Network.get_host">get_host() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.get_host_name">get_host_name() (qunetsim.components.network.Network method)</a>
 </li>
+      <li><a href="components/host.html#qunetsim.components.host.Host.get_key">get_key() (qunetsim.components.host.Host method)</a>
+</li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_next_classical">get_next_classical() (qunetsim.components.host.Host method)</a>
-</li>
-      <li><a href="components/host.html#qunetsim.components.host.Host.get_next_classical_message">get_next_classical_message() (qunetsim.components.host.Host method)</a>
-</li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.get_next_from_sender">get_next_from_sender() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_next_sequence_number">get_next_sequence_number() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.get_quantum_route">get_quantum_route() (qunetsim.components.network.Network method)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.get_qubit_from_host">get_qubit_from_host() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
+      <li><a href="components/host.html#qunetsim.components.host.Host.get_qubit_by_id">get_qubit_by_id() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_sequence_number">get_sequence_number() (qunetsim.components.host.Host method)</a>
 </li>
@@ -539,12 +504,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#qunetsim.components.host.Host.max_ack_wait">max_ack_wait() (qunetsim.components.host.Host property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.measure">measure() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="objects/message.html#qunetsim.objects.message.Message">Message (class in qunetsim.objects.message)</a>
 </li>
+      <li><a href="objects/classical_connection.html#qunetsim.objects.connections.classical_connection.ClassicalConnection.model">model() (qunetsim.objects.connections.classical_connection.ClassicalConnection property)</a>
+
+      <ul>
+        <li><a href="objects/quantum_connection.html#qunetsim.objects.connections.quantum_connection.QuantumConnection.model">(qunetsim.objects.connections.quantum_connection.QuantumConnection property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -559,30 +530,30 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/packet.html#qunetsim.objects.packet.Packet">Packet (class in qunetsim.objects.packet)</a>
+      <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet">Packet (class in qunetsim.objects.packets.packet)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.packet_drop_rate">packet_drop_rate() (qunetsim.components.network.Network property)</a>
 </li>
-      <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.payload">payload() (qunetsim.objects.packet.Packet property)</a>
+      <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.payload">payload() (qunetsim.objects.packets.packet.Packet property)</a>
 
       <ul>
-        <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.payload">(qunetsim.objects.routing_packet.RoutingPacket property)</a>
+        <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.payload">(qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.payload_type">payload_type() (qunetsim.objects.packet.Packet property)</a>
+      <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.payload_type">payload_type() (qunetsim.objects.packets.packet.Packet property)</a>
 
       <ul>
-        <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.payload_type">(qunetsim.objects.routing_packet.RoutingPacket property)</a>
+        <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.payload_type">(qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
       </ul></li>
       <li><a href="components/protocols.html#qunetsim.components.protocols.process">process() (in module qunetsim.components.protocols)</a>
 </li>
-      <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.protocol">protocol() (qunetsim.objects.packet.Packet property)</a>
+      <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.protocol">protocol() (qunetsim.objects.packets.packet.Packet property)</a>
 
       <ul>
-        <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.protocol">(qunetsim.objects.routing_packet.RoutingPacket property)</a>
+        <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.protocol">(qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -601,31 +572,35 @@
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.quantum_routing_algo">quantum_routing_algo() (qunetsim.components.network.Network property)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage">QuantumStorage (class in qunetsim.objects.quantum_storage)</a>
+      <li><a href="objects/quantum_connection.html#qunetsim.objects.connections.quantum_connection.QuantumConnection">QuantumConnection (class in qunetsim.objects.connections.quantum_connection)</a>
 </li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit">Qubit (class in qunetsim.objects.qubit)</a>
 </li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.qubit">qubit() (qunetsim.objects.qubit.Qubit property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#module-qunetsim.components.host">qunetsim.components.host (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#module-qunetsim.components.network">qunetsim.components.network (module)</a>
 </li>
       <li><a href="components/protocols.html#module-qunetsim.components.protocols">qunetsim.components.protocols (module)</a>
 </li>
-      <li><a href="objects/classical_storage.html#module-qunetsim.objects.classical_storage">qunetsim.objects.classical_storage (module)</a>
+      <li><a href="objects/classical_connection.html#module-qunetsim.objects.connections.classical_connection">qunetsim.objects.connections.classical_connection (module)</a>
+</li>
+      <li><a href="objects/quantum_connection.html#module-qunetsim.objects.connections.quantum_connection">qunetsim.objects.connections.quantum_connection (module)</a>
 </li>
       <li><a href="objects/message.html#module-qunetsim.objects.message">qunetsim.objects.message (module)</a>
 </li>
-      <li><a href="objects/packet.html#module-qunetsim.objects.packet">qunetsim.objects.packet (module)</a>
+      <li><a href="objects/packet.html#module-qunetsim.objects.packets.packet">qunetsim.objects.packets.packet (module)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#module-qunetsim.objects.quantum_storage">qunetsim.objects.quantum_storage (module)</a>
+      <li><a href="objects/routing_packet.html#module-qunetsim.objects.packets.routing_packet">qunetsim.objects.packets.routing_packet (module)</a>
 </li>
       <li><a href="objects/qubit.html#module-qunetsim.objects.qubit">qunetsim.objects.qubit (module)</a>
 </li>
-      <li><a href="objects/routing_packet.html#module-qunetsim.objects.routing_packet">qunetsim.objects.routing_packet (module)</a>
+      <li><a href="objects/classical_storage.html#module-qunetsim.objects.storage.classical_storage">qunetsim.objects.storage.classical_storage (module)</a>
+</li>
+      <li><a href="objects/quantum_storage.html#module-qunetsim.objects.storage.quantum_storage">qunetsim.objects.storage.quantum_storage (module)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -635,19 +610,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#qunetsim.components.host.Host.rec_packet">rec_packet() (qunetsim.components.host.Host method)</a>
 </li>
-      <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.receiver">receiver() (qunetsim.objects.packet.Packet property)</a>
+      <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.receiver">receiver() (qunetsim.objects.packets.packet.Packet property)</a>
 
       <ul>
-        <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.receiver">(qunetsim.objects.routing_packet.RoutingPacket property)</a>
+        <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.receiver">(qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
+</li>
+      </ul></li>
+      <li><a href="objects/classical_connection.html#qunetsim.objects.connections.classical_connection.ClassicalConnection.receiver_id">receiver_id() (qunetsim.objects.connections.classical_connection.ClassicalConnection property)</a>
+
+      <ul>
+        <li><a href="objects/quantum_connection.html#qunetsim.objects.connections.quantum_connection.QuantumConnection.receiver_id">(qunetsim.objects.connections.quantum_connection.QuantumConnection property)</a>
 </li>
       </ul></li>
       <li><a href="components/host.html#qunetsim.components.host.Host.relay_sniffing_function">relay_sniffing_function() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.release">release() (qunetsim.objects.qubit.Qubit method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.release_storage">release_storage() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
-</li>
-      <li><a href="objects/classical_storage.html#qunetsim.objects.classical_storage.ClassicalStorage.remove_all_ack">remove_all_ack() (qunetsim.objects.classical_storage.ClassicalStorage method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.remove_c_connection">remove_c_connection() (qunetsim.components.host.Host method)</a>
 </li>
@@ -661,11 +638,9 @@
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.reset_sequence_numbers">reset_sequence_numbers() (qunetsim.components.host.Host method)</a>
 </li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.reset_storage">reset_storage() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
+      <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.route">route() (qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
-      <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.route">route() (qunetsim.objects.routing_packet.RoutingPacket property)</a>
-</li>
-      <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket">RoutingPacket (class in qunetsim.objects.routing_packet)</a>
+      <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket">RoutingPacket (class in qunetsim.objects.packets.routing_packet)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.run_protocol">run_protocol() (qunetsim.components.host.Host method)</a>
 </li>
@@ -706,24 +681,28 @@
       <li><a href="objects/message.html#qunetsim.objects.message.Message.sender">sender() (qunetsim.objects.message.Message property)</a>
 
       <ul>
-        <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.sender">(qunetsim.objects.packet.Packet property)</a>
+        <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.sender">(qunetsim.objects.packets.packet.Packet property)</a>
 </li>
-        <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.sender">(qunetsim.objects.routing_packet.RoutingPacket property)</a>
+        <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.sender">(qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="objects/classical_connection.html#qunetsim.objects.connections.classical_connection.ClassicalConnection.sender_id">sender_id() (qunetsim.objects.connections.classical_connection.ClassicalConnection property)</a>
+
+      <ul>
+        <li><a href="objects/quantum_connection.html#qunetsim.objects.connections.quantum_connection.QuantumConnection.sender_id">(qunetsim.objects.connections.quantum_connection.QuantumConnection property)</a>
+</li>
+      </ul></li>
       <li><a href="objects/message.html#qunetsim.objects.message.Message.seq_num">seq_num() (qunetsim.objects.message.Message property)</a>
 
       <ul>
-        <li><a href="objects/packet.html#qunetsim.objects.packet.Packet.seq_num">(qunetsim.objects.packet.Packet property)</a>
+        <li><a href="objects/packet.html#qunetsim.objects.packets.packet.Packet.seq_num">(qunetsim.objects.packets.packet.Packet property)</a>
 </li>
       </ul></li>
       <li><a href="components/host.html#qunetsim.components.host.Host.set_data_qubit_memory_limit">set_data_qubit_memory_limit() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.set_epr_memory_limit">set_epr_memory_limit() (qunetsim.components.host.Host method)</a>
-</li>
-      <li><a href="objects/quantum_storage.html#qunetsim.objects.quantum_storage.QuantumStorage.set_storage_limit_with_host">set_storage_limit_with_host() (qunetsim.objects.quantum_storage.QuantumStorage method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.shares_epr">shares_epr() (qunetsim.components.host.Host method)</a>
 
@@ -759,7 +738,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket.ttl">ttl() (qunetsim.objects.routing_packet.RoutingPacket property)</a>
+      <li><a href="objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket.ttl">ttl() (qunetsim.objects.packets.routing_packet.RoutingPacket property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -790,10 +769,6 @@
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.X">X() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="components/network.html#qunetsim.components.network.Network.x_error_rate">x_error_rate() (qunetsim.components.network.Network property)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="Y">Y</h2>
@@ -808,10 +783,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.Z">Z() (qunetsim.objects.qubit.Qubit method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="components/network.html#qunetsim.components.network.Network.z_error_rate">z_error_rate() (qunetsim.components.network.Network property)</a>
 </li>
   </ul></td>
 </tr></table>

@@ -246,7 +246,7 @@
 ACK message to receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -264,7 +264,7 @@ ACK message to receiver.</p>
 receiver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of ‘message’ and ‘sequence number’</p>
@@ -281,7 +281,7 @@ receiver.</p>
 <dd><p>Receives a GHZ state and stores it in quantum storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,7 +292,7 @@ receiver.</p>
 <dd><p>Receive a QKD key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,7 +303,7 @@ receiver.</p>
 <dd><p>Receive a packet containing qubit information (qubit is transmitted externally)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -314,7 +314,7 @@ receiver.</p>
 <dd><p>Receives a superdense qubit and decodes it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary consisting of decoded superdense message and sequence number</p>
@@ -332,7 +332,7 @@ receiver.</p>
 retrieve the teleported qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to receive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -344,7 +344,7 @@ retrieve the teleported qubit.</p>
 node in the network and modifies the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/routing_packet.html#qunetsim.objects.routing_packet.RoutingPacket" title="qunetsim.objects.routing_packet.RoutingPacket"><em>RoutingPacket</em></a>) – Packet to be relayed</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/routing_packet.html#qunetsim.objects.packets.routing_packet.RoutingPacket" title="qunetsim.objects.packets.routing_packet.RoutingPacket"><em>RoutingPacket</em></a>) – Packet to be relayed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -367,7 +367,7 @@ node in the network and modifies the header.</p>
 <dd><p>Sends a classical message to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,7 +378,7 @@ node in the network and modifies the header.</p>
 <dd><p>Sends an EPR to another host in the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -390,7 +390,7 @@ node in the network and modifies the header.</p>
 One qubit is stored in own storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The incoming packet</p>
 </dd>
 </dl>
 </dd></dl>
@@ -409,7 +409,7 @@ One qubit is stored in own storage.</p>
 <dd><p>Encodes and sends a qubit to send a superdense message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -420,7 +420,7 @@ One qubit is stored in own storage.</p>
 <dd><p>Does the measurements for teleportation of a qubit and sends the measurement results to another host.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – The packet in which to transmit.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,7 +448,7 @@ with data and the header.
 <dd class="field-odd"><p>Encoded packet</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet">Packet</a>)</p>
+<dd class="field-even"><p>(<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet">Packet</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -459,7 +459,7 @@ with data and the header.
 <dd><p>Decodes the packet and processes the packet according to the protocol in the packet header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet"><em>Packet</em></a>) – Packet to be processed.</p>
+<dd class="field-odd"><p><strong>packet</strong> (<a class="reference internal" href="../objects/packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet"><em>Packet</em></a>) – Packet to be processed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Returns what protocol function returns.</p>
