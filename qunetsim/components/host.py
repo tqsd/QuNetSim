@@ -440,38 +440,7 @@ class Host(object):
         Returns:
             (Message): The message
         """
-
-        def _wait():
-            nonlocal m
-            nonlocal wait
-            nonlocal wait_forever
-
-            if not wait_forever:
-                wait_start_time = time.time()
-                while time.time() - wait_start_time < wait and m is None:
-                    filter_messages()
-                    time.sleep(self.delay)
-            else:
-                while m is None:
-                    filter_messages()
-                    time.sleep(self.delay)
-
-        def filter_messages():
-            nonlocal m
-            for message in self.classical:
-                if message.sender == sender_id and message.seq_num == seq_num:
-                    m = message
-
-        m = None
-        if wait > 0:
-            wait_forever = False
-            DaemonThread(_wait).join()
-        elif wait == -1:
-            wait_forever = True
-            DaemonThread(_wait).join()
-        else:
-            filter_messages()
-        return m
+        return self._classical_messages.get_with_seq_num_from_sender(sender_id, seq_num, wait)
 
     def _log_ack(self, protocol, receiver, seq):
         """
@@ -573,15 +542,13 @@ class Host(object):
         """
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
-            if self._stop_thread:
+            packet = self._packet_queue.get()
+            if packet is None:
+                # stop thread
+                self._stop_thread = True
                 break
 
-            time.sleep(self.delay)
-            if not self._packet_queue.empty():
-                packet = self._packet_queue.get()
-                if not packet:
-                    raise Exception('empty message')
-                DaemonThread(self._process_packet, args=(packet,))
+            DaemonThread(self._process_packet, args=(packet,))
 
     def rec_packet(self, packet):
         """
@@ -1255,7 +1222,9 @@ class Host(object):
 
     def get_classical(self, host_id, seq_num=None, wait=0):
         """
-        Get the classical messages from partner host *host_id*.
+        Get the classical messages from partner host *host_id*. If you need
+        the next classical message from the host, don't pass a seq_num, but
+        use *get_next_classical* instead. This is much faster.
 
         Args:
             host_id (str): The ID of the partner who sent the clasical messages
@@ -1329,12 +1298,12 @@ class Host(object):
             (boolean): If release_qubit is true, clear the quantum memories.
         """
         self.logger.log('Host ' + self.host_id + " stopped")
+        self.rec_packet(None)  # stop Host by sending None to packet queue
         if release_qubits:
             try:
                 self._qubit_storage.release_storage()
             except ValueError:
                 Logger.get_instance().error('Releasing qubits was not successful')
-        self._stop_thread = True
 
     def start(self):
         """
