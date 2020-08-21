@@ -185,8 +185,8 @@ class TestTwoHop(unittest.TestCase):
         i = 0.0
         while i < TestTwoHop.MAX_WAIT and len(messages) < 3:
             messages = hosts['eve'].classical
-            i += 0.5
-            time.sleep(0.5)
+            i += 1
+            time.sleep(1)
 
         self.assertTrue(len(messages) > 0)
         self.assertEqual(messages[0].sender, hosts['alice'].host_id)
