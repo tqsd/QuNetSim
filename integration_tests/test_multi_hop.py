@@ -234,3 +234,14 @@ class TestTwoHop(unittest.TestCase):
 
         t1.join()
         t2.join()
+
+    def test_qkd(self):
+        global hosts
+        key_size = 4
+        ack = hosts['alice'].send_key(hosts['eve'].host_id, key_size)
+
+        self.assertTrue(ack)
+        key_alice, _ = hosts['alice'].get_key(hosts['eve'].host_id)
+        key_bob, _ = hosts['eve'].get_key(hosts['alice'].host_id)
+
+        self.assertEqual(key_alice, key_bob)
