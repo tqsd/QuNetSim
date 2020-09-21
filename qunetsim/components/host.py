@@ -1350,7 +1350,7 @@ class Host(object):
             self._log_ack('EPR', receiver_id, seq_num)
             return self.await_ack(seq_num, receiver_id)
 
-    def get_key(self, receiver_id):
+    def get_key(self, receiver_id, wait=-1):
         """
         Should be called after *send_key* is called. Blocks, till the key sharing
         is finished and returns the key and the amount of attemptes needed in QKD.
@@ -1359,12 +1359,35 @@ class Host(object):
 
         Args:
             receiver_id (str): The ID of the key partner
+            wait (float): The amount to wait for the key, -1 to wait forever.
         Returns:
             (key, int): The key, as a list of ints, and the amount of attempts needed
         """
-        while receiver_id not in self.qkd_keys:
-            time.sleep(0.2)
-        return self.qkd_keys[receiver_id]
+        if wait < 0:
+            while receiver_id not in self.qkd_keys:
+                time.sleep(0.1)
+        else:
+            while receiver_id not in self.qkd_keys and wait > 0:
+                time.sleep(0.1)
+                wait = wait - 0.1
+            if wait < 0:
+                return None
+        key = self.qkd_keys[receiver_id]
+        return key
+
+    def delete_key(self, partner_id):
+        """
+        Deletes a key shared with a partner by QKD. Should be used if a key
+        was eavesdropped and/or a new key should be shared. If there is no key
+        shared, nothing happens.
+
+        Args:
+            partner_id (str): The ID of the key partner
+        """
+        if partner_id not in self.qkd_keys:
+            return
+        else:
+            self.qkd_keys.pop(partner_id)
 
 
 def _get_qubit(store, host_id, q_id, purpose, wait=0):
