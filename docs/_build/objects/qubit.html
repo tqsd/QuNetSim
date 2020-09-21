@@ -339,6 +339,21 @@ backends, which adds additional information needed for QuNetSim.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="qunetsim.objects.qubit.Qubit.custom_two_qubit_control_gate">
+<code class="sig-name descname">custom_two_qubit_control_gate</code><span class="sig-paren">(</span><em class="sig-param">q1</em>, <em class="sig-param">q2</em>, <em class="sig-param">gate</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_two_qubit_control_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the gate <em>gate</em> to qubits q1 and q2 as a controlled gate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q1</strong> (<a class="reference internal" href="#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – First qubit</p></li>
+<li><p><strong>q2</strong> (<a class="reference internal" href="#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – Second qubit</p></li>
+<li><p><strong>gate</strong> (<em>Numpy ndarray</em>) – The gate to apply</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.objects.qubit.Qubit.custom_two_qubit_gate">
 <code class="sig-name descname">custom_two_qubit_gate</code><span class="sig-paren">(</span><em class="sig-param">other_qubit</em>, <em class="sig-param">gate</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.custom_two_qubit_gate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a custom 2 qubit gate.</p>
@@ -348,6 +363,21 @@ backends, which adds additional information needed for QuNetSim.</p>
 <li><p><strong>other_qubit</strong> (<a class="reference internal" href="#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – The second qubit.</p></li>
 <li><p><strong>gate</strong> (<em>Numpy ndarray</em>) – The gate</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.qubit.Qubit.density_operator">
+<code class="sig-name descname">density_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.density_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the density operator of this qubit. If the qubit is entangled,
+the density operator will be in a mixed state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The density operator of the qubit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>

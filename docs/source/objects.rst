@@ -10,6 +10,8 @@ Network Objects
    objects/qubit
    objects/quantum_storage
    objects/classical_storage
+   objects/quantum_connection
+   objects/classical_connection
    objects/packet
    objects/routing_packet
 

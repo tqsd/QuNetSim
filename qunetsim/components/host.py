@@ -234,22 +234,40 @@ class Host(object):
 
     @property
     def c_relay_sniffing(self):
+        """
+        If the host should sniff classical packets.
+
+        Returns:
+            (bool): If the host should sniff classical packets.
+        """
         return self._c_relay_sniffing
 
     @c_relay_sniffing.setter
     def c_relay_sniffing(self, value):
+        """
+        If the host should sniff classical packets.
+
+        Args:
+            (bool): If the host should sniff classical packets.
+        """
         if not isinstance(value, bool):
             raise ValueError("Relay sniffing has to be a boolean.")
         self._c_relay_sniffing = value
 
     @property
     def c_relay_sniffing_fn(self):
+        """
+        The function to apply to the qubits in transit.
+
+        Returns:
+            (function): The function to apply to the qubits in transit.
+        """
         return self._c_relay_sniffing_fn
 
     @c_relay_sniffing_fn.setter
     def c_relay_sniffing_fn(self, func):
         """
-        Set a custom function which handles messages which are routed
+        Sets a custom function which handles messages which are routed
         through this host. Functions parameter have to be **sender, receiver,
         msg**. ACK messages are not passed to the function.
 
@@ -678,7 +696,7 @@ class Host(object):
 
         if expected_seq < seq_number:
             self.logger.log("Expected msg with seq num %d but received msg with seq num %d." % (
-                    expected_seq, seq_number))
+                expected_seq, seq_number))
             self._seq_number_receiver[receiver][0].append(seq_number)
 
         else:
