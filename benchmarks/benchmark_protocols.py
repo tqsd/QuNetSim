@@ -63,6 +63,8 @@ def test_key_distribution(benchmark):
         host_A.send_key(host_C.host_id, key_size)
         key1, _ = host_A.get_key(host_C.host_id)
         key2, _ = host_C.get_key(host_A.host_id)
+        host_A.delete_key(host_C.host_id)
+        host_C.delete_key(host_A.host_id)
         return key1, key2
 
     network, host_A, host_B, host_C = setup_network()

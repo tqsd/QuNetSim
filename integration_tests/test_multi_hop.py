@@ -236,17 +236,21 @@ class TestTwoHop(unittest.TestCase):
         t2.join()
 
     # @unittest.skip('')
-    def test_qkd(self):
+    def test_qkd_and_delete(self):
         global hosts
         key_size = 4
+
         ack = hosts['alice'].send_key(hosts['eve'].host_id, key_size)
         self.assertTrue(ack)
+
         key_alice, _ = hosts['alice'].get_key(hosts['eve'].host_id)
         key_bob, _ = hosts['eve'].get_key(hosts['alice'].host_id)
         self.assertEqual(key_alice, key_bob)
         hosts['alice'].delete_key(hosts['eve'].host_id)
         hosts['eve'].delete_key(hosts['alice'].host_id)
+
         key_alice = hosts['alice'].get_key(hosts['eve'].host_id, 1)
         key_bob = hosts['eve'].get_key(hosts['alice'].host_id, 1)
+
         self.assertIsNone(key_alice, "key was not delted")
         self.assertIsNone(key_bob, "key was not delted")

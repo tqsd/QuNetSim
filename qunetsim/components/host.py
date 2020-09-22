@@ -1404,8 +1404,7 @@ class Host(object):
         """
         if partner_id not in self.qkd_keys:
             return
-        else:
-            self.qkd_keys.pop(partner_id)
+        del self.qkd_keys[partner_id]
 
 
 def _get_qubit(store, host_id, q_id, purpose, wait=0):
