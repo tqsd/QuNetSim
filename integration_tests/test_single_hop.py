@@ -236,6 +236,32 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(key_alice, key_bob)
 
     # @unittest.skip('')
+    def test_qkd_and_delete_loop(self):
+        global hosts
+        key_size = 4
+
+        # delete, so that preexisting keys from other tests
+        # do not interfer
+        hosts['alice'].delete_key(hosts['bob'].host_id)
+        hosts['bob'].delete_key(hosts['alice'].host_id)
+
+        for _ in range(3):
+            ack = hosts['alice'].send_key(hosts['bob'].host_id, key_size)
+
+            self.assertTrue(ack)
+            key_alice, _ = hosts['alice'].get_key(hosts['bob'].host_id)
+            key_bob, _ = hosts['bob'].get_key(hosts['alice'].host_id)
+            self.assertEqual(key_alice, key_bob)
+
+            hosts['alice'].delete_key(hosts['bob'].host_id)
+            hosts['bob'].delete_key(hosts['alice'].host_id)
+
+            key_alice2 = hosts['alice'].get_key(hosts['bob'].host_id, 1)
+            key_bob2 = hosts['bob'].get_key(hosts['alice'].host_id, 1)
+            self.assertIsNone(key_alice2)
+            self.assertIsNone(key_bob2)
+
+    # @unittest.skip('')
     def test_teleport(self):
         global hosts
 

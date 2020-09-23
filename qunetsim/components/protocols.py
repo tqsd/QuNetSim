@@ -397,11 +397,11 @@ def _rec_superdense(packet):
 def _send_key(packet):
 
     def helper_recv(host, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+        buffer.append(host.get_next_classical(receive_from_id, wait=-1))
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+                buffer.append(host.get_next_classical(receive_from_id, wait=-1))
             ele = buffer.pop(0)
             msg = ele.content
         return msg
@@ -467,11 +467,11 @@ def _rec_key(packet):
     """
 
     def helper_recv(host, receive_from_id, buffer, sequence_nr):
-        buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+        buffer.append(host.get_next_classical(receive_from_id, wait=-1))
         msg = "ACK"
         while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
             if len(buffer) == 0:
-                buffer = buffer + host.get_classical(receive_from_id, wait=-1)
+                buffer.append(host.get_next_classical(receive_from_id, wait=-1))
             ele = buffer.pop(0)
             msg = ele.content
         return msg
