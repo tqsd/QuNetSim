@@ -49,3 +49,12 @@ network.stop(True)
 ## Contributing 
 
 Feel free to contribute by adding Github issues and pull requests. Adding test cases for any contributions is a requirement for any pull request to be merged. 
+
+## Citation
+
+@article{diadamo2020qunetsim,
+  title={QuNetSim: A Software Framework for Quantum Networks},
+  author={DiAdamo, Stephen and N{\"o}tzel, Janis and Zanger, Benjamin and Be{\c{s}}e, Mehmet Mert},
+  journal={arXiv preprint arXiv:2003.06397},
+  year={2020}
+}
