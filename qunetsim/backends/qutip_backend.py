@@ -1,9 +1,11 @@
 from qunetsim.backends.safe_dict import SafeDict
+from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from queue import Queue
 
 try:
     import qutip
+    from qutip.cy.spmath import zcsr_kron
 except ImportError:
     raise RuntimeError(
         'To use QuTip as a backend, you need to first install the Python package '
@@ -18,10 +20,31 @@ class QuTipBackend(object):
 
         def __init__(self):
             # initialize as a qubit in state |0>
+            self.lock = RWLock()
             super().__init__([1, 0])
 
         def add_qubit(self, qubit):
-            pass
+            """
+            Calculates the tensor product using the implementation
+            of QuTip.
+            See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
+            """
+            self.lock.acquire_write()
+            self.data = zcsr_kron(self.data, qubit.data)
+            self.dims = [self.dims[0] + qubit.dims[0], self.dims[1] + qubit.dims[1]]
+
+            self.isherm = self.isherm and qubit.isherm
+
+            if qutip.settings.auto_tidyup:
+                self.tidyup()
+
+            self.lock.release_write()
+
+        def lock(self):
+            self.lock.acquire_write()
+
+        def unlock(self):
+            self.lock.release_write()
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -93,8 +116,7 @@ class QuTipBackend(object):
         Reurns:
             Qubit of backend type.
         """
-        raise EnvironmentError("This is only an interface, not \
-                        an actual implementation!")
+        return QuTipBackend.QubitCollection()
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -105,8 +127,8 @@ class QuTipBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        new_host = self._hosts.get_from_dict(to_host_id)
+        qubit.host = new_host
 
     def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
         """
