@@ -2,10 +2,11 @@ import unittest
 import numpy as np
 from qunetsim.components.host import Host
 from qunetsim.components.network import Network
+from qunetsim.objects import Qubit
 
 from qunetsim.backends import EQSNBackend
 from qunetsim.backends import CQCBackend
-
+from qunetsim.backends import QuTipBackend
 
 # @unittest.skip('')
 class TestBackend(unittest.TestCase):
@@ -14,7 +15,8 @@ class TestBackend(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         TestBackend.backends.append(EQSNBackend)
-        TestBackend.backends.append(CQCBackend)
+        # TestBackend.backends.append(CQCBackend)
+        TestBackend.backends.append(QuTipBackend)
         # TestBackend.backends.append(projectQ)
 
     @classmethod
@@ -42,6 +44,33 @@ class TestBackend(unittest.TestCase):
                 self.assertEqual(q1.id, q2.id)
                 self.assertEqual(backend.measure(q1, False),
                                  backend.measure(q2, False))
+
+            network.stop(True)
+
+
+    # @unittest.skip('')
+    def test_single_gates(self):
+        for b in TestBackend.backends:
+            backend = b()
+            network = Network.get_instance()
+            network.start(["Alice", "Bob"], backend)
+            alice = Host('Alice', backend)
+            bob = Host('Bob', backend)
+            alice.start()
+            bob.start()
+            network.add_host(alice)
+            network.add_host(bob)
+
+            q = Qubit(alice)
+
+            q.X()
+            self.assertEqual(1, q.measure())
+
+            q = Qubit(alice)
+
+            q.H()
+            q.H()
+            self.assertEqual(0, q.measure())
 
             network.stop(True)
 
