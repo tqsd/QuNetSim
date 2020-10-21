@@ -6,6 +6,7 @@ from itertools import zip_longest
 import warnings
 import numpy as np
 import uuid
+import random
 
 try:
     import qutip
@@ -22,14 +23,14 @@ class QuTipBackend(object):
     """
     Definition of how a backend has to look and behave like.
     """
-    class QubitCollection(qutip.Qobj):
+    class QubitCollection(object):
 
         def __init__(self, name):
             # initialize as a qubit in state |0>
-            self._lock = RWLock()
+            self._rwlock = RWLock()
             self.N = 1
             self._qubit_names = [name]
-            super().__init__(qutip.fock_dm(2, 0))
+            self.data = qutip.qutip.fock_dm(2, 0)
 
         def add_qubit(self, qubit):
             """
@@ -39,14 +40,7 @@ class QuTipBackend(object):
             See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
             """
             self._lock()
-            self.data = zcsr_kron(self.data, qubit.data)
-            self.dims = [self.dims[0] + qubit.dims[0], self.dims[1] + qubit.dims[1]]
-
-            self.isherm = self.isherm and qubit.isherm
-
-            if qutip.settings.auto_tidyup:
-                self.tidyup()
-
+            self.data = qutip.tensor(self.data, qubit.data)
             self.N = self.N + qubit.N
             self._qubit_names = self._qubit_names + qubit._qubit_names
             self._unlock()
@@ -57,7 +51,7 @@ class QuTipBackend(object):
             self._lock()
             target = self._qubit_names.index(qubit_name)
             gate = qutip.gate_expand_1toN(gate, self.N, target)
-            self._apply_gate(gate)
+            self.data = gate * self.data * gate.dag()
             self._unlock()
 
         def apply_double_gate(self, gate, control_name, target_name):
@@ -67,69 +61,45 @@ class QuTipBackend(object):
             control = self._qubit_names.index(control_name)
             target = self._qubit_names.index(target_name)
             gate = qutip.gate_expand_2toN(gate, self.N, control, target)
-            self._apply_gate(gate)
+            self.data = gate * self.data * gate.dag()
             self._unlock()
 
-        def _apply_gate(self, gate):
-            """
-            Applies gate, same as multiplication from right applied to
-            the left side.
-            Modified version of __mul__ Qobj function,
-            See: http://qutip.org/docs/latest/modules/qutip/qobj.html
-            """
-            self._isunitary = None
-
-            if isinstance(gate, qutip.Qobj):
-                if self.dims[0] == gate.dims[0] and self.dims[1] == gate.dims[1]:
-                    self.data = gate.data * self.data * gate.dag().data
-
-                    dims = self.dims
-
-                    if qutip.settings.auto_tidyup: self.tidyup()
-                    if (qutip.settings.auto_tidyup_dims
-                            and not isinstance(dims[0][0], list)
-                            and not isinstance(dims[1][0], list)):
-                        # If neither left or right is a superoperator,
-                        # we should implicitly partial trace over
-                        # matching dimensions of 1.
-                        # Using izip_longest allows for the left and right dims
-                        # to have uneven length (non-square Qobjs).
-                        # We use None as padding so that it doesn't match anything,
-                        # and will never cause a partial trace on the other side.
-                        mask = [l == r == 1 for l, r in zip_longest(dims[0],
-                                                                    dims[1],
-                                                                    fillvalue=None)]
-                        # To ensure that there are still any dimensions left, we
-                        # use max() to add a dimensions list of [1] if all matching
-                        # dims are traced out of that side.
-                        self.dims = [max([1],
-                                        [dim for dim, m in zip(dims[0], mask)
-                                        if not m]),
-                                    max([1],
-                                        [dim for dim, m in zip(dims[1], mask)
-                                        if not m])]
-
-                    else:
-                        self.dims = dims
-
-                    self._isherm = None
-
-                    if self.superrep and gate.superrep:
-                        if self.superrep != gate.superrep:
-                            msg = ("Multiplying superoperators with different " +
-                                   "representations")
-                            warnings.warn(msg)
-
-                    return
-
+        def measure(self, qubit_name, non_destructive):
+            res = None
+            M_0 = qutip.fock(2, 0).proj()
+            M_1 = qutip.fock(2, 1).proj()
+            self._lock()
+            target = self._qubit_names.index(qubit_name)
+            if self.N > 1:
+                M_0 = qutip.gate_expand_1toN(M_0, self.N, target)
+                M_1 = qutip.gate_expand_1toN(M_1, self.N, target)
+            pr_0 = qutip.expect(M_0, self.data)
+            pr_1 = qutip.expect(M_1, self.data)
+            outcome = int(np.random.choice([0, 1], 1, p=[pr_0, pr_1]))
+            if outcome == 0:
+                self.data = M_0 * self.data * M_0.dag() / pr_0
+                res = 0
             else:
-                return NotImplemented
+                # M_1 = qutip.gate_expand_1toN(M_1, self.N, target)
+                self.data = M_1 * self.data * M_1.dag() / pr_1
+                res = 1
+            if non_destructive is False:
+                i_list = [x for x in range(self.N)]
+                i_list.remove(target)
+                self._qubit_names.remove(qubit_name)
+                self.N = self.N - 1
+                if len(i_list) > 0:
+                    self.data = self.data.ptrace(i_list)
+                else:
+                    self.data = qutip.Qobj()
+            self._unlock()
+            return res
 
         def _lock(self):
-            self._lock.acquire_write()
+            self._rwlock.acquire_write()
 
         def _unlock(self):
-            self._lock.release_write()
+            self._rwlock.release_write()
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -229,8 +199,31 @@ class QuTipBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        name1 = str(uuid.uuid4())
+        name2 = str(uuid.uuid4())
+        host_a = self._hosts.get_from_dict(host_a_id)
+        host_b = self._hosts.get_from_dict(host_b_id)
+        qubit1 = (QuTipBackend.QubitCollection(name1), name1)
+        qubit2 = (QuTipBackend.QubitCollection(name2), name2)
+        qubit1[0].apply_single_gate(snot(), qubit1[1])
+        qubit1[0].add_qubit(qubit2[0])
+        qubit2 = (qubit1[0], name2)
+        qubit1[0].apply_double_gate(cnot(), qubit1[1], qubit2[1])
+        q1 = Qubit(host_a, qubit=qubit1, q_id=q_id, blocked=block)
+        q2 = Qubit(host_b, qubit=qubit2, q_id=q1.id, blocked=block)
+        self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
+        return q1
+
+    def store_ent_pair(self, host_a, host_b, qubit):
+        key = host_a + ':' + host_b
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
+
+        if ent_queue is not None:
+            ent_queue.put(qubit)
+        else:
+            ent_queue = Queue()
+            ent_queue.put(qubit)
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
 
     def receive_epr(self, host_id, sender_id, q_id=None, block=False):
         """
@@ -244,8 +237,15 @@ class QuTipBackend(object):
         Returns:
             Returns an EPR qubit with the other Host.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        key = sender_id + ':' + host_id
+        ent_queue = self._entaglement_qubits.get_from_dict(key)
+        if ent_queue is None:
+            raise Exception("Internal Error!")
+        q = ent_queue.get()
+        self._entaglement_qubits.add_to_dict(key, ent_queue)
+        if q_id is not None and q_id != q.id:
+            raise ValueError("Qid doesent match id!")
+        return q
 
     ##########################
     #   Gate definitions    #
@@ -311,8 +311,7 @@ class QuTipBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def rx(self, qubit, phi):
         """
@@ -363,6 +362,7 @@ class QuTipBackend(object):
         qubit_collection2, t_name = target.qubit
         if qubit_collection != qubit_collection2:
             qubit_collection.add_qubit(qubit_collection2)
+            target.qubit = (qubit_collection, t_name)
         qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def cphase(self, qubit, target):
@@ -373,8 +373,13 @@ class QuTipBackend(object):
             qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        gate = cnot()
+        qubit_collection, c_name = qubit.qubit
+        qubit_collection2, t_name = target.qubit
+        if qubit_collection != qubit_collection2:
+            qubit_collection.add_qubit(qubit_collection2)
+            target.qubit = (qubit_collection, t_name)
+        qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def custom_gate(self, qubit, gate):
         """
@@ -384,8 +389,9 @@ class QuTipBackend(object):
             qubit(Qubit): Qubit to which the gate is applied.
             gate(np.ndarray): 2x2 array of the gate.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        gate = qutip.Qobj(gate)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def custom_controlled_gate(self, qubit, target, gate):
         """
@@ -396,8 +402,7 @@ class QuTipBackend(object):
             target(Qubit): Qubit on which the gate is applied.
             gate(nd.array): 2x2 array for the gate applied to target.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
         """
@@ -409,8 +414,7 @@ class QuTipBackend(object):
             target_2 (Qubit): Qubit on which the gate is applied.
             gate (nd.array): 4x4 array for the gate applied to target.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        raise (EnvironmentError("Not implemeted for this backend!"))
 
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
@@ -421,8 +425,13 @@ class QuTipBackend(object):
             qubit2(Qubit): Second qubit of the gate.
             gate(np.ndarray): 4x4 array for the gate applied.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        gate = qutip.Qobj(gate)
+        qubit_collection, c_name = qubit1.qubit
+        qubit_collection2, t_name = qubit2.qubit
+        if qubit_collection != qubit_collection2:
+            qubit_collection.add_qubit(qubit_collection2)
+            qubit2.qubit = (qubit_collection, t_name)
+        qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def density_operator(self, qubit):
         """
@@ -450,8 +459,8 @@ class QuTipBackend(object):
         Returns:
             The value which has been measured.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        q, name = qubit.qubit
+        return q.measure(name, non_destructive)
 
     def release(self, qubit):
         """
