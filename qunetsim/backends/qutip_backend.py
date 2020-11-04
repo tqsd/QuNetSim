@@ -12,7 +12,7 @@ try:
     import qutip
     from qutip.cy.spmath import zcsr_kron
     from qutip.qip.operations import cnot, snot, gate_expand_1toN, gate_expand_2toN,\
-                                    rx, ry, rz
+                                    rx, ry, rz, csign
 except ImportError:
     raise RuntimeError(
         'To use QuTip as a backend, you need to first install the Python package '
@@ -94,6 +94,15 @@ class QuTipBackend(object):
                     self.data = qutip.Qobj()
             self._unlock()
             return res
+
+        def give_density_matrix(self, qubit_name):
+            ret = None
+            self._lock()
+            if qubit_name in self._qubit_names:
+                index = self._qubit_names.index(qubit_name)
+                ret = self.data.ptrace([index])
+            self._unlock()
+            return ret
 
         def _lock(self):
             self._rwlock.acquire_write()
@@ -311,7 +320,8 @@ class QuTipBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise (EnvironmentError("Not implemented for this backend!"))
+        gate = np.array([[1, 0], [0, np.e**(1j*np.pi/4)]])
+        self.custom_gate(qubit, gate)
 
     def rx(self, qubit, phi):
         """
@@ -373,7 +383,7 @@ class QuTipBackend(object):
             qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        gate = cnot()
+        gate = csign()
         qubit_collection, c_name = qubit.qubit
         qubit_collection2, t_name = target.qubit
         if qubit_collection != qubit_collection2:
@@ -444,8 +454,8 @@ class QuTipBackend(object):
         Returns:
             np.ndarray: The density operator of the qubit.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        qubit_collection, q_name = qubit.qubit
+        return qubit_collection.give_density_matrix(q_name)
 
     def measure(self, qubit, non_destructive):
         """
