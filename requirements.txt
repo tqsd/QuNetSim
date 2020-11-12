@@ -1,4 +1,8 @@
 matplotlib==3.1.2
 networkx==2.4
+nose2==0.9.1
 numpy==1.18.1
+cqc==3.2.2
+simulaqron==3.0.15
 eqsn==0.0.8
+qutip==4.5.2
