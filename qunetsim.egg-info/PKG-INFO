@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: qunetsim
-Version: 0.1.0.post6
+Version: 0.1.1
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
 Author: Stephen DiAdamo
 Author-email: stephen.diadamo@gmail.com
 License: MIT
-Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.1.0.post4
+Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.1.1
 Description: [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITARY%20FUND-brightgreen.svg?style=for-the-badge)](http://unitary.fund)
         # QuNetSim 
         
@@ -58,6 +58,16 @@ Description: [![Unitary Fund](https://img.shields.io/badge/Supported%20By-UNITAR
         ## Contributing 
         
         Feel free to contribute by adding Github issues and pull requests. Adding test cases for any contributions is a requirement for any pull request to be merged. 
+        
+        ## Citation
+        ```
+        @article{diadamo2020qunetsim,
+          title={QuNetSim: A Software Framework for Quantum Networks},
+          author={DiAdamo, Stephen and N{\"o}tzel, Janis and Zanger, Benjamin and Be{\c{s}}e, Mehmet Mert},
+          journal={arXiv preprint arXiv:2003.06397},
+          year={2020}
+        }
+        ```
         
 Keywords: quantum,networks,simulator,internet,QuNetSim
 Platform: UNKNOWN

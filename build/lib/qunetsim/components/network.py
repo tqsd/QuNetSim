@@ -1,14 +1,12 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from queue import Queue
 import time
 import random
 
 from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
-
+from queue import Queue
 from qunetsim.utils.constants import Constants
 from inspect import signature
-
 from qunetsim.backends import EQSNBackend
 
 
@@ -38,8 +36,6 @@ class Network:
             self._queue_processor_thread = None
             self._delay = 0.1
             self._packet_drop_rate = 0
-            self._x_error_rate = 0
-            self._z_error_rate = 0
             self._backend = None
             Network.__instance = self
         else:
@@ -168,60 +164,6 @@ class Network:
 
         self._packet_drop_rate = drop_rate
 
-    @property
-    def x_error_rate(self):
-        """
-        Get the X error rate of the network.
-        Returns:
-              The *x_error_rate* of the network.
-        """
-
-        return self._x_error_rate
-
-    @x_error_rate.setter
-    def x_error_rate(self, error_rate):
-        """
-        Set the X error rate of the network.
-
-        Args:
-             error_rate (float): Probability of a X error during a qubit transmission in the network
-        """
-
-        if error_rate < 0 or error_rate > 1:
-            raise Exception('Error rate should be between 0 and 1.')
-
-        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
-            raise Exception('X error rate should be a number')
-
-        self._x_error_rate = error_rate
-
-    @property
-    def z_error_rate(self):
-        """
-        Get the Z error rate of the network.
-
-        Returns:
-            (float): The Z error rate of the network.
-        """
-        return self._z_error_rate
-
-    @z_error_rate.setter
-    def z_error_rate(self, error_rate):
-        """
-        Set the Z error rate of the network.
-
-        Args:
-             error_rate (float): Probability of a Z error during a qubit transmission in the network
-        """
-
-        if error_rate < 0 or error_rate > 1:
-            raise Exception('Error rate should be between 0 and 1.')
-
-        if not (isinstance(error_rate, int) or isinstance(error_rate, float)):
-            raise Exception('Z error rate should be a number')
-
-        self._z_error_rate = error_rate
-
     def add_host(self, host):
         """
         Adds the *host* to ARP table and updates the network graph.
@@ -309,7 +251,7 @@ class Network:
             sender (Host): The sender
 
         Returns:
-             boolean: whether the sender and receiver share an EPR pair.
+             (bool) whether the sender and receiver share an EPR pair.
         """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
@@ -472,37 +414,38 @@ class Network:
             qubits (List of Qubits): The qubits to be sent
         """
 
-        def transfer_qubits(r, store=False, original_sender=None):
+        def transfer_qubits(r, s, original_sender=None):
             for q in qubits:
-                Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
-                x_err_var = random.random()
-                z_err_var = random.random()
-                if x_err_var > (1 - self.x_error_rate):
-                    q.X()
-                if z_err_var > (1 - self.z_error_rate):
-                    q.Z()
+                # Modify the qubit according to error function of the model
+                qubit_id = q.id
+                q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)
 
-                q.send_to(self.ARP[r].host_id)
-                Logger.get_instance().log('transfer qubits - received ' + q.id)
+                if q is None:
+                    # Log failure of transmission if qubit is lost
+                    Logger.get_instance().log('transfer qubits - transfer of qubit ' + qubit_id + ' failed')
+                    return False
 
-                # Unblock qubits in case they were blocked
-                q.blocked = False
+                else:
+                    Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
 
-                if not store and self.ARP[r].q_relay_sniffing:
-                    self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
+                    q.send_to(self.ARP[r].host_id)
+                    Logger.get_instance().log('transfer qubits - received ' + q.id)
 
-                if store and original_sender is not None:
-                    self.ARP[r].add_data_qubit(original_sender, q)
+                    # Unblock qubits in case they were blocked
+                    q.blocked = False
+
+                    if self.ARP[r].q_relay_sniffing:
+                        self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
+            return True
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
             Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-            if len(route[i:]) != 2:
-                transfer_qubits(route[i + 1], original_sender=route[0])
-            else:
-                transfer_qubits(route[i + 1], store=True, original_sender=route[0])
+            if not transfer_qubits(route[i + 1], route[i], original_sender=route[0]):
+                return False
             i += 1
+        return True
 
     def _process_queue(self):
         """
@@ -510,81 +453,84 @@ class Network:
         """
 
         while True:
-            if self._stop_thread:
+
+            packet = self._packet_queue.get()
+
+            if not packet:
+                # Stop the network
+                self._stop_thread = True
                 break
 
-            if not self._packet_queue.empty():
-                # Artificially delay the network
-                if self.delay > 0:
-                    time.sleep(self.delay)
+            # Artificially delay the network
+            if self.delay > 0:
+                time.sleep(self.delay)
 
-                packet = self._packet_queue.get()
+            # Simulate packet loss
+            packet_drop_var = random.random()
+            if packet_drop_var > (1 - self.packet_drop_rate):
+                Logger.get_instance().log("PACKET DROPPED")
+                if packet.payload_type == Constants.QUANTUM:
+                    packet.payload.release()
+                continue
 
-                # Simulate packet loss
-                packet_drop_var = random.random()
-                if packet_drop_var > (1 - self.packet_drop_rate):
-                    Logger.get_instance().log("PACKET DROPPED")
-                    if packet.payload_type == Constants.QUANTUM:
-                        packet.payload.release()
+            sender, receiver = packet.sender, packet.receiver
+
+            if packet.payload_type == Constants.QUANTUM:
+                if not self._route_quantum_info(sender, receiver, [packet.payload]):
                     continue
 
-                sender, receiver = packet.sender, packet.receiver
-
-                if packet.payload_type == Constants.QUANTUM:
-                    self._route_quantum_info(sender, receiver, [packet.payload])
-
-                try:
-                    if packet.protocol == Constants.RELAY and not self.use_hop_by_hop:
-                        full_route = packet.route
-                        route = full_route[full_route.index(sender):]
+            try:
+                if packet.protocol == Constants.RELAY and not self.use_hop_by_hop:
+                    full_route = packet.route
+                    route = full_route[full_route.index(sender):]
+                else:
+                    if packet.protocol == Constants.REC_EPR:
+                        route = self.get_classical_route(sender, receiver)
                     else:
+                        route = self.get_classical_route(sender, receiver)
+
+                if len(route) < 2:
+                    raise Exception('No route exists')
+
+                elif len(route) == 2:
+                    if packet.protocol != Constants.RELAY:
                         if packet.protocol == Constants.REC_EPR:
-                            route = self.get_classical_route(sender, receiver)
-                        else:
-                            route = self.get_classical_route(sender, receiver)
-
-                    if len(route) < 2:
-                        raise Exception('No route exists')
-
-                    elif len(route) == 2:
-                        if packet.protocol != Constants.RELAY:
-                            if packet.protocol == Constants.REC_EPR:
-                                host_sender = self.get_host(sender)
-                                q = host_sender \
-                                    .backend \
-                                    .create_EPR(host_sender.host_id,
-                                                receiver,
-                                                q_id=packet.payload['q_id'],
-                                                block=packet.payload['blocked'])
-                                host_sender.add_epr(receiver, q)
-                            self.ARP[receiver].rec_packet(packet)
-                        else:
-                            self.ARP[receiver].rec_packet(packet.payload)
+                            host_sender = self.get_host(sender)
+                            q = host_sender \
+                                .backend \
+                                .create_EPR(host_sender.host_id,
+                                            receiver,
+                                            q_id=packet.payload['q_id'],
+                                            block=packet.payload['blocked'])
+                            host_sender.add_epr(receiver, q)
+                        self.ARP[receiver].rec_packet(packet)
                     else:
-                        if packet.protocol == Constants.REC_EPR:
-                            q_id = packet.payload['q_id']
-                            blocked = packet.payload['blocked']
-                            q_route = self.get_quantum_route(sender, receiver)
+                        self.ARP[receiver].rec_packet(packet.payload)
+                else:
+                    if packet.protocol == Constants.REC_EPR:
+                        q_id = packet.payload['q_id']
+                        blocked = packet.payload['blocked']
+                        q_route = self.get_quantum_route(sender, receiver)
 
-                            if self.use_ent_swap:
-                                DaemonThread(self._entanglement_swap,
-                                             args=(sender, receiver, q_route, q_id,
-                                                   packet.seq_num, blocked))
-                            else:
-                                DaemonThread(self._establish_epr,
-                                             args=(sender, receiver, q_id,
-                                                   packet.seq_num, blocked))
-
+                        if self.use_ent_swap:
+                            DaemonThread(self._entanglement_swap,
+                                         args=(sender, receiver, q_route, q_id,
+                                               packet.seq_num, blocked))
                         else:
-                            network_packet = self._encode(route, packet)
-                            self.ARP[route[1]].rec_packet(network_packet)
+                            DaemonThread(self._establish_epr,
+                                         args=(sender, receiver, q_id,
+                                               packet.seq_num, blocked))
 
-                except nx.NodeNotFound:
-                    Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
-                except ValueError:
-                    Logger.get_instance().error("route couldn't be calculated, value error")
-                except Exception as e:
-                    Logger.get_instance().error('Error in network: ' + str(e))
+                    else:
+                        network_packet = self._encode(route, packet)
+                        self.ARP[route[1]].rec_packet(network_packet)
+
+            except nx.NodeNotFound:
+                Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
+            except ValueError:
+                Logger.get_instance().error("route couldn't be calculated, value error")
+            except Exception as e:
+                Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
         """
@@ -607,7 +553,7 @@ class Network:
                 for host in self.ARP:
                     self.ARP[host].stop(release_qubits=True)
 
-            self._stop_thread = True
+            self.send(None)  # Send None to queue to stop the queue
             if self._backend is not None:
                 self._backend.stop()
         except Exception as e:

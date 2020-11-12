@@ -165,9 +165,16 @@ def _rec_qubit(packet):
     Args:
         packet (Packet): The packet in which to receive.
     """
+    from_host = packet.sender
+    receiver = packet.receiver
+    qubit = packet.payload
+    receiver = network.get_host(receiver)
+    receiver.add_data_qubit(from_host, qubit)
+
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
     # Send ACK if seq_num is not -1
+
     if packet.seq_num != -1:
         _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
@@ -343,7 +350,7 @@ def _send_superdense(packet):
         q_superdense = host_sender.get_epr(receiver, q_id=q_id, wait=Constants.WAIT_TIME)
 
     else:
-        q_superdense = host_sender.get_epr(receiver, wait=5)
+        q_superdense = host_sender.get_epr(receiver)
 
     if q_superdense is None:
         Logger.get_instance().log('Failed to get EPR with ' + sender + " and " + receiver)
@@ -351,7 +358,7 @@ def _send_superdense(packet):
 
     _encode_superdense(packet.payload, q_superdense)
 
-    # change id, so that at receiving they are not the same
+    # change ID, so that at receiving they are not the same
     q_superdense.id = "E" + q_superdense.id
     packet.payload = q_superdense
     packet.protocol = Constants.REC_SUPERDENSE
@@ -371,15 +378,14 @@ def _rec_superdense(packet):
     """
     receiver = packet.receiver
     sender = packet.sender
-    payload = packet.payload
-
+    q1 = packet.payload
     host_receiver = network.get_host(receiver)
 
-    q1 = host_receiver.get_data_qubit(sender, payload.id, wait=Constants.WAIT_TIME)
     # the shared EPR id is the DATA id without the first letter.
-    q2 = host_receiver.get_epr(sender, payload.id[1:], wait=Constants.WAIT_TIME)
+    q2 = host_receiver.get_epr(sender, q1.id[1:], wait=Constants.WAIT_TIME)
 
-    assert q1 is not None and q2 is not None
+    assert q1 is not None
+    assert q2 is not None
 
     # Send ACK if seq_num is not -1
     if packet.seq_num != -1:
@@ -389,23 +395,36 @@ def _rec_superdense(packet):
 
 
 def _send_key(packet):
+
+    def helper_recv(host, receive_from_id, buffer, sequence_nr):
+        buffer.append(host.get_next_classical(receive_from_id, wait=-1))
+        msg = "ACK"
+        while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
+            if len(buffer) == 0:
+                buffer.append(host.get_next_classical(receive_from_id, wait=-1))
+            ele = buffer.pop(0)
+            msg = ele.content
+        return msg
+
     receiver = network.get_host(packet.receiver)
     sender = network.get_host(packet.sender)
     key_size = packet.payload[Constants.KEYSIZE]
 
-    packet.protocol = Constants.KEY
+    packet.protocol = Constants.REC_KEY
     network.send(packet)
 
-    secret_key = np.random.randint(2, size=key_size)
+    secret_key = []
     msg_buff = []
-    sender.qkd_keys[receiver.host_id] = secret_key.tolist()
     sequence_nr = 0
+    attempt_counter = 0
+
     # iterate over all bits in the secret key.
-    for bit in secret_key:
+    for _ in range(key_size):
         ack = False
         while not ack:
             # get a random base. 0 for Z base and 1 for X base.
             base = random.randint(0, 1)
+            bit = random.randint(0, 1)
 
             # create qubit
             q_bit = Qubit(sender)
@@ -420,17 +439,23 @@ def _send_key(packet):
             # Send Qubit to Receiver
             sender.send_qubit(receiver.host_id, q_bit, await_ack=True)
             # Get measured basis of Receiver
-            message = sender.get_next_classical_message(receiver.host_id, msg_buff, sequence_nr)
+            message = helper_recv(sender, receiver.host_id, msg_buff, sequence_nr)
             # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
             # otherwise, send 1 and repeat.
             if message == "%d:%d" % (sequence_nr, base):
                 ack = True
+                # Bit got accepted, add to key
+                secret_key.append(bit)
                 sender.send_classical(receiver.host_id, ("%d:0" % sequence_nr), await_ack=True)
             else:
                 ack = False
                 sender.send_classical(receiver.host_id, ("%d:1" % sequence_nr), await_ack=True)
 
             sequence_nr += 1
+            attempt_counter += 1
+
+    # Add key to keys of sender
+    sender.qkd_keys[receiver.host_id] = (secret_key, attempt_counter)
 
 
 def _rec_key(packet):
@@ -440,14 +465,31 @@ def _rec_key(packet):
     Args:
         packet (Packet): The incoming packet
     """
+
+    def helper_recv(host, receive_from_id, buffer, sequence_nr):
+        buffer.append(host.get_next_classical(receive_from_id, wait=-1))
+        msg = "ACK"
+        while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
+            if len(buffer) == 0:
+                buffer.append(host.get_next_classical(receive_from_id, wait=-1))
+            ele = buffer.pop(0)
+            msg = ele.content
+        return msg
+
     receiver = network.get_host(packet.receiver)
     sender = network.get_host(packet.sender)
     key_size = packet.payload[Constants.KEYSIZE]
+
+    # Send ACK if seq_num is not -1
+    # For QKD Ack is returned immediatley
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
 
     msg_buff = []
 
     sequence_nr = 0
     received_counter = 0
+    attempt_counter = 0
     key_array = []
 
     while received_counter < key_size:
@@ -468,16 +510,16 @@ def _rec_key(packet):
         receiver.send_classical(sender.host_id, "%d:%d" % (sequence_nr, measurement_base), await_ack=True)
 
         # get the return message from sender, to know if the bases have matched
-        msg = receiver.get_next_classical_message(sender.host_id, msg_buff, sequence_nr)
+        msg = helper_recv(receiver, sender.host_id, msg_buff, sequence_nr)
 
         # Check if the bases have matched
         if msg == ("%d:0" % sequence_nr):
             received_counter += 1
             key_array.append(bit)
+        attempt_counter += 1
         sequence_nr += 1
 
-    key = key_array
-    receiver.qkd_keys[sender.host_id] = key
+    receiver.qkd_keys[sender.host_id] = (key_array, attempt_counter)
 
 
 def _send_ghz(packet):

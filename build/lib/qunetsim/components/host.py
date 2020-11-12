@@ -1,10 +1,12 @@
-from queue import Queue
-from qunetsim.components import protocols
-from qunetsim.utils.constants import Constants
-from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage
-from qunetsim.backends import EQSNBackend
 import uuid
 import time
+
+from queue import Queue, Empty
+from qunetsim.components import protocols
+from qunetsim.utils.constants import Constants
+from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage, \
+    QuantumConnection, ClassicalConnection
+from qunetsim.backends import EQSNBackend
 
 
 class Host(object):
@@ -27,8 +29,8 @@ class Host(object):
         self._queue_processor_thread = None
         self._qubit_storage = QuantumStorage()
         self._classical_messages = ClassicalStorage()
-        self._classical_connections = []
-        self._quantum_connections = []
+        self._classical_connections = {}
+        self._quantum_connections = {}
         if backend is None:
             self._backend = EQSNBackend()
         else:
@@ -82,35 +84,36 @@ class Host(object):
         """
         return self._classical_connections
 
-    def get_connections(self):
-        """
-        Get a list of the connections with the types.
-
-        Returns:
-
-        """
-        connection_list = []
-        for c in self._classical_connections:
-            connection_list.append({'type': 'classical', 'connection': c})
-        for q in self._quantum_connections:
-            connection_list.append({'type': 'quantum', 'connection': q})
-        return connection_list
-
     @property
     def classical(self):
         """
         Gets the received classical messages sorted with the sequence number.
 
         Returns:
-             Array: Sorted array of classical messages.
+             (list): Sorted list of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
 
-    def empty_classical(self):
+    def empty_classical(self, reset_seq_nums=False):
         """
         Empty the classical message buffers.
+
+        Args:
+            reset_seq_nums (bool): if all sequence number should also be reset.
         """
+        if reset_seq_nums:
+            self.reset_sequence_numbers()
         self._classical_messages.empty()
+
+    def reset_sequence_numbers(self):
+        """
+        Reset all sequence numbers.
+        """
+        self._ack_receiver_queue = []
+        self._seq_number_sender = {}
+        self._seq_number_sender_ack = {}
+        self._seq_number_receiver = {}
+        pass
 
     @property
     def qubit_storage(self):
@@ -122,7 +125,7 @@ class Host(object):
         Get the delay of the queue processor.
 
         Returns:
-            The delay per tick for the queue processor.
+            (float): The delay per tick for the queue processor.
         """
         return self._delay
 
@@ -133,7 +136,6 @@ class Host(object):
 
         Args:
             delay (float): The delay per tick for the queue processor.
-
         """
         if not (isinstance(delay, int) or isinstance(delay, float)):
             raise Exception('delay should be a number')
@@ -166,7 +168,9 @@ class Host(object):
             raise Exception('max ack wait should be a number')
 
         if max_ack_wait < 0:
-            raise Exception('max ack wait should be non-negative')
+            # Negative ack wait implies wait forever
+            self._max_ack_wait = None
+            return
 
         self._max_ack_wait = max_ack_wait
 
@@ -230,22 +234,40 @@ class Host(object):
 
     @property
     def c_relay_sniffing(self):
+        """
+        If the host should sniff classical packets.
+
+        Returns:
+            (bool): If the host should sniff classical packets.
+        """
         return self._c_relay_sniffing
 
     @c_relay_sniffing.setter
     def c_relay_sniffing(self, value):
+        """
+        If the host should sniff classical packets.
+
+        Args:
+            (bool): If the host should sniff classical packets.
+        """
         if not isinstance(value, bool):
             raise ValueError("Relay sniffing has to be a boolean.")
         self._c_relay_sniffing = value
 
     @property
     def c_relay_sniffing_fn(self):
+        """
+        The function to apply to the qubits in transit.
+
+        Returns:
+            (function): The function to apply to the qubits in transit.
+        """
         return self._c_relay_sniffing_fn
 
     @c_relay_sniffing_fn.setter
     def c_relay_sniffing_fn(self, func):
         """
-        Set a custom function which handles messages which are routed
+        Sets a custom function which handles messages which are routed
         through this host. Functions parameter have to be **sender, receiver,
         msg**. ACK messages are not passed to the function.
 
@@ -254,7 +276,29 @@ class Host(object):
         """
         self._c_relay_sniffing_fn = func
 
+    def get_connections(self):
+        """
+        Get a list of the connections with the types.
+
+        Returns:
+            (list): The list of connections for this host.
+        """
+        connection_list = []
+        for c in self._classical_connections:
+            connection_list.append({'type': 'classical', 'connection': c})
+        for q in self._quantum_connections:
+            connection_list.append({'type': 'quantum', 'connection': q})
+        return connection_list
+
     def relay_sniffing_function(self, sender, receiver, transport_packet):
+        """
+        The function called for packet sniffing.
+
+        Args:
+           sender (str): the sender of the packet
+           receiver (str): the receiver of the packet
+           transport_packet (Packet): the packet itself
+        """
         if self.c_relay_sniffing_fn is not None \
                 and isinstance(transport_packet, Packet) \
                 and isinstance(transport_packet.payload, Message):
@@ -291,16 +335,34 @@ class Host(object):
 
     @property
     def q_relay_sniffing(self):
+        """
+        If the host should sniff quantum packets.
+
+        Returns:
+            (bool): If the host should sniff quantum packets.
+        """
         return self._q_relay_sniffing
 
     @q_relay_sniffing.setter
     def q_relay_sniffing(self, value):
+        """
+        If the host should sniff quantum packets.
+
+        Args:
+            (bool): If the host should sniff quantum packets.
+        """
         if not isinstance(value, bool):
             raise ValueError("Quantum Relay sniffing has to be a boolean.")
         self._q_relay_sniffing = value
 
     @property
     def q_relay_sniffing_fn(self):
+        """
+        The function to apply to the qubits in transit.
+
+        Returns:
+            (function): The function to apply to the qubits in transit.
+        """
         return self._q_relay_sniffing_fn
 
     @q_relay_sniffing_fn.setter
@@ -326,7 +388,7 @@ class Host(object):
         Get and set the next sequence number of connection with a receiver.
 
         Args:
-            host(str): The ID of the receiver
+            host (str): The ID of the receiver
 
         Returns:
             (int): The next sequence number of connection with a receiver.
@@ -367,39 +429,18 @@ class Host(object):
 
         return self._seq_number_receiver[host][1]
 
-    def _get_message_w_seq_num(self, sender_id, seq_num, wait=-1):
+    def _get_message_w_seq_num(self, sender_id, seq_num, wait):
         """
         Get a message from a sender with a specific sequence number.
         Args:
             sender_id (str): The ID of the sender
             seq_num (int): The sequence number
-            wait (int):
+            wait (int): The amount of time to wait. (-1 to wait forever)
 
         Returns:
-
+            (Message): The message
         """
-
-        def _wait():
-            nonlocal m
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and m is None:
-                filter_messages()
-                time.sleep(self.delay)
-
-        def filter_messages():
-            nonlocal m
-            for message in self.classical:
-                if message.sender == sender_id and message.seq_num == seq_num:
-                    m = message
-
-        m = None
-        if wait > 0:
-            DaemonThread(_wait).join()
-            return m
-        else:
-            filter_messages()
-            return m
+        return self._classical_messages.get_with_seq_num_from_sender(sender_id, seq_num, wait)
 
     def _log_ack(self, protocol, receiver, seq):
         """
@@ -417,7 +458,7 @@ class Host(object):
         Returns if the host has packets to process or is idle.
 
         Returns:
-            (boolean): If the host is idle or not.
+            (bool): If the host is idle or not.
         """
         return self._packet_queue.empty()
 
@@ -455,6 +496,10 @@ class Host(object):
     def _process_ack(self, sender, seq_num):
         """
         Processes an ACK msg.
+
+        Args:
+            sender (str): The sender of the ack
+            seq_num (int): The sequence number of the ack
         """
 
         def check_task(q, _sender, _seq_num, timeout, start_time):
@@ -497,15 +542,13 @@ class Host(object):
         """
         self.logger.log('Host ' + self.host_id + ' started processing')
         while True:
-            if self._stop_thread:
+            packet = self._packet_queue.get()
+            if packet is None:
+                # stop thread
+                self._stop_thread = True
                 break
 
-            time.sleep(self.delay)
-            if not self._packet_queue.empty():
-                packet = self._packet_queue.get()
-                if not packet:
-                    raise Exception('empty message')
-                DaemonThread(self._process_packet, args=(packet,))
+            DaemonThread(self._process_packet, args=(packet,))
 
     def rec_packet(self, packet):
         """
@@ -523,7 +566,7 @@ class Host(object):
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.classical_connections.append(receiver_id)
+        self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
 
     def add_c_connections(self, receiver_ids):
         """
@@ -533,7 +576,7 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.classical_connections.append(receiver_id)
+            self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
 
     def add_q_connection(self, receiver_id):
         """
@@ -542,7 +585,7 @@ class Host(object):
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.quantum_connections.append(receiver_id)
+        self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
 
     def add_q_connections(self, receiver_ids):
         """
@@ -552,7 +595,7 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.quantum_connections.append(receiver_id)
+            self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
 
     def add_connection(self, receiver_id):
         """
@@ -560,10 +603,9 @@ class Host(object):
 
         Args:
             receiver_id (str): The ID of the host to connect with.
-
         """
-        self.classical_connections.append(receiver_id)
-        self.quantum_connections.append(receiver_id)
+        self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
+        self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
 
     def add_connections(self, receiver_ids):
         """
@@ -571,11 +613,10 @@ class Host(object):
 
         Args:
             receiver_ids (list): A list of receiver IDs to connect with
-
         """
         for receiver_id in receiver_ids:
-            self.classical_connections.append(receiver_id)
-            self.quantum_connections.append(receiver_id)
+            self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
+            self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
 
     def remove_connection(self, receiver_id):
         """
@@ -584,7 +625,7 @@ class Host(object):
             receiver_id (str): The ID of the connection to remove
 
         Returns:
-            list: a two element array of the status of the removals.
+            (list): a two element list of the status of the removals.
         """
         c = self.remove_c_connection(receiver_id)
         q = self.remove_q_connection(receiver_id)
@@ -599,11 +640,12 @@ class Host(object):
         Returns:
             (bool): Success status of the removal
         """
-        c_index = self.classical_connections.index(receiver_id)
-        if c_index > -1:
-            del self.classical_connections[c_index]
+        try:
+            del self.classical_connections[receiver_id]
             return True
-        return False
+        except NameError:
+            self.logger.error('Tried to delete a classical connection tha does not exist')
+            return False
 
     def remove_q_connection(self, receiver_id):
         """
@@ -614,11 +656,12 @@ class Host(object):
         Returns:
             (bool): Success status of the removal
         """
-        q_index = self.quantum_connections.index(receiver_id)
-        if q_index > -1:
-            del self.quantum_connections[q_index]
+        try:
+            del self.quantum_connections[receiver_id]
             return True
-        return False
+        except NameError:
+            self.logger.error('Tried to delete a quantum connection tha does not exist')
+            return False
 
     def send_ack(self, receiver, seq_number):
         """
@@ -645,11 +688,15 @@ class Host(object):
         while expected_seq + self._max_window < seq_number:
             self.logger.log("%s: Msg with sequence number %d was not received within the receiving window." % (
                 self.host_id, expected_seq))
+            self.logger.log("Already received messages after this message are %s." % (
+                str(self._seq_number_receiver[receiver][0])))
             # just jump over this sequence number
             expected_seq += 1
             self._seq_number_receiver[receiver][1] += 1
 
         if expected_seq < seq_number:
+            self.logger.log("Expected msg with seq num %d but received msg with seq num %d." % (
+                expected_seq, seq_number))
             self._seq_number_receiver[receiver][0].append(seq_number)
 
         else:
@@ -664,11 +711,12 @@ class Host(object):
     def await_ack(self, sequence_number, sender):
         """
         Block until an ACK for packet with sequence number arrives.
+
         Args:
-            sequence_number: The sequence number to wait for.
-            sender: The sender of the ACK
+            sequence_number (int): The sequence number to wait for.
+            sender (str): The sender of the ACK
         Returns:
-            The status of the ACK
+            (bool): The status of the ACK
         """
 
         def wait():
@@ -680,7 +728,7 @@ class Host(object):
             self._ack_receiver_queue.append(task)
             try:
                 did_ack = q.get(timeout=self._max_ack_wait)
-            except Exception as error:
+            except Empty:
                 did_ack = False
                 # remove this ACK from waiting list
                 self._process_ack(sender, sequence_number)
@@ -754,7 +802,7 @@ class Host(object):
             await_ack (bool): If sender should wait for an ACK.
             no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
-            boolean: If await_ack=True, return the status of the ACK
+            (bool) If await_ack=True, return the status of the ACK
         """
         seq_num = -1
         if no_ack:
@@ -789,7 +837,7 @@ class Host(object):
             no_ack (bool): If this message should not use any ACK and sequencing.
             block (bool): If the created EPR pair should be blocked or not.
         Returns:
-            string, boolean: If await_ack=True, return the ID of the EPR pair and the status of the ACK
+            (str, bool): If await_ack=True, return the ID of the EPR pair and the status of the ACK
         """
         if q_id is None:
             q_id = str(uuid.uuid4())
@@ -829,8 +877,7 @@ class Host(object):
             distribute (bool): If the sender should keep part of the GHZ state, or just
                                distribute one
         Returns:
-            Q_id, Qubit: Qubit which belongs to the host and is part of the
-                        GHZ state and ID which all Qubits will have.
+            (str, bool): Qubit ID of the shared GHZ and ACK status
         """
         own_qubit = Qubit(self, q_id=q_id)
         q_id = own_qubit.id
@@ -875,7 +922,6 @@ class Host(object):
                 if self.await_ack(seq_num, receiver_id) is False:
                     ret = False
             return q_id, ret
-
         return q_id
 
     def get_ghz(self, host_id, q_id=None, wait=0):
@@ -888,12 +934,12 @@ class Host(object):
             q_id (str): The qubit ID of the GHZ to get.
             wait (float): the amount of time to wait
         Returns:
-             Qubit: Qubit shared with the host with *host_id* and *q_id*.
+             (Qubit): Qubit shared with the host with *host_id* and *q_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.GHZ_QUBIT, wait)
 
     def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -906,8 +952,9 @@ class Host(object):
             no_ack (bool): If this message should not use any ACK and sequencing.
             payload:
             generate_epr_if_none: Generate an EPR pair with receiver if one doesn't exist
+
         Returns:
-            boolean: If await_ack=True, return the status of the ACK
+            (bool) If await_ack=True, return the status of the ACK
         """
         seq_num = -1
         if no_ack:
@@ -944,7 +991,7 @@ class Host(object):
             await_ack (bool): If sender should wait for an ACK.
             no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
-           boolean: If await_ack=True, return the status of the ACK
+           (bool) If await_ack=True, return the status of the ACK
         """
         if message not in ['00', '01', '10', '11']:
             raise ValueError(
@@ -980,7 +1027,7 @@ class Host(object):
             await_ack (bool): If sender should wait for an ACK.
             no_ack (bool): If this message should not use any ACK and sequencing.
         Returns:
-            string, boolean: If await_ack=True, return the ID of the qubit and the status of the ACK
+            (str, bool): If await_ack=True, return the ID of the qubit and the status of the ACK
         """
         q.blocked = True
         q_id = q.id
@@ -1015,7 +1062,7 @@ class Host(object):
             receiver_id (str): The receiver ID to check.
 
         Returns:
-             boolean: Whether the host shares an EPR pair with receiver with ID *receiver_id*
+             (bool): Whether the host shares an EPR pair with receiver with ID *receiver_id*
         """
         return self._qubit_storage.check_qubit_from_host_exists(receiver_id, Qubit.EPR_QUBIT)
 
@@ -1030,7 +1077,7 @@ class Host(object):
             old_id (str):  The old ID of the qubit
 
         Returns:
-            Old if of the qubit which has been changed.
+            (str): Old if of the qubit which has been changed.
         """
         return self._qubit_storage.change_qubit_id(host_id, new_id, old_id)
 
@@ -1043,7 +1090,7 @@ class Host(object):
             host_id (str): Get the EPR pairs established with host with *host_id*
 
         Returns:
-            dict: If *host_id* is not set, then return the entire dictionary of EPR pairs.
+            (dict): If *host_id* is not set, then return the entire dictionary of EPR pairs.
                   Else If *host_id* is set, then return the EPRs for that particular host if there are any.
                   Return an empty list otherwise.
         """
@@ -1057,10 +1104,10 @@ class Host(object):
         Does not remove the qubits from storage like *get_data_qubit* does.
 
         Args:
-            host_id (int): The host id from which the data qubit have been received.
+            host_id (str): The host id from which the data qubit have been received.
 
         Returns:
-            dict: If *host_id* is not set, then return the entire dictionary of data qubits.
+            (dict): If *host_id* is not set, then return the entire dictionary of data qubits.
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
@@ -1101,11 +1148,11 @@ class Host(object):
 
         Args:
             host_id (String): The ID of the host to pair the qubit
-            qubit(Qubit): The data Qubit to be added.
-            q_id(str): The ID of the qubit to be added.
-            blocked: If the qubit should be stored as blocked or not
+            qubit (Qubit): The data Qubit to be added.
+            q_id (str): The ID of the qubit to be added.
+            blocked (bool): If the qubit should be stored as blocked or not
         Returns:
-             (string) *q_id*: The qubit ID
+             (str): The qubit ID
         """
         if q_id is not None:
             qubit.id = q_id
@@ -1123,7 +1170,7 @@ class Host(object):
             qubit (Qubit): The data Qubit to be added.
             q_id (str): the ID to set the qubit ID to
         Returns:
-            (string) *q_id*: The qubit ID
+            (str): The qubit ID
         """
         if q_id is not None:
             qubit.id = q_id
@@ -1141,12 +1188,12 @@ class Host(object):
             qubit (Qubit): The data Qubit to be added.
             q_id (str): the ID to set the qubit ID to
         Returns:
-            (string) *q_id*: The qubit ID
+            (str): The qubit ID
         """
         if q_id is not None:
             qubit.id = q_id
 
-        self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.GHZ_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):
@@ -1154,11 +1201,11 @@ class Host(object):
         Generate a set of qubits that represent a quantum checksum for the set of qubits *qubits*
 
         Args:
-            qubits: The set of qubits to encode
+            qubits (list): The set of qubits to encode
             size_per_qubit (int): The size of the checksum per qubit (i.e. 1 qubit encoded into *size*)
 
         Returns:
-            list: A list of qubits that are encoded for *qubits*
+            (list): A list of qubits that are encoded for *qubits*
         """
         i = 0
         check_qubits = []
@@ -1173,9 +1220,11 @@ class Host(object):
             i += size_per_qubit
         return check_qubits
 
-    def get_classical(self, host_id, seq_num=-1, wait=-1):
+    def get_classical(self, host_id, seq_num=None, wait=0):
         """
-        Get the classical messages from partner host *host_id*.
+        Get the classical messages from partner host *host_id*. If you need
+        the next classical message from the host, don't pass a seq_num, but
+        use *get_next_classical* instead. This is much faster.
 
         Args:
             host_id (str): The ID of the partner who sent the clasical messages
@@ -1183,35 +1232,16 @@ class Host(object):
             wait (float): How long in seconds to wait for the messages if none are set.
 
         Returns:
-            A list of classical messages from Host with ID *host_id*.
+            (list): A list of classical messages from Host with ID *host_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
 
-        def process_messages():
-            nonlocal cla
-            cla = self._classical_messages.get_all_from_sender(host_id)
-
-        def _wait():
-            nonlocal cla
-            nonlocal wait
-            wait_start_time = time.time()
-            while time.time() - wait_start_time < wait and len(cla) == 0:
-                process_messages()
-                time.sleep(self.delay)
-            return cla
-
-        if seq_num > -1:
+        if seq_num is not None:
             return self._get_message_w_seq_num(host_id, seq_num, wait)
 
-        if wait > 0:
-            cla = []
-            DaemonThread(_wait).join()
-            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
-        else:
-            cla = []
-            process_messages()
-            return sorted(cla, key=lambda x: x.seq_num, reverse=True)
+        cla = self._classical_messages.get_all_from_sender(host_id, wait)
+        return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
     def get_next_classical(self, sender_id, wait=-1):
         """
@@ -1221,13 +1251,10 @@ class Host(object):
         Args:
             sender_id (str): ID of the sender from the returned message.
             wait (int): waiting time, default forever.
+        Returns:
+            (str): The message or None
         """
-        ret = None
-        wait_start_time = time.time()
-        while (time.time() - wait_start_time < wait or wait == -1) \
-                and ret == None:
-            ret = self._classical_messages.get_next_from_sender(sender_id)
-        return ret
+        return self._classical_messages.get_next_from_sender(sender_id, wait)
 
     def get_epr(self, host_id, q_id=None, wait=0):
         """
@@ -1239,7 +1266,7 @@ class Host(object):
             q_id (str): The qubit ID of the EPR to get.
             wait (float): the amount of time to wait
         Returns:
-             Qubit: Qubit shared with the host with *host_id* and *q_id*.
+             (Qubit): Qubit shared with the host with *host_id* and *q_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
@@ -1256,7 +1283,7 @@ class Host(object):
             q_id (str): The qubit ID of the data qubit to get.
             wait (float): The amount of time to wait for the a qubit to arrive
         Returns:
-             Qubit: Qubit received from the host with *host_id* and *q_id*.
+            (Qubit): Qubit received from the host with *host_id* and *q_id*.
         """
         if not isinstance(wait, float) and not isinstance(wait, int):
             raise Exception('wait parameter should be a number')
@@ -1268,15 +1295,15 @@ class Host(object):
         Stops the host. If release_qubit is true, clear the quantum memories.
 
         Args:
-            release_qubits (boolean): If release_qubit is true, clear the quantum memories.
+            (boolean): If release_qubit is true, clear the quantum memories.
         """
         self.logger.log('Host ' + self.host_id + " stopped")
+        self.rec_packet(None)  # stop Host by sending None to packet queue
         if release_qubits:
             try:
                 self._qubit_storage.release_storage()
-            except Exception:
+            except ValueError:
                 Logger.get_instance().error('Releasing qubits was not successful')
-        self._stop_thread = True
 
     def start(self):
         """
@@ -1294,7 +1321,7 @@ class Host(object):
             blocking (bool): Wait for thread to stop before proceeding
 
         Returns:
-            DaemonThread: The thread the protocol is running on
+            (DaemonThread): The thread the protocol is running on
         """
         arguments = (self,) + arguments
         if blocking:
@@ -1302,37 +1329,28 @@ class Host(object):
         else:
             return DaemonThread(protocol, args=arguments)
 
-    def get_next_classical_message(self, receive_from_id, buffer, sequence_nr):
+    def get_qubit_by_id(self, q_id):
         """
+        Return the qubit that has the id *q_id* from the quantum storage.
 
         Args:
-            receive_from_id:
-            buffer:
-            sequence_nr:
-
+            q_id (str): The ID of the qubit
         Returns:
-
+            (Qubit): The qubit with the id *q_id* or None if it does not exist
         """
-        buffer = buffer + \
-                 self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
-        msg = "ACK"
-        while msg == "ACK" or (msg.split(':')[0] != ("%d" % sequence_nr)):
-            if len(buffer) == 0:
-                buffer = buffer + \
-                         self.get_classical(receive_from_id, wait=Host.WAIT_TIME)
-            ele = buffer.pop(0)
-            msg = ele.content
-        return msg
+        return self._qubit_storage.get_qubit_by_id(q_id)
 
     def send_key(self, receiver_id, key_size, await_ack=True):
         """
         Send a secret key via QKD of length *key_size* to host with ID *receiver_id*.
+        The ACK is returned before the QKD protocol is completley finished!
+
         Args:
-            receiver_id (str):
-            key_size (int):
-            await_ack (bool):
+            receiver_id (str): The ID of the receiver
+            key_size (int): The size of the key
+            await_ack (bool): If the host should wait for an ACk
         Returns:
-            bool
+            (bool): Status of ACK, returned at the beginning of the protocol
         """
 
         seq_num = self.get_next_sequence_number(receiver_id)
@@ -1350,6 +1368,44 @@ class Host(object):
             self._log_ack('EPR', receiver_id, seq_num)
             return self.await_ack(seq_num, receiver_id)
 
+    def get_key(self, receiver_id, wait=-1):
+        """
+        Should be called after *send_key* is called. Blocks, till the key sharing
+        is finished and returns the key and the amount of attemptes needed in QKD.
+        From this value, the user can decide if the transmission was assumed safe
+        or not.
+
+        Args:
+            receiver_id (str): The ID of the key partner
+            wait (float): The amount to wait for the key, -1 to wait forever.
+        Returns:
+            (key, int): The key, as a list of ints, and the amount of attempts needed
+        """
+        if wait < 0:
+            while receiver_id not in self.qkd_keys:
+                time.sleep(0.1)
+        else:
+            while receiver_id not in self.qkd_keys and wait > 0:
+                time.sleep(0.1)
+                wait = wait - 0.1
+            if wait < 0:
+                return None
+        key = self.qkd_keys[receiver_id]
+        return key
+
+    def delete_key(self, partner_id):
+        """
+        Deletes a key shared with a partner by QKD. Should be used if a key
+        was eavesdropped and/or a new key should be shared. If there is no key
+        shared, nothing happens.
+
+        Args:
+            partner_id (str): The ID of the key partner
+        """
+        if partner_id not in self.qkd_keys:
+            return
+        del self.qkd_keys[partner_id]
+
 
 def _get_qubit(store, host_id, q_id, purpose, wait=0):
     """
@@ -1362,6 +1418,6 @@ def _get_qubit(store, host_id, q_id, purpose, wait=0):
         q_id (str): The qubit ID of the data qubit to get.
         purpose (str): The intended use of the qubit
     Returns:
-         Qubit: Qubit received from the host with *host_id* and *q_id*.
+        (Qubit): Qubit received from the host with *host_id* and *q_id*.
     """
     return store.get_qubit_from_host(host_id, q_id, purpose, wait)

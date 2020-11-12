@@ -1,4 +1,4 @@
 eqsn
-matplotlib
 networkx
 numpy
+matplotlib

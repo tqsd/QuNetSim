@@ -1,86 +1,105 @@
-from eqsn import EQSN
-import uuid
+from qunetsim.backends.safe_dict import SafeDict
+from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
-import threading
-import numpy as np
 from queue import Queue
+from itertools import zip_longest
+import warnings
+import numpy as np
+import uuid
+import random
+
+try:
+    import qutip
+    from qutip.cy.spmath import zcsr_kron
+    from qutip.qip.operations import cnot, snot, gate_expand_1toN, gate_expand_2toN,\
+                                    rx, ry, rz
+except ImportError:
+    raise RuntimeError(
+        'To use QuTip as a backend, you need to first install the Python package '
+        '\'qutip\' (e.g. run \'pip install qutip\'.')
 
 
-# From O'Reilly Python Cookbook by David Ascher, Alex Martelli
-# with some smaller adaptions
-class RWLock:
-
-    def __init__(self):
-        self._read_ready = threading.Condition(threading.RLock())
-        self._num_reader = 0
-        self._num_writer = 0
-        self._readerList = []
-        self._writerList = []
-
-    def acquire_read(self):
-        self._read_ready.acquire()
-        try:
-            while self._num_writer > 0:
-                self._read_ready.wait()
-            self._num_reader += 1
-        finally:
-            self._readerList.append(threading.get_ident())
-            self._read_ready.release()
-
-    def release_read(self):
-        self._read_ready.acquire()
-        try:
-            self._num_reader -= 1
-            if not self._num_reader:
-                self._read_ready.notifyAll()
-        finally:
-            self._readerList.remove(threading.get_ident())
-            self._read_ready.release()
-
-    def acquire_write(self):
-        self._read_ready.acquire()
-        self._num_writer += 1
-        self._writerList.append(threading.get_ident())
-        while self._num_reader > 0:
-            self._read_ready.wait()
-
-    def release_write(self):
-        self._num_writer -= 1
-        self._writerList.remove(threading.get_ident())
-        self._read_ready.notifyAll()
-        self._read_ready.release()
-
-
-class SafeDict(object):
-
-    def __init__(self):
-        self.lock = RWLock()
-        self.dict = {}
-
-    def __str__(self):
-        self.lock.acquire_read()
-        ret = str(self.dict)
-        self.lock.release_read()
-        return ret
-
-    def add_to_dict(self, key, value):
-        self.lock.acquire_write()
-        self.dict[key] = value
-        self.lock.release_write()
-
-    def get_from_dict(self, key):
-        ret = None
-        self.lock.acquire_read()
-        if key in self.dict:
-            ret = self.dict[key]
-        self.lock.release_read()
-        return ret
-
-
-class EQSNBackend(object):
+class QuTipBackend(object):
     """
     Definition of how a backend has to look and behave like.
     """
+    class QubitCollection(object):
+
+        def __init__(self, name):
+            # initialize as a qubit in state |0>
+            self._rwlock = RWLock()
+            self.N = 1
+            self._qubit_names = [name]
+            self.data = qutip.qutip.fock_dm(2, 0)
+
+        def add_qubit(self, qubit):
+            """
+            Calculates the tensor product using the implementation
+            of QuTip.
+            Modified vesion of qutip tensor function,
+            See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
+            """
+            self._lock()
+            self.data = qutip.tensor(self.data, qubit.data)
+            self.N = self.N + qubit.N
+            self._qubit_names = self._qubit_names + qubit._qubit_names
+            self._unlock()
+
+        def apply_single_gate(self, gate, qubit_name):
+            if not isinstance(gate, qutip.Qobj):
+                raise TypeError("Gate has to be of type Qobject.")
+            self._lock()
+            target = self._qubit_names.index(qubit_name)
+            gate = qutip.gate_expand_1toN(gate, self.N, target)
+            self.data = gate * self.data * gate.dag()
+            self._unlock()
+
+        def apply_double_gate(self, gate, control_name, target_name):
+            if not isinstance(gate, qutip.Qobj):
+                raise TypeError("Gate has to be of type Qobject.")
+            self._lock()
+            control = self._qubit_names.index(control_name)
+            target = self._qubit_names.index(target_name)
+            gate = qutip.gate_expand_2toN(gate, self.N, control, target)
+            self.data = gate * self.data * gate.dag()
+            self._unlock()
+
+        def measure(self, qubit_name, non_destructive):
+            res = None
+            M_0 = qutip.fock(2, 0).proj()
+            M_1 = qutip.fock(2, 1).proj()
+            self._lock()
+            target = self._qubit_names.index(qubit_name)
+            if self.N > 1:
+                M_0 = qutip.gate_expand_1toN(M_0, self.N, target)
+                M_1 = qutip.gate_expand_1toN(M_1, self.N, target)
+            pr_0 = qutip.expect(M_0, self.data)
+            pr_1 = qutip.expect(M_1, self.data)
+            outcome = int(np.random.choice([0, 1], 1, p=[pr_0, pr_1]))
+            if outcome == 0:
+                self.data = M_0 * self.data * M_0.dag() / pr_0
+                res = 0
+            else:
+                # M_1 = qutip.gate_expand_1toN(M_1, self.N, target)
+                self.data = M_1 * self.data * M_1.dag() / pr_1
+                res = 1
+            if non_destructive is False:
+                i_list = [x for x in range(self.N)]
+                i_list.remove(target)
+                self._qubit_names.remove(qubit_name)
+                self.N = self.N - 1
+                if len(i_list) > 0:
+                    self.data = self.data.ptrace(i_list)
+                else:
+                    self.data = qutip.Qobj()
+            self._unlock()
+            return res
+
+        def _lock(self):
+            self._rwlock.acquire_write()
+
+        def _unlock(self):
+            self._rwlock.release_write()
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -88,15 +107,15 @@ class EQSNBackend(object):
 
         @staticmethod
         def get_instance():
-            if EQSNBackend.Hosts.__instance is not None:
-                return EQSNBackend.Hosts.__instance
+            if QuTipBackend.Hosts.__instance is not None:
+                return QuTipBackend.Hosts.__instance
             else:
-                return EQSNBackend.Hosts()
+                return QuTipBackend.Hosts()
 
         def __init__(self):
-            if EQSNBackend.Hosts.__instance is not None:
+            if QuTipBackend.Hosts.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            EQSNBackend.Hosts.__instance = self
+            QuTipBackend.Hosts.__instance = self
             SafeDict.__init__(self)
 
     class EntanglementIDs(SafeDict):
@@ -105,22 +124,20 @@ class EQSNBackend(object):
 
         @staticmethod
         def get_instance():
-            if EQSNBackend.EntanglementIDs.__instance is not None:
-                return EQSNBackend.EntanglementIDs.__instance
+            if QuTipBackend.EntanglementIDs.__instance is not None:
+                return QuTipBackend.EntanglementIDs.__instance
             else:
-                return EQSNBackend.EntanglementIDs()
+                return QuTipBackend.EntanglementIDs()
 
         def __init__(self):
-            if EQSNBackend.EntanglementIDs.__instance is not None:
+            if QuTipBackend.EntanglementIDs.__instance is not None:
                 raise Exception("Call get instance to get this class!")
-            EQSNBackend.EntanglementIDs.__instance = self
+            QuTipBackend.EntanglementIDs.__instance = self
             SafeDict.__init__(self)
 
     def __init__(self):
-        self._hosts = EQSNBackend.Hosts.get_instance()
-        # keys are from : to, where from is the host calling create EPR
-        self._entaglement_qubits = EQSNBackend.EntanglementIDs.get_instance()
-        self.eqsn = EQSN.get_instance()
+        self._hosts = QuTipBackend.Hosts.get_instance()
+        self._entaglement_qubits = QuTipBackend.EntanglementIDs.get_instance()
 
     def start(self, **kwargs):
         """
@@ -133,7 +150,7 @@ class EQSNBackend(object):
         """
         Stops Backends which are running in an own thread or process.
         """
-        self.eqsn.stop_all()
+        pass
 
     def add_host(self, host):
         """
@@ -151,12 +168,11 @@ class EQSNBackend(object):
         Args:
             host_id (String): Id of the host to whom the qubit belongs.
 
-        Returns:
+        Reurns:
             Qubit of backend type.
         """
-        id = str(uuid.uuid4())
-        self.eqsn.new_qubit(id)
-        return id
+        name = str(uuid.uuid4())
+        return (QuTipBackend.QubitCollection(name), name)
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
@@ -183,16 +199,18 @@ class EQSNBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        uid1 = uuid.uuid4()
-        uid2 = uuid.uuid4()
+        name1 = str(uuid.uuid4())
+        name2 = str(uuid.uuid4())
         host_a = self._hosts.get_from_dict(host_a_id)
         host_b = self._hosts.get_from_dict(host_b_id)
-        self.eqsn.new_qubit(uid1)
-        self.eqsn.new_qubit(uid2)
-        self.eqsn.H_gate(uid1)
-        self.eqsn.cnot_gate(uid2, uid1)
-        q1 = Qubit(host_a, qubit=uid1, q_id=q_id, blocked=block)
-        q2 = Qubit(host_b, qubit=uid2, q_id=q1.id, blocked=block)
+        qubit1 = (QuTipBackend.QubitCollection(name1), name1)
+        qubit2 = (QuTipBackend.QubitCollection(name2), name2)
+        qubit1[0].apply_single_gate(snot(), qubit1[1])
+        qubit1[0].add_qubit(qubit2[0])
+        qubit2 = (qubit1[0], name2)
+        qubit1[0].apply_double_gate(cnot(), qubit1[1], qubit2[1])
+        q1 = Qubit(host_a, qubit=qubit1, q_id=q_id, blocked=block)
+        q2 = Qubit(host_b, qubit=qubit2, q_id=q1.id, blocked=block)
         self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
         return q1
 
@@ -240,7 +258,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        pass
+        return
 
     def X(self, qubit):
         """
@@ -249,7 +267,9 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        self.eqsn.X_gate(qubit.qubit)
+        gate = rx(np.pi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def Y(self, qubit):
         """
@@ -258,7 +278,9 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        self.eqsn.Y_gate(qubit.qubit)
+        gate = ry(np.pi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def Z(self, qubit):
         """
@@ -267,7 +289,9 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        self.eqsn.Z_gate(qubit.qubit)
+        gate = rz(np.pi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def H(self, qubit):
         """
@@ -276,25 +300,9 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        self.eqsn.H_gate(qubit.qubit)
-
-    def K(self, qubit):
-        """
-        Perform K gate on a qubit.
-
-        Args:
-            qubit (Qubit): Qubit on which gate should be applied to.
-        """
-        self.eqsn.K_gate(qubit.qubit)
-
-    def S(self, qubit):
-        """
-        Perform S gate on a qubit.
-
-        Args:
-            qubit (Qubit): Qubit on which gate should be applied to.
-        """
-        self.eqsn.S_gate(qubit.qubit)
+        gate = snot()
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def T(self, qubit):
         """
@@ -303,7 +311,7 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        self.eqsn.T_gate(qubit.qubit)
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def rx(self, qubit, phi):
         """
@@ -311,9 +319,11 @@ class EQSNBackend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        self.eqsn.RX_gate(qubit.qubit, phi)
+        gate = rx(phi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def ry(self, qubit, phi):
         """
@@ -321,9 +331,11 @@ class EQSNBackend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        self.eqsn.RY_gate(qubit.qubit, phi)
+        gate = ry(phi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def rz(self, qubit, phi):
         """
@@ -331,9 +343,11 @@ class EQSNBackend(object):
 
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
-            phi (float): Amount of roation in Rad.
+            phi (float): Amount of rotation in Rad.
         """
-        self.eqsn.RZ_gate(qubit.qubit, phi)
+        gate = rz(phi)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def cnot(self, qubit, target):
         """
@@ -343,7 +357,13 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        self.eqsn.cnot_gate(target.qubit, qubit.qubit)
+        gate = cnot()
+        qubit_collection, c_name = qubit.qubit
+        qubit_collection2, t_name = target.qubit
+        if qubit_collection != qubit_collection2:
+            qubit_collection.add_qubit(qubit_collection2)
+            target.qubit = (qubit_collection, t_name)
+        qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def cphase(self, qubit, target):
         """
@@ -353,7 +373,13 @@ class EQSNBackend(object):
             qubit (Qubit): Qubit to control cphase.
             target (Qubit): Qubit on which the cphase gate should be applied.
         """
-        self.eqsn.cphase_gate(target.qubit, qubit.qubit)
+        gate = cnot()
+        qubit_collection, c_name = qubit.qubit
+        qubit_collection2, t_name = target.qubit
+        if qubit_collection != qubit_collection2:
+            qubit_collection.add_qubit(qubit_collection2)
+            target.qubit = (qubit_collection, t_name)
+        qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def custom_gate(self, qubit, gate):
         """
@@ -363,7 +389,9 @@ class EQSNBackend(object):
             qubit(Qubit): Qubit to which the gate is applied.
             gate(np.ndarray): 2x2 array of the gate.
         """
-        self.eqsn.custom_gate(qubit.qubit, gate)
+        gate = qutip.Qobj(gate)
+        qubit_collection, name = qubit.qubit
+        qubit_collection.apply_single_gate(gate, name)
 
     def custom_controlled_gate(self, qubit, target, gate):
         """
@@ -374,7 +402,7 @@ class EQSNBackend(object):
             target(Qubit): Qubit on which the gate is applied.
             gate(nd.array): 2x2 array for the gate applied to target.
         """
-        self.eqsn.custom_controlled_gate(target.qubit, qubit.qubit, gate)
+        raise (EnvironmentError("Not implemented for this backend!"))
 
     def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
         """
@@ -386,7 +414,7 @@ class EQSNBackend(object):
             target_2 (Qubit): Qubit on which the gate is applied.
             gate (nd.array): 4x4 array for the gate applied to target.
         """
-        self.eqsn.custom_two_qubit_control_gate(qubit.qubit, target_1.qubit, target_2.qubit, gate)
+        raise (EnvironmentError("Not implemeted for this backend!"))
 
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
@@ -397,7 +425,13 @@ class EQSNBackend(object):
             qubit2(Qubit): Second qubit of the gate.
             gate(np.ndarray): 4x4 array for the gate applied.
         """
-        self.eqsn.custom_two_qubit_gate(qubit1.qubit, qubit2.qubit, gate)
+        gate = qutip.Qobj(gate)
+        qubit_collection, c_name = qubit1.qubit
+        qubit_collection2, t_name = qubit2.qubit
+        if qubit_collection != qubit_collection2:
+            qubit_collection.add_qubit(qubit_collection2)
+            qubit2.qubit = (qubit_collection, t_name)
+        qubit_collection.apply_double_gate(gate, c_name, t_name)
 
     def density_operator(self, qubit):
         """
@@ -410,19 +444,8 @@ class EQSNBackend(object):
         Returns:
             np.ndarray: The density operator of the qubit.
         """
-        qubits, statevector = self.eqsn.give_statevector_for(qubit.qubit)
-        index = qubits.index(qubit.qubit)
-        density_operator = np.outer(statevector, statevector)
-        before = 2**index
-        if before > 0:
-            other = 2**(len(qubits) - index)
-            density_operator = density_operator.reshape([before, other, before, other])
-            density_operator = np.trace(density_operator, axis1=0, axis2=2)
-        after = 2**(len(qubits) - index - 1)
-        if after > 0:
-            density_operator = density_operator.reshape([2, after, 2, after])
-            density_operator = np.trace(density_operator, axis1=1, axis2=3)
-        return density_operator
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
 
     def measure(self, qubit, non_destructive):
         """
@@ -430,12 +453,14 @@ class EQSNBackend(object):
 
         Args:
             qubit (Qubit): Qubit which should be measured.
-            non_destructive (bool): If the qubit should be destroyed after measuring.
+            non_destructive (bool): Determines if the Qubit should stay in the
+                                    system or be eliminated.
 
         Returns:
             The value which has been measured.
         """
-        return self.eqsn.measure(qubit.qubit, non_destructive)
+        q, name = qubit.qubit
+        return q.measure(name, non_destructive)
 
     def release(self, qubit):
         """
@@ -444,4 +469,5 @@ class EQSNBackend(object):
         Args:
             qubit (Qubit): The qubit which should be released.
         """
-        self.eqsn.measure(qubit.qubit)
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))

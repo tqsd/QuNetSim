@@ -230,6 +230,19 @@ class Backend(object):
         raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
 
+    def custom_controlled_two_qubit_gate(self, qubit, target_1, target_2, gate):
+        """
+        Applies a custom gate to the target qubit, controlled by the qubit.
+
+        Args:
+            qubit (Qubit): Qubit to control the gate.
+            target_1 (Qubit): Qubit on which the gate is applied.
+            target_2 (Qubit): Qubit on which the gate is applied.
+            gate (nd.array): 4x4 array for the gate applied to target.
+        """
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
+
     def custom_two_qubit_gate(self, qubit1, qubit2, gate):
         """
         Applies a custom two qubit gate to qubit1 \\otimes qubit2.
@@ -238,6 +251,20 @@ class Backend(object):
             qubit1(Qubit): First qubit of the gate.
             qubit2(Qubit): Second qubit of the gate.
             gate(np.ndarray): 4x4 array for the gate applied.
+        """
+        raise (EnvironmentError("This is only an interface, not \
+                        an actual implementation!"))
+
+    def density_operator(self, qubit):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Args:
+            qubit (Qubit): Qubit of the density operator.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
         """
         raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
