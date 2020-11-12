@@ -1,5 +1,5 @@
 from qunetsim.backends.rw_lock import RWLock
-from qunetsim.objects import Logger
+from qunetsim.objects.logger import Logger
 import queue
 
 
@@ -154,6 +154,19 @@ class QuantumStorage(object):
         self.lock.release_write()
         return False
 
+    def get_qubit_by_id(self, q_id):
+        """
+        Return the qubit that has the id *q_id*
+
+        Args:
+            q_id (str): The ID of the qubit
+        Returns:
+            (Qubit): The qubit with the id *q_id* or None if it does not exist
+        """
+        if q_id in self._qubit_dict:
+            return list(self._qubit_dict[q_id].values())[0]
+        return None
+
     def change_qubit_id(self, from_host_id, new_id, old_id=None):
         """
         Changes the ID of a qubit. If the ID is not given, a random
@@ -242,10 +255,10 @@ class QuantumStorage(object):
 
     def _check_all_requests(self):
         """
-        Checks if any of the pending requests is now fullfilled.
+        Checks if any of the pending requests is now fulfilled.
 
         Returns:
-            If a request is fullfilled, the request is handeled and the function
+            If a request is fulfilled, the request is handled and the function
             returns the qubit of this request.
         """
         for req_id, args in self._pending_request_dict.items():
@@ -351,7 +364,9 @@ class QuantumStorage(object):
         return None
 
     def _pop_qubit_with_id_and_host_from_qubit_dict(self, q_id, from_host_id, purpose=None):
-        def _pop_purpose_from_purpose_dict(q_id, from_host_id):
+        def _pop_purpose_from_purpose_dict():
+            nonlocal q_id, from_host_id
+
             if q_id not in self._purpose_dict:
                 return None
             pur = self._purpose_dict[q_id].pop(from_host_id, None)
@@ -361,7 +376,7 @@ class QuantumStorage(object):
                 return pur
             return None
 
-        purp = _pop_purpose_from_purpose_dict(q_id, from_host_id)
+        purp = _pop_purpose_from_purpose_dict()
         if purp is not None:
             if purpose is None or purpose == purp:
                 qubit = self._qubit_dict[q_id].pop(from_host_id, None)
@@ -376,15 +391,16 @@ class QuantumStorage(object):
         return None
 
     def _add_qubit_to_qubit_dict(self, qubit, purpose, from_host_id):
-        def _add_purpose_to_purpose_dict(purpose, id, from_host_id):
-            if id not in self._purpose_dict:
-                self._purpose_dict[id] = {}
-            self._purpose_dict[id][from_host_id] = purpose
+        def _add_purpose_to_purpose_dict(q_id):
+            nonlocal purpose, from_host_id
+            if q_id not in self._purpose_dict:
+                self._purpose_dict[q_id] = {}
+            self._purpose_dict[q_id][from_host_id] = purpose
 
         if qubit.id not in self._qubit_dict:
             self._qubit_dict[qubit.id] = {}
         self._qubit_dict[qubit.id][from_host_id] = qubit
-        _add_purpose_to_purpose_dict(purpose, qubit.id, from_host_id)
+        _add_purpose_to_purpose_dict(qubit.id)
 
     def _add_new_host(self, host_id):
         if host_id not in self._host_dict:
@@ -396,6 +412,14 @@ class QuantumStorage(object):
     def _check_qubit_in_system(self, qubit, from_host_id, purpose=None):
         """
         True if qubit with same parameters already in the systems
+
+        Args:
+            qubit (Qubit): The qubit in question
+            from_host_id (str): The ID of the sending host
+            purpose (int): Qubit's purpose
+
+        Returns:
+            (bool): If the qubit is in the system.
         """
         if qubit.id in self._qubit_dict and \
                 from_host_id in self._qubit_dict[qubit.id]:

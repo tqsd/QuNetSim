@@ -17,10 +17,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Run backend tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_backend
     - name: Run single hop tests
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_single_hop
+    - name: Run channel tests
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_channel
     - name: Run multi hop tests
       run: |
         export PYTHONPATH=$PWD

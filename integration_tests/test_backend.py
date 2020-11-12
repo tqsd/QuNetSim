@@ -1,10 +1,12 @@
 import unittest
+import numpy as np
 from qunetsim.components.host import Host
 from qunetsim.components.network import Network
+from qunetsim.objects import Qubit
 
 from qunetsim.backends import EQSNBackend
 from qunetsim.backends import CQCBackend
-
+from qunetsim.backends import QuTipBackend
 
 # @unittest.skip('')
 class TestBackend(unittest.TestCase):
@@ -13,14 +15,15 @@ class TestBackend(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         TestBackend.backends.append(EQSNBackend)
-        TestBackend.backends.append(CQCBackend)
+        # TestBackend.backends.append(CQCBackend)
+        TestBackend.backends.append(QuTipBackend)
         # TestBackend.backends.append(projectQ)
 
     @classmethod
     def tearDownClass(cls):
         pass
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_epr_generation(self):
         for b in TestBackend.backends:
             backend = b()
@@ -38,12 +41,69 @@ class TestBackend(unittest.TestCase):
                 q1 = backend.create_EPR(alice.host_id, bob.host_id)
                 q2 = backend.receive_epr(
                     bob.host_id, alice.host_id, q_id=q1.id)
-                assert q1.id == q2.id
-                assert backend.measure(q1, False) == backend.measure(q2, False)
+                self.assertEqual(q1.id, q2.id)
+                self.assertEqual(backend.measure(q1, False),
+                                 backend.measure(q2, False))
 
             network.stop(True)
 
-    @unittest.skip('')
+
+    # @unittest.skip('')
+    def test_single_gates(self):
+        for b in TestBackend.backends:
+            backend = b()
+            network = Network.get_instance()
+            network.start(["Alice", "Bob"], backend)
+            alice = Host('Alice', backend)
+            bob = Host('Bob', backend)
+            alice.start()
+            bob.start()
+            network.add_host(alice)
+            network.add_host(bob)
+
+            q = Qubit(alice)
+
+            q.X()
+            self.assertEqual(1, q.measure())
+
+            q = Qubit(alice)
+
+            q.H()
+            q.H()
+            self.assertEqual(0, q.measure())
+
+            network.stop(True)
+
+    # @unittest.skip('')
+    def test_density_operator(self):
+        """
+        Only implemented for EQSN backend.
+        """
+        backend = EQSNBackend()
+        network = Network.get_instance()
+        network.start(["Alice", "Bob"], backend)
+        alice = Host('Alice', backend)
+        bob = Host('Bob', backend)
+        alice.start()
+        bob.start()
+        network.add_host(alice)
+        network.add_host(bob)
+
+        q1 = backend.create_EPR(alice.host_id, bob.host_id)
+        q2 = backend.receive_epr(
+            bob.host_id, alice.host_id, q_id=q1.id)
+
+        density_operator = backend.density_operator(q1)
+        expected = np.diag([0.5, 0.5])
+        self.assertTrue(np.allclose(density_operator, expected))
+
+        # remove qubits
+        backend.measure(q1, False)
+        backend.measure(q2, False)
+
+        network.stop(True)
+
+    # @unittest.skip('')
     def test_multiple_backends(self):
         for b in TestBackend.backends:
             backend1 = b()
@@ -52,7 +112,7 @@ class TestBackend(unittest.TestCase):
             network.start(["Alice", "Bob"], backend1)
             _ = Host('Alice', backend2)
             _ = Host('Bob', backend1)
-            assert str(backend1._hosts) == str(backend2._hosts)
+            self.assertEqual(str(backend1._hosts), str(backend2._hosts))
             network.stop(True)
 
     @unittest.skip('')

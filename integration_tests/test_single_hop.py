@@ -1,10 +1,10 @@
-from qunetsim.objects import Qubit, Logger
 from qunetsim.components.host import Host
 from qunetsim.components.network import Network
+from qunetsim.objects import Qubit, Logger
 from qunetsim.backends import EQSNBackend
-from qunetsim.utils.constants import Constants
 import unittest
 import time
+import numpy as np
 
 Logger.DISABLED = True
 
@@ -41,11 +41,11 @@ class TestOneHop(unittest.TestCase):
     def setUp(self):
         global network
         global hosts
-        network.delay = 0.2
+        network.delay = 0.0
         network.packet_drop_rate = 0
 
-        hosts['alice'].delay = 0.1
-        hosts['bob'].delay = 0.1
+        hosts['alice'].delay = 0.0
+        hosts['bob'].delay = 0.0
 
         hosts['alice'].set_epr_memory_limit(-1)
         hosts['bob'].set_epr_memory_limit(-1)
@@ -177,6 +177,41 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(q1.measure(), q2.measure())
 
     # @unittest.skip('')
+    def test_density_operator(self):
+        global hosts
+
+        q_id = hosts['alice'].send_epr(hosts['bob'].host_id)
+        q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+        i = 0
+        while q1 is None and i < TestOneHop.MAX_WAIT:
+            q1 = hosts['alice'].get_epr(hosts['bob'].host_id, q_id)
+            i += 1
+            time.sleep(1)
+
+        self.assertIsNotNone(q1)
+        i = 0
+        q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+        while q2 is None and i < TestOneHop.MAX_WAIT:
+            q2 = hosts['bob'].get_epr(hosts['alice'].host_id, q_id)
+            i += 1
+            time.sleep(1)
+
+        self.assertIsNotNone(q2)
+        assert q1 is not None
+        assert q2 is not None
+
+        # Density operator test
+        density_operator1 = q1.density_operator()
+        density_operator2 = q2.density_operator()
+        expected_density_operator = np.diag([0.5, 0.5])
+
+        self.assertTrue(np.allclose(density_operator1, expected_density_operator))
+        self.assertTrue(np.allclose(density_operator2, expected_density_operator))
+
+        # Check that the statevector has not changed
+        self.assertEqual(q1.measure(), q2.measure())
+
+    # @unittest.skip('')
     def test_ghz(self):
         global hosts
         hosts['alice'].send_ghz([hosts['bob'].host_id], await_ack=True)
@@ -187,6 +222,44 @@ class TestOneHop(unittest.TestCase):
         self.assertIsNotNone(q_alice)
         self.assertIsNotNone(q_bob)
         self.assertEqual(q_alice.measure(), q_bob.measure())
+
+    # @unittest.skip('')
+    def test_qkd(self):
+        global hosts
+        key_size = 4
+        ack = hosts['alice'].send_key(hosts['bob'].host_id, key_size)
+
+        self.assertTrue(ack)
+        key_alice, _ = hosts['alice'].get_key(hosts['bob'].host_id)
+        key_bob, _ = hosts['bob'].get_key(hosts['alice'].host_id)
+
+        self.assertEqual(key_alice, key_bob)
+
+    # @unittest.skip('')
+    def test_qkd_and_delete_loop(self):
+        global hosts
+        key_size = 4
+
+        # delete, so that preexisting keys from other tests
+        # do not interfer
+        hosts['alice'].delete_key(hosts['bob'].host_id)
+        hosts['bob'].delete_key(hosts['alice'].host_id)
+
+        for _ in range(3):
+            ack = hosts['alice'].send_key(hosts['bob'].host_id, key_size)
+
+            self.assertTrue(ack)
+            key_alice, _ = hosts['alice'].get_key(hosts['bob'].host_id)
+            key_bob, _ = hosts['bob'].get_key(hosts['alice'].host_id)
+            self.assertEqual(key_alice, key_bob)
+
+            hosts['alice'].delete_key(hosts['bob'].host_id)
+            hosts['bob'].delete_key(hosts['alice'].host_id)
+
+            key_alice2 = hosts['alice'].get_key(hosts['bob'].host_id, 1)
+            key_bob2 = hosts['bob'].get_key(hosts['alice'].host_id, 1)
+            self.assertIsNone(key_alice2)
+            self.assertIsNone(key_bob2)
 
     # @unittest.skip('')
     def test_teleport(self):

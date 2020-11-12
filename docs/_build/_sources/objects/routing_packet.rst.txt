@@ -6,5 +6,5 @@ to a network layer packet from the Internet. The main difference in our implemen
 packets have a TTL (time to live) property such that they are eliminated from the network after
 some number of relays or "hops" in the network.
 
-.. automodule:: qunetsim.objects.routing_packet
+.. automodule:: qunetsim.objects.packets.routing_packet
    :members:

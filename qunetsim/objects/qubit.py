@@ -241,6 +241,24 @@ class Qubit(object):
 
         self._host.backend.custom_controlled_gate(self, target, gate)
 
+    def custom_two_qubit_control_gate(self, q1, q2, gate):
+        """
+        Applies the gate *gate* to qubits q1 and q2 as a controlled gate.
+
+        Args:
+            q1 (Qubit): First qubit
+            q2 (Qubit): Second qubit
+            gate (Numpy ndarray): The gate to apply
+        """
+        if not isinstance(gate, np.ndarray):
+            raise (InputError("Only Numpy matrices are allowed"))
+        if not is_unitary(gate):
+            raise (InputError("Custom gates must be unitary operations"))
+        if gate.shape != (4, 4):
+            raise (InputError("Custom controlled gates must be 4x4 matrices"))
+
+        self._host.backend.custom_controlled_two_qubit_gate(self, q1, q2, gate)
+
     def custom_two_qubit_gate(self, other_qubit, gate):
         """
         Applies a custom 2 qubit gate.
@@ -248,16 +266,25 @@ class Qubit(object):
         Args:
             other_qubit (Qubit): The second qubit.
             gate (Numpy ndarray): The gate
-
         """
         if not isinstance(gate, np.ndarray):
             raise (InputError("Only Numpy matrices are allowed"))
         if not is_unitary(gate):
             raise (InputError("Custom gates must be unitary operations"))
         if gate.shape != (4, 4):
-            raise (InputError("Custom controlled gates must be 2x2 matrices"))
+            raise (InputError("Custom controlled gates must be 4x4 matrices"))
 
         self._host.backend.custom_two_qubit_gate(self, other_qubit, gate)
+
+    def density_operator(self):
+        """
+        Returns the density operator of this qubit. If the qubit is entangled,
+        the density operator will be in a mixed state.
+
+        Returns:
+            np.ndarray: The density operator of the qubit.
+        """
+        return self._host.backend.density_operator(self)
 
     def measure(self, non_destructive=False):
         """

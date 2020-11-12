@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -209,33 +209,34 @@
 to a network layer packet from the Internet. The main difference in our implementation is that these
 packets have a TTL (time to live) property such that they are eliminated from the network after
 some number of relays or “hops” in the network.</p>
-<span class="target" id="module-qunetsim.objects.routing_packet"></span><dl class="py class">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket">
-<em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.routing_packet.</code><code class="sig-name descname">RoutingPacket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">receiver</span></em>, <em class="sig-param"><span class="n">protocol</span></em>, <em class="sig-param"><span class="n">payload_type</span></em>, <em class="sig-param"><span class="n">payload</span></em>, <em class="sig-param"><span class="n">ttl</span></em>, <em class="sig-param"><span class="n">route</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket" title="Permalink to this definition">¶</a></dt>
-<dd><p>A network layer packet.</p>
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.decrease_ttl">
-<code class="sig-name descname">decrease_ttl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.decrease_ttl" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="module-qunetsim.objects.packets.routing_packet"></span><dl class="class">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket">
+<em class="property">class </em><code class="sig-prename descclassname">qunetsim.objects.packets.routing_packet.</code><code class="sig-name descname">RoutingPacket</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">receiver</em>, <em class="sig-param">protocol</em>, <em class="sig-param">payload_type</em>, <em class="sig-param">payload</em>, <em class="sig-param">ttl</em>, <em class="sig-param">route</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A network layer packet.</p>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.decrease_ttl">
+<code class="sig-name descname">decrease_ttl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.decrease_ttl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decreases TTL by 1.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.payload">
-<em class="property">property </em><code class="sig-name descname">payload</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.payload" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.payload">
+<em class="property">property </em><code class="sig-name descname">payload</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.payload" title="Permalink to this definition">¶</a></dt>
 <dd><p>The payload of the packet which is a transport layer packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The payload of the network packet.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>payload (<a class="reference internal" href="packet.html#qunetsim.objects.packet.Packet" title="qunetsim.objects.packet.Packet">Packet</a>)</p>
+<dd class="field-even"><p>payload (<a class="reference internal" href="packet.html#qunetsim.objects.packets.packet.Packet" title="qunetsim.objects.packets.packet.Packet">Packet</a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.payload_type">
-<em class="property">property </em><code class="sig-name descname">payload_type</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.payload_type" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.payload_type">
+<em class="property">property </em><code class="sig-name descname">payload_type</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.payload_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the payload is classical of quantum (i.e. a qubit or classical data).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -247,9 +248,9 @@ some number of relays or “hops” in the network.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.protocol">
-<em class="property">property </em><code class="sig-name descname">protocol</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.protocol" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.protocol">
+<em class="property">property </em><code class="sig-name descname">protocol</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.protocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>The network layer protocol for this packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -261,9 +262,9 @@ some number of relays or “hops” in the network.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.receiver">
-<em class="property">property </em><code class="sig-name descname">receiver</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.receiver" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.receiver">
+<em class="property">property </em><code class="sig-name descname">receiver</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.receiver" title="Permalink to this definition">¶</a></dt>
 <dd><p>The receiver ID of the packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -275,9 +276,9 @@ some number of relays or “hops” in the network.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.route">
-<em class="property">property </em><code class="sig-name descname">route</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.route" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.route">
+<em class="property">property </em><code class="sig-name descname">route</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.route" title="Permalink to this definition">¶</a></dt>
 <dd><p>The route the packet should take.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -289,9 +290,9 @@ some number of relays or “hops” in the network.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.sender">
-<em class="property">property </em><code class="sig-name descname">sender</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.sender" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.sender">
+<em class="property">property </em><code class="sig-name descname">sender</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.sender" title="Permalink to this definition">¶</a></dt>
 <dd><p>The sender ID of the packet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -303,9 +304,9 @@ some number of relays or “hops” in the network.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="qunetsim.objects.routing_packet.RoutingPacket.ttl">
-<em class="property">property </em><code class="sig-name descname">ttl</code><a class="headerlink" href="#qunetsim.objects.routing_packet.RoutingPacket.ttl" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="qunetsim.objects.packets.routing_packet.RoutingPacket.ttl">
+<em class="property">property </em><code class="sig-name descname">ttl</code><a class="headerlink" href="#qunetsim.objects.packets.routing_packet.RoutingPacket.ttl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Time to live (TTL) of the packet. When this goes to 0 the packet is removed
 from the network.</p>
 <dl class="field-list simple">

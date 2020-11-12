@@ -44,3 +44,28 @@ class TestClassicalStorage(unittest.TestCase):
         for c in range(15):
             msg = storage.get_next_from_sender("Alice")
             self.assertEqual(msg.content, str(c))
+
+    # @unittest.skip('')
+    def test_message_with_seq_num(self):
+        storage = ClassicalStorage()
+        self.assertEqual(len(storage.get_all()), 0)
+
+        for c in range(15):
+            msg = Message("Alice", str(c), c)
+            storage.add_msg_to_storage(msg)
+
+        for c in range(15):
+            msg = storage.get_with_seq_num_from_sender("Alice", c)
+            self.assertEqual(msg.content, str(c))
+
+        # use new storage
+        storage = ClassicalStorage()
+        self.assertEqual(len(storage.get_all()), 0)
+
+        for c in range(15):
+            msg = Message("Alice", str(c), c)
+            storage.add_msg_to_storage(msg)
+
+        for c in range(15):
+            msg = storage.get_with_seq_num_from_sender("Alice", c)
+            self.assertEqual(msg.content, str(c))

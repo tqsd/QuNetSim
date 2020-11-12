@@ -1,4 +1,4 @@
-from .qubit import Qubit
+from qunetsim.objects.qubit import Qubit
 from qunetsim.utils.constants import Constants
 
 

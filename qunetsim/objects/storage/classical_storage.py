@@ -6,6 +6,7 @@ import queue
 class ClassicalStorage(object):
     GET_NEXT = 1
     GET_ALL = 2
+    GET_WITH_SEQ_NUM = 3
 
     """
     A classical storage for messages.
@@ -40,6 +41,8 @@ class ClassicalStorage(object):
                 ret = self._get_next_from_sender(args[1])
             elif args[2] == ClassicalStorage.GET_ALL:
                 ret = self._get_all_from_sender(args[1])
+            elif args[2] == ClassicalStorage.GET_WITH_SEQ_NUM:
+                ret = self._get_with_seq_num_from_sender(args[1], args[3])
             else:
                 raise ValueError("Internal Error, this request does not exist!")
 
@@ -54,7 +57,9 @@ class ClassicalStorage(object):
         is checked if the request for the qubit is satisfied.
 
         Args:
-            args (list): [Queue, from_host_id, type]
+            args (list): [Queue, from_host_id, type, ...]
+        Returns:
+            (int): ID of the request
         """
         self._pending_request_dict[self._request_id] = args
         self._request_id += 1
@@ -217,6 +222,52 @@ class ClassicalStorage(object):
             return None
         msg = self._host_to_msg_dict[sender_id][self._host_to_read_index[sender_id]]
         self._host_to_read_index[sender_id] += 1
+        return msg
+
+    def get_with_seq_num_from_sender(self, sender_id, seq_num, wait=0):
+        """
+        Gets the next, unread, message from the sender. If there is no message
+        yet, it is waited for the waiting time till a message is arrived. If
+        there is still no message, than None is returned.
+
+        Args:
+            sender_id (String): The sender id of the message to get.
+            wait (int): Default is 0. The maximum blocking time. -1 to block forever.
+        Returns:
+            Message object, if such a message exists, or none.
+        """
+        # Block forever if wait is -1
+        if wait == -1:
+            wait = None
+
+        self._lock.acquire_write()
+        next_msg = self._get_with_seq_num_from_sender(sender_id, seq_num)
+        if next_msg is not None or wait == 0:
+            self._lock.release_write()
+            return next_msg
+
+        q = queue.Queue()
+        request = [q, sender_id, ClassicalStorage.GET_NEXT, seq_num]
+        req_id = self._add_request(request)
+        self._lock.release_write()
+
+        try:
+            next_msg = q.get(timeout=wait)
+        except queue.Empty:
+            pass
+
+        if next_msg is None:
+            self._lock.acquire_write()
+            self._remove_request(req_id)
+            self._lock.release_write()
+        return next_msg
+
+    def _get_with_seq_num_from_sender(self, sender_id, seq_num):
+        if sender_id not in list(self._host_to_msg_dict):
+            return None
+        if len(self._host_to_msg_dict[sender_id]) <= seq_num:
+            return None
+        msg = self._host_to_msg_dict[sender_id][seq_num]
         return msg
 
     def get_all(self):
