@@ -77,9 +77,36 @@ class TestBackend(unittest.TestCase):
     # @unittest.skip('')
     def test_density_operator(self):
         """
-        Only implemented for EQSN backend.
+        Test EQSN.
         """
         backend = EQSNBackend()
+        network = Network.get_instance()
+        network.start(["Alice", "Bob"], backend)
+        alice = Host('Alice', backend)
+        bob = Host('Bob', backend)
+        alice.start()
+        bob.start()
+        network.add_host(alice)
+        network.add_host(bob)
+
+        q1 = backend.create_EPR(alice.host_id, bob.host_id)
+        q2 = backend.receive_epr(
+            bob.host_id, alice.host_id, q_id=q1.id)
+
+        density_operator = backend.density_operator(q1)
+        expected = np.diag([0.5, 0.5])
+        self.assertTrue(np.allclose(density_operator, expected))
+
+        # remove qubits
+        backend.measure(q1, False)
+        backend.measure(q2, False)
+
+        network.stop(True)
+
+        """
+        Test Qutip
+        """
+        backend = QuTipBackend()
         network = Network.get_instance()
         network.start(["Alice", "Bob"], backend)
         alice = Host('Alice', backend)
