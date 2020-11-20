@@ -8,13 +8,34 @@ except ImportError:
                        "pyserial!")
 
 
+
 class Commands(enum.Enum):
     IDLE = 0
-    APPLY_GATE = 1
-    MEASURE = 2
-    NEW_QUBIT = 3
-    SEND_QUBIT = 4
-    CREATE_ENTANGLED_PAIR = 5
+    APPLY_GATE_SINGLE_GATE = 1
+    APPLY_DOUBLE_GATE = 2
+    MEASURE = 3
+    NEW_QUBIT = 4
+    SEND_QUBIT = 5
+    CREATE_ENTANGLED_PAIR = 6
+
+
+idle_frame = {}
+single_gate_frame = {"qubit_id": 12 * 8,
+                     "gate": 8,
+                     "gate_parameter": 8}
+double_gate_frame = {"first_qubit_id": 12 * 8,
+                     "second_qubit_id": 12 * 8,
+                     "gate": 8,
+                     "gate_parameter": 8}
+measure_frame = {"qubit_id": 12 * 8,
+                 "options": 8}
+new_qubit_frame = {"qubit_id": 12 * 8}
+send_qubit_frame = {"qubit_id": 12 * 8,
+                    "host_to_send_to": 64}
+create_epr_frame = {"first_qubit_id": 12 * 8,
+                    "second_qubit_id": 12 * 8}
+
+command_basis_frame = {'command': 8, 'data': 0}
 
 
 def create_data_frame(command, qubit1_id=None, qubit2_id=None):
