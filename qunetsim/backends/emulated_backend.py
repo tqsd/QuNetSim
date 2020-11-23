@@ -1,12 +1,13 @@
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
+import uuid
+from copy import deepcopy as dp
 import enum
 try:
     import serial
 except ImportError:
     raise RuntimeError(" To use the Emulated Backend you need to install "
                        "pyserial!")
-
 
 
 class Commands(enum.Enum):
@@ -19,27 +20,101 @@ class Commands(enum.Enum):
     CREATE_ENTANGLED_PAIR = 6
 
 
+class SingleGates(enum.Enum):
+    Idenitity = 0
+    X = 1
+    Y = 2
+    Z = 3
+    H = 4
+    S = 5
+    T = 6
+    RX = 7
+    RY = 8
+    RZ = 9
+
+
+class DoubleGates(enum.Enum):
+    CNOT = 0
+    CPHASE = 1
+
+
 idle_frame = {}
-single_gate_frame = {"qubit_id": 12 * 8,
-                     "gate": 8,
-                     "gate_parameter": 8}
-double_gate_frame = {"first_qubit_id": 12 * 8,
-                     "second_qubit_id": 12 * 8,
-                     "gate": 8,
-                     "gate_parameter": 8}
-measure_frame = {"qubit_id": 12 * 8,
-                 "options": 8}
-new_qubit_frame = {"qubit_id": 12 * 8}
-send_qubit_frame = {"qubit_id": 12 * 8,
-                    "host_to_send_to": 64}
-create_epr_frame = {"first_qubit_id": 12 * 8,
-                    "second_qubit_id": 12 * 8}
+single_gate_frame = [["qubit_id", None, 12 * 8],
+                     ["gate", None, 8],
+                     ["gate_parameter", None, 8]]
+double_gate_frame = [["first_qubit_id", None, 12 * 8],
+                     ["second_qubit_id", None, 12 * 8],
+                     ["gate", None, 8],
+                     ["gate_parameter", None, 8]]
+measure_frame = [["qubit_id", None, 12 * 8],
+                 ["options", None, 8]]
+new_qubit_frame = [["qubit_id", None, 12 * 8]]
+send_qubit_frame = [["qubit_id", None, 12 * 8],
+                    ["host_to_send_to", None, 64]]
+create_epr_frame = [["first_qubit_id", None, 12 * 8],
+                    ["second_qubit_id", None, 12 * 8]]
 
-command_basis_frame = {'command': 8, 'data': 0}
+Command_to_frame = [idle_frame, single_gate_frame, double_gate_frame,
+                    measure_frame, new_qubit_frame, send_qubit_frame,
+                    create_epr_frame]
+
+command_basis_frame = [['command', None, 8]]
 
 
-def create_data_frame(command, qubit1_id=None, qubit2_id=None):
-    pass
+def create_binary_frame(dataframe, byteorder='big'):
+    binary_output = b''
+
+    def query_frame(frame, binary_string):
+        for entry in dataframe:
+            print(entry[1])
+            if isinstance(entry[1], int):
+                if entry[2] % 8 == 0:
+                    binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
+                else:
+                    pass
+            elif isinstance(entry[1], bytearray):
+                if len(entry[1]) != int(entry[2]/8):
+                    raise ValueError("Size of the binary string does not match the frame size!")
+                binary_string = binary_string + entry[1]
+            elif isinstance(entry[1], list):
+                binary_string = binary_string + query_frame(entry[1], binary_string)
+            else:
+                raise ValueError("Unknown Type!")
+        return binary_string
+
+    return query_frame(dataframe, binary_output)
+
+def create_frame(command, qubit_id=None, first_qubit_id=None, second_qubit_id=None, gate=None, gate_parameter=None,
+                 options=None, host_to_send_to=None):
+    values = {}
+    if command not in set(item.value for item in Commands):
+        raise ValueError("Command does not exist!")
+    values["command"] = command
+    if qubit_id is not None:
+        values['qubit_id'] = qubit_id
+    if first_qubit_id is not None:
+        values['first_qubit_id'] = first_qubit_id
+    if second_qubit_id is not None:
+        values["second_qubit_id"] = second_qubit_id
+    if gate is not None:
+        if gate not in set(item.value for item in SingleGates):
+            if gate not in set(item.value for item in DoubleGates):
+                raise ValueError("This gate does not exist!")
+        values["gate"] = gate
+    if gate_parameter is not None:
+        values["gate_parameter"] = gate_parameter
+    if options is not None:
+        values["options"] = options
+    if host_to_send_to is not None:
+        values["host_to_send_to"] = host_to_send_to
+    frame = dp(command_basis_frame)
+    frame = frame + dp(Command_to_frame[command])
+
+    for entry in frame:
+        entry[1] = values[entry[0]]
+
+    return frame
+
 
 
 class EmulationBackend(object):
@@ -47,9 +122,34 @@ class EmulationBackend(object):
     Backend which connects to a Quantum Networking Card.
     """
 
+    class NetworkingCard(object):
+        # There only should be one instance of NetworkingCard
+        __instance = None
+
+        @staticmethod
+        def get_instance():
+            if EmulationBackend.NetworkingCard.__instance is not None:
+                return EmulationBackend.NetworkingCard.__instance
+            else:
+                return EmulationBackend.NetworkingCard()
+
+        def __init__(self):
+            if EmulationBackend.NetworkingCard.__instance is not None:
+                raise Exception("Call get instance to get the object.")
+            EmulationBackend.NetworkingCard.__instance = self
+            self._lock = RWLock()
+
+        def send_bytestring(self, bytestring):
+            self._lock.acquire_write()
+            # # TODO: send data over connection
+            self._lock.release_write()
+
     def __init__(self):
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        self.networking_card = EmulationBackend.NetworkingCard.get_instance()
+
+    def _send_to_networking_card(self, frame):
+        binary_string = create_binary_frame(frame)
+        self.networking_card.send_bytestring(binary_string)
 
     def start(self, **kwargs):
         """
@@ -86,8 +186,10 @@ class EmulationBackend(object):
         Reurns:
             Qubit of backend type.
         """
-        raise EnvironmentError("This is only an interface, not \
-                        an actual implementation!")
+        id = uuid.uuid4().bytes
+        frame = create_frame(Commands.NEW_QUBIT.value, qubit_id=id)
+        self._send_to_networking_card(frame)
+        return id
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
         """
