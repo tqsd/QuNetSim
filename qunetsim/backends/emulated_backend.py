@@ -1,5 +1,6 @@
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
+from qunetsim.backends.safe_dict import SafeDict
 import uuid
 from copy import deepcopy as dp
 import enum
@@ -84,6 +85,7 @@ def create_binary_frame(dataframe, byteorder='big'):
 
     return query_frame(dataframe, binary_output)
 
+
 def create_frame(command, qubit_id=None, first_qubit_id=None, second_qubit_id=None, gate=None, gate_parameter=None,
                  options=None, host_to_send_to=None):
     values = {}
@@ -116,13 +118,12 @@ def create_frame(command, qubit_id=None, first_qubit_id=None, second_qubit_id=No
     return frame
 
 
-
 class EmulationBackend(object):
     """
     Backend which connects to a Quantum Networking Card.
     """
 
-    class NetworkingCard(object):
+    class NetworkingCard(serial.threaded.Protocol):
         # There only should be one instance of NetworkingCard
         __instance = None
 
@@ -137,12 +138,23 @@ class EmulationBackend(object):
             if EmulationBackend.NetworkingCard.__instance is not None:
                 raise Exception("Call get instance to get the object.")
             EmulationBackend.NetworkingCard.__instance = self
-            self._lock = RWLock()
+            ser = serial.Serial('/dev/ttyUSB0', 115200)
+            self._listener_dict = SafeDict()
+            self._notifier_list = []
+            self._reader = serial.threaded.ReaderThread(ser, self)
 
-        def send_bytestring(self, bytestring):
-            self._lock.acquire_write()
-            # # TODO: send data over connection
-            self._lock.release_write()
+        def __del__(self):
+            self._reader.__exit__()
+
+        def add_notify_on_recv(self, notify_me):
+            self._notifier_list.append(notify_me)
+
+        def data_received(self, data):
+            for notify_me in self._notifier_list:
+                notify_me(data)
+
+        def connection_lost(self, exc):
+            return
 
     def __init__(self):
         self.networking_card = EmulationBackend.NetworkingCard.get_instance()

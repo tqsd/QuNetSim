@@ -24,3 +24,10 @@ class SafeDict(object):
             ret = self.dict[key]
         self.lock.release_read()
         return ret
+
+    def keys(self):
+        ret = None
+        self.acquire_read()
+        ret = self.dict.keys()
+        self.release_read()
+        return ret
