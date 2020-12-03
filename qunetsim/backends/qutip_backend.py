@@ -127,26 +127,8 @@ class QuTipBackend(object):
             QuTipBackend.Hosts.__instance = self
             SafeDict.__init__(self)
 
-    class EntanglementIDs(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
-
-        @staticmethod
-        def get_instance():
-            if QuTipBackend.EntanglementIDs.__instance is not None:
-                return QuTipBackend.EntanglementIDs.__instance
-            else:
-                return QuTipBackend.EntanglementIDs()
-
-        def __init__(self):
-            if QuTipBackend.EntanglementIDs.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            QuTipBackend.EntanglementIDs.__instance = self
-            SafeDict.__init__(self)
-
     def __init__(self):
         self._hosts = QuTipBackend.Hosts.get_instance()
-        self._entaglement_qubits = QuTipBackend.EntanglementIDs.get_instance()
 
     def start(self, **kwargs):
         """
@@ -195,66 +177,29 @@ class QuTipBackend(object):
         new_host = self._hosts.get_from_dict(to_host_id)
         qubit.host = new_host
 
-    def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
+    def create_EPR(self, host_id, q_id=None, block=False):
         """
-        Creates an EPR pair for two qubits and returns one of the qubits.
+        Creates an EPR pair for two qubits and returns both of the qubits.
 
         Args:
-            host_a_id (String): ID of the first host who gets the EPR state.
-            host_b_id (String): ID of the second host who gets the EPR state.
+            host_id (String): ID of the host who creates the EPR state.
             q_id (String): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
-            Returns a qubit. The qubit belongs to host a. To get the second
-            qubit of host b, the receive_epr function has to be called.
+            Returns both EPR qubits.
         """
         name1 = str(uuid.uuid4())
         name2 = str(uuid.uuid4())
-        host_a = self._hosts.get_from_dict(host_a_id)
-        host_b = self._hosts.get_from_dict(host_b_id)
+        host = self._hosts.get_from_dict(host_id)
         qubit1 = (QuTipBackend.QubitCollection(name1), name1)
         qubit2 = (QuTipBackend.QubitCollection(name2), name2)
         qubit1[0].apply_single_gate(snot(), qubit1[1])
         qubit1[0].add_qubit(qubit2[0])
         qubit2 = (qubit1[0], name2)
         qubit1[0].apply_double_gate(cnot(), qubit1[1], qubit2[1])
-        q1 = Qubit(host_a, qubit=qubit1, q_id=q_id, blocked=block)
-        q2 = Qubit(host_b, qubit=qubit2, q_id=q1.id, blocked=block)
-        self.store_ent_pair(host_a.host_id, host_b.host_id, q2)
-        return q1
-
-    def store_ent_pair(self, host_a, host_b, qubit):
-        key = host_a + ':' + host_b
-        ent_queue = self._entaglement_qubits.get_from_dict(key)
-
-        if ent_queue is not None:
-            ent_queue.put(qubit)
-        else:
-            ent_queue = Queue()
-            ent_queue.put(qubit)
-        self._entaglement_qubits.add_to_dict(key, ent_queue)
-
-    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
-        """
-        Called after create EPR in the receiver, to receive the other EPR pair.
-
-        Args:
-            host_id (String): ID of the first host who gets the EPR state.
-            sender_id (String): ID of the sender of the EPR pair.
-            q_id (String): Optional id which both qubits should have.
-            block (bool): Determines if the created pair should be blocked or not.
-        Returns:
-            Returns an EPR qubit with the other Host.
-        """
-        key = sender_id + ':' + host_id
-        ent_queue = self._entaglement_qubits.get_from_dict(key)
-        if ent_queue is None:
-            raise Exception("Internal Error!")
-        q = ent_queue.get()
-        self._entaglement_qubits.add_to_dict(key, ent_queue)
-        if q_id is not None and q_id != q.id:
-            raise ValueError("Qid doesent match id!")
-        return q
+        q1 = Qubit(host, qubit=qubit1, q_id=q_id, blocked=block)
+        q2 = Qubit(host, qubit=qubit2, q_id=q1.id, blocked=block)
+        return q1, q2
 
     ##########################
     #   Gate definitions    #

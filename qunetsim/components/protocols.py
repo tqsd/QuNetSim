@@ -290,7 +290,16 @@ def _send_epr(packet):
     Args:
         packet (Packet): The packet in which to transmit.
     """
+    sender = packet.sender
+    receiver = packet.receiver
+    host_sender = network.get_host(sender)
+    q1, q2 = host_sender.backend.create_EPR(host_sender.host_id,
+                                            q_id=packet.payload['q_id'],
+                                            block=packet.payload['blocked'])
+    host_sender.add_epr(receiver, q1)
+    packet.payload = q2
     packet.protocol = Constants.REC_EPR
+    packet.payload_type = Constants.QUANTUM
     network.send(packet)
 
 
@@ -309,11 +318,7 @@ def _rec_epr(packet):
     receiver = packet.receiver
     sender = packet.sender
     host_receiver = network.get_host(receiver)
-    q = host_receiver.backend.receive_epr(host_receiver.host_id,
-                                          sender_id=sender,
-                                          q_id=payload['q_id'],
-                                          block=payload['blocked'])
-    host_receiver.add_epr(sender, q)
+    host_receiver.add_epr(sender, payload)
     # Send an ACK if sequence number is not -1
     if packet.seq_num != -1:
         _send_ack(sender, receiver, packet.seq_num)
