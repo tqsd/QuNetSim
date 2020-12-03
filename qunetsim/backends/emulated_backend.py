@@ -19,6 +19,7 @@ class Commands(enum.Enum):
     NEW_QUBIT = 4
     SEND_QUBIT = 5
     CREATE_ENTANGLED_PAIR = 6
+    SEND
 
 
 class SingleGates(enum.Enum):
