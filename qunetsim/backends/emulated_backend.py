@@ -236,11 +236,11 @@ class EmulationBackend(object):
             from_host_id (String): From the starting host.
             to_host_id (String): New host of the qubit.
         """
-        # happens in the network
+        # happens in the network layer
         raise EnvironmentError("This function is not implemented for this \
                         backend type!")
 
-    def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
+    def create_EPR(self, host_id, q_id=None, block=False):
         """
         Creates an EPR pair for two qubits and returns both of the qubits.
 
@@ -251,9 +251,16 @@ class EmulationBackend(object):
         Returns:
             Returns both EPR qubits.
         """
-        # TODO
-        raise EnvironmentError("This function is not implemented for this \
-                        backend type!")
+        id1 = uuid.uuid4().bytes
+        id2 = uuid.uuid4().bytes
+        # use EPR creation acceleration hardware of quantum networking card
+        frame = create_frame(Commands.CREATE_ENTANGLED_PAIR, first_qubit_id=id1,
+                             second_qubit_id=id2)
+        self._send_to_networking_card(frame)
+        host = self._hosts.get_from_dict(host_id)
+        q1 = Qubit(host, qubit=id1, q_id=q_id, blocked=block)
+        q2 = Qubit(host, qubit=id2, q_id=q_id, blocked=block)
+        return q1, q2
 
     ##########################
     #   Gate definitions    #
