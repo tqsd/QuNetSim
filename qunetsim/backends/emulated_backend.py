@@ -1,6 +1,7 @@
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from qunetsim.backends.safe_dict import SafeDict
+from qunetsim.utils.constants import Constants
 import uuid
 from copy import deepcopy as dp
 import enum
@@ -19,7 +20,7 @@ class Commands(enum.Enum):
     NEW_QUBIT = 4
     SEND_QUBIT = 5
     CREATE_ENTANGLED_PAIR = 6
-    SEND
+    SEND_NETWORK_PACKET = 7
 
 
 class SingleGates(enum.Enum):
@@ -40,22 +41,51 @@ class DoubleGates(enum.Enum):
     CPHASE = 1
 
 
+# Length definitions in byte
+SIZE_HOST_ID = 8
+SIZE_SEQUENCE_NR = 8
+SIZE_QUBIT_ID = 16
+
+
+####################################
+#   Payload types
+####################################
+signal_payload = []
+classical_payload = [["sender", None, SIZE_HOST_ID * 8],
+                     ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
+                     ["message", None, 512 * 8]]
+quantum_payload = [["qubit_id", None, SIZE_QUBIT_ID * 8]]
+
+payload_type_to_payload = [signal_payload, classical_payload, quantum_payload]
+
+calculate_bit_length = lambda x: sum([a[0] for a in x])
+
+####################################
+#    Frame Definitions
+####################################
 idle_frame = {}
-single_gate_frame = [["qubit_id", None, 12 * 8],
+single_gate_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
                      ["gate_parameter", None, 8]]
-double_gate_frame = [["first_qubit_id", None, 12 * 8],
-                     ["second_qubit_id", None, 12 * 8],
+double_gate_frame = [["first_qubit_id", None, SIZE_QUBIT_ID * 8],
+                     ["second_qubit_id", None, SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
                      ["gate_parameter", None, 8]]
-measure_frame = [["qubit_id", None, 12 * 8],
+measure_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
                  ["non_destructive", None, 1],
                  ["reserved", 0, 7]]
-new_qubit_frame = [["qubit_id", None, 12 * 8]]
-send_qubit_frame = [["qubit_id", None, 12 * 8],
+new_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8]]
+send_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
                     ["host_to_send_to", None, 64]]
-create_epr_frame = [["first_qubit_id", None, 12 * 8],
-                    ["second_qubit_id", None, 12 * 8]]
+create_epr_frame = [["first_qubit_id", None, SIZE_QUBIT_ID * 8],
+                    ["second_qubit_id", None, SIZE_QUBIT_ID * 8]]
+network_packet_frame = [["sender", None, SIZE_HOST_ID * 8],
+                  ["receiver", None, SIZE_HOST_ID * 8],
+                  ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
+                  ["protocol", None, 8],
+                  ["payload_type", None, 8],
+                  ["await_ack", None, 8],
+                  ["payload", None, max([calculate_bit_length(x) for x in payload_type_to_payload])]]
 
 Command_to_frame = [idle_frame, single_gate_frame, double_gate_frame,
                     measure_frame, new_qubit_frame, send_qubit_frame,
@@ -65,6 +95,9 @@ command_basis_frame = [['command', None, 8]]
 
 
 def create_binary_frame(dataframe, byteorder='big'):
+    """
+    Creates a binary string from a frame.
+    """
     binary_output = b''
 
     def query_frame(frame, binary_string):
@@ -102,6 +135,9 @@ def create_binary_frame(dataframe, byteorder='big'):
 
 
 def create_frame(command, **kwargs):
+    """
+    Creates a frame with filled in information.
+    """
     values = {}
     if command not in set(item.value for item in Commands):
         raise ValueError("Command does not exist!")
@@ -117,6 +153,50 @@ def create_frame(command, **kwargs):
         entry[1] = values[entry[0]]
 
     return frame
+
+
+def network_packet_to_frame(packet):
+
+    def fill_payload(network_frame, payload):
+        """
+        Fills a payload into the network packet.
+        """
+        bit_length = network_frame[-1][2]
+        bit_length_payload = calculate_bit_length(payload)
+        del(network_frame[-1])
+        for entry in payload:
+            network_frame.append(entry)
+        if bit_length > bit_length_payload:
+            network_frame.append(["reserved", 0, bit_length - bit_length_payload])
+        return network_frame
+
+    frame = dp(network_packet_frame)
+    values = {}
+
+    payload = None
+    if packet.payload_type == Constants.SIGNAL:
+        payload = signal_payload
+        values["payload_type"] = 0
+    elif packet.payload_type == Constants.CLASSICAL:
+        payload = classical_payload
+        values["payload_type"] = 1
+        values["qubit_id"] = packet.payload.id
+    elif packet.payload_type == Constants.QUANTUM:
+        payload = quantum_payload
+        values["payload_type"] = 2
+        values["message"] = packet.payload.content
+    else:
+        raise ValueError("This payload type does not exist!")
+
+    frame = fill_payload(frame, payload)
+
+    values["sender"] = packet.sender
+    values["receiver"] = packet.receiver
+    values["sequence_number"] = packet.seq_num
+    values["protocol"] = packet.protocol
+    values["await_ack"] = packet.await_ack
+
+    return create_frame(Commands.SEND_NETWORK_PACKET, **values)
 
 
 class EmulationBackend(object):
@@ -212,6 +292,16 @@ class EmulationBackend(object):
         if len(host.host_id) > 8:
             raise ValueError("Lenght of host id should not be more than 8 bytes!")
         self._hosts.add_to_dict(host.host_id, host)
+
+    def send_packet_to_network(self, packet):
+        """
+        Takes a network packet and sends it to the network to be processed there.
+
+        Args:
+            packet (Packet): packet object to be send to the network.
+        """
+        frame = network_packet_to_frame(packet)
+        self._send_to_networking_card(frame)
 
     def create_qubit(self, host_id):
         """

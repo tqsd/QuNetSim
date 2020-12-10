@@ -59,7 +59,7 @@ class EmulatedNetwork:
                 self._stop_thread = True
                 break
 
-            # TODO
+            self._backend.send_packet_to_network(packet)
 
     def send(self, packet):
         """
