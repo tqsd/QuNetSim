@@ -6,3 +6,4 @@ cqc==3.2.2
 simulaqron==3.0.15
 eqsn==0.0.8
 qutip==4.5.2
+scipy~=1.5.4

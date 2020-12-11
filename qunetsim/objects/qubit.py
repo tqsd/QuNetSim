@@ -1,5 +1,6 @@
 import uuid
 import numpy as np
+import scipy
 
 
 class Qubit(object):
@@ -113,6 +114,30 @@ class Qubit(object):
             receiver_id (String): ID of Host the qubit should be send to.
         """
         self._host.backend.send_qubit_to(self, self._host.host_id, receiver_id)
+
+    def fidelity(self, other_qubit):
+        # https://stackoverflow.com/questions/34409876/how-to-raise-a-numpy-matrix-to-non-integer-power
+        # F[ρ_, σ_] := Tr[MatrixPower[MatrixPower[ρ, 1/2].σ.MatrixPower[ρ, 1/2], 1/2]]^2/(Tr[ρ]*Tr[σ])
+        # a = MatrixPower[ρ, 1/2]
+        # F[ρ_, σ_] := Tr[ MatrixPower[ a . σ . a, 1/2] ] ^2 / (Tr[ρ]*Tr[σ])
+
+        self_density_mat = self.density_operator()
+        other_density_mat = other_qubit.density_operator()
+        # a = MatrixPower[ρ, 1/2]
+        root_squared_self_density_mat = scipy.linalg.fractional_matrix_power(self_density_mat, .5)
+        # a . σ . a
+        main_matrix = np.matmul(np.matmul(root_squared_self_density_mat, other_density_mat), root_squared_self_density_mat)
+        # MatrixPower[a.σ.a, 1 / 2]
+        root_squared_main_matrix = scipy.linalg.fractional_matrix_power(main_matrix, .5)
+        # Tr[ MatrixPower[ a . σ . a, 1/2] ]
+        root_squared_main_matrix_trace = np.trace(root_squared_main_matrix)
+        # Tr[ MatrixPower[ a . σ . a, 1/2] ] ^2
+        squared_main_matrix_trace = pow(root_squared_main_matrix_trace, 2)
+
+        # Tr[ρ]*Tr[σ]
+        normalizer_denominator = np.dot(np.trace(self_density_mat), np.trace(other_density_mat))
+
+        return squared_main_matrix_trace / normalizer_denominator
 
     def release(self):
         """
