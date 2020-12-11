@@ -1,3 +1,4 @@
+import math
 import uuid
 import time
 
@@ -924,6 +925,83 @@ class Host(object):
             return q_id, ret
         return q_id
 
+    def send_w(self, receiver_list, q_id=None, await_ack=False, no_ack=False, distribute=False):
+        """
+        Share W state with all receiver ids in the list. W state is generated
+        locally.
+
+        Args:
+            receiver_list (list): A List of all Host IDs with which a W state
+                                  should be shared.
+            q_id (str): The ID of the W qubits
+            await_ack (bool): If the sender should await an ACK from all receivers
+            no_ack (bool): If this message should not use any ACK and sequencing.
+            distribute (bool): If the sender should keep part of the W state, or just
+                               distribute one
+        Returns:
+            (str, bool): Qubit ID of the shared W and ACK status
+        """
+
+        q_list: list[Qubit] = []
+        n = len(receiver_list) + (0 if distribute else 1)
+
+        def f_gate(i, j, k):
+            theta = math.acos(math.sqrt(1/(n-k+1)))
+            q_list[j].ry(-theta)
+            q_list[i].cphase(q_list[j])  # CZ gate
+            q_list[j].ry(theta)
+            return
+
+        own_qubit = Qubit(self, q_id=q_id)
+        q_list.append(own_qubit)
+        q_id = own_qubit.id
+
+        # create a qubit for each participant to the W state
+        for _ in range(n - 1):
+            new_qubit = Qubit(self, q_id=q_id)
+            q_list.append(new_qubit)
+
+        # creating the W state
+        q_list[n - 1].X()
+        for idx in range(n - 1):
+            f_gate(n-1-idx, n-2-idx, idx+1)
+
+        for idx in range(n - 1):
+            q_list[n-2-idx].cnot(q_list[n-1-idx])
+
+        q_list = q_list[1:] + q_list[:1]
+        seq_num_list = []
+
+        if not distribute:
+            self.add_w_qubit(self.host_id, own_qubit)
+
+        for receiver_id in receiver_list:
+            seq_num = -1
+            if no_ack:
+                await_ack = False
+            else:
+                seq_num = self.get_next_sequence_number(receiver_id)
+            seq_num_list.append(seq_num)
+
+        packet = protocols.encode(sender=self.host_id,
+                                  receiver=None,
+                                  protocol=Constants.SEND_W,
+                                  payload={Constants.QUBITS: q_list, Constants.HOSTS: receiver_list},
+                                  payload_type=Constants.CLASSICAL,
+                                  sequence_num=seq_num_list,
+                                  await_ack=await_ack)
+        self.logger.log(self.host_id + " sends W to " + str(receiver_list))
+        self._packet_queue.put(packet)
+
+        if packet.await_ack:
+            ret = True
+            for receiver_id, seq_num in zip(receiver_list, seq_num_list):
+                self._log_ack('W', receiver_id, seq_num)
+                if self.await_ack(seq_num, receiver_id) is False:
+                    ret = False
+            return q_id, ret
+        return q_id
+
     def get_ghz(self, host_id, q_id=None, wait=0):
         """
         Gets the GHZ qubit which has been created by the host with the host ID *host_id*.
@@ -940,6 +1018,23 @@ class Host(object):
             raise Exception('wait parameter should be a number')
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.GHZ_QUBIT, wait)
+
+    def get_w(self, host_id, q_id=None, wait=0):
+        """
+        Gets the W qubit which has been created by the host with the host ID *host_id*.
+        It is not necessary to know with whom the states are shared.
+
+        Args:
+            host_id (str): The ID of the host that creates the GHZ state.
+            q_id (str): The qubit ID of the W to get.
+            wait (float): the amount of time to wait
+        Returns:
+             (Qubit): Qubit shared with the host with *host_id* and *q_id*.
+        """
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.W_QUBIT, wait)
 
     def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
         """
@@ -1194,6 +1289,24 @@ class Host(object):
             qubit.id = q_id
 
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.GHZ_QUBIT, host_id)
+        return qubit.id
+
+    def add_w_qubit(self, host_id, qubit, q_id=None):
+        """
+        Adds the W qubit to the storage of the host. The host id corresponds
+        to the generator of the W state.
+
+        Args:
+            host_id (str): The ID of the host to pair the qubit
+            qubit (Qubit): The data Qubit to be added.
+            q_id (str): the ID to set the qubit ID to
+        Returns:
+            (str): The qubit ID
+        """
+        if q_id is not None:
+            qubit.id = q_id
+
+        self._qubit_storage.add_qubit_from_host(qubit, Qubit.W_QUBIT, host_id)
         return qubit.id
 
     def add_checksum(self, qubits, size_per_qubit=2):

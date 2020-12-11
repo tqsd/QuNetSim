@@ -11,6 +11,7 @@ class Qubit(object):
     DATA_QUBIT = "data"
     EPR_QUBIT = "EPR"
     GHZ_QUBIT = "GHZ"
+    W_QUBIT = "W"
 
     def __init__(self, host, qubit=None, q_id=None, blocked=False):
         self._blocked = blocked
