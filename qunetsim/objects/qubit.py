@@ -15,10 +15,15 @@ class Qubit(object):
     def __init__(self, host, qubit=None, q_id=None, blocked=False):
         self._blocked = blocked
         self._host = host
+
+        id = None
         if q_id is not None:
-            self._id = str(q_id)
+            id = str(q_id)
         else:
-            self._id = str(uuid.uuid4())
+            id = str(uuid.uuid4())
+
+        self._id = id
+
         if qubit is not None:
             self._qubit = qubit
         else:

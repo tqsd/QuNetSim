@@ -29,22 +29,22 @@ class Constants:
     NACK = 'qunetsim_NACK__'
 
     # PROTOCOL IDs
-    REC_EPR = 'rec_epr'
-    SEND_EPR = 'send_epr'
-    REC_TELEPORT = 'rec_teleport'
-    SEND_TELEPORT = 'send_teleport'
-    REC_SUPERDENSE = 'rec_superdense'
-    SEND_SUPERDENSE = 'send_superdense'
-    REC_CLASSICAL = 'rec_classical'
-    SEND_CLASSICAL = 'send_classical'
-    SEND_BROADCAST = 'send_broadcast'
-    RELAY = 'relay'
-    SEND_QUBIT = 'send_qubit'
-    REC_QUBIT = 'rec_qubit'
-    SEND_KEY = 'send_key'
-    REC_KEY = 'rec_key'
-    SEND_GHZ = 'send_ghz'
-    REC_GHZ = 'rec_ghz'
+    REC_EPR = 1
+    SEND_EPR = 2
+    REC_TELEPORT = 3
+    SEND_TELEPORT = 4
+    REC_SUPERDENSE = 5
+    SEND_SUPERDENSE = 6
+    REC_CLASSICAL = 7
+    SEND_CLASSICAL = 8
+    SEND_BROADCAST = 9
+    RELAY = 10
+    SEND_QUBIT = 11
+    REC_QUBIT = 12
+    SEND_KEY = 13
+    REC_KEY = 14
+    SEND_GHZ = 15
+    REC_GHZ = 16
 
     # MISC
     QUBITS = 'qubits'

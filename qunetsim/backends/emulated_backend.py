@@ -7,6 +7,7 @@ from copy import deepcopy as dp
 import enum
 try:
     import serial
+    import serial.threaded
 except ImportError:
     raise RuntimeError(" To use the Emulated Backend you need to install "
                        "pyserial!")
@@ -21,6 +22,12 @@ class Commands(enum.Enum):
     SEND_QUBIT = 5
     CREATE_ENTANGLED_PAIR = 6
     SEND_NETWORK_PACKET = 7
+
+
+class NetworkCommands(enum.Enum):
+    IDLE = 0
+    MEASUREMENT_RESULT = 1
+    RECV_NETWORK_PACKET = 2
 
 
 class SingleGates(enum.Enum):
@@ -45,20 +52,24 @@ class DoubleGates(enum.Enum):
 SIZE_HOST_ID = 8
 SIZE_SEQUENCE_NR = 8
 SIZE_QUBIT_ID = 16
+SIZE_QUNETSIM_QUBIT_ID = 50
 
 
 ####################################
 #   Payload types
 ####################################
-signal_payload = []
+signal_payload = [["sender", None, SIZE_HOST_ID * 8],
+                     ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
+                     ["message", None, 512 * 8]]
 classical_payload = [["sender", None, SIZE_HOST_ID * 8],
                      ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
                      ["message", None, 512 * 8]]
-quantum_payload = [["qubit_id", None, SIZE_QUBIT_ID * 8]]
+quantum_payload = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+                   ["qunetsim_qubit_id", None, SIZE_QUNETSIM_QUBIT_ID * 8]]
 
 payload_type_to_payload = [signal_payload, classical_payload, quantum_payload]
 
-calculate_bit_length = lambda x: sum([a[0] for a in x])
+calculate_bit_length = lambda x: sum([a[2] for a in x])
 
 ####################################
 #    Frame Definitions
@@ -74,6 +85,10 @@ double_gate_frame = [["first_qubit_id", None, SIZE_QUBIT_ID * 8],
 measure_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
                  ["non_destructive", None, 1],
                  ["reserved", 0, 7]]
+measurement_result_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+                            ["measurement_result", None, 1],
+                            ["non_destructive", None, 1],
+                            ["reserved", 0, 6]]
 new_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8]]
 send_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
                     ["host_to_send_to", None, 64]]
@@ -89,7 +104,9 @@ network_packet_frame = [["sender", None, SIZE_HOST_ID * 8],
 
 Command_to_frame = [idle_frame, single_gate_frame, double_gate_frame,
                     measure_frame, new_qubit_frame, send_qubit_frame,
-                    create_epr_frame]
+                    create_epr_frame, network_packet_frame]
+
+Network_command_to_frame = [idle_frame, network_packet_frame, measurement_result_frame]
 
 command_basis_frame = [['command', None, 8]]
 
@@ -108,27 +125,43 @@ def create_binary_frame(dataframe, byteorder='big'):
             if bytecount != 0:
                 if entry[2] + bytecount > 8:
                     raise ValueError("Bitfields have to count up to 8!")
-                byte = (entry[1][str(bytecount)] & 0x1) << bytecount
-                bytecount = bytecount + entry[2]
+                amount_bits = entry[2]
+                and_op = 0x00FF >> (8 - amount_bits)
+                byte = (entry[1] & and_op) << bytecount
+                bytecount = bytecount + amount_bits
                 if bytecount == 8:
                     binary_string = binary_string + byte.to_bytes(1, byteorder=byteorder, signed=False)
                     bytecount = 0
 
             if isinstance(entry[1], int):
                 if entry[2] % 8 == 0:
-                    binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
+                    if entry[1] < 0:
+                        binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=True)
+                    else:
+                        binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
                 else:
                     # start bitfield
-                    byte = (entry[1][str(bytecount)] & 0x1) << bytecount
-                    bytecount = bytecount + 1
-            elif isinstance(entry[1], bytearray):
+                    amount_bits = entry[2]
+                    and_op = 0x00FF >> (8 - amount_bits)
+                    byte = (entry[1] & and_op) << bytecount
+                    bytecount = bytecount + amount_bits
+            elif isinstance(entry[1], bytearray) or isinstance(entry[1], bytes):
                 if len(entry[1]) != int(entry[2]/8):
                     raise ValueError("Size of the binary string does not match the frame size!")
                 binary_string = binary_string + entry[1]
+            elif isinstance(entry[1], enum.Enum):
+                binary_string = binary_string + entry[1].value.to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
+            elif isinstance(entry[1], str):
+                str_len = 8 * len(str.encode(entry[1]))
+                if str_len > entry[2]:
+                    raise ValueError("The string ", entry[1], " is too long!")
+                padding = entry[2] - str_len
+                binary_string = binary_string + str.encode(entry[1])
+                binary_string = binary_string + int.to_bytes(0, int(padding / 8), byteorder=byteorder, signed=False)
             elif isinstance(entry[1], list):
                 binary_string = binary_string + query_frame(entry[1], binary_string)
             else:
-                raise ValueError("Unknown Type!")
+                raise ValueError(entry[1], "is of unknown type!")
         return binary_string
 
     return query_frame(dataframe, binary_output)
@@ -139,18 +172,23 @@ def create_frame(command, **kwargs):
     Creates a frame with filled in information.
     """
     values = {}
-    if command not in set(item.value for item in Commands):
+    if command not in Commands:
         raise ValueError("Command does not exist!")
-    values["command"] = command
-    for key in kwargs.keys():
-        if key not in values.keys():
-            raise ValueError("This key does not exist!")
-        values[key] = kwargs[key]
+    values["command"] = command.value
     frame = dp(command_basis_frame)
-    frame = frame + dp(Command_to_frame[command])
+    if "frame" in kwargs.keys():
+        frame = frame + kwargs["frame"]
+        del kwargs["frame"]
+    else:
+        frame = frame + dp(Command_to_frame[command.value])
+    for key in kwargs.keys():
+        if key not in [x[0] for x in frame]:
+            raise ValueError("Key ", key, " does not exist!")
+        values[key] = kwargs[key]
 
     for entry in frame:
-        entry[1] = values[entry[0]]
+        if entry[1] is None:
+            entry[1] = values[entry[0]]
 
     return frame
 
@@ -177,14 +215,16 @@ def network_packet_to_frame(packet):
     if packet.payload_type == Constants.SIGNAL:
         payload = signal_payload
         values["payload_type"] = 0
+        values["message"] = packet.payload.content
     elif packet.payload_type == Constants.CLASSICAL:
         payload = classical_payload
         values["payload_type"] = 1
-        values["qubit_id"] = packet.payload.id
+        values["message"] = packet.payload.content
     elif packet.payload_type == Constants.QUANTUM:
         payload = quantum_payload
         values["payload_type"] = 2
-        values["message"] = packet.payload.content
+        values["qunetsim_qubit_id"] = packet.payload.id
+        values["qubit_id"] = packet.payload.qubit
     else:
         raise ValueError("This payload type does not exist!")
 
@@ -196,7 +236,11 @@ def network_packet_to_frame(packet):
     values["protocol"] = packet.protocol
     values["await_ack"] = packet.await_ack
 
-    return create_frame(Commands.SEND_NETWORK_PACKET, **values)
+    return create_frame(Commands.SEND_NETWORK_PACKET, frame=frame, **values)
+
+
+def binary_frame_to_object(frame, binarystring):
+    pass
 
 
 class EmulationBackend(object):
@@ -240,7 +284,7 @@ class EmulationBackend(object):
                 notify_me(data)
 
         def connection_lost(self, exc):
-            return
+            raise IOError("Connection to quantum networking card lost!")
 
     class Hosts(SafeDict):
         # There only should be one instance of Hosts
@@ -303,7 +347,7 @@ class EmulationBackend(object):
         frame = network_packet_to_frame(packet)
         self._send_to_networking_card(frame)
 
-    def create_qubit(self, host_id):
+    def create_qubit(self, host_id, id=None):
         """
         Creates a new Qubit of the type of the backend.
 
@@ -313,8 +357,9 @@ class EmulationBackend(object):
         Reurns:
             Qubit of backend type.
         """
-        id = uuid.uuid4().bytes
-        frame = create_frame(Commands.NEW_QUBIT.value, qubit_id=id)
+        if id is None:
+            id = uuid.uuid4()
+        frame = create_frame(Commands.NEW_QUBIT.value, qubit_id=id.bytes)
         self._send_to_networking_card(frame)
         return id
 
