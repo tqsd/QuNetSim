@@ -116,10 +116,20 @@ class Qubit(object):
         self._host.backend.send_qubit_to(self, self._host.host_id, receiver_id)
 
     def fidelity(self, other_qubit):
-        # https://stackoverflow.com/questions/34409876/how-to-raise-a-numpy-matrix-to-non-integer-power
-        # F[ρ_, σ_] := Tr[MatrixPower[MatrixPower[ρ, 1/2].σ.MatrixPower[ρ, 1/2], 1/2]]^2/(Tr[ρ]*Tr[σ])
-        # a = MatrixPower[ρ, 1/2]
-        # F[ρ_, σ_] := Tr[ MatrixPower[ a . σ . a, 1/2] ] ^2 / (Tr[ρ]*Tr[σ])
+        """
+        Determines the quantum fidelity between this and the given qubit.
+        This implementation follows the one provided at
+        https://mathematica.stackexchange.com/questions/229554/implementation-of-quantum-uhlmann-fidelity-in-mathematica
+        for Wolfram Mathematica saying that the quantum fidelity for two qubits is:
+
+        F[ρ_, σ_] := Tr[MatrixPower[MatrixPower[ρ, 1/2].σ.MatrixPower[ρ, 1/2], 1/2]]^2/(Tr[ρ]*Tr[σ])
+
+        Args:
+            other_qubit (Qubit): The other (apart from this) qubit used to calculate the quantum fidelity
+
+        Returns: The quantum fidelity between this and the given qubit.
+
+        """
 
         self_density_mat = self.density_operator()
         other_density_mat = other_qubit.density_operator()
