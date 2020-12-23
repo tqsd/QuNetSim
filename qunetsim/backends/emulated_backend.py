@@ -2,6 +2,7 @@ from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from qunetsim.backends.safe_dict import SafeDict
 from qunetsim.utils.constants import Constants
+from qunetsim.utils.serialization import Serialization
 import uuid
 from copy import deepcopy as dp
 import enum
@@ -9,63 +10,21 @@ try:
     import serial
     import serial.threaded
 except ImportError:
-    raise RuntimeError(" To use the Emulated Backend you need to install "
+    raise RuntimeError("To use the Emulated Backend you need to install "
                        "pyserial!")
 
 
-class Commands(enum.Enum):
-    IDLE = 0
-    APPLY_GATE_SINGLE_GATE = 1
-    APPLY_DOUBLE_GATE = 2
-    MEASURE = 3
-    NEW_QUBIT = 4
-    SEND_QUBIT = 5
-    CREATE_ENTANGLED_PAIR = 6
-    SEND_NETWORK_PACKET = 7
-
-
-class NetworkCommands(enum.Enum):
-    IDLE = 0
-    MEASUREMENT_RESULT = 1
-    RECV_NETWORK_PACKET = 2
-
-
-class SingleGates(enum.Enum):
-    Idenitity = 0
-    X = 1
-    Y = 2
-    Z = 3
-    H = 4
-    S = 5
-    T = 6
-    RX = 7
-    RY = 8
-    RZ = 9
-
-
-class DoubleGates(enum.Enum):
-    CNOT = 0
-    CPHASE = 1
-
-
-# Length definitions in byte
-SIZE_HOST_ID = 8
-SIZE_SEQUENCE_NR = 8
-SIZE_QUBIT_ID = 16
-SIZE_QUNETSIM_QUBIT_ID = 50
-
-
 ####################################
-#   Payload types
+#   Payload Definitions and Types
 ####################################
-signal_payload = [["sender", None, SIZE_HOST_ID * 8],
-                     ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
-                     ["message", None, 512 * 8]]
-classical_payload = [["sender", None, SIZE_HOST_ID * 8],
-                     ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
-                     ["message", None, 512 * 8]]
-quantum_payload = [["qubit_id", None, SIZE_QUBIT_ID * 8],
-                   ["qunetsim_qubit_id", None, SIZE_QUNETSIM_QUBIT_ID * 8]]
+signal_payload = [["sender", None, Serialization.SIZE_HOST_ID * 8],
+                     ["sequence_number", None, Serialization.SIZE_SEQUENCE_NR * 8],
+                     ["message", None, Serialization.SIZE_MSG_CONTENT * 8]]
+classical_payload = [["sender", None, Serialization.SIZE_HOST_ID * 8],
+                     ["sequence_number", None, Serialization.SIZE_SEQUENCE_NR * 8],
+                     ["message", None, Serialization.SIZE_MSG_CONTENT * 8]]
+quantum_payload = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
+                   ["qunetsim_qubit_id", None, Serialization.SIZE_QUNETSIM_QUBIT_ID * 8]]
 
 payload_type_to_payload = [signal_payload, classical_payload, quantum_payload]
 
@@ -75,31 +34,32 @@ calculate_bit_length = lambda x: sum([a[2] for a in x])
 #    Frame Definitions
 ####################################
 idle_frame = {}
-single_gate_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+single_gate_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
                      ["gate_parameter", None, 8]]
-double_gate_frame = [["first_qubit_id", None, SIZE_QUBIT_ID * 8],
-                     ["second_qubit_id", None, SIZE_QUBIT_ID * 8],
+double_gate_frame = [["first_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
+                     ["second_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
                      ["gate_parameter", None, 8]]
-measure_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+measure_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                  ["non_destructive", None, 1],
                  ["reserved", 0, 7]]
-measurement_result_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+measurement_result_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                             ["measurement_result", None, 1],
                             ["non_destructive", None, 1],
                             ["reserved", 0, 6]]
-new_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8]]
-send_qubit_frame = [["qubit_id", None, SIZE_QUBIT_ID * 8],
+new_qubit_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8]]
+send_qubit_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                     ["host_to_send_to", None, 64]]
-create_epr_frame = [["first_qubit_id", None, SIZE_QUBIT_ID * 8],
-                    ["second_qubit_id", None, SIZE_QUBIT_ID * 8]]
-network_packet_frame = [["sender", None, SIZE_HOST_ID * 8],
-                  ["receiver", None, SIZE_HOST_ID * 8],
-                  ["sequence_number", None, SIZE_SEQUENCE_NR * 8],
-                  ["protocol", None, 8],
-                  ["payload_type", None, 8],
-                  ["await_ack", None, 8],
+create_epr_frame = [["first_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
+                    ["second_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8]]
+network_packet_frame = [["sender", None, Serialization.SIZE_HOST_ID * 8],
+                  ["receiver", None, Serialization.SIZE_HOST_ID * 8],
+                  ["sequence_number", None, Serialization.SIZE_SEQUENCE_NR * 8],
+                  ["protocol", None, Serialization.SIZE_PROTOCOL * 8],
+                  ["payload_type", None, Serialization.SIZE_PAYLOAD_TYPE * 8],
+                  ["await_ack", None, 1],
+                  ["reserved", 0, 7],
                   ["payload", None, max([calculate_bit_length(x) for x in payload_type_to_payload])]]
 
 Command_to_frame = [idle_frame, single_gate_frame, double_gate_frame,
@@ -127,13 +87,13 @@ def create_binary_frame(dataframe, byteorder='big'):
                     raise ValueError("Bitfields have to count up to 8!")
                 amount_bits = entry[2]
                 and_op = 0x00FF >> (8 - amount_bits)
-                byte = (entry[1] & and_op) << bytecount
+                byte = byte | ((entry[1] & and_op) << bytecount)
                 bytecount = bytecount + amount_bits
                 if bytecount == 8:
                     binary_string = binary_string + byte.to_bytes(1, byteorder=byteorder, signed=False)
                     bytecount = 0
 
-            if isinstance(entry[1], int):
+            elif isinstance(entry[1], int):
                 if entry[2] % 8 == 0:
                     if entry[1] < 0:
                         binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=True)
@@ -141,6 +101,7 @@ def create_binary_frame(dataframe, byteorder='big'):
                         binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
                 else:
                     # start bitfield
+                    bytecount = 0
                     amount_bits = entry[2]
                     and_op = 0x00FF >> (8 - amount_bits)
                     byte = (entry[1] & and_op) << bytecount
@@ -152,12 +113,7 @@ def create_binary_frame(dataframe, byteorder='big'):
             elif isinstance(entry[1], enum.Enum):
                 binary_string = binary_string + entry[1].value.to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
             elif isinstance(entry[1], str):
-                str_len = 8 * len(str.encode(entry[1]))
-                if str_len > entry[2]:
-                    raise ValueError("The string ", entry[1], " is too long!")
-                padding = entry[2] - str_len
-                binary_string = binary_string + str.encode(entry[1])
-                binary_string = binary_string + int.to_bytes(0, int(padding / 8), byteorder=byteorder, signed=False)
+                Serialization.string_to_binary(entry[1], int(entry[2]/8))
             elif isinstance(entry[1], list):
                 binary_string = binary_string + query_frame(entry[1], binary_string)
             else:
@@ -172,7 +128,7 @@ def create_frame(command, **kwargs):
     Creates a frame with filled in information.
     """
     values = {}
-    if command not in Commands:
+    if command not in Serialization.Commands:
         raise ValueError("Command does not exist!")
     values["command"] = command.value
     frame = dp(command_basis_frame)
@@ -236,11 +192,20 @@ def network_packet_to_frame(packet):
     values["protocol"] = packet.protocol
     values["await_ack"] = packet.await_ack
 
-    return create_frame(Commands.SEND_NETWORK_PACKET, frame=frame, **values)
+    return create_frame(Serialization.Commands.SEND_NETWORK_PACKET, frame=frame, **values)
 
 
 def binary_frame_to_object(frame, binarystring):
-    pass
+    """
+    Continuously takes binary data and converts it from a frame to objects.
+    """
+
+    def __init__(self, data=None):
+        if data:
+            self.add_data(data)
+
+    def add_data(self, data):
+        pass
 
 
 class EmulationBackend(object):

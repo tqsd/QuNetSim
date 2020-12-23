@@ -1,7 +1,29 @@
+from qunetsim.utils.serialization import Serialization
+
+
 class Message(object):
     """
     A classical message. Contains a string message and the sender address with sequence number.
     """
+
+    @staticmethod
+    def from_binary(binary_string):
+        # get binary parts from the binary string
+        start = 0
+        sender = binary_string[start:start+Serialization.SIZE_HOST_ID]
+        start += Serialization.SIZE_HOST_ID
+        seq_num = binary_string[start:start+Serialization.SIZE_SEQUENCE_NR]
+        start += Serialization.SIZE_SEQUENCE_NR
+        content = binary_string[start:start+Serialization.SIZE_MSG_CONTENT]
+        start += Serialization.SIZE_MSG_CONTENT
+
+        # turn binary data to QuNetSim data
+        sender = Serialization.binary_to_host_id(sender)
+        seq_num = Serialization.binary_to_integer(seq_num)
+        content = Serialization.binary_to_string(content)
+
+        # create Packet object
+        return Message(sender, content, seq_num)
 
     def __init__(self, sender, content, seq_num):
         """

@@ -1,31 +1,34 @@
 from qunetsim.components import Host
 from qunetsim.objects import Logger
 from qunetsim.components import Network
+from qunetsim.backends import CQCBackend
 
 Logger.DISABLED = False
 
 
 def main():
+    backend = CQCBackend()
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
+    network.start(nodes, backend)
     network.delay = 0.1
+    network.use_ent_swap = True
 
-    host_alice = Host('Alice')
+    host_alice = Host('Alice', backend)
     host_alice.add_connection('Bob')
     host_alice.start()
 
-    host_bob = Host('Bob')
+    host_bob = Host('Bob', backend)
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve')
+    host_eve = Host('Eve', backend)
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.start()
 
-    host_dean = Host('Dean')
+    host_dean = Host('Dean', backend)
     host_dean.add_connection('Eve')
     host_dean.start()
 

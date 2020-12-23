@@ -1,11 +1,50 @@
 from qunetsim.objects.qubit import Qubit
+from qunetsim.objects.message import Message
 from qunetsim.utils.constants import Constants
+from qunetsim.utils.serialization import Serialization
 
 
 class Packet(object):
     """
     A transport layer packet.
     """
+
+    @staticmethod
+    def from_binary(binary_string):
+        # get binary parts from the binary string
+        start = 0
+        sender = binary_string[start:start+Serialization.SIZE_HOST_ID]
+        start += Serialization.SIZE_HOST_ID
+        receiver = binary_string[start:start+Serialization.SIZE_HOST_ID]
+        start += Serialization.SIZE_HOST_ID
+        seq_num = binary_string[start:start+Serialization.SIZE_SEQUENCE_NR]
+        start += Serialization.SIZE_SEQUENCE_NR
+        protocol = binary_string[start:start+Serialization.SIZE_PROTOCOL]
+        start += Serialization.SIZE_PROTOCOL
+        payload_type = binary_string[start:start+Serialization.SIZE_PAYLOAD_TYPE]
+        start += Serialization.SIZE_PAYLOAD_TYPE
+        options = binary_string[start:start+Serialization.SIZE_OPTIONS]
+        start += Serialization.SIZE_OPTIONS
+        payload = binary_string[start:]
+
+        # turn binary data to QuNetSim data
+        sender = Serialization.binary_to_host_id(sender)
+        receiver = Serialization.binary_to_host_id(receiver)
+        seq_num = Serialization.binary_to_integer(seq_num)
+        protocol = Serialization.binary_to_integer(protocol)
+        payload_type = Serialization.binary_to_payload_type(payload_type)
+        await_ack = Serialization.binary_extract_option_field(options, 0)
+        if payload_type is Constants.SIGNAL:
+            payload = Message.from_binary(payload)
+        elif payload_type is Constants.CLASSICAL:
+            paylaod = Message.from_binary(payload)
+        elif payload_type is Constants.QUANTUM:
+            payload = Qubit.from_binary(payload)
+        else:
+            raise ValueError("Unknown payload type!")
+
+        # create Packet object
+        return Packet(sender, receiver, protocol, payload_type, paylaod, seq_num, await_ack)
 
     def __init__(self, sender, receiver, protocol, payload_type, payload,
                  sequence_number=-1, await_ack=False):

@@ -1,5 +1,6 @@
 import uuid
 import numpy as np
+from qunetsim.utils.serialization import Serialization
 
 
 class Qubit(object):
@@ -11,6 +12,23 @@ class Qubit(object):
     DATA_QUBIT = "data"
     EPR_QUBIT = "EPR"
     GHZ_QUBIT = "GHZ"
+
+    @staticmethod
+    def from_binary(binary_string):
+        # get binary parts from the binary string
+        start = 0
+        qubit = binary_string[start:Serialization.SIZE_QUBIT_ID]
+        start += Serialization.SIZE_QUBIT_ID
+        id = binary_string[start:(start+Serialization.SIZE_QUNETSIM_QUBIT_ID)]
+        start += Serialization.SIZE_QUNETSIM_QUBIT_ID
+        host_id = binary_string[start:(start+Serialization.SIZE_HOST_ID)]
+        start += Serialization.SIZE_HOST_ID
+        blocked = binary_string[start:(start+Serialization.SIZE_OPTIONS)]
+        start += Serialization.SIZE_OPTIONS
+
+        # turn binary data to QuNetSim data
+        host_id = Serialization.binary_to_host_id(host_id)
+        return Qubit(host_id, qubit, id, blocked)
 
     def __init__(self, host, qubit=None, q_id=None, blocked=False):
         self._blocked = blocked
