@@ -946,7 +946,7 @@ class Host(object):
         n = len(receiver_list) + (0 if distribute else 1)
 
         def f_gate(i, j, k):
-            theta = math.acos(math.sqrt(1/(n-k+1)))
+            theta = math.acos(math.sqrt(1 / (n - k + 1)))
             q_list[j].ry(-theta)
             q_list[i].cphase(q_list[j])  # CZ gate
             q_list[j].ry(theta)
@@ -964,10 +964,10 @@ class Host(object):
         # creating the W state
         q_list[n - 1].X()
         for idx in range(n - 1):
-            f_gate(n-1-idx, n-2-idx, idx+1)
+            f_gate(n - 1 - idx, n - 2 - idx, idx + 1)
 
         for idx in range(n - 1):
-            q_list[n-2-idx].cnot(q_list[n-1-idx])
+            q_list[n - 2 - idx].cnot(q_list[n - 1 - idx])
 
         q_list = q_list[1:] + q_list[:1]
         seq_num_list = []
