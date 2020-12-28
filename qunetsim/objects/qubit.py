@@ -23,11 +23,15 @@ class Qubit(object):
         start += Serialization.SIZE_QUNETSIM_QUBIT_ID
         host_id = binary_string[start:(start+Serialization.SIZE_HOST_ID)]
         start += Serialization.SIZE_HOST_ID
-        blocked = binary_string[start:(start+Serialization.SIZE_OPTIONS)]
+        options = binary_string[start:(start+Serialization.SIZE_OPTIONS)]
         start += Serialization.SIZE_OPTIONS
 
         # turn binary data to QuNetSim data
         host_id = Serialization.binary_to_host_id(host_id)
+        blocked = Serialization.binary_extract_option_field(options, 0)
+        id = Serialization.binary_to_string(id)
+
+        # create Qubit object
         return Qubit(host_id, qubit, id, blocked)
 
     def __init__(self, host, qubit=None, q_id=None, blocked=False):

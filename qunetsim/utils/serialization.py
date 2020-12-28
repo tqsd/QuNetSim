@@ -86,8 +86,8 @@ class Serialization:
             return Constants.QUANTUM
         raise ValueError("Udefined payload type received!")
 
-    def binary_to_integer(binary_string):
-        return int.from_bytes(binary_string, Serialization.BYTEORDER)
+    def binary_to_integer(binary_string, signed=False):
+        return int.from_bytes(binary_string, Serialization.BYTEORDER, signed=signed)
 
     def binary_extract_option_field(binary_string, position):
         """
