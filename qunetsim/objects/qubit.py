@@ -118,36 +118,30 @@ class Qubit(object):
     def fidelity(self, other_qubit):
         """
         Determines the quantum fidelity between this and the given qubit.
-        This implementation follows the one provided at
-        https://mathematica.stackexchange.com/questions/229554/implementation-of-quantum-uhlmann-fidelity-in-mathematica
-        for Wolfram Mathematica saying that the quantum fidelity for two qubits is:
-
-        F[ρ_, σ_] := Tr[MatrixPower[MatrixPower[ρ, 1/2].σ.MatrixPower[ρ, 1/2], 1/2]]^2/(Tr[ρ]*Tr[σ])
 
         Args:
             other_qubit (Qubit): The other (apart from this) qubit used to calculate the quantum fidelity
 
-        Returns: The quantum fidelity between this and the given qubit.
-
+        Returns:
+            (float) The quantum fidelity between this and the given qubit.
         """
 
         self_density_mat = self.density_operator()
         other_density_mat = other_qubit.density_operator()
-        # a = MatrixPower[ρ, 1/2]
         root_squared_self_density_mat = scipy.linalg.fractional_matrix_power(self_density_mat, .5)
-        # a . σ . a
-        main_matrix = np.matmul(np.matmul(root_squared_self_density_mat, other_density_mat), root_squared_self_density_mat)
-        # MatrixPower[a.σ.a, 1 / 2]
+        main_matrix = np.matmul(
+            np.matmul(
+                root_squared_self_density_mat,
+                other_density_mat),
+            root_squared_self_density_mat)
         root_squared_main_matrix = scipy.linalg.fractional_matrix_power(main_matrix, .5)
-        # Tr[ MatrixPower[ a . σ . a, 1/2] ]
         root_squared_main_matrix_trace = np.trace(root_squared_main_matrix)
-        # Tr[ MatrixPower[ a . σ . a, 1/2] ] ^2
         squared_main_matrix_trace = pow(root_squared_main_matrix_trace, 2)
-
-        # Tr[ρ]*Tr[σ]
         normalizer_denominator = np.dot(np.trace(self_density_mat), np.trace(other_density_mat))
 
-        return squared_main_matrix_trace / normalizer_denominator
+        if normalizer_denominator != 0:
+            return squared_main_matrix_trace / normalizer_denominator
+        return -1
 
     def release(self):
         """
@@ -251,11 +245,11 @@ class Qubit(object):
         """
 
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (2, 2):
-            raise (InputError("Custom gates must be 2x2 matrices"))
+            raise InputError
 
         self._host.backend.custom_gate(self, gate)
 
@@ -269,11 +263,11 @@ class Qubit(object):
         """
 
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy arrays are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (2, 2):
-            raise (InputError("Custom controlled gates must be 2x2 matrices"))
+            raise InputError
 
         self._host.backend.custom_controlled_gate(self, target, gate)
 
@@ -287,11 +281,11 @@ class Qubit(object):
             gate (Numpy ndarray): The gate to apply
         """
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (4, 4):
-            raise (InputError("Custom controlled gates must be 4x4 matrices"))
+            raise InputError
 
         self._host.backend.custom_controlled_two_qubit_gate(self, q1, q2, gate)
 
@@ -304,11 +298,11 @@ class Qubit(object):
             gate (Numpy ndarray): The gate
         """
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (4, 4):
-            raise (InputError("Custom controlled gates must be 4x4 matrices"))
+            raise InputError
 
         self._host.backend.custom_two_qubit_gate(self, other_qubit, gate)
 

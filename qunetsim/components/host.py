@@ -676,7 +676,10 @@ class Host(object):
         packet = protocols.encode(sender=self.host_id,
                                   receiver=receiver,
                                   protocol=Constants.SEND_CLASSICAL,
-                                  payload=Message(sender=self.host_id, content=Constants.ACK, seq_num=seq_number),
+                                  payload=Message(
+                                      sender=self.host_id,
+                                      content=Constants.ACK,
+                                      seq_num=seq_number),
                                   payload_type=Constants.SIGNAL,
                                   sequence_num=seq_number,
                                   await_ack=False)
@@ -909,7 +912,9 @@ class Host(object):
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
                                   protocol=Constants.SEND_GHZ,
-                                  payload={Constants.QUBITS: q_list, Constants.HOSTS: receiver_list},
+                                  payload={
+                                      Constants.QUBITS: q_list,
+                                      Constants.HOSTS: receiver_list},
                                   payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num_list,
                                   await_ack=await_ack)
@@ -942,7 +947,8 @@ class Host(object):
             (str, bool): Qubit ID of the shared W and ACK status
         """
 
-        q_list: list[Qubit] = []
+        q_list:
+            list[Qubit] = []
         n = len(receiver_list) + (0 if distribute else 1)
 
         def f_gate(i, j, k):
@@ -986,7 +992,9 @@ class Host(object):
         packet = protocols.encode(sender=self.host_id,
                                   receiver=None,
                                   protocol=Constants.SEND_W,
-                                  payload={Constants.QUBITS: q_list, Constants.HOSTS: receiver_list},
+                                  payload={
+                                      Constants.QUBITS: q_list,
+                                      Constants.HOSTS: receiver_list},
                                   payload_type=Constants.CLASSICAL,
                                   sequence_num=seq_num_list,
                                   await_ack=await_ack)
@@ -1036,7 +1044,8 @@ class Host(object):
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.W_QUBIT, wait)
 
-    def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False, payload=None, generate_epr_if_none=True):
+    def send_teleport(self, receiver_id, q, await_ack=False, no_ack=False,
+                      payload=None, generate_epr_if_none=True):
         """
         Teleports the qubit *q* with the receiver with host ID *receiver*
 
