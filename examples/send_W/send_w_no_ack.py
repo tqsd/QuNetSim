@@ -40,17 +40,12 @@ def main():
     network.add_host(host_dean)
 
     share_list = ["Bob", "Eve", "Dean"]
-    q_id1, ack_received = host_alice.send_w(share_list, no_ack=True)
-
-    print("Alice received ACK from all? " + str(ack_received))
+    q_id1 = host_alice.send_w(share_list, no_ack=True)
 
     q1 = host_alice.get_w('Alice', q_id1, wait=10)
     q2 = host_bob.get_w('Alice', q_id1, wait=10)
     q3 = host_eve.get_w('Alice', q_id1, wait=10)
     q4 = host_dean.get_w('Alice', q_id1, wait=10)
-
-    print("System density matrix:")
-    print(q1._qubit[0].data)
 
     m1 = q1.measure()
     m2 = q2.measure()

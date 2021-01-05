@@ -947,8 +947,7 @@ class Host(object):
             (str, bool): Qubit ID of the shared W and ACK status
         """
 
-        q_list:
-            list[Qubit] = []
+        q_list = []
         n = len(receiver_list) + (0 if distribute else 1)
 
         def f_gate(i, j, k):

@@ -49,9 +49,6 @@ def main():
     q3 = host_eve.get_w('Alice', q_id1, wait=10)
     q4 = host_dean.get_w('Alice', q_id1, wait=10)
 
-    print("System density matrix:")
-    print(q1._qubit[0].data)
-
     m1 = q1.measure()
     m2 = q2.measure()
     m3 = q3.measure()
