@@ -1,5 +1,6 @@
 import uuid
 import numpy as np
+import scipy
 
 
 class Qubit(object):
@@ -11,6 +12,7 @@ class Qubit(object):
     DATA_QUBIT = "data"
     EPR_QUBIT = "EPR"
     GHZ_QUBIT = "GHZ"
+    W_QUBIT = "W"
 
     def __init__(self, host, qubit=None, q_id=None, blocked=False):
         self._blocked = blocked
@@ -112,6 +114,34 @@ class Qubit(object):
             receiver_id (String): ID of Host the qubit should be send to.
         """
         self._host.backend.send_qubit_to(self, self._host.host_id, receiver_id)
+
+    def fidelity(self, other_qubit):
+        """
+        Determines the quantum fidelity between this and the given qubit.
+
+        Args:
+            other_qubit (Qubit): The other (apart from this) qubit used to calculate the quantum fidelity
+
+        Returns:
+            (float) The quantum fidelity between this and the given qubit.
+        """
+
+        self_density_mat = self.density_operator()
+        other_density_mat = other_qubit.density_operator()
+        root_squared_self_density_mat = scipy.linalg.fractional_matrix_power(self_density_mat, .5)
+        main_matrix = np.matmul(
+            np.matmul(
+                root_squared_self_density_mat,
+                other_density_mat),
+            root_squared_self_density_mat)
+        root_squared_main_matrix = scipy.linalg.fractional_matrix_power(main_matrix, .5)
+        root_squared_main_matrix_trace = np.trace(root_squared_main_matrix)
+        squared_main_matrix_trace = pow(root_squared_main_matrix_trace, 2)
+        normalizer_denominator = np.dot(np.trace(self_density_mat), np.trace(other_density_mat))
+
+        if normalizer_denominator != 0:
+            return squared_main_matrix_trace / normalizer_denominator
+        return -1
 
     def release(self):
         """
@@ -215,11 +245,11 @@ class Qubit(object):
         """
 
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (2, 2):
-            raise (InputError("Custom gates must be 2x2 matrices"))
+            raise InputError
 
         self._host.backend.custom_gate(self, gate)
 
@@ -233,11 +263,11 @@ class Qubit(object):
         """
 
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy arrays are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (2, 2):
-            raise (InputError("Custom controlled gates must be 2x2 matrices"))
+            raise InputError
 
         self._host.backend.custom_controlled_gate(self, target, gate)
 
@@ -251,11 +281,11 @@ class Qubit(object):
             gate (Numpy ndarray): The gate to apply
         """
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (4, 4):
-            raise (InputError("Custom controlled gates must be 4x4 matrices"))
+            raise InputError
 
         self._host.backend.custom_controlled_two_qubit_gate(self, q1, q2, gate)
 
@@ -268,11 +298,11 @@ class Qubit(object):
             gate (Numpy ndarray): The gate
         """
         if not isinstance(gate, np.ndarray):
-            raise (InputError("Only Numpy matrices are allowed"))
+            raise InputError
         if not is_unitary(gate):
-            raise (InputError("Custom gates must be unitary operations"))
+            raise InputError
         if gate.shape != (4, 4):
-            raise (InputError("Custom controlled gates must be 4x4 matrices"))
+            raise InputError
 
         self._host.backend.custom_two_qubit_gate(self, other_qubit, gate)
 
