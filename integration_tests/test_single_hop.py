@@ -224,6 +224,18 @@ class TestOneHop(unittest.TestCase):
         self.assertEqual(q_alice.measure(), q_bob.measure())
 
     # @unittest.skip('')
+    def test_w(self):
+        global hosts
+        hosts['alice'].send_w([hosts['bob'].host_id], await_ack=True)
+
+        q_alice = hosts['alice'].get_w(hosts['alice'].host_id)
+        q_bob = hosts['bob'].get_w(hosts['alice'].host_id)
+
+        self.assertIsNotNone(q_alice)
+        self.assertIsNotNone(q_bob)
+        self.assertNotEqual(q_alice.measure(), q_bob.measure())
+
+    # @unittest.skip('')
     def test_qkd(self):
         global hosts
         key_size = 4

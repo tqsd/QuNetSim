@@ -90,6 +90,7 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#overview-video">Overview Video</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
 </ul>
@@ -128,6 +129,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_w.html">Send W State</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
@@ -544,6 +546,28 @@ to the generator of the GHZ state.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="qunetsim.components.host.Host.add_w_qubit">
+<code class="sig-name descname">add_w_qubit</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">qubit</em>, <em class="sig-param">q_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.add_w_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the W qubit to the storage of the host. The host id corresponds
+to the generator of the W state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host to pair the qubit</p></li>
+<li><p><strong>qubit</strong> (<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – The data Qubit to be added.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – the ID to set the qubit ID to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The qubit ID</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.components.host.Host.await_ack">
 <code class="sig-name descname">await_ack</code><span class="sig-paren">(</span><em class="sig-param">sequence_number</em>, <em class="sig-param">sender</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.await_ack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Block until an ACK for packet with sequence number arrives.</p>
@@ -664,6 +688,19 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 </dd></dl>
 
 <dl class="method">
+<dt id="qunetsim.components.host.Host.delete_key">
+<code class="sig-name descname">delete_key</code><span class="sig-paren">(</span><em class="sig-param">partner_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.delete_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a key shared with a partner by QKD. Should be used if a key
+was eavesdropped and/or a new key should be shared. If there is no key
+shared, nothing happens.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>partner_id</strong> (<em>str</em>) – The ID of the key partner</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.components.host.Host.empty_classical">
 <code class="sig-name descname">empty_classical</code><span class="sig-paren">(</span><em class="sig-param">reset_seq_nums=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.empty_classical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Empty the classical message buffers.</p>
@@ -677,7 +714,9 @@ EPR half, otherwise change the first unblocked EPR half to the <em>new_id</em>.<
 <dl class="method">
 <dt id="qunetsim.components.host.Host.get_classical">
 <code class="sig-name descname">get_classical</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">seq_num=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_classical" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the classical messages from partner host <em>host_id</em>.</p>
+<dd><p>Get the classical messages from partner host <em>host_id</em>. If you need
+the next classical message from the host, don’t pass a seq_num, but
+use <em>get_next_classical</em> instead. This is much faster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -823,14 +862,17 @@ It is not necessary to know with whom the states are shared.</p>
 
 <dl class="method">
 <dt id="qunetsim.components.host.Host.get_key">
-<code class="sig-name descname">get_key</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_key" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_key</code><span class="sig-paren">(</span><em class="sig-param">receiver_id</em>, <em class="sig-param">wait=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Should be called after <em>send_key</em> is called. Blocks, till the key sharing
 is finished and returns the key and the amount of attemptes needed in QKD.
 From this value, the user can decide if the transmission was assumed safe
 or not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the key partner</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_id</strong> (<em>str</em>) – The ID of the key partner</p></li>
+<li><p><strong>wait</strong> (<em>float</em>) – The amount to wait for the key, -1 to wait forever.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The key, as a list of ints, and the amount of attempts needed</p>
@@ -926,6 +968,28 @@ If wait is -1 (default), it is waited till a message arrives.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host.get_w">
+<code class="sig-name descname">get_w</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">wait=0</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the W qubit which has been created by the host with the host ID <em>host_id</em>.
+It is not necessary to know with whom the states are shared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_id</strong> (<em>str</em>) – The ID of the host that creates the GHZ state.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The qubit ID of the W to get.</p></li>
+<li><p><strong>wait</strong> (<em>float</em>) – the amount of time to wait</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Qubit shared with the host with <em>host_id</em> and <em>q_id</em>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="../objects/qubit.html#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit">Qubit</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1298,6 +1362,32 @@ coding to the receiver with receiver ID <em>receiver_id</em>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(bool) If await_ack=True, return the status of the ACK</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.host.Host.send_w">
+<code class="sig-name descname">send_w</code><span class="sig-paren">(</span><em class="sig-param">receiver_list</em>, <em class="sig-param">q_id=None</em>, <em class="sig-param">await_ack=False</em>, <em class="sig-param">no_ack=False</em>, <em class="sig-param">distribute=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.send_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Share W state with all receiver ids in the list. W state is generated
+locally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_list</strong> (<em>list</em>) – A List of all Host IDs with which a W state
+should be shared.</p></li>
+<li><p><strong>q_id</strong> (<em>str</em>) – The ID of the W qubits</p></li>
+<li><p><strong>await_ack</strong> (<em>bool</em>) – If the sender should await an ACK from all receivers</p></li>
+<li><p><strong>no_ack</strong> (<em>bool</em>) – If this message should not use any ACK and sequencing.</p></li>
+<li><p><strong>distribute</strong> (<em>bool</em>) – If the sender should keep part of the W state, or just
+distribute one</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Qubit ID of the shared W and ACK status</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, bool)</p>
 </dd>
 </dl>
 </dd></dl>

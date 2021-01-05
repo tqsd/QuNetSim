@@ -1,0 +1,2 @@
+This example explains how to send an entangled W state (https://en.wikipedia.org/wiki/W_state).
+It has been developed analyzing the Qiskit code provided at https://notebook.community/antoniomezzacapo/qiskit-tutorial/community/teach_me_qiskit_2018/w_state/W%20State%201%20-%20Multi-Qubit%20Systems, generalizing it to a dynamic n-qubit W state generator and writing it accordingly to the already existing GHZ and EPR state exchange.
