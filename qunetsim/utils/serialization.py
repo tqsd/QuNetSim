@@ -1,5 +1,7 @@
 import enum
+import struct
 from qunetsim.utils.constants import Constants
+
 
 class Serialization:
     BYTEORDER = 'big'
@@ -46,6 +48,8 @@ class Serialization:
     SIZE_QUBIT_ID = 16
     SIZE_QUNETSIM_QUBIT_ID = 50
     SIZE_MSG_CONTENT = 512
+    SIZE_GATE = 1
+    SIZE_GATE_PARAMETER = 1
     SIZE_PROTOCOL = 1
     SIZE_PAYLOAD_TYPE = 1
     SIZE_OPTIONS = 1                # generic size for option fields
@@ -65,6 +69,9 @@ class Serialization:
 
     def msg_content_to_binary(content):
         return Serialization.string_to_binary(content, Serialization.SIZE_MSG_CONTENT)
+
+    def float_to_binary(num):
+        return format(struct.unpack('!I', struct.pack('!f', num))[0], '032b')
 
     ###########################################################
     # From binary
@@ -102,3 +109,6 @@ class Serialization:
         if val:
             return True
         return False
+
+    def binary_to_float(binary):
+        return struct.unpack('!f',struct.pack('!I', int(binary, 2)))[0]

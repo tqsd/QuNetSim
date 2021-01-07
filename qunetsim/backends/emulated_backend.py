@@ -99,11 +99,20 @@ class MeasurementResult(object):
         self.id = id
         self.result = result
 
+    def to_binary(self):
+        pass
+
+
+def network_command_to_amount_of_bytes(command):
+    # returns the size of the data frame from the command
+    command = Serialization.binary_to_integer(command)
+    return command, int(calculate_bit_length(Network_command_to_frame[command])/8)
+
 
 def command_to_amount_of_bytes(command):
     # returns the size of the data frame from the command
     command = Serialization.binary_to_integer(command)
-    return command, int(calculate_bit_length(Network_command_to_frame[command])/8)
+    return command, int(calculate_bit_length(Command_to_frame[command])/8)
 
 
 def binary_to_object(command, binary_string):
@@ -327,7 +336,7 @@ class EmulationBackend(object):
 
             if self._receiver_state == EmulationBackend.NetworkingCard.IDLE_STATE:
                 self._receiver_state = EmulationBackend.NetworkingCard.WAIT_FOR_DATA
-                self._command_of_frame, self._total_bytes_of_frame = command_to_amount_of_bytes(data[0])
+                self._command_of_frame, self._total_bytes_of_frame = network_command_to_amount_of_bytes(data[0])
                 data = data[1:]  # remove command from the data
                 self._current_frame_bytes = b''
                 self._bytes_read_of_frame = 0
