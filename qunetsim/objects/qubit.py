@@ -131,6 +131,16 @@ class Qubit(object):
         """
         self._blocked = state
 
+    def to_binary(self):
+        """
+        Converts the Qubit to a binary string.
+        """
+        binary_string = b''
+        # This is binary in the case of the emulation backend
+        binary_string += self._qubit
+        binary_string += Serialization.string_to_binary(self._id, Serialization.SIZE_QUNETSIM_QUBIT_ID)
+        return binary_string
+
     def send_to(self, receiver_id):
         """
         Sends the Qubit to another host.

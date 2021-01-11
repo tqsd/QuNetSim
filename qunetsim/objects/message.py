@@ -8,6 +8,15 @@ class Message(object):
 
     @staticmethod
     def from_binary(binary_string):
+        """
+        Creates a Message object from a binary string.
+
+        Args:
+            binary_string(bytes): Bytestring of the message.
+
+        Returns:
+            msg (Message): Message of the bytestring.
+        """
         # get binary parts from the binary string
         start = 0
         sender = binary_string[start:start+Serialization.SIZE_HOST_ID]
@@ -19,7 +28,7 @@ class Message(object):
 
         # turn binary data to QuNetSim data
         sender = Serialization.binary_to_host_id(sender)
-        seq_num = Serialization.binary_to_integer(seq_num)
+        seq_num = Serialization.binary_to_integer(seq_num, signed=True)
         content = Serialization.binary_to_string(content)
 
         # create Packet object
@@ -101,3 +110,13 @@ class Message(object):
 
         """
         self._seq_num = seq_num
+
+    def to_binary(self):
+        """
+        Converts the message to a binary string.
+        """
+        binary_string = b''
+        binary_string += Serialization.host_id_to_binary(self._sender)
+        binary_string += Serialization.integer_to_binary(self._seq_num, Serialization.SIZE_SEQUENCE_NR, signed=True)
+        binary_string += Serialization.string_to_binary(self._content, Serialization.SIZE_MSG_CONTENT)
+        return binary_string

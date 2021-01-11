@@ -1,124 +1,14 @@
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.backends.safe_dict import SafeDict
 from qunetsim.objects import Logger, Packet, Qubit
-from qunetsim.utils.serialization import Serialization, Constants
+from qunetsim.utils.constants import Constants
+from qunetsim.utils.serialization import Serialization
+from qunetsim.utils.serialization.network_objects import SingleGate, DoubleGate,\
+                                Measure, NewQubit, CreateEntangledPair, MeasurementResult
 from qunetsim.components import Network, Host
-from qunetsim.backends.emulated_backend import command_to_amount_of_bytes, \
-                                MeasurementResult
+from qunetsim.backends.emulated_backend import command_to_amount_of_bytes
 import serial
 import serial.threaded
-
-
-class SingleGate(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        # get binary parts from the binary string
-        start = 0
-        qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        gate = binary_string[start:(start+Serialization.SIZE_GATE)]
-        start += Serialization.SIZE_GATE
-        gate_parameter = binary_string[start:(start+Serialization.SIZE_GATE_PARAMETER)]
-        start += Serialization.SIZE_GATE_PARAMETER
-
-        # turn binary data to QuNetSim data
-        gate = Serialization.binary_to_integer(gate)
-        gate_parameter = Serialization.binary_to_float(gate_parameter)
-
-        return SingleGate(qubit_id, gate, gate_parameter)
-
-    def __init__(self, qubit_id, gate, gate_parameter):
-        self.qubit_id = qubit_id
-        self.gate = gate
-        self.gate_parameter = gate_parameter
-
-    def execute(self, backend):
-        pass
-
-
-class DoubleGate(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        # get binary parts from the binary string
-        start = 0
-        first_qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        second_qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        gate = binary_string[start:(start+Serialization.SIZE_GATE)]
-        start += Serialization.SIZE_GATE
-        gate_parameter = binary_string[start:(start+Serialization.SIZE_GATE_PARAMETER)]
-        start += Serialization.SIZE_GATE_PARAMETER
-
-        # turn binary data to QuNetSim data
-        gate = Serialization.binary_to_integer(gate)
-        gate_parameter = Serialization.binary_to_float(gate_parameter)
-
-        return SingleGate(first_qubit_id, second_qubit_id, gate, gate_parameter)
-
-    def __init__(self, first_qubit_id, second_qubit_id, gate, gate_parameter):
-        self.first_qubit_id = first_qubit_id
-        self.second_qubit_id = second_qubit_id
-        self.gate = gate
-        self.gate_parameter = gate_parameter
-
-
-class Measure(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        # get binary parts from the binary string
-        start = 0
-        qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        options = binary_string[start:(start+Serialization.SIZE_OPTIONS)]
-        start += Serialization.SIZE_OPTIONS
-
-        # turn binary data to QuNetSim data
-        non_destructive = Serialization.binary_extract_option_field(options, 0)
-
-        return Measure(qubit_id, non_destructive)
-
-    def __init__(self, qubit_id, non_destructive):
-        self.qubit_id = qubit_id
-        self.non_destructive = non_destructive
-
-    def to_binary(self):
-        pass
-
-
-class NewQubit(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        # get binary parts from the binary string
-        start = 0
-        qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-
-        return NewQubit(qubit_id)
-
-    def __init__(self, qubit_id):
-        self.qubit_id = qubit_id
-
-
-class CreateEntangledPair(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        start = 0
-        first_qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        second_qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-
-        return CreateEntangledPair(first_qubit_id, second_qubit_id)
-
-    def __init__(self, first_qubit_id, second_qubit_id):
-        self.first_qubit_id = first_qubit_id
-        self.second_qubit_id = second_qubit_id
 
 
 def handle_binary(command, binary_string):

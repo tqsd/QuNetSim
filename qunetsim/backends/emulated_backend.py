@@ -5,6 +5,8 @@ from qunetsim.objects import Logger
 from qunetsim.objects.packets.packet import Packet
 from qunetsim.utils.constants import Constants
 from qunetsim.utils.serialization import Serialization
+from qunetsim.utils.serialization.network_objects import SingleGate, DoubleGate,\
+                                Measure, NewQubit, CreateEntangledPair, MeasurementResult
 from queue import Queue
 import uuid
 from copy import deepcopy as dp
@@ -79,30 +81,6 @@ Network_command_to_frame = [idle_frame, network_packet_frame, measurement_result
 command_basis_frame = [['command', None, 8]]
 
 
-class MeasurementResult(object):
-
-    @staticmethod
-    def from_binary(binary_string):
-        # get the binary parts from the binary string
-        start = 0
-        id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
-        start += Serialization.SIZE_QUBIT_ID
-        options = binary_string[start:(start+Serialization.SIZE_OPTIONS)]
-        start += Serialization.SIZE_OPTIONS
-
-        # turn binary data to python data
-        result = Serialization.binary_extract_option_field(options, 0)
-
-        return MeasurementResult(id, result)
-
-    def __init__(self, id, result):
-        self.id = id
-        self.result = result
-
-    def to_binary(self):
-        pass
-
-
 def network_command_to_amount_of_bytes(command):
     # returns the size of the data frame from the command
     command = Serialization.binary_to_integer(command)
@@ -124,130 +102,6 @@ def binary_to_object(command, binary_string):
         return Packet.from_binary(binary_string)
     else:
         raise ValueError("Received command from Networking card is not valid.")
-
-
-def create_binary_frame(dataframe, byteorder='big'):
-    """
-    Creates a binary string from a frame.
-    """
-    binary_output = b''
-
-    def query_frame(frame, binary_string):
-        bytecount = 0
-        byte = 0
-        for entry in dataframe:
-            # Bitfields
-            if bytecount != 0:
-                if entry[2] + bytecount > 8:
-                    raise ValueError("Bitfields have to count up to 8!")
-                amount_bits = entry[2]
-                and_op = 0x00FF >> (8 - amount_bits)
-                byte = byte | ((entry[1] & and_op) << bytecount)
-                bytecount = bytecount + amount_bits
-                if bytecount == 8:
-                    binary_string = binary_string + byte.to_bytes(1, byteorder=byteorder, signed=False)
-                    bytecount = 0
-
-            elif isinstance(entry[1], int):
-                if entry[2] % 8 == 0:
-                    if entry[1] < 0:
-                        binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=True)
-                    else:
-                        binary_string = binary_string + entry[1].to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
-                else:
-                    # start bitfield
-                    bytecount = 0
-                    amount_bits = entry[2]
-                    and_op = 0x00FF >> (8 - amount_bits)
-                    byte = (entry[1] & and_op) << bytecount
-                    bytecount = bytecount + amount_bits
-            elif isinstance(entry[1], bytearray) or isinstance(entry[1], bytes):
-                if len(entry[1]) != int(entry[2]/8):
-                    raise ValueError("Size of the binary string does not match the frame size!")
-                binary_string = binary_string + entry[1]
-            elif isinstance(entry[1], enum.Enum):
-                binary_string = binary_string + entry[1].value.to_bytes(int(entry[2]/8), byteorder=byteorder, signed=False)
-            elif isinstance(entry[1], str):
-                Serialization.string_to_binary(entry[1], int(entry[2]/8))
-            elif isinstance(entry[1], list):
-                binary_string = binary_string + query_frame(entry[1], binary_string)
-            else:
-                raise ValueError(entry[1], "is of unknown type!")
-        return binary_string
-
-    return query_frame(dataframe, binary_output)
-
-
-def create_frame(command, **kwargs):
-    """
-    Creates a frame with filled in information.
-    """
-    values = {}
-    if command not in Serialization.Commands:
-        raise ValueError("Command does not exist!")
-    values["command"] = command.value
-    frame = dp(command_basis_frame)
-    if "frame" in kwargs.keys():
-        frame = frame + kwargs["frame"]
-        del kwargs["frame"]
-    else:
-        frame = frame + dp(Command_to_frame[command.value])
-    for key in kwargs.keys():
-        if key not in [x[0] for x in frame]:
-            raise ValueError("Key ", key, " does not exist!")
-        values[key] = kwargs[key]
-
-    for entry in frame:
-        if entry[1] is None:
-            entry[1] = values[entry[0]]
-
-    return frame
-
-
-def network_packet_to_frame(packet):
-
-    def fill_payload(network_frame, payload):
-        """
-        Fills a payload into the network packet.
-        """
-        bit_length = network_frame[-1][2]
-        bit_length_payload = calculate_bit_length(payload)
-        del(network_frame[-1])
-        for entry in payload:
-            network_frame.append(entry)
-        if bit_length > bit_length_payload:
-            network_frame.append(["reserved", 0, bit_length - bit_length_payload])
-        return network_frame
-
-    frame = dp(network_packet_frame)
-    values = {}
-
-    payload = None
-    if packet.payload_type == Constants.SIGNAL:
-        payload = signal_payload
-        values["payload_type"] = 0
-        values["message"] = packet.payload.content
-    elif packet.payload_type == Constants.CLASSICAL:
-        payload = classical_payload
-        values["payload_type"] = 1
-        values["message"] = packet.payload.content
-    elif packet.payload_type == Constants.QUANTUM:
-        payload = quantum_payload
-        values["payload_type"] = 2
-        values["qunetsim_qubit_id"] = packet.payload.id
-        values["qubit_id"] = packet.payload.qubit
-    else:
-        raise ValueError("This payload type does not exist!")
-
-    frame = fill_payload(frame, payload)
-
-    values["sender"] = packet.sender
-    values["receiver"] = packet.receiver
-    values["sequence_number"] = packet.seq_num
-    values["protocol"] = packet.protocol
-    values["await_ack"] = packet.await_ack
-
-    return create_frame(Serialization.Commands.SEND_NETWORK_PACKET, frame=frame, **values)
 
 
 class EmulationBackend(object):
@@ -378,9 +232,11 @@ class EmulationBackend(object):
         self._networking_card = EmulationBackend.NetworkingCard.get_instance()
         self._hosts = EmulationBackend.Hosts.get_instance()
 
-    def _send_to_networking_card(self, frame):
-        binary_string = create_binary_frame(frame)
-        self._networking_card.send_bytestring(binary_string)
+    def _send_to_networking_card(self, command, object):
+        binary = b''
+        binary += Serialization.integer_to_binary(command, 1)
+        binary += object.to_binary()
+        self._networking_card.send_bytestring(binary)
 
     def start(self, **kwargs):
         """
@@ -415,8 +271,7 @@ class EmulationBackend(object):
         Args:
             packet (Packet): packet object to be send to the network.
         """
-        frame = network_packet_to_frame(packet)
-        self._send_to_networking_card(frame)
+        self._send_to_networking_card(Serialization.Commands.SEND_NETWORK_PACKET, packet)
 
     def create_qubit(self, host_id, id=None):
         """
@@ -429,9 +284,8 @@ class EmulationBackend(object):
             Qubit of backend type.
         """
         if id is None:
-            id = uuid.uuid4()
-        frame = create_frame(Serialization.Commands.NEW_QUBIT.value, qubit_id=id.bytes)
-        self._send_to_networking_card(frame)
+            id = uuid.uuid4().bytes
+        self._send_to_networking_card(Serialization.Commands.NEW_QUBIT, NewQubit(id))
         return id
 
     def send_qubit_to(self, qubit, from_host_id, to_host_id):
@@ -461,9 +315,9 @@ class EmulationBackend(object):
         id1 = uuid.uuid4().bytes
         id2 = uuid.uuid4().bytes
         # use EPR creation acceleration hardware of quantum networking card
-        frame = create_frame(Serialization.Commands.CREATE_ENTANGLED_PAIR, first_qubit_id=id1,
-                             second_qubit_id=id2)
-        self._send_to_networking_card(frame)
+        CreateEntangledPair(id1, id2)
+        self._send_to_networking_card(Serialization.Commands.CREATE_ENTANGLED_PAIR,\
+                                      CreateEntangledPair(id1, id2))
         host = self._hosts.get_from_dict(host_id)
         q1 = Qubit(host, qubit=id1, q_id=q_id, blocked=block)
         q2 = Qubit(host, qubit=id2, q_id=q_id, blocked=block)
@@ -474,14 +328,12 @@ class EmulationBackend(object):
     #########################
 
     def _apply_single_gate(self, qubit, gate, gate_parameter=0):
-        frame = create_frame(Serialization.Commands.APPLY_GATE_SINGLE_GATE, qubit_id=qubit.qubit,
-                            gate=gate, gate_parameter=0)
-        self._send_to_networking_card(frame)
+        self._send_to_networking_card(Serialization.Commands.APPLY_GATE_SINGLE_GATE,\
+                            SingleGate(qubit.qubit, gate, gate_parameter))
 
     def _apply_double_gate(self, qubit1, qubit2, gate):
-        frame = create_frame(Serialization.Commands.APPLY_DOUBLE_GATE, first_qubit_id=qubit1.qubit,
-                            second_qubit_id=qubit2.id, gate=gate)
-        self._send_to_networking_card(frame)
+        self._send_to_networking_card(Serialization.Commands.APPLY_DOUBLE_GATE,\
+                            DoubleGate(qubit1.qubit, qubit2.qubit, gate, gate_parameter))
 
     def I(self, qubit):
         """
@@ -656,11 +508,8 @@ class EmulationBackend(object):
         Returns:
             The value which has been measured.
         """
-        non_destructive_value = 0
-        if non_destructive:
-            non_destructive_value = 1
-        frame = create_frame(Serialization.Commands.MEASURE, qubit_id=qubit.qubit, non_destructive=non_destructive_value)
-        self._send_to_networking_card(frame)
+        self._send_to_networking_card(Serialization.Commands.MEASURE,\
+                    Measure(qubit.qubit, non_destructive))
 
         queue = Queue()
         self._networking_card.add_notify_on_recv(queue,

@@ -30,7 +30,7 @@ class Packet(object):
         # turn binary data to QuNetSim data
         sender = Serialization.binary_to_host_id(sender)
         receiver = Serialization.binary_to_host_id(receiver)
-        seq_num = Serialization.binary_to_integer(seq_num)
+        seq_num = Serialization.binary_to_integer(seq_num, True)
         protocol = Serialization.binary_to_integer(protocol)
         payload_type = Serialization.binary_to_payload_type(payload_type)
         await_ack = Serialization.binary_extract_option_field(options, 0)
@@ -179,3 +179,17 @@ class Packet(object):
     @await_ack.setter
     def await_ack(self, await_ack):
         self._await_ack = await_ack
+
+    def to_binary(self):
+        """
+        Converts the Packet object to a binary object.
+        """
+        binary_string = b''
+        binary_string += Serialization.host_id_to_binary(self._sender)
+        binary_string += Serialization.host_id_to_binary(self._receiver)
+        binary_string += Serialization.integer_to_binary(self._seq_num, Serialization.SIZE_SEQUENCE_NR, signed=True)
+        binary_string += Serialization.integer_to_binary(self._protocol, Serialization.SIZE_PROTOCOL)
+        binary_string += Serialization.payload_type_to_binary(self._payload_type)
+        binary_string += Serialization.options_to_binary(self._await_ack)
+        binary_string += self.payload.to_binary()
+        return binary_string
