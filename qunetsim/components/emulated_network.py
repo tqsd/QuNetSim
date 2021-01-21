@@ -46,7 +46,6 @@ class EmulatedNetwork:
         Logger.get_instance().debug('host added: ' + host.host_id)
         self._hosts.append(host.host_id)
         self.ARP[host.host_id] = host
-        self._update_network_graph(host)
 
     def add_hosts(self, hosts):
         """

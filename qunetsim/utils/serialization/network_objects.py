@@ -1,4 +1,5 @@
 from qunetsim.utils.serialization import Serialization
+from qunetsim.objects.logger import Logger
 import uuid
 
 
@@ -26,7 +27,7 @@ class SingleGate(object):
         self.gate = gate
         self.gate_parameter = gate_parameter
 
-    def to_binary(self, backend):
+    def to_binary(self):
         binary_string = b''
         binary_string += self.qubit_id
         binary_string += Serialization.integer_to_binary(self.gate, Serialization.SIZE_GATE)
@@ -114,8 +115,14 @@ class MeasurementResult(object):
         return MeasurementResult(id, result)
 
     def __init__(self, id, result):
-        self.id = uuid.UUID(id)
-        self.result = result
+        if isinstance(id, str):
+            self.id = uuid.UUID(id)
+        else:
+            self.id = uuid.UUID(bytes=id)
+        if result:
+            self.result = 1
+        else:
+            self.result = 0
 
     def to_binary(self):
         binary_string = b''
@@ -132,6 +139,8 @@ class NewQubit(object):
         start = 0
         qubit_id = binary_string[start:(start+Serialization.SIZE_QUBIT_ID)]
         start += Serialization.SIZE_QUBIT_ID
+
+        Logger.get_instance().log("here")
 
         return NewQubit(qubit_id)
 

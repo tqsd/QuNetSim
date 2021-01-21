@@ -1,5 +1,6 @@
 import struct
 from qunetsim.utils.constants import Constants
+from qunetsim.objects.logger import Logger
 
 
 class Serialization:

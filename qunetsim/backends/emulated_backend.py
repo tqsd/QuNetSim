@@ -11,6 +11,7 @@ from queue import Queue
 import uuid
 from copy import deepcopy as dp
 import enum
+import time
 try:
     import serial
     import serial.threaded
@@ -46,11 +47,11 @@ calculate_bit_length = lambda x: sum([a[2] for a in x])
 idle_frame = {}
 single_gate_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
-                     ["gate_parameter", None, 8]]
+                     ["gate_parameter", None, Serialization.SIZE_GATE_PARAMETER * 8]]
 double_gate_frame = [["first_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                      ["second_qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                      ["gate", None, 8],
-                     ["gate_parameter", None, 8]]
+                     ["gate_parameter", None, Serialization.SIZE_GATE_PARAMETER * 8]]
 measure_frame = [["qubit_id", None, Serialization.SIZE_QUBIT_ID * 8],
                  ["non_destructive", None, 1],
                  ["reserved", 0, 7]]
@@ -76,7 +77,7 @@ Command_to_frame = [idle_frame, single_gate_frame, double_gate_frame,
                     measure_frame, new_qubit_frame, send_qubit_frame,
                     create_epr_frame, network_packet_frame]
 
-Network_command_to_frame = [idle_frame, network_packet_frame, measurement_result_frame]
+Network_command_to_frame = [idle_frame, measurement_result_frame, network_packet_frame]
 
 command_basis_frame = [['command', None, 8]]
 
@@ -84,6 +85,7 @@ command_basis_frame = [['command', None, 8]]
 def network_command_to_amount_of_bytes(command):
     # returns the size of the data frame from the command
     command = Serialization.binary_to_integer(command)
+    Logger.get_instance().log("received command "+ str(command))
     return command, int(calculate_bit_length(Network_command_to_frame[command])/8)
 
 
@@ -127,20 +129,25 @@ class EmulationBackend(object):
             if EmulationBackend.NetworkingCard.__instance is not None:
                 raise Exception("Call get instance to get the object.")
             EmulationBackend.NetworkingCard.__instance = self
-            ser = serial.Serial('/dev/ttyUSB0', 115200)
+            ser = serial.Serial('/dev/ttyUSB1', 115200)
             self._listener_dict = SafeDict()
             self._virtual_network = None  # virtual network which distributes messages to the right hosts
             self._notifier_list = []
             self._receiver_lock = RWLock()  # to make sure that data is not read in parallel
+            self._sender_lock = RWLock()
             self._command_of_frame = 0  # description of the frame to be filled
             self._bytes_read_of_frame = 0  # bytes received of the current frame
             self._total_bytes_of_frame = 0  # total bytes in the frame currently receiving
             self._current_frame_bytes = None  # buffer for the bytes of the current frame
             self._receiver_state = EmulationBackend.NetworkingCard.IDLE_STATE
             self._reader = serial.threaded.ReaderThread(ser, self)
+            self._reader.start()
 
         def __del__(self):
             self._reader.__exit__()
+
+        def __call__(self):
+            return self
 
         def add_notify_on_recv(self, return_queue, command, identification):
             """
@@ -157,14 +164,15 @@ class EmulationBackend(object):
             self._notifier_list.append(notification)
 
         def _process_frame_data(self, data):
-            if self._total_bytes_of_frame > (self._current_frame_bytes + len(data)):
-                self._current_frame_bytes += len(data)
-                self._total_bytes_of_frame += data
+            if self._total_bytes_of_frame > (self._bytes_read_of_frame + len(data)):
+                self._bytes_read_of_frame += len(data)
+                self._current_frame_bytes += data
                 return len(data)
             else:
-                append_length = self._total_bytes_of_frame - self._current_frame_bytes
+                append_length = self._total_bytes_of_frame - self._bytes_read_of_frame
                 data_append = data[:append_length]
-                self._total_bytes_of_frame += data_append
+                self._bytes_read_of_frame += append_length
+                self._current_frame_bytes += data_append
                 return append_length
 
         def _handle_finished_frame(self):
@@ -173,16 +181,28 @@ class EmulationBackend(object):
                 # send the packet to the virtual network
                 self._virtual_network.send(object)
             elif self._command_of_frame == Serialization.NetworkCommands.MEASUREMENT_RESULT:
+                Logger.get_instance().log("Measurement result " + str(self._notifier_list))
                 # send the measurement result to the right person
-                for notify in list(self._notifier_list):
+                for notify in self._notifier_list:
+                    Logger.get_instance().log("here 1")
                     # check if command and qubit id both match
                     if notify[1] == Serialization.NetworkCommands.MEASUREMENT_RESULT:
-                        if notify[2] == object.id:
+                        Logger.get_instance().log("here 2")
+                        Logger.get_instance().log(str(notify[2]) + " == " + str(object.id))
+                        if notify[2] == object.id.bytes:
+                            Logger.get_instance().log("here 3")
                             notify[0].put(object)
                             # remove element from the notifier list
                             self._notifier_list.remove(notify)
             else:
                 Logger.get_instance().error("Received undefined frame!")
+
+        def send_bytestring(self, byte_string):
+            Logger.get_instance().log("Send byte string " + str(byte_string))
+            self._sender_lock.acquire_write()
+            self._reader.write(byte_string)
+            time.sleep(0.1)
+            self._sender_lock.release_write()
 
         def data_received(self, data, lock_active=False):
             if not lock_active:
@@ -190,10 +210,15 @@ class EmulationBackend(object):
 
             if self._receiver_state == EmulationBackend.NetworkingCard.IDLE_STATE:
                 self._receiver_state = EmulationBackend.NetworkingCard.WAIT_FOR_DATA
-                self._command_of_frame, self._total_bytes_of_frame = network_command_to_amount_of_bytes(data[0])
-                data = data[1:]  # remove command from the data
+                self._command_of_frame, self._total_bytes_of_frame = network_command_to_amount_of_bytes(data[0:1])
+                Logger.get_instance().log(str(self._total_bytes_of_frame) + " bytes expected")
                 self._current_frame_bytes = b''
                 self._bytes_read_of_frame = 0
+                if len(data) > 1:
+                    data = data[1:]  # remove command from the data
+                else:
+                    self._receiver_lock.release_write()
+                    return
 
             if self._receiver_state == EmulationBackend.NetworkingCard.WAIT_FOR_DATA:
                 amount_read = self._process_frame_data(data)
@@ -204,11 +229,12 @@ class EmulationBackend(object):
                     self._current_frame_bytes = None
 
                 if amount_read < len(data):
-                    self.data_received(data[amount_read:])
+                    self.data_received(data[amount_read:], lock_active=True)
 
             self._receiver_lock.release_write()
 
         def connection_lost(self, exc):
+            Logger.get_instance().error("Networking card exception:" + str(exc))
             raise IOError("Connection to quantum networking card lost!")
 
     class Hosts(SafeDict):
@@ -333,7 +359,7 @@ class EmulationBackend(object):
 
     def _apply_double_gate(self, qubit1, qubit2, gate):
         self._send_to_networking_card(Serialization.Commands.APPLY_DOUBLE_GATE,\
-                            DoubleGate(qubit1.qubit, qubit2.qubit, gate, gate_parameter))
+                            DoubleGate(qubit1.qubit, qubit2.qubit, gate, 0))
 
     def I(self, qubit):
         """
@@ -508,15 +534,14 @@ class EmulationBackend(object):
         Returns:
             The value which has been measured.
         """
-        self._send_to_networking_card(Serialization.Commands.MEASURE,\
-                    Measure(qubit.qubit, non_destructive))
-
         queue = Queue()
         self._networking_card.add_notify_on_recv(queue,
                                 Serialization.NetworkCommands.MEASUREMENT_RESULT,
                                 qubit.qubit)
+        self._send_to_networking_card(Serialization.Commands.MEASURE,\
+                    Measure(qubit.qubit, non_destructive))
         meas_res = queue.get()
-        return meas_res
+        return meas_res.result
 
     def release(self, qubit):
         """
