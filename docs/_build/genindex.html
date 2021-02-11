@@ -128,6 +128,11 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/send_w.html">Send W State</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/send_w.html#w-state">W state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/send_w.html#example">Example</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/packet_sniffing.html">Eavesdropping on channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
@@ -209,6 +214,7 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -262,15 +268,17 @@
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_ghz">_rec_ghz() (in module qunetsim.components.protocols)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_key">_rec_key() (in module qunetsim.components.protocols)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_qubit">_rec_qubit() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_superdense">_rec_superdense() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._rec_teleport">_rec_teleport() (in module qunetsim.components.protocols)</a>
+</li>
+      <li><a href="components/protocols.html#qunetsim.components.protocols._rec_w">_rec_w() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._relay_message">_relay_message() (in module qunetsim.components.protocols)</a>
 </li>
@@ -291,6 +299,8 @@
       <li><a href="components/protocols.html#qunetsim.components.protocols._send_superdense">_send_superdense() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/protocols.html#qunetsim.components.protocols._send_teleport">_send_teleport() (in module qunetsim.components.protocols)</a>
+</li>
+      <li><a href="components/protocols.html#qunetsim.components.protocols._send_w">_send_w() (in module qunetsim.components.protocols)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network._update_network_graph">_update_network_graph() (qunetsim.components.network.Network method)</a>
 </li>
@@ -314,10 +324,10 @@
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_epr">add_epr() (qunetsim.components.host.Host method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_ghz_qubit">add_ghz_qubit() (qunetsim.components.host.Host method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/network.html#qunetsim.components.network.Network.add_host">add_host() (qunetsim.components.network.Network method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.add_hosts">add_hosts() (qunetsim.components.network.Network method)</a>
@@ -325,6 +335,8 @@
       <li><a href="components/host.html#qunetsim.components.host.Host.add_q_connection">add_q_connection() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.add_q_connections">add_q_connections() (qunetsim.components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#qunetsim.components.host.Host.add_w_qubit">add_w_qubit() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.await_ack">await_ack() (qunetsim.components.host.Host method)</a>
 
@@ -394,6 +406,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/host.html#qunetsim.components.host.Host.delete_key">delete_key() (qunetsim.components.host.Host method)</a>
+</li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.density_operator">density_operator() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
       <li><a href="components/network.html#qunetsim.components.network.Network.draw_classical_network">draw_classical_network() (qunetsim.components.network.Network method)</a>
@@ -411,6 +425,14 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/protocols.html#qunetsim.components.protocols.encode">encode() (in module qunetsim.components.protocols)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.fidelity">fidelity() (qunetsim.objects.qubit.Qubit method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -455,6 +477,8 @@
       <li><a href="components/host.html#qunetsim.components.host.Host.get_sequence_number">get_sequence_number() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="components/host.html#qunetsim.components.host.Host.get_sequence_number_receiver">get_sequence_number_receiver() (qunetsim.components.host.Host method)</a>
+</li>
+      <li><a href="components/host.html#qunetsim.components.host.Host.get_w">get_w() (qunetsim.components.host.Host method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -677,6 +701,8 @@
       <li><a href="components/host.html#qunetsim.components.host.Host.send_teleport">send_teleport() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="objects/qubit.html#qunetsim.objects.qubit.Qubit.send_to">send_to() (qunetsim.objects.qubit.Qubit method)</a>
+</li>
+      <li><a href="components/host.html#qunetsim.components.host.Host.send_w">send_w() (qunetsim.components.host.Host method)</a>
 </li>
       <li><a href="objects/message.html#qunetsim.objects.message.Message.sender">sender() (qunetsim.objects.message.Message property)</a>
 

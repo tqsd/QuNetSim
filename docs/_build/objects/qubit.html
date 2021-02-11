@@ -90,6 +90,7 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#overview-video">Overview Video</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
 </ul>
@@ -115,6 +116,8 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="quantum_storage.html">Quantum Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classical_connection.html">Classical Connection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="packet.html">Packet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="routing_packet.html">Routing Packet</a></li>
 </ul>
@@ -126,6 +129,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_data.html">Send Data Qubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/send_w.html">Send W State</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/chsh.html">CHSH Game</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/packet_sniffing.html">Eavesdropping on channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
@@ -378,6 +382,20 @@ the density operator will be in a mixed state.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.objects.qubit.Qubit.fidelity">
+<code class="sig-name descname">fidelity</code><span class="sig-paren">(</span><em class="sig-param">other_qubit</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.objects.qubit.Qubit.fidelity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the quantum fidelity between this and the given qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other_qubit</strong> (<a class="reference internal" href="#qunetsim.objects.qubit.Qubit" title="qunetsim.objects.qubit.Qubit"><em>Qubit</em></a>) – The other (apart from this) qubit used to calculate the quantum fidelity</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(float) The quantum fidelity between this and the given qubit.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -45,6 +45,8 @@ class Constants:
     REC_KEY = 14
     SEND_GHZ = 15
     REC_GHZ = 16
+    SEND_W = 17
+    REC_W = 18
 
     # MISC
     QUBITS = 'qubits'

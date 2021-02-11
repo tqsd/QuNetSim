@@ -71,6 +71,10 @@ def process(packet):
         return _send_ghz(packet)
     elif protocol == Constants.REC_GHZ:
         return _rec_ghz(packet)
+    elif protocol == Constants.SEND_W:
+        return _send_w(packet)
+    elif protocol == Constants.REC_W:
+        return _rec_w(packet)
     elif protocol == Constants.SEND_BROADCAST:
         return _send_broadcast(packet)
     else:
@@ -565,6 +569,50 @@ def _rec_ghz(packet):
     qubit = packet.payload
     receiver = network.get_host(receiver)
     receiver.add_ghz_qubit(from_host, qubit)
+
+    # Send ACK if seq_num is not -1
+    if packet.seq_num != -1:
+        _send_ack(packet.sender, packet.receiver, packet.seq_num)
+
+
+def _send_w(packet):
+    """
+    Gets W qubits and distributes the to all hosts.
+    One qubit is stored in own storage.
+
+    Args:
+        packet (Packet): The incoming packet
+
+    """
+    host_list = packet.payload[Constants.HOSTS]
+    qubits = packet.payload[Constants.QUBITS]
+    sender = packet.sender
+    await_ack = packet.await_ack
+    seq_num_list = packet.seq_num
+
+    for host, qubit, seq_num in zip(host_list, qubits, seq_num_list):
+        new_packet = Packet(sender=sender,
+                            receiver=host,
+                            protocol=Constants.REC_W,
+                            payload=qubit,
+                            payload_type=Constants.QUANTUM,
+                            sequence_number=seq_num,
+                            await_ack=await_ack)
+        network.send(new_packet)
+
+
+def _rec_w(packet):
+    """
+    Receives a W state and stores it in quantum storage.
+
+    Args:
+        packet (Packet): The incoming packet
+    """
+    from_host = packet.sender
+    receiver = packet.receiver
+    qubit = packet.payload
+    receiver = network.get_host(receiver)
+    receiver.add_w_qubit(from_host, qubit)
 
     # Send ACK if seq_num is not -1
     if packet.seq_num != -1:
