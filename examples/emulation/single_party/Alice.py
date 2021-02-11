@@ -20,14 +20,13 @@ def main():
 
     # q = Qubit(host_alice)
     q = Qubit(host_alice)
+
     q.X()
-    # q.X()
-    # q.X()
-    # q.X()
-    # q.X()
+    q.X()
+    q.X()
 
     m = q.measure()
-
+    #
     print(m)
 
     network.stop(True)
