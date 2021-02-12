@@ -6,7 +6,9 @@ from qunetsim.objects import Qubit
 
 from qunetsim.backends import EQSNBackend
 from qunetsim.backends import CQCBackend
-from qunetsim.backends import QuTipBackend
+
+
+# from qunetsim.backends import QuTipBackend
 
 # @unittest.skip('')
 class TestBackend(unittest.TestCase):
@@ -16,7 +18,7 @@ class TestBackend(unittest.TestCase):
     def setUpClass(cls):
         TestBackend.backends.append(EQSNBackend)
         # TestBackend.backends.append(CQCBackend)
-        TestBackend.backends.append(QuTipBackend)
+        # TestBackend.backends.append(QuTipBackend)
         # TestBackend.backends.append(projectQ)
 
     @classmethod
@@ -45,7 +47,6 @@ class TestBackend(unittest.TestCase):
 
             network.stop(True)
 
-
     # @unittest.skip('')
     def test_single_gates(self):
         for b in TestBackend.backends:
@@ -72,12 +73,9 @@ class TestBackend(unittest.TestCase):
 
             network.stop(True)
 
-    # @unittest.skip('')
-    def test_density_operator(self):
-        """
-        Test EQSN.
-        """
-        backend = EQSNBackend()
+    @unittest.skip('')
+    def test_density_operator_qutip(self):
+        backend = QuTipBackend()
         network = Network.get_instance()
         network.start(["Alice", "Bob"], backend)
         alice = Host('Alice', backend)
@@ -99,10 +97,12 @@ class TestBackend(unittest.TestCase):
 
         network.stop(True)
 
+    # @unittest.skip('')
+    def test_density_operator(self):
         """
-        Test Qutip
+        Test EQSN.
         """
-        backend = QuTipBackend()
+        backend = EQSNBackend()
         network = Network.get_instance()
         network.start(["Alice", "Bob"], backend)
         alice = Host('Alice', backend)
