@@ -319,7 +319,7 @@ class Network:
         """
         return self.classical_routing_algo(self.classical_network, source, dest)
 
-    def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num, blocked):
+    def _entanglement_swap(self, sender, receiver, route, o_seq_num, epr_qubit):
         """
         Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
         between sender and receiver.
@@ -332,10 +332,27 @@ class Network:
             o_seq_num (int): The original sequence number
             blocked (bool): If the pair being distributed is blocked or not
         """
+        q_id = epr_qubit.id
+        blocked = epr_qubit.blocked
         host_sender = self.get_host(sender)
 
         def establish_epr(net, s, r):
-            if not net.shares_epr(s, r):
+            """
+            Establishes EPR betweem s and r.
+
+            Args:
+                net (Network): The network object.
+                s (Host): The sender host.
+                r (Host): The receiver host.
+            """
+            if s == route[0]:
+                # use the existing EPR Qubit
+                host_sender.send_qubit(r, epr_qubit, await_ack=True)
+                q = self.get_host(r).get_data_qubit(s, q_id=q_id, wait=Constants.WAIT_TIME)
+                if q is None:
+                    Logger.get_instance().error("Error in Entanglement Swap.")
+                self.get_host(r).add_epr(s, q)
+            elif not net.shares_epr(s, r):
                 self.get_host(s).send_epr(r, q_id, await_ack=True)
             else:
                 old_id = self.get_host(s).change_epr_qubit_id(r, q_id)
@@ -376,33 +393,8 @@ class Network:
 
             host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
 
-        # Change in the storage that the EPR qubit is shared with the receiver
-        q2 = host_sender.get_epr(route[1], q_id=q_id)
-        host_sender.add_epr(receiver, q2, q_id, blocked)
         Logger.get_instance().log('Entanglement swap was successful for pair with id '
                                   + q_id + ' between ' + sender + ' and ' + receiver)
-
-    def _establish_epr(self, sender, receiver, q_id, o_seq_num, blocked):
-        """
-        Instead doing an entanglement swap, for efficiency we establish EPR pairs
-        directly for simulation, if an entanglement swap would have been possible.
-
-        Args:
-            sender (Host): Sender of the EPR pair
-            receiver (Host): Receiver of the EPR pair
-            q_id (str): Qubit ID of the sent EPR pair
-            o_seq_num (int): The original sequence number
-            blocked (bool): If the pair being distributed is blocked or not
-        """
-        host_sender = self.get_host(sender)
-        host_receiver = self.get_host(receiver)
-        q1 = Qubit(host_sender)
-        q2 = Qubit(host_sender)
-        q1.H()
-        q1.cnot(q2)
-        host_sender.add_epr(receiver, q1, q_id, blocked)
-        host_receiver.add_epr(sender, q2, q_id, blocked)
-        host_receiver.send_ack(sender, o_seq_num)
 
     def _route_quantum_info(self, sender, receiver, qubits):
         """
@@ -494,32 +486,16 @@ class Network:
 
                 elif len(route) == 2:
                     if packet.protocol != Constants.RELAY:
-                        if packet.protocol == Constants.REC_EPR:
-                            host_sender = self.get_host(sender)
-                            q = host_sender \
-                                .backend \
-                                .create_EPR(host_sender.host_id,
-                                            receiver,
-                                            q_id=packet.payload['q_id'],
-                                            block=packet.payload['blocked'])
-                            host_sender.add_epr(receiver, q)
                         self.ARP[receiver].rec_packet(packet)
                     else:
                         self.ARP[receiver].rec_packet(packet.payload)
                 else:
-                    if packet.protocol == Constants.REC_EPR:
-                        q_id = packet.payload['q_id']
-                        blocked = packet.payload['blocked']
+                    if packet.protocol == Constants.REC_EPR and self.use_ent_swap:
                         q_route = self.get_quantum_route(sender, receiver)
 
-                        if self.use_ent_swap:
-                            DaemonThread(self._entanglement_swap,
-                                         args=(sender, receiver, q_route, q_id,
-                                               packet.seq_num, blocked))
-                        else:
-                            DaemonThread(self._establish_epr,
-                                         args=(sender, receiver, q_id,
-                                               packet.seq_num, blocked))
+                        DaemonThread(self._entanglement_swap,
+                                     args=(sender, receiver, q_route,
+                                           packet.seq_num, packet.payload))
 
                     else:
                         network_packet = self._encode(route, packet)

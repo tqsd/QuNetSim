@@ -40,9 +40,7 @@ class TestBackend(unittest.TestCase):
 
             # Test multiple times to eliminate probabilistic effects
             for _ in range(5):
-                q1 = backend.create_EPR(alice.host_id, bob.host_id)
-                q2 = backend.receive_epr(
-                    bob.host_id, alice.host_id, q_id=q1.id)
+                q1, q2 = backend.create_EPR(alice.host_id, bob.host_id)
                 self.assertEqual(q1.id, q2.id)
                 self.assertEqual(backend.measure(q1, False),
                                  backend.measure(q2, False))
@@ -87,9 +85,7 @@ class TestBackend(unittest.TestCase):
         network.add_host(alice)
         network.add_host(bob)
 
-        q1 = backend.create_EPR(alice.host_id, bob.host_id)
-        q2 = backend.receive_epr(
-            bob.host_id, alice.host_id, q_id=q1.id)
+        q1, q2 = backend.create_EPR(alice.host_id, bob.host_id)
 
         density_operator = backend.density_operator(q1)
         expected = np.diag([0.5, 0.5])
@@ -116,9 +112,7 @@ class TestBackend(unittest.TestCase):
         network.add_host(alice)
         network.add_host(bob)
 
-        q1 = backend.create_EPR(alice.host_id, bob.host_id)
-        q2 = backend.receive_epr(
-            bob.host_id, alice.host_id, q_id=q1.id)
+        q1, q2 = backend.create_EPR(alice.host_id, bob.host_id)
 
         density_operator = backend.density_operator(q1)
         expected = np.diag([0.5, 0.5])

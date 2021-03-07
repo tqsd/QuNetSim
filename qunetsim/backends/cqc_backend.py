@@ -46,23 +46,6 @@ class CQCBackend(object):
             CQCBackend.CQCConnections.__instance = self
             SafeDict.__init__(self)
 
-    class EntanglementIDs(SafeDict):
-        # There only should be one instance of Hosts
-        __instance = None
-
-        @staticmethod
-        def get_instance():
-            if CQCBackend.EntanglementIDs.__instance is not None:
-                return CQCBackend.EntanglementIDs.__instance
-            else:
-                return CQCBackend.EntanglementIDs()
-
-        def __init__(self):
-            if CQCBackend.EntanglementIDs.__instance is not None:
-                raise Exception("Call get instance to get this class!")
-            CQCBackend.EntanglementIDs.__instance = self
-            SafeDict.__init__(self)
-
     # SimulaQron comes with an own network simulator
     # has to be kept in sync with QuNetSim network
     backend_network = None
@@ -71,8 +54,6 @@ class CQCBackend(object):
     def __init__(self):
         self._hosts = CQCBackend.Hosts.get_instance()
         self._cqc_connections = CQCBackend.CQCConnections.get_instance()
-        # keys are from : to, where from is the host calling create EPR
-        self._entaglement_ids = CQCBackend.EntanglementIDs.get_instance()
         self._stopped = False
 
     def start(self, **kwargs):
@@ -139,7 +120,7 @@ class CQCBackend(object):
         qubit.qubit = cqc_to_host.recvQubit()
         qubit.host = self._hosts.get_from_dict(to_host_id)
 
-    def create_EPR(self, host_a_id, host_b_id, q_id=None, block=False):
+    def create_EPR(self, host_id, q_id=None, block=False):
         """
         Creates an EPR pair for two qubits and returns one of the qubits.
 
@@ -152,50 +133,15 @@ class CQCBackend(object):
             Returns a qubit. The qubit belongs to host a. To get the second
             qubit of host b, the receive_epr function has to be called.
         """
-        cqc_host_a = self._cqc_connections.get_from_dict(host_a_id)
-        cqc_host_b = self._cqc_connections.get_from_dict(host_b_id)
-        host_a = self._hosts.get_from_dict(host_a_id)
-        q = cqc_host_a.createEPR(cqc_host_b.name)
-        qubit = Qubit(host_a, qubit=q, q_id=q_id, blocked=block)
-        # add the ID to a list, so the next returned qubit from recv EPR
-        # gets assigned the right id
-        self.store_ent_id(cqc_host_a, cqc_host_b, qubit)
-        return qubit
-
-    def store_ent_id(self, cqc_host_a, cqc_host_b, qubit):
-        key = cqc_host_a.name + ':' + cqc_host_b.name
-        ent_list = self._entaglement_ids.get_from_dict(key)
-        if ent_list is not None:
-            ent_list.append(qubit.id)
-        else:
-            ent_list = [qubit.id]
-        self._entaglement_ids.add_to_dict(key, ent_list)
-
-    def receive_epr(self, host_id, sender_id, q_id=None, block=False):
-        """
-        Called after create EPR in the receiver, to receive the other EPR pair.
-
-        Args:
-            host_id (String): ID of the first host who gets the EPR state.
-            sender_id (String): ID of the sender of the EPR pair.
-            q_id (String): Optional id which both qubits should have.
-            block (bool): Determines if the created pair should be blocked or not.
-        Returns:
-            Returns an EPR qubit with the other Host.
-        """
-        cqc_host = self._cqc_connections.get_from_dict(host_id)
         host = self._hosts.get_from_dict(host_id)
-        q = cqc_host.recvEPR()
-        key = sender_id + ':' + cqc_host.name
-        ent_list = self._entaglement_ids.get_from_dict(key)
-        if ent_list is None:
-            raise Exception("Internal Error!")
-        id = None
-        id = ent_list.pop(0)
-        if q_id is not None and q_id != id:
-            raise ValueError("q_id doesn't match id!")
-        self._entaglement_ids.add_to_dict(key, ent_list)
-        return Qubit(host, qubit=q, q_id=id, blocked=block)
+        cqc_host = self._cqc_connections.get_from_dict(host_id)
+        q1 = cqc.qubit(cqc_host)
+        q2 = cqc.qubit(cqc_host)
+        q1.H()
+        q1.cnot(q2)
+        q1 = Qubit(host, qubit=q1, q_id=id, blocked=block)
+        q2 = Qubit(host, qubit=q2, q_id=id, blocked=block)
+        return q1, q2
 
     def flush(self, host_id):
         """
