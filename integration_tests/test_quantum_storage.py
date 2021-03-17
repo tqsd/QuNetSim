@@ -164,3 +164,86 @@ class TestQuantumStorage(unittest.TestCase):
         self.assertEqual(q1, storage.get_qubit_by_id(q1.id))
         self.assertEqual(q2, storage.get_qubit_by_id(q2.id))
         self.assertEqual(q3, storage.get_qubit_by_id(q3.id))
+
+    def test_amount_qubits_from_host(self):
+        q1 = FakeQubit()
+        q2 = FakeQubit()
+        q3 = FakeQubit()
+        q4 = FakeQubit()
+
+        storage = QuantumStorage()
+        storage.add_qubit_from_host(q1, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q2, from_host_id='T', purpose=Constants.EPR)
+        storage.add_qubit_from_host(q3, from_host_id='V', purpose=Constants.GHZ)
+
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 1)
+        self.assertEqual(storage.amount_qubits_stored_with_host('T'), 1)
+        self.assertEqual(storage.amount_qubits_stored_with_host('V'), 1)
+
+        storage.add_qubit_from_host(q4, from_host_id='S', purpose=Constants.DATA)
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 2)
+
+    def test_reset_qubits_from_host(self):
+        q1 = FakeQubit()
+        q2 = FakeQubit()
+        q3 = FakeQubit()
+
+        storage = QuantumStorage()
+        storage.add_qubit_from_host(q1, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q2, from_host_id='T', purpose=Constants.EPR)
+        storage.add_qubit_from_host(q3, from_host_id='V', purpose=Constants.GHZ)
+
+        storage.reset_qubits_from_host('S')
+        self.assertEqual(storage.amount_qubits_stored, 2)
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('T'), 1)
+        self.assertEqual(storage.amount_qubits_stored_with_host('V'), 1)
+
+        storage.reset_qubits_from_host('T')
+        self.assertEqual(storage.amount_qubits_stored, 1)
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('T'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('V'), 1)
+
+        storage.reset_qubits_from_host('V')
+        self.assertEqual(storage.amount_qubits_stored, 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('T'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('V'), 0)
+
+    def test_reset_all_qubits(self):
+        q1 = FakeQubit()
+        q2 = FakeQubit()
+        q3 = FakeQubit()
+
+        storage = QuantumStorage()
+        storage.add_qubit_from_host(q1, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q2, from_host_id='T', purpose=Constants.EPR)
+        storage.add_qubit_from_host(q3, from_host_id='V', purpose=Constants.GHZ)
+
+        storage.reset_storage()
+        self.assertEqual(storage.amount_qubits_stored, 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('S'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('T'), 0)
+        self.assertEqual(storage.amount_qubits_stored_with_host('V'), 0)
+
+    def test_get_all_data_qubits_from_host(self):
+        q1 = FakeQubit()
+        q2 = FakeQubit()
+        q3 = FakeQubit()
+
+        storage = QuantumStorage()
+        storage.add_qubit_from_host(q1, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q2, from_host_id='S', purpose=Constants.DATA)
+        storage.add_qubit_from_host(q3, from_host_id='S', purpose=Constants.DATA)
+
+        qubits = storage.get_all_qubits_from_host('S', remove=False)
+        self.assertEqual(len(qubits), 3)
+        qubits = storage.get_all_qubits_from_host('S', remove=False)
+        self.assertEqual(len(qubits), 3)
+        qubits = storage.get_all_qubits_from_host('S', purpose=Constants.EPR, remove=False)
+        self.assertEqual(len(qubits), 0)
+        qubits = storage.get_all_qubits_from_host('S', remove=True)
+        self.assertEqual(len(qubits), 3)
+        qubits = storage.get_all_qubits_from_host('S', remove=True)
+        self.assertEqual(len(qubits), 0)

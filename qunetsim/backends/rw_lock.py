@@ -40,6 +40,9 @@ class RWLock:
 
     def release_write(self):
         self._num_writer -= 1
-        self._writerList.remove(threading.get_ident())
-        self._read_ready.notifyAll()
-        self._read_ready.release()
+        try:
+            self._writerList.remove(threading.get_ident())
+            self._read_ready.notifyAll()
+            self._read_ready.release()
+        except ValueError:
+            pass
