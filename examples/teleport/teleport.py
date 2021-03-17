@@ -5,26 +5,21 @@ from qunetsim.objects import Qubit
 
 def main():
     network = Network.get_instance()
-    nodes = ['Alice', 'Bob', 'Eve']
-    network.delay = 0.2
-    network.start(nodes)
+    network.start()
 
     host_alice = Host('Alice')
     host_bob = Host('Bob')
     host_eve = Host('Eve')
 
     host_alice.add_connection('Bob')
-    host_bob.add_connection('Alice')
-    host_bob.add_connection('Eve')
+    host_bob.add_connections(['Alice', 'Eve'])
     host_eve.add_connection('Bob')
 
     host_alice.start()
     host_bob.start()
     host_eve.start()
 
-    network.add_host(host_alice)
-    network.add_host(host_bob)
-    network.add_host(host_eve)
+    network.add_hosts([host_alice, host_bob, host_eve])
 
     q = Qubit(host_alice)
     print(q.id)

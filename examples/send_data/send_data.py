@@ -38,6 +38,7 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_dean)
 
+
     # Create a qubit owned by Alice
     q = Qubit(host_alice)
     # Put the qubit in the excited state

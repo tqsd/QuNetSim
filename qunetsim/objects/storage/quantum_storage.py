@@ -4,13 +4,13 @@ import queue
 
 
 class QuantumStorage(object):
-    STORAGE_LIMIT_ALL = 1
-    STORAGE_LIMIT_PER_HOST = 2
-    STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
-
     """
     An object which stores qubits.
     """
+
+    STORAGE_LIMIT_ALL = 1
+    STORAGE_LIMIT_PER_HOST = 2
+    STORAGE_LIMIT_INDIVIDUALLY_PER_HOST = 3
 
     def __init__(self):
         # _host_dict stores host_id -> array with qubits of the host.

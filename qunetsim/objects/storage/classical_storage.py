@@ -4,13 +4,13 @@ import queue
 
 
 class ClassicalStorage(object):
-    GET_NEXT = 1
-    GET_ALL = 2
-    GET_WITH_SEQ_NUM = 3
-
     """
     A classical storage for messages.
     """
+
+    GET_NEXT = 1
+    GET_ALL = 2
+    GET_WITH_SEQ_NUM = 3
 
     def __init__(self):
         self._host_to_msg_dict = {}

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>QuNetSim: A Software Framework for Quantum Networks &mdash; QuNetSim  documentation</title>
+  <title>Network Objects &mdash; QuNetSim  documentation</title>
   
 
   
@@ -38,7 +38,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Message" href="objects/message.html" />
+    <link rel="prev" title="Protocols" href="components/protocols.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -52,7 +53,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> QuNetSim
+            <a href="index.html" class="icon icon-home"> QuNetSim
           
 
           
@@ -87,7 +88,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#overview-video">Overview Video</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
@@ -103,14 +104,14 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start Guide</a><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="design.html">Design Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="components.html">Network Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="components/host.html">Host</a></li>
 <li class="toctree-l3"><a class="reference internal" href="components/network.html">Network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="components/protocols.html">Protocols</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="objects.html">Network Objects</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Network Objects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="objects/message.html">Message</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
@@ -156,7 +157,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">QuNetSim</a>
+          <a href="index.html">QuNetSim</a>
         
       </nav>
 
@@ -185,15 +186,17 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>QuNetSim: A Software Framework for Quantum Networks</li>
+          <li><a href="design.html">Design Overview</a> &raquo;</li>
+        
+      <li>Network Objects</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/objects.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -206,48 +209,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="qunetsim-a-software-framework-for-quantum-networks">
-<h1>QuNetSim: A Software Framework for Quantum Networks<a class="headerlink" href="#qunetsim-a-software-framework-for-quantum-networks" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="network-objects">
+<h1>Network Objects<a class="headerlink" href="#network-objects" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#overview-video">Overview Video</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#via-pip">Via pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start Guide</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="design.html">Design Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="components.html">Network Components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects.html">Network Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="backends.html">Backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="backends.html#writing-your-own-backend">Writing your own Backend</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/send_data.html">Send Data Qubits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/send_epr.html">Send EPR Pairs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/send_w.html">Send W State</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/chsh.html">CHSH Game</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/packet_sniffing.html">Eavesdropping on channels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/entanglement_routing.html">Routing with Entanglement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="objects/message.html">Message</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/qubit.html">Qubit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/classical_connection.html">Classical Connection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/packet.html">Packet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/routing_packet.html">Routing Packet</a></li>
 </ul>
 </div>
+<p>Network Objects in QuNetSim represent the objects that are used by the network components. The use of the word “objects” is quite general, but as further iterations of QuNetSim are made, we plan to categorize these better.</p>
+<p>Below we see the current list of network objects. Not all of the network components use all of the network objects,
+for example, the <em>Network</em> component does not have a quantum storage, where hosts do. Hosts never access packets directly, but the key piece of the protocol component is to create and manipulate packets. As QuNetSim develops, we hope to use various models to better model the physics in the simulation. In the Backends
+section of the Design Overview, we detail how we have structured QuNetSim so that we can replace the underlying
+network components and qubit objects. We also plan to integrate the ability to add models for the quantum storage object so that it can better simulate decoherence of the stored qubits.</p>
 </div>
 
 
