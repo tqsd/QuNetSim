@@ -102,7 +102,7 @@ class ClassicalStorage(object):
         this sender are removed.
 
         Args:
-            from_sender (String): Host id of the sender, whos ACKs should be delted.
+            from_sender (str): Host id of the sender, whos ACKs should be delted.
         """
 
         self._lock.acquire_write()
@@ -138,7 +138,7 @@ class ClassicalStorage(object):
         the returned messages are removed from the storage.
 
         Args:
-            sender_id (String): The host id of the host.
+            sender_id (str): The host id of the host.
             wait (int): Default is 0. The maximum blocking time. -1 to block forever.
 
         Returns:
@@ -184,7 +184,7 @@ class ClassicalStorage(object):
         there is still no message, than None is returned.
 
         Args:
-            sender_id (String): The sender id of the message to get.
+            sender_id (str): The sender id of the message to get.
             wait (int): Default is 0. The maximum blocking time. -1 to block forever.
         Returns:
             Message object, if such a message exists, or none.
@@ -231,7 +231,7 @@ class ClassicalStorage(object):
         there is still no message, than None is returned.
 
         Args:
-            sender_id (String): The sender id of the message to get.
+            sender_id (str): The sender id of the message to get.
             wait (int): Default is 0. The maximum blocking time. -1 to block forever.
         Returns:
             Message object, if such a message exists, or none.
