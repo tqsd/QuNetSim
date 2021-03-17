@@ -2,17 +2,14 @@ from qunetsim.backends.safe_dict import SafeDict
 from qunetsim.backends.rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from queue import Queue
-from itertools import zip_longest
-import warnings
 import numpy as np
 import uuid
-import random
 
 try:
     import qutip
     from qutip.cy.spmath import zcsr_kron
-    from qutip.qip.operations import cnot, snot, gate_expand_1toN, gate_expand_2toN,\
-                                    rx, ry, rz, csign
+    from qutip.qip.operations import cnot, snot, gate_expand_1toN, gate_expand_2toN, \
+        rx, ry, rz, csign
 except ImportError:
     raise RuntimeError(
         'To use QuTip as a backend, you need to first install the Python package '
@@ -23,6 +20,7 @@ class QuTipBackend(object):
     """
     Definition of how a backend has to look and behave like.
     """
+
     class QubitCollection(object):
 
         def __init__(self, name):
@@ -320,7 +318,7 @@ class QuTipBackend(object):
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        gate = np.array([[1, 0], [0, np.e**(1j*np.pi/4)]])
+        gate = np.array([[1, 0], [0, np.e ** (1j * np.pi / 4)]])
         self.custom_gate(qubit, gate)
 
     def rx(self, qubit, phi):
