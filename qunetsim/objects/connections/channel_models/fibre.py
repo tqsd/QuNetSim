@@ -3,11 +3,10 @@ import random
 
 class Fibre(object):
     """
-    TODO: Add docstring
+    The model for a fibre optic connection.
     """
 
     def __init__(self, length=0.0, alpha=0.0):
-
         if not isinstance(length, int) and not isinstance(length, float):
             raise ValueError("Length must be float or int")
         elif length < 0:
@@ -60,7 +59,7 @@ class Fibre(object):
     @alpha.setter
     def alpha(self, alpha):
         """
-        Set the absorption coefficient of the channel
+        Set the absorption coefficient of the channel.
 
         Args:
             alpha (float) : Absorption coefficient of the channel in dB/m

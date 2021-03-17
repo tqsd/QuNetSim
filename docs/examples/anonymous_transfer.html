@@ -1,0 +1,589 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GHZ Based Anonymous Entanglement &mdash; QuNetSim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Quantum Coin Flipping" href="quantum_coin_flipping.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> QuNetSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#overview-video">Overview Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-qunetsim">What is QuNetSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#who-should-use-qunetsim">Who should use QuNetSim?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#via-pip">Via pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#linux-mac-os-x">Linux / Mac OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../install.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start Guide</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Design Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../components.html">Network Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../components/host.html">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/network.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../components/protocols.html">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../objects.html">Network Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../objects/message.html">Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_storage.html">Quantum Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_storage.html">Classical Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/quantum_connection.html">Quantum Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/classical_connection.html">Classical Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/packet.html">Packet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../objects/routing_packet.html">Routing Packet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../backends.html#writing-your-own-backend">Writing your own Backend</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="send_data.html">Send Data Qubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="send_epr.html">Send EPR Pairs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="send_w.html">Send W State</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="send_w.html#w-state">W state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="send_w.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chsh.html">CHSH Game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packet_sniffing.html">Eavesdropping on channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GHZ Based Anonymous Entanglement</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuNetSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../examples.html">Examples</a> &raquo;</li>
+        
+      <li>GHZ Based Anonymous Entanglement</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/anonymous_transfer.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ghz-based-anonymous-entanglement">
+<h1>GHZ Based Anonymous Entanglement<a class="headerlink" href="#ghz-based-anonymous-entanglement" title="Permalink to this headline">¶</a></h1>
+<p>In this example, we will demonstrate how to simulate an instance of GHZ-based quantum anonymous entanglement. The goal of the protocol is to hide the creation of an entangled pair between two parties. This protocol implementation demonstrates the simplicity of translating a protocol from
+a high-level mathematical syntax into simulation using QuNetSim. The protocol involves establishing GHZ states amongst <span class="math notranslate nohighlight">\(n\)</span> parties as well as broadcasting measurement outcomes.</p>
+<p>First we develop the the behaviour of the GHZ distributor, which in this example is node <span class="math notranslate nohighlight">\(A\)</span>. QuNetSim provides a function for distributing GHZ states so the function distribute simply takes the distributing host as the first parameter and the list of receiving nodes as the second. One notices that the flag distribute has been set to <code class="code docutils literal notranslate"><span class="pre">true</span></code> in the <code class="code docutils literal notranslate"><span class="pre">send_ghz</span></code> method call. This tells the sending host that it should not keep part of the GHZ state, rather, it should generate a GHZ state amongst the list given and send it to the parties in the node list, keeping no part of the state for itself.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">distribute</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+    <span class="c1"># distribute=True =&gt; sender doesn&#39;t keep part of the GHZ</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The next type of behaviour we would like to simulate is that of a node in the group that is not attempting to establish an EPR pair. In the anonymous entanglement protocol, the behaviour of such a node is to simply receive a piece of a GHZ state, perform a Hadamard operation on the received qubit, measure it, and broadcast to the remaining participating parties the outcome of a measurement in the computational basis. Below we see how to accomplish this. In the <code class="code docutils literal notranslate"><span class="pre">node</span></code> function below, the first parameter is, as always, the host that is performing the protocol. The second is the ID of the node distribution the GHZ state, which in this example, is host <span class="math notranslate nohighlight">\(A\)</span>. The host fetches its GHZ state where, if it is not available at the time, they will wait ten seconds for it, accomplished by setting the <code class="code docutils literal notranslate"><span class="pre">wait</span></code> parameter. If they have not received part of the GHZ state, then the protocol has failed, otherwise they simply perform the Hadamard operation on the received qubit, measures it, and broadcasts the message to the network. QuNetSim includes the task of broadcasting as a built-in function and therefore the task of sending classical messages to the whole network is not only simplified, but the host performing the network does not need to know the entire network to send a broadcast.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">node</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+</pre></div>
+</td></tr></table></div>
+<p>We next implement the behaviour of the party in the protocol acting as one end of the EPR link that we label the <code class="code docutils literal notranslate"><span class="pre">sender</span></code>. Here we take three parameters (other than the host running the protocol), the ID of the distributor, the receiver that is the holder of the other half of the EPR pair, and an agreed upon ID for the EPR pair that will be generated. In QuNetSim, qubits have IDs for easier synchronization between parties. For EPR pairs and GHZ states, qubits share and ID, that is, the collection of qubits would all have the same ID. This is done so that when parties share many EPR pairs, they can easily synchronize their joint operations. The <code class="code docutils literal notranslate"><span class="pre">sender</span></code> protocol is the following: first they receive part of a GHZ state, they select a random bit and then broadcast the message so that they appear as just any other node. They then manipulate their part of their part of the GHZ state according to what the random bit was. If the bit was <span class="math notranslate nohighlight">\(1\)</span>, then a <span class="math notranslate nohighlight">\(Z\)</span> gate is applied. The sending party can then add the qubit as an EPR pair shared with the receiver. This EPR pair can then be used as if the sender and receiver established an EPR directly.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sender</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
+
+    <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+    <span class="n">sending_qubit</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="n">sending_qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="c1"># Generate EPR if none shouldn&#39;t change anything, but if there is</span>
+    <span class="c1"># no shared entanglement between s and r, then there should</span>
+    <span class="c1"># be a mistake in the protocol</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>Finally, we establish the behaviour of the receiver. The receiver here behaves as follows: First, in order to mask their behaviour they randomly choose a bit and broadcast it to the network. Once complete, they await the remainder of the broadcast messages. In QuNetSim, classical messages are stored as a list in the <code class="code docutils literal notranslate"><span class="pre">classical</span></code> field. Since there are 3 other parties, other than the receiver themself, they await the other three messages. Once they arrive, the receiver computes a global parity operation by taking the <span class="math notranslate nohighlight">\(XOR\)</span> of all received bits along  with their own random choice. With this, the receiver can apply a controlled <span class="math notranslate nohighlight">\(Z\)</span> gate which establishes the EPR pair with the correct sender. They simply add the EPR pair and complete the protocol.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">receiver</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Await broadcast messages from all parties</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">classical</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">content</span> <span class="o">!=</span> <span class="s1">&#39;ACK&#39;</span><span class="p">]</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
+    <span class="n">parity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sender</span> <span class="o">!=</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="n">parity</span> <span class="o">^</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
+</pre></div>
+</td></tr></table></div>
+<p>Full example:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">qunetsim.components</span> <span class="kn">import</span> <span class="n">Host</span>
+<span class="kn">from</span> <span class="nn">qunetsim.components</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">qunetsim.objects</span> <span class="kn">import</span> <span class="n">Qubit</span>
+
+
+<span class="k">def</span> <span class="nf">distribute</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+    <span class="c1"># distribute=True =&gt; sender doesn&#39;t keep part of the GHZ</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_ghz</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">distribute</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">sender</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
+
+    <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+    <span class="n">sending_qubit</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="n">sending_qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sending </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sending_qubit</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="c1"># Generate EPR if none shouldn&#39;t change anything, but if there is</span>
+    <span class="c1"># no shared entanglement between s and r, then there should</span>
+    <span class="c1"># be a mistake in the protocol</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_teleport</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sending_qubit</span><span class="p">,</span> <span class="n">generate_epr_if_none</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">receiver</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Await broadcast messages from all parties</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">classical</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">content</span> <span class="o">!=</span> <span class="s1">&#39;ACK&#39;</span><span class="p">]</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">])</span>
+    <span class="n">parity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sender</span> <span class="o">!=</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="n">parity</span> <span class="o">^</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
+
+
+<span class="k">def</span> <span class="nf">node</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">distributor</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_ghz</span><span class="p">(</span><span class="n">distributor</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+    <span class="n">host</span><span class="o">.</span><span class="n">send_broadcast</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">]</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="n">host_A</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+    <span class="n">host_A</span><span class="o">.</span><span class="n">add_connections</span><span class="p">([</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">])</span>
+    <span class="n">host_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">host_B</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+    <span class="n">host_B</span><span class="o">.</span><span class="n">add_c_connections</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">])</span>
+    <span class="n">host_B</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">host_C</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">add_c_connections</span><span class="p">([</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">])</span>
+    <span class="n">host_C</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">host_D</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+    <span class="n">host_D</span><span class="o">.</span><span class="n">add_c_connections</span><span class="p">([</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">])</span>
+    <span class="n">host_D</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">host_E</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">)</span>
+    <span class="n">host_E</span><span class="o">.</span><span class="n">add_c_connections</span><span class="p">([</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">])</span>
+    <span class="n">host_E</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">network</span><span class="o">.</span><span class="n">add_hosts</span><span class="p">([</span><span class="n">host_A</span><span class="p">,</span> <span class="n">host_B</span><span class="p">,</span> <span class="n">host_C</span><span class="p">,</span> <span class="n">host_D</span><span class="p">,</span> <span class="n">host_E</span><span class="p">])</span>
+
+    <span class="c1"># Run the protocol 10 times</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="c1"># The ID of the generated secret EPR pair has to be agreed upon in advance</span>
+        <span class="n">epr_id</span> <span class="o">=</span> <span class="s1">&#39;123&#39;</span>
+        <span class="n">host_A</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">distribute</span><span class="p">,</span> <span class="p">([</span><span class="n">host_B</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_C</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_D</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_E</span><span class="o">.</span><span class="n">host_id</span><span class="p">],))</span>
+        <span class="n">host_B</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+        <span class="n">host_C</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,))</span>
+        <span class="n">host_D</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_E</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">))</span>
+        <span class="n">host_E</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="p">(</span><span class="n">host_A</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">host_D</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">epr_id</span><span class="p">),</span> <span class="n">blocking</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Stephen DiAdamo, Janis Nötzel
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

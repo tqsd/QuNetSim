@@ -1,13 +1,13 @@
 import math
-import uuid
 import time
-
+import uuid
 from queue import Queue, Empty
+
+from qunetsim.backends import EQSNBackend
 from qunetsim.components import protocols
-from qunetsim.utils.constants import Constants
 from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage, \
     QuantumConnection, ClassicalConnection
-from qunetsim.backends import EQSNBackend
+from qunetsim.utils.constants import Constants
 
 
 class Host(object):
@@ -1201,20 +1201,50 @@ class Host(object):
             raise ValueError("Host id has to be specified!")
         return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
 
-    def get_data_qubits(self, host_id):
+    def get_data_qubits(self, host_id, remove_from_storage=False):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
-        Does not remove the qubits from storage like *get_data_qubit* does.
+        Optional to remove the qubits from storage like *get_data_qubit* does with *remove_from_storage* field.
 
         Args:
             host_id (str): The host id from which the data qubit have been received.
+            remove_from_storage (bool): Get and remove from storage.
 
         Returns:
             (dict): If *host_id* is not set, then return the entire dictionary of data qubits.
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.DATA_QUBIT)
+        return self._qubit_storage.get_all_qubits_from_host(host_id,
+                                                            purpose=Qubit.DATA_QUBIT,
+                                                            remove=remove_from_storage)
+
+    def reset_data_qubits(self, host_id=None):
+        """
+        Remove all qubits associated with *host_id* else remove all qubits if *host_id* not set.
+
+        Args:
+            host_id (str): The host ID to remove associated qubits with.
+
+        """
+        if host_id is not None:
+            self._qubit_storage.reset_qubits_from_host(host_id)
+        else:
+            # Remove all qubits
+            for q_conn in self._quantum_connections.keys():
+                self._qubit_storage.reset_qubits_from_host(q_conn, purpose=Qubit.DATA_QUBIT)
+
+    def get_number_of_data_qubits(self, host_id):
+        """
+        Return the number of data qubits associated with host *host_id*.
+
+        Args:
+            host_id (str):
+
+        Returns:
+            (int):
+        """
+        return self._qubit_storage.amount_qubits_stored_with_host(host_id)
 
     def set_epr_memory_limit(self, limit, host_id=None):
         """
@@ -1250,7 +1280,7 @@ class Host(object):
         otherwise generates an ID for the EPR and adds the qubit with that ID.
 
         Args:
-            host_id (String): The ID of the host to pair the qubit
+            host_id (str): The ID of the host to pair the qubit
             qubit (Qubit): The data Qubit to be added.
             q_id (str): The ID of the qubit to be added.
             blocked (bool): If the qubit should be stored as blocked or not
