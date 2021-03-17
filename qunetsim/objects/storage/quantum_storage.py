@@ -94,6 +94,9 @@ class QuantumStorage(object):
     def amount_qubits_stored(self):
         return self._amount_qubit_stored
 
+    def amount_qubits_stored_with_host(self, host_id):
+        return self._amount_qubits_stored_per_host[host_id]
+
     def set_storage_limit_with_host(self, new_limit, host_id):
         """
         Set a new storage limit for the storage. The implementations depends on
@@ -119,7 +122,8 @@ class QuantumStorage(object):
         """
         Reset the quantum storage.
         """
-        raise Exception('Storage reset is not yet implemented')
+        for host in self._host_dict:
+            self.reset_qubits_from_host(host)
 
     def release_storage(self):
         """
@@ -138,7 +142,7 @@ class QuantumStorage(object):
 
         Args:
             from_host_id (str): The host id of the host from which the qubit is from.
-            purpose (String): Optional, purpose of the qubit which should exist.
+            purpose (int): Optional, purpose of the qubit which should exist.
 
         Returns:
             (bool): True, if such a qubit is in the storage, false if not.
@@ -206,9 +210,9 @@ class QuantumStorage(object):
 
         Args:
             qubit (Qubit): qubit which should be stored.
-            from_host_id (String): Id of the Host from whom the qubit has
+            from_host_id (str): Id of the Host from whom the qubit has
                              been received.
-            purpose (String): Purpose of the Qubit, for example EPR or data.
+            purpose (str): Purpose of the Qubit, for example EPR or data.
         """
 
         self.lock.acquire_write()
@@ -230,28 +234,54 @@ class QuantumStorage(object):
         self._check_all_requests()
         self.lock.release_write()
 
-    def get_all_qubits_from_host(self, from_host_id, purpose=None):
+    def get_all_qubits_from_host(self, from_host_id, purpose=None, remove=False):
         """
         Get all Qubits from a specific host id.
         These qubits are not removed from storage!
 
         Args:
             from_host_id (str): The host who the qubits are from
-            purpose (str): The purpose of the qubits
+            purpose (int): The purpose of the qubits
+            remove (bool): Also remove from storage
 
         Returns:
             (list): The list of qubits
         """
-        out = []
+
+        if from_host_id in self._host_dict:
+            out = []
+            self.lock.acquire_write()
+            flag = False
+            for q in self._host_dict[from_host_id]:
+                if self._check_qubit_in_system(q, from_host_id, purpose):
+                    if not remove:
+                        out.append(q)
+                else:
+                    flag = True
+                    if remove:
+                        break
+            if not flag and remove:
+                num_qubits = len(self._host_dict[from_host_id])
+                for _ in range(num_qubits):
+                    out.append(self._get_qubit_from_host(from_host_id, purpose=purpose))
+            self.lock.release_write()
+            return out
+        return []
+
+    def reset_qubits_from_host(self, from_host_id, purpose=None):
+        """
+        Remove all stored qubits from the host *from_host_id*.
+
+        Args:
+            from_host_id (str): The host who the qubits are from
+            purpose (int):
+        """
         self.lock.acquire_write()
         if from_host_id in self._host_dict:
             for q in self._host_dict[from_host_id]:
                 if self._check_qubit_in_system(q, from_host_id, purpose):
-                    out.append(q)
-            self.lock.release_write()
-            return out
+                    self._get_qubit_from_host(from_host_id, purpose=purpose)
         self.lock.release_write()
-        return []
 
     def _check_all_requests(self):
         """
@@ -295,15 +325,15 @@ class QuantumStorage(object):
     def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None, wait=0):
         """
         Returns next qubit which has been received from a host. If the qubit has
-        not been receives yet, the thread is blocked for a maxumum of the wait time,
+        not been receives yet, the thread is blocked for a maxiumum of the wait time,
         till the qubit arrives (The default is 0). If the id is given, the exact qubit with the id
         is returned, or None if it does not exist.
         The qubit is removed from the quantum storage.
 
         Args:
-            from_host_id (String): Host id from who the qubit has been received.
-            q_id (String): Optional Id, to return the exact qubit with the Id.
-            purpose (String): Optional, purpose of the Qubit.
+            from_host_id (str): Host id from who the qubit has been received.
+            q_id (str): Optional Id, to return the exact qubit with the Id.
+            purpose (str): Optional, purpose of the Qubit.
             wait (int): Default is 0. The maximum blocking time. -1 if blocking forever.
 
         Returns:
@@ -334,7 +364,7 @@ class QuantumStorage(object):
             self.lock.release_write()
         return ret
 
-    def _get_qubit_from_host(self, from_host_id, q_id, purpose):
+    def _get_qubit_from_host(self, from_host_id, q_id=None, purpose=None):
         if q_id is not None:
             qubit = self._pop_qubit_with_id_and_host_from_qubit_dict(
                 q_id, from_host_id, purpose=purpose)
@@ -351,6 +381,7 @@ class QuantumStorage(object):
 
         if from_host_id not in self._host_dict:
             return None
+
         if self._host_dict[from_host_id]:
             # check purposes of all qubits
             for _ in range(len(self._host_dict[from_host_id])):
@@ -432,7 +463,7 @@ class QuantumStorage(object):
         Checks if another qubit can be added to the storage.
 
         Args:
-            host_id (String): The host_id the qubit should be added to.
+            host_id (str): The host_id the qubit should be added to.
 
         Returns:
             True if no storage limit has been reached, False if a memory
@@ -469,7 +500,7 @@ class QuantumStorage(object):
         and increases the counter.
 
         Args:
-            host_id (String): From who the qubit comes from.
+            host_id (str): From who the qubit comes from.
 
         Returns:
             True, if the counter could be increased, False if not.
@@ -480,16 +511,32 @@ class QuantumStorage(object):
         self._amount_qubit_stored += 1
         return True
 
+    def _reset_qubit_counter(self, host_id):
+        """
+
+        Args:
+            host_id (str):
+
+        Returns:
+            (bool): True, if the counter could be decreased, False if not.
+        """
+        if self._amount_qubits_stored_per_host[host_id] <= 0 or \
+                self._amount_qubit_stored <= 0:
+            return False
+        num_qubits = self._amount_qubits_stored_per_host[host_id]
+        self._amount_qubits_stored_per_host[host_id] = 0
+        self._amount_qubit_stored -= num_qubits
+
     def _decrease_qubit_counter(self, host_id):
         """
         Checks if the qubit counter can be decreased
         and decreases the counter.
 
         Args:
-            host_id (String): From who the qubit comes from.
+            host_id (str): From who the qubit comes from.
 
         Returns:
-            True, if the counter could be decreased, False if not.
+            (bool): True, if the counter could be decreased, False if not.
         """
         if self._amount_qubits_stored_per_host[host_id] <= 0 or \
                 self._amount_qubit_stored <= 0:

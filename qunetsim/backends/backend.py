@@ -37,9 +37,9 @@ class Backend(object):
         Creates a new Qubit of the type of the backend.
 
         Args:
-            host_id (String): Id of the host to whom the qubit belongs.
+            host_id (str): Id of the host to whom the qubit belongs.
 
-        Reurns:
+        Returns:
             Qubit of backend type.
         """
         raise EnvironmentError("This is only an interface, not \
@@ -51,8 +51,8 @@ class Backend(object):
 
         Args:
             qubit (Qubit): Qubit to be send.
-            from_host_id (String): From the starting host.
-            to_host_id (String): New host of the qubit.
+            from_host_id (str): From the starting host.
+            to_host_id (str): New host of the qubit.
         """
         raise (EnvironmentError("This is only an interface, not \
                         an actual implementation!"))
@@ -62,9 +62,9 @@ class Backend(object):
         Creates an EPR pair for two qubits and returns one of the qubits.
 
         Args:
-            host_a_id (String): ID of the first host who gets the EPR state.
-            host_b_id (String): ID of the second host who gets the EPR state.
-            q_id (String): Optional id which both qubits should have.
+            host_a_id (str): ID of the first host who gets the EPR state.
+            host_b_id (str): ID of the second host who gets the EPR state.
+            q_id (str): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
             Returns a qubit. The qubit belongs to host a. To get the second
@@ -78,9 +78,9 @@ class Backend(object):
         Called after create EPR in the receiver, to receive the other EPR pair.
 
         Args:
-            host_id (String): ID of the first host who gets the EPR state.
-            sender_id (String): ID of the sender of the EPR pair.
-            q_id (String): Optional id which both qubits should have.
+            host_id (str): ID of the first host who gets the EPR state.
+            sender_id (str): ID of the sender of the EPR pair.
+            q_id (str): Optional id which both qubits should have.
             block (bool): Determines if the created pair should be blocked or not.
         Returns:
             Returns an EPR qubit with the other Host.
