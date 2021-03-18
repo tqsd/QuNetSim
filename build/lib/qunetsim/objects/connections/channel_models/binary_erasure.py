@@ -3,7 +3,7 @@ import random
 
 class BinaryErasure(object):
     """
-    TODO: Add docstring
+    The model for a binary erasure connection.
     """
 
     def __init__(self, probability=0.0):

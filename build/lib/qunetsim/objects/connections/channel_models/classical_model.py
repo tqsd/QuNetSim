@@ -1,6 +1,6 @@
 class ClassicalModel(object):
     """
-    TODO: Add docstring
+    The model for a classical erasure channel.
     """
 
     def __init__(self):
