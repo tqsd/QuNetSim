@@ -3,6 +3,7 @@ import time
 import uuid
 from queue import Queue, Empty
 
+from .network import Network
 from qunetsim.backends import EQSNBackend
 from qunetsim.components import protocols
 from qunetsim.objects import Logger, DaemonThread, Message, Packet, Qubit, QuantumStorage, ClassicalStorage, \
@@ -81,7 +82,7 @@ class Host(object):
         Gets the classical connections of the host.
 
         Returns:
-            classical connections
+            (dict): classical connections
         """
         return self._classical_connections
 
@@ -229,7 +230,7 @@ class Host(object):
         Get the quantum connections for the host.
 
         Returns:
-            (list): The quantum connections for the host.
+            (dict): The quantum connections for the host.
         """
         return self._quantum_connections
 
@@ -642,8 +643,13 @@ class Host(object):
             (bool): Success status of the removal
         """
         try:
+            network = Network.get_instance()
+            network.remove_c_connection(self.host_id, receiver_id)
             del self.classical_connections[receiver_id]
             return True
+        except KeyError:
+            self.logger.error('Tried to delete a classical connection tha does not exist')
+            return False
         except NameError:
             self.logger.error('Tried to delete a classical connection tha does not exist')
             return False
@@ -658,8 +664,13 @@ class Host(object):
             (bool): Success status of the removal
         """
         try:
+            network = Network.get_instance()
+            network.remove_q_connection(self.host_id, receiver_id)
             del self.quantum_connections[receiver_id]
             return True
+        except KeyError:
+            self.logger.error('Tried to delete a quantum connection tha does not exist')
+            return False
         except NameError:
             self.logger.error('Tried to delete a quantum connection tha does not exist')
             return False
