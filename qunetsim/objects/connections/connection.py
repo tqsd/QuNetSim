@@ -8,6 +8,9 @@ class Connection(object):
         self._receiver_id = receiver_id
         self._model = model
 
+    def __str__(self):
+        return f'{self._sender_id} -> {self._receiver_id}'
+
     @property
     def sender_id(self):
         """
