@@ -109,3 +109,48 @@ class TestHost(unittest.TestCase):
             self.assertEqual(i, a.get_next_sequence_number(n))
 
         a.backend.stop()
+
+    def test_add_connections(self):
+        a = Host('A')
+
+        a.add_connection('B')
+        self.assertEqual(len(a.classical_connections), 1)
+        self.assertEqual(len(a.quantum_connections), 1)
+
+        a.add_c_connection('C')
+        self.assertEqual(len(a.classical_connections), 2)
+        self.assertEqual(len(a.quantum_connections), 1)
+
+        a.add_q_connection('D')
+        self.assertEqual(len(a.classical_connections), 2)
+        self.assertEqual(len(a.quantum_connections), 2)
+
+        a.add_connections(['E', 'F'])
+        self.assertEqual(len(a.classical_connections), 4)
+        self.assertEqual(len(a.quantum_connections), 4)
+
+        a.add_c_connections(['G', 'H'])
+        self.assertEqual(len(a.classical_connections), 6)
+        self.assertEqual(len(a.quantum_connections), 4)
+
+        a.add_q_connections(['I', 'J'])
+        self.assertEqual(len(a.classical_connections), 6)
+        self.assertEqual(len(a.quantum_connections), 6)
+
+    def test_remove_connections(self):
+        a = Host('A')
+        a.add_connections(['B', 'C'])
+        self.assertEqual(len(a.classical_connections), 2)
+        self.assertEqual(len(a.quantum_connections), 2)
+        a.remove_q_connection('B')
+        self.assertEqual(len(a.classical_connections), 2)
+        self.assertEqual(len(a.quantum_connections), 1)
+        a.remove_c_connection('B')
+        self.assertEqual(len(a.classical_connections), 1)
+        self.assertEqual(len(a.quantum_connections), 1)
+        a.remove_connection('C')
+        self.assertEqual(len(a.classical_connections), 0)
+        self.assertEqual(len(a.quantum_connections), 0)
+        a.remove_connection('C')
+        self.assertEqual(len(a.classical_connections), 0)
+        self.assertEqual(len(a.quantum_connections), 0)

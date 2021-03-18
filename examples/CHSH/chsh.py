@@ -2,8 +2,12 @@ import math
 import random
 from qunetsim.components import Host
 from qunetsim.components import Network
+from qunetsim import Logger
 
 PLAYS = 20
+
+
+# Logger.DISABLED = False
 
 
 def alice_classical(alice_host, referee_id):
@@ -155,11 +159,10 @@ def main():
     else:
         network.delay = 0.0
 
+    network.draw_classical_network()
     # Remove the connection from Alice and Bob
     host_A.remove_connection('B')
     host_B.remove_connection('A')
-    network.update_host(host_A)
-    network.update_host(host_B)
 
     # Play the game classically
     if strategy == 'CLASSICAL':
@@ -174,6 +177,8 @@ def main():
     host_C.run_protocol(referee, (host_A.host_id, host_B.host_id), blocking=True)
 
     network.stop(True)
+    # network.draw_quantum_network()
+    network.draw_classical_network()
 
 
 if __name__ == '__main__':

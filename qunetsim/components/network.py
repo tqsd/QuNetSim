@@ -1,13 +1,14 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-import time
 import random
-
-from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
-from queue import Queue
-from qunetsim.utils.constants import Constants
+import time
 from inspect import signature
+from queue import Queue
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
 from qunetsim.backends import EQSNBackend
+from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
+from qunetsim.utils.constants import Constants
 
 
 # Network singleton
@@ -20,6 +21,13 @@ class Network:
         if Network.__instance is None:
             Network()
         return Network.__instance
+
+    @staticmethod
+    def reset_network():
+        if Network.__instance is not None:
+            Network.__instance.stop(True)
+            Network.__instance = None
+        __instance = Network()
 
     def __init__(self):
         if Network.__instance is None:
@@ -164,6 +172,14 @@ class Network:
 
         self._packet_drop_rate = drop_rate
 
+    @property
+    def arp(self):
+        return self.ARP
+
+    @property
+    def num_hosts(self):
+        return len(self.arp.keys())
+
     def add_host(self, host):
         """
         Adds the *host* to ARP table and updates the network graph.
@@ -188,7 +204,7 @@ class Network:
 
     def remove_host(self, host):
         """
-        Removes the host from the ARP table.
+        Removes the host from the network.
 
         Args:
             host (Host): The host to be removed from the network.
@@ -196,6 +212,22 @@ class Network:
 
         if host.host_id in self.ARP:
             del self.ARP[host.host_id]
+            if self.quantum_network.has_node(host.host_id):
+                self.quantum_network.remove_node(host.host_id)
+            if self.classical_network.has_node(host.host_id):
+                self.classical_network.remove_node(host.host_id)
+
+    def remove_c_connection(self, sender, receiver):
+        if self.classical_network.has_edge(sender, receiver):
+            self.classical_network.remove_edge(sender, receiver)
+
+    def remove_q_connection(self, sender, receiver):
+        if self.quantum_network.has_edge(sender, receiver):
+            self.quantum_network.remove_edge(sender, receiver)
+
+    def remove_hosts(self, hosts):
+        for host in hosts:
+            self.remove_host(host)
 
     def update_host(self, host):
         """
@@ -229,8 +261,11 @@ class Network:
         Args:
             host: The host to be added
         """
-        self.classical_network.add_node(host.host_id)
-        self.quantum_network.add_node(host.host_id)
+        if not self.classical_network.has_node(host.host_id):
+            self.classical_network.add_node(host.host_id)
+
+        if not self.quantum_network.has_node(host.host_id):
+            self.quantum_network.add_node(host.host_id)
 
         for connection in host.classical_connections:
             if not self.classical_network.has_edge(host.host_id, connection):
@@ -577,7 +612,7 @@ class Network:
         Draws a plot of the network.
         """
         nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
-                         with_labels=True, hold=False)
+                         with_labels=True)
         plt.show()
 
     def draw_quantum_network(self):
@@ -585,7 +620,7 @@ class Network:
         Draws a plot of the network.
         """
         nx.draw_networkx(self.quantum_network, pos=nx.spring_layout(self.quantum_network),
-                         with_labels=True, hold=False)
+                         with_labels=True)
         plt.show()
 
     def _encode(self, route, payload, ttl=10):
