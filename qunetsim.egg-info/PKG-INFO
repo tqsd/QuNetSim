@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: qunetsim
-Version: 0.1.2
+Version: 0.1.2.post0
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
 Author: Stephen DiAdamo, Janis Nötzel, Benjamin Zanger, Mert Mehmet Bese
