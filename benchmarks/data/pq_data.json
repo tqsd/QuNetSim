@@ -1,0 +1,101 @@
+{
+    "machine_info": {
+        "node": "Stephens-MBP",
+        "processor": "i386",
+        "machine": "x86_64",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.6.4",
+        "python_version": "3.6.4",
+        "python_build": [
+            "v3.6.4:d48ecebad5",
+            "Dec 18 2017 21:07:28"
+        ],
+        "release": "19.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "8fd493694c75e1d62274dfce8821a282c81f9dcd",
+        "time": "2021-03-18T14:31:37+01:00",
+        "author_time": "2021-03-18T14:30:27+01:00",
+        "dirty": true,
+        "project": "QuNetSim",
+        "branch": "master"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_teleport_ten_hops_pq",
+            "fullname": "benchmark_protocols.py::test_teleport_ten_hops_pq",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0728081309935078,
+                "max": 0.17824610997922719,
+                "mean": 0.10180735617565612,
+                "stddev": 0.029938013528862925,
+                "rounds": 30,
+                "median": 0.09097559005022049,
+                "iqr": 0.04993714496959001,
+                "q1": 0.07678849995136261,
+                "q3": 0.12672564492095262,
+                "iqr_outliers": 0,
+                "stddev_outliers": 5,
+                "outliers": "5;0",
+                "ld15iqr": 0.0728081309935078,
+                "hd15iqr": 0.17824610997922719,
+                "ops": 9.822472928917067,
+                "total": 3.0542206852696836,
+                "data": [
+                    0.1296973309945315,
+                    0.11698669102042913,
+                    0.1337792690610513,
+                    0.09531952207908034,
+                    0.10667585104238242,
+                    0.10934550198726356,
+                    0.10560663405340165,
+                    0.12672564492095262,
+                    0.13722922198940068,
+                    0.17824610997922719,
+                    0.1621542350621894,
+                    0.15820298891048878,
+                    0.12696996005252004,
+                    0.09793787798844278,
+                    0.09603368898387998,
+                    0.08561940700747073,
+                    0.07603323506191373,
+                    0.07678849995136261,
+                    0.07769135606940836,
+                    0.07531298196408898,
+                    0.07758181798271835,
+                    0.08663165802136064,
+                    0.08020895207300782,
+                    0.08322344697080553,
+                    0.07552665704861283,
+                    0.0764683079905808,
+                    0.07309353502932936,
+                    0.07490457803942263,
+                    0.08141759294085205,
+                    0.0728081309935078
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-22T15:29:52.209805",
+    "version": "3.2.3"
+}

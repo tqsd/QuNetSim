@@ -1,0 +1,72 @@
+{
+    "machine_info": {
+        "node": "Stephens-MBP",
+        "processor": "i386",
+        "machine": "x86_64",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.6.4",
+        "python_version": "3.6.4",
+        "python_build": [
+            "v3.6.4:d48ecebad5",
+            "Dec 18 2017 21:07:28"
+        ],
+        "release": "19.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "8fd493694c75e1d62274dfce8821a282c81f9dcd",
+        "time": "2021-03-18T14:31:37+01:00",
+        "author_time": "2021-03-18T14:30:27+01:00",
+        "dirty": true,
+        "project": "QuNetSim",
+        "branch": "master"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_ghz_ten_nodes_pq",
+            "fullname": "benchmark_protocols.py::test_ghz_ten_nodes_pq",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.817253959947266,
+                "max": 5.817253959947266,
+                "mean": 5.817253959947266,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 5.817253959947266,
+                "iqr": 0.0,
+                "q1": 5.817253959947266,
+                "q3": 5.817253959947266,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 5.817253959947266,
+                "hd15iqr": 5.817253959947266,
+                "ops": 0.17190241424650904,
+                "total": 5.817253959947266,
+                "data": [
+                    5.817253959947266
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-22T16:28:09.575112",
+    "version": "3.2.3"
+}

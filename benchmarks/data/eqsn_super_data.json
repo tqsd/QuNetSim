@@ -1,0 +1,101 @@
+{
+    "machine_info": {
+        "node": "Stephens-MBP",
+        "processor": "i386",
+        "machine": "x86_64",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.6.4",
+        "python_version": "3.6.4",
+        "python_build": [
+            "v3.6.4:d48ecebad5",
+            "Dec 18 2017 21:07:28"
+        ],
+        "release": "19.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "8fd493694c75e1d62274dfce8821a282c81f9dcd",
+        "time": "2021-03-18T14:31:37+01:00",
+        "author_time": "2021-03-18T14:30:27+01:00",
+        "dirty": true,
+        "project": "QuNetSim",
+        "branch": "master"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_teleport_ten_hops",
+            "fullname": "benchmark_protocols.py::test_teleport_ten_hops",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.24630727793555707,
+                "max": 0.6102307080291212,
+                "mean": 0.296889230562374,
+                "stddev": 0.07274098758609418,
+                "rounds": 30,
+                "median": 0.2728697654674761,
+                "iqr": 0.05816078803036362,
+                "q1": 0.25557760999072343,
+                "q3": 0.31373839802108705,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.24630727793555707,
+                "hd15iqr": 0.4342751579824835,
+                "ops": 3.368259596704732,
+                "total": 8.90667691687122,
+                "data": [
+                    0.2945213969796896,
+                    0.25557760999072343,
+                    0.2549909990048036,
+                    0.26446882693562657,
+                    0.24970426806248724,
+                    0.25705048395320773,
+                    0.2597957360558212,
+                    0.25305392395239323,
+                    0.24630727793555707,
+                    0.25586961407680064,
+                    0.27023649390321225,
+                    0.2496477389940992,
+                    0.25510474399197847,
+                    0.2521902919979766,
+                    0.31373839802108705,
+                    0.3239446800434962,
+                    0.34815880202222615,
+                    0.3106710020219907,
+                    0.2581830080598593,
+                    0.2582730909343809,
+                    0.3436088399030268,
+                    0.30561083904467523,
+                    0.35013631894253194,
+                    0.318779886001721,
+                    0.28253203292842954,
+                    0.27550303703173995,
+                    0.277398428064771,
+                    0.2771132820053026,
+                    0.6102307080291212,
+                    0.4342751579824835
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-22T15:25:30.757369",
+    "version": "3.2.3"
+}
