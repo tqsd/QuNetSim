@@ -23,3 +23,4 @@ except RuntimeError:
 
 from .rw_lock import RWLock
 from .safe_dict import SafeDict
+from .simple_stabilizer_backend import SimpleStabilizerBackend

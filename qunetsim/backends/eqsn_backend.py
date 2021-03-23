@@ -413,12 +413,12 @@ class EQSNBackend(object):
         qubits, statevector = self.eqsn.give_statevector_for(qubit.qubit)
         index = qubits.index(qubit.qubit)
         density_operator = np.outer(statevector, statevector)
-        before = 2**index
+        before = 2 ** index
         if before > 0:
-            other = 2**(len(qubits) - index)
+            other = 2 ** (len(qubits) - index)
             density_operator = density_operator.reshape([before, other, before, other])
             density_operator = np.trace(density_operator, axis1=0, axis2=2)
-        after = 2**(len(qubits) - index - 1)
+        after = 2 ** (len(qubits) - index - 1)
         if after > 0:
             density_operator = density_operator.reshape([2, after, 2, after])
             density_operator = np.trace(density_operator, axis1=1, axis2=3)
