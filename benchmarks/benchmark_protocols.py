@@ -153,7 +153,7 @@ def test_teleport_ten_hops_qt(benchmark):
 
 
 @pytest.mark.qt_super
-def test_teleport_ten_hops_qt(benchmark):
+def test_super_ten_hops_qt(benchmark):
     backend = QuTipBackend()
     network, hosts = setup_network(11, backend)
     benchmark.pedantic(superdense, args=(hosts[0], hosts[-1]), rounds=30)
