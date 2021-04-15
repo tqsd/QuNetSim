@@ -1,11 +1,13 @@
 from qunetsim.backends import SafeDict
+from numpy import random
 
 
 class SimpleStabilizerQubit:
     def __init__(self, q_id):
+        self.entangled_pairs = []
+        self.state = 0
         self._ops = []
         self._is_entangled = False
-        self._entangled_pair = []
         self._q_id = q_id
 
     @property
@@ -15,6 +17,7 @@ class SimpleStabilizerQubit:
     def X(self):
         if len(self._ops) == 0 or self._ops[-1] != 'X':
             self._ops.append('X')
+            self.state = 1
         else:
             self._ops.pop()
 
@@ -24,17 +27,54 @@ class SimpleStabilizerQubit:
         else:
             self._ops.pop()
 
-    def bell_pair(self, q):
-        self._is_entangled = True
-        self._entangled_pair.append(q)
+    def H(self):
+        if self._is_entangled:
+            return
+
+        if len(self._ops) == 0 or self._ops[-1] != 'H':
+            self._ops.append('H')
+        else:
+            self._ops.pop()
+
+    def cnot(self, target):
+        if self._is_entangled or len(self._ops) == 0:
+            return
+
+        if self._ops[-1] == 'X':
+            target.X()
+        elif self._ops[-1] == 'H':
+            self._is_entangled = True
+            target._is_entangled = True
+            target.entangled_pairs.append(self)
+            self.entangled_pairs.append(target)
+            self._ops.pop()
 
     def measure(self):
         if len(self._ops) == 0:
+            if self._is_entangled:
+                return self.state
             return 0
         elif len(self._ops) == 1:
             op = self._ops.pop()
-            if op == 'X':
+            if self._is_entangled:
+                if op == 'X':
+                    self.entangled_pairs[0].state = 1
+                    return 0
+                elif op == 'Z':
+                    self.entangled_pairs[0].state = 0
+                    return 1
+            else:
+                if op == 'X':
+                    return self.state
+                if op == 'H':
+                    return random.choice([0, 1])
+                return 0
+        elif len(self._ops) == 2:
+            if self._is_entangled:
+                self.entangled_pairs[0].state = 1
                 return 1
+            return 0
+        else:
             return 0
 
 
@@ -178,8 +218,7 @@ class SimpleStabilizerBackend:
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        qubit.qubit.H()
 
     def T(self, qubit):
         """
@@ -232,8 +271,7 @@ class SimpleStabilizerBackend:
             qubit (Qubit): Qubit to control cnot.
             target (Qubit): Qubit on which the cnot gate should be applied.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        qubit.qubit.cnot(target.qubit)
 
     def cphase(self, qubit, target):
         """
@@ -296,7 +334,7 @@ class SimpleStabilizerBackend:
 
     def density_operator(self, qubit):
         """
-        Returns the density operator of this qubit. If the qubit is entangled,
+        Returns the density operator of this qubit. I the qubit is entangled,
         the density operator will be in a mixed state.
 
         Args:
