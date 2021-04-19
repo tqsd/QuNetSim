@@ -52,3 +52,35 @@ class TestNetwork(unittest.TestCase):
         network.remove_host(c)
         self.assertEqual(network.num_hosts, 0)
         network.stop(True)
+
+    def test_topology_star(self):
+        network = Network.get_instance()
+
+        network.generate_topology('star', 5)
+        self.assertEqual(network.num_hosts, 5)
+        self.assertEqual(network.classical_network.number_of_edges(), 8)
+
+        network.stop(stop_hosts=True)
+
+    def test_topology_linear(self):
+        network = Network.get_instance()
+        network.generate_topology('linear', 2)
+        self.assertEqual(network.num_hosts, 2)
+        self.assertEqual(network.classical_network.number_of_edges(), 2)
+
+        network.stop(stop_hosts=True)
+
+    def test_topology_complete(self):
+        network = Network.get_instance()
+        network.generate_topology('complete', 4)
+        self.assertEqual(network.num_hosts, 4)
+        self.assertEqual(network.classical_network.number_of_edges(), 4*3)
+
+        network.stop(stop_hosts=True)
+
+    def test_topology_not_implemented(self):
+        network = Network.get_instance()
+        with self.assertRaises(ValueError):
+            network.generate_topology('unknown', 5)
+
+        network.stop(stop_hosts=True)

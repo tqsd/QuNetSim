@@ -652,9 +652,10 @@ class Network:
         return packet
 
     def generate_topology(self, topology, size):
+        from qunetsim.components import Host
 
         if topology == 'star':
-            Graph = nx.star_graph(size)
+            Graph = nx.star_graph(size - 1)
 
         elif topology == 'complete':
             Graph = nx.complete_graph(size)
