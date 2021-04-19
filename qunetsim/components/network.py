@@ -650,3 +650,35 @@ class Network:
             packet.receiver = route[2]
 
         return packet
+
+    def generate_topology(self, topology, size):
+
+        if topology == 'star':
+            Graph = nx.star_graph(size)
+
+        elif topology == 'complete':
+            Graph = nx.complete_graph(size)
+
+        elif topology == 'linear':
+            Graph = nx.path_graph(size)
+
+        else:
+            raise ValueError('topology not implemented')
+
+        hosts = []
+        for node, adj_list in Graph.adjacency():
+
+            h = Host(str(node))
+
+            for adj_node in adj_list.keys():
+
+                h.add_connection(str(adj_node))
+
+            hosts.append(h)
+
+            for h in hosts:
+                h.start()
+
+        self.add_hosts(hosts)
+
+

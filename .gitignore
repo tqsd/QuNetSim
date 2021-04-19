@@ -19,3 +19,4 @@ qunetsim/components/__init__.pyc
 tests/backends/__pycache__/
 integration_tests/__pycache__/test_multi_hop.cpython-36.pyc
 integration_tests/__pycache__/test_single_hop.cpython-36.pyc
+settings.json
