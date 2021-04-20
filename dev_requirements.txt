@@ -63,7 +63,7 @@ projectq==0.4.2
 prometheus-client==0.7.1
 prompt-toolkit==3.0.2
 ptyprocess==0.6.0
-py==1.8.1
+py==1.10.0
 pybind11==2.4.3
 pycodestyle==2.5.0
 pycparser==2.20
