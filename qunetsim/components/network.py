@@ -674,12 +674,8 @@ class Network:
             for adj_node in adj_list.keys():
 
                 h.add_connection(str(adj_node))
-
+            h.start()
             hosts.append(h)
 
-            for h in hosts:
-                h.start()
-
         self.add_hosts(hosts)
-
 
