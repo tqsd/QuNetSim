@@ -65,7 +65,7 @@ class SimpleStabilizerQubit:
                     return 1
             else:
                 if op == 'X':
-                    return self.state
+                    return 1
                 if op == 'H':
                     return random.choice([0, 1])
                 return 0
@@ -76,6 +76,7 @@ class SimpleStabilizerQubit:
             return 0
         else:
             return 0
+
 
 
 class SimpleStabilizerBackend:
@@ -180,8 +181,7 @@ class SimpleStabilizerBackend:
         Args:
             qubit (Qubit): Qubit on which gate should be applied to.
         """
-        raise (EnvironmentError("This is only an interface, not \
-                        an actual implementation!"))
+        return
 
     def X(self, qubit):
         """

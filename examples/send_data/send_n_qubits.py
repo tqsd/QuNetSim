@@ -117,7 +117,7 @@ def main():
     network.add_host(host_alice)
     network.add_host(host_bob)
 
-    n = 400
+    n = 10000
 
     start = time.time()
 

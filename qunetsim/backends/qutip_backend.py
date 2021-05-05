@@ -34,12 +34,12 @@ class QuTipBackend(object):
             """
             Calculates the tensor product using the implementation
             of QuTip.
-            Modified vesion of qutip tensor function,
+            Modified version of qutip tensor function,
             See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
             """
             self._lock()
             self.data = qutip.tensor(self.data, qubit.data)
-            self.N = self.N + qubit.N
+            self.N += qubit.N
             self._qubit_names = self._qubit_names + qubit._qubit_names
             self._unlock()
 
@@ -63,7 +63,6 @@ class QuTipBackend(object):
             self._unlock()
 
         def measure(self, qubit_name, non_destructive):
-            res = None
             M_0 = qutip.fock(2, 0).proj()
             M_1 = qutip.fock(2, 1).proj()
             self._lock()
@@ -81,7 +80,7 @@ class QuTipBackend(object):
                 # M_1 = qutip.gate_expand_1toN(M_1, self.N, target)
                 self.data = M_1 * self.data * M_1.dag() / pr_1
                 res = 1
-            if non_destructive is False:
+            if not non_destructive:
                 i_list = [x for x in range(self.N)]
                 i_list.remove(target)
                 self._qubit_names.remove(qubit_name)
