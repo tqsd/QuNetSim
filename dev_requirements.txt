@@ -63,12 +63,12 @@ projectq==0.4.2
 prometheus-client==0.7.1
 prompt-toolkit==3.0.2
 ptyprocess==0.6.0
-py==1.8.1
+py==1.10.0
 pybind11==2.4.3
 pycodestyle==2.5.0
 pycparser==2.20
 pyflakes==2.1.1
-Pygments==2.6.1
+Pygments==2.7.4
 PyHamcrest==2.0.0
 pyparsing==2.4.1.1
 pyrsistent==0.15.6
