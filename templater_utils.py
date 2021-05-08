@@ -72,7 +72,7 @@ def gen_protocols():
     return content
 
 
-def get_valid_num():
+def get_valid_num() -> int:
     valid_number = False
     while not valid_number:
         num_nodes = input("How many hosts (nodes) are in the network?" +
@@ -99,7 +99,7 @@ def get_valid_num():
     return num_nodes
 
 
-def get_valid_filename():
+def get_valid_filename() -> str:
     valid_filename = False
     while not valid_filename:
         file_name = input("Name for this template (default: template): ")
@@ -117,3 +117,38 @@ def get_valid_filename():
 
     return file_name
 
+
+def get_host_names(num_hosts: int) -> list:
+    default_host_names = list(ascii_uppercase) + list(ascii_lowercase)
+    host_names = []
+
+    default_check = input("If you would like to customize your host names," +
+                          " please enter any character before pressing enter.")
+    if default_check == "":
+        for i in range(0, num_hosts):
+            host_names.append(default_host_names[i])
+        return host_names
+
+    print(" You have chosen to customize your {} host names."
+          .format(num_hosts))
+
+    for i in range(0, num_hosts):
+        valid_entry = False
+        while not valid_entry:
+            host_name = input("Please choose a name for host {} (Default: "
+                              .format(i + 1) + "{}) : "
+                              .format(default_host_names[i]))
+            if host_name == "":
+                host_name = default_host_names[i]
+            elif not host_name.isalnum():
+                print("----Please enter a valid host name. Host names must "
+                      "consist entirely of alphanumeric values.")
+                continue
+            if host_name in host_names:
+                print("----Please choose a unique host name. This one already"
+                      " exists in your network.")
+            else:
+                valid_entry = True
+                host_names.append(host_name)
+
+    return host_names
