@@ -1,38 +1,42 @@
 from string import ascii_uppercase, ascii_lowercase
+from io import StringIO
+from shutil import copyfileobj
 
 
 def gen_imports():
-    imports = ""
-    imports += "from qunetsim.components import Host, Network\n"
-    imports += "from qunetsim.objects import Qubit, Logger\n"
-    imports += "Logger.DISABLED = True\n\n\n"
+    imports = StringIO()
+    imports.write("from qunetsim.components import Host, Network\n")
+    imports.write("from qunetsim.objects import Qubit, Logger\n")
+    imports.write("Logger.DISABLED = True\n\n\n")
+    imports.seek(0)
     return imports
 
 
 def gen_protocols():
-    content = ""
-    content += "def protocol_1(host, receiver):" + "\n"
-    content += "    " + "# Here we write the protocol code for a host.\n"
-    content += "    " + "for i in range(5):\n"
-    content += "        " + "q = Qubit(host)\n"
-    content += "        " + "q.H()\n"
-    content += "        " + "print('Sending qubit %d.' % (i+1))\n"
-    content += "        " + "host.send_qubit(receiver, q, await_ack=True)\n"
-    content += "        " + "print('Qubit %d was received by %s.' % (i+1, receiver))" + "\n\n\n"
+    content = StringIO()
+    content.write("def protocol_1(host, receiver):\n")
+    content.write("    # Here we write the protocol code for a host.\n")
+    content.write("    for i in range(5):\n")
+    content.write("        q = Qubit(host)\n")
+    content.write("        q.H()\n")
+    content.write("        print('Sending qubit %d.' % (i+1))\n")
+    content.write("        host.send_qubit(receiver, q, await_ack=True)\n")
+    content.write("        print('Qubit %d was received by %s.' % (i+1, receiver))\n\n\n")
 
-    content += "def protocol_2(host, sender):" + "\n"
-    content += "    " + "# Here we write the protocol code for another host.\n"
-    content += "    " + "for _ in range(5):\n"
-    content += "        " + "# Wait for a qubit from Alice for 10 seconds.\n"
-    content += "        " + "q = host.get_data_qubit(sender, wait=10)\n"
-    content += "        " + "print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))\n\n\n"
+    content.write("def protocol_2(host, sender):\n")
+    content.write("    # Here we write the protocol code for another host.\n")
+    content.write("    for _ in range(5):\n")
+    content.write("        # Wait for a qubit from Alice for 10 seconds.\n")
+    content.write("        q = host.get_data_qubit(sender, wait=10)\n")
+    content.write("        print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))\n\n\n")
+    content.seek(0)
     return content
 
 
 def gen_main():
-    main_content = ""
-    main_content += "def main():" + "\n"
-    main_content += "   " + "network = Network.get_instance()" + "\n"
+    main_content = StringIO()
+    main_content.write("def main():\n")
+    main_content.write("   network = Network.get_instance()\n")
     num_nodes = int(input("How many nodes are in the network? "))
     nodes = []
 
@@ -44,28 +48,28 @@ def gen_main():
 
     for i in range(num_nodes):
         nodes.append(node_names[i])
-    main_content += "   " + "nodes = " + str(nodes) + "\n"
-    main_content += "   " + "network.start(nodes)" + "\n"
-    main_content += "\n"
+    main_content.write("   nodes = " + str(nodes) + "\n")
+    main_content.write("   network.start(nodes)\n\n")
     for n in nodes:
-        main_content += "   " + "host_" + n + " = Host('" + n + "')" + "\n"
+        main_content.write("   host_" + n + " = Host('" + n + "')\n")
         for m in nodes:
             if m != n:
-                main_content += "   " + "host_" + n + ".add_connection('" + m + "')" + "\n"
+                main_content.write("   host_" + n + ".add_connection('" + m + "')\n")
 
-        main_content += "   " + "host_" + n + ".start()" + "\n"
-    main_content += "\n"
+        main_content.write("   host_" + n + ".start()\n")
+    main_content.write("\n")
     for n in nodes:
-        main_content += "   network.add_host(" + "host_" + n + ") \n"
+        main_content.write("   network.add_host(host_" + n + ") \n")
 
-    main_content += "\n"
-    main_content += "   " + "t1 = host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
-                    + nodes[-1] + ".host_id,))\n"
-    main_content += "   " + "t2 = host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
-                    + nodes[0] + ".host_id,))\n"
-    main_content += "   " + "t1.join()\n"
-    main_content += "   " + "t2.join()\n"
-    main_content += "   " + "network.stop(True)\n\n"
+    main_content.write("\n")
+    main_content.write("   t1 = host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
+                    + nodes[-1] + ".host_id,))\n")
+    main_content.write("   t2 = host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
+                    + nodes[0] + ".host_id,))\n")
+    main_content.write("   t1.join()\n")
+    main_content.write("   t2.join()\n")
+    main_content.write("   network.stop(True)\n\n")
+    main_content.seek(0)
     return main_content
 
 
@@ -74,10 +78,12 @@ if __name__ == '__main__':
     if file_name == "":
         print("File name must not be empty.")
     else:
-        file_content = gen_imports()
-        file_content += gen_protocols()
-        file_content += gen_main()
-        file_content += "if __name__ == '__main__':\n"
-        file_content += "   main()\n"
-        f = open(file_name + '.py', 'w')
-        f.write(file_content)
+        file_closing = StringIO()
+        file_closing.write("if __name__ == '__main__':\n")
+        file_closing.write("   main()\n")
+        file_closing.seek(0)
+        with open(file_name + '.py', 'w') as f:
+            copyfileobj(gen_imports(), f)
+            copyfileobj(gen_protocols(), f)
+            copyfileobj(gen_main(), f)
+            copyfileobj(file_closing, f)
