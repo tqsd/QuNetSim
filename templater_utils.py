@@ -3,38 +3,32 @@ from io import StringIO
 from pathvalidate import ValidationError, validate_filename
 
 
-def gen_main(num_nodes):
+def gen_main(host_names: list) -> StringIO:
     main_content = StringIO()
     main_content.write("def main():\n")
     main_content.write("   network = Network.get_instance()\n")
-    nodes = []
 
     node_names = list(ascii_uppercase)
     node_names.extend(ascii_lowercase)
 
-    if num_nodes > len(node_names):
-        print('Please use less than %d nodes' % len(num_nodes))
-
-    for i in range(num_nodes):
-        nodes.append(node_names[i])
-    main_content.write("   nodes = " + str(nodes) + "\n")
+    main_content.write("   nodes = " + str(host_names) + "\n")
     main_content.write("   network.start(nodes)\n\n")
-    for n in nodes:
+    for n in host_names:
         main_content.write("   host_" + n + " = Host('" + n + "')\n")
-        for m in nodes:
+        for m in host_names:
             if m != n:
                 main_content.write("   host_" + n + ".add_connection('" + m + "')\n")
 
         main_content.write("   host_" + n + ".start()\n")
     main_content.write("\n")
-    for n in nodes:
+    for n in host_names:
         main_content.write("   network.add_host(host_" + n + ") \n")
 
     main_content.write("\n")
-    main_content.write("   t1 = host_" + nodes[0] + ".run_protocol(protocol_1, (host_" \
-                    + nodes[-1] + ".host_id,))\n")
-    main_content.write("   t2 = host_" + nodes[-1] + ".run_protocol(protocol_2, (host_" \
-                    + nodes[0] + ".host_id,))\n")
+    main_content.write("   t1 = host_" + host_names[0] + ".run_protocol(protocol_1, (host_" \
+                    + host_names[-1] + ".host_id,))\n")
+    main_content.write("   t2 = host_" + host_names[-1] + ".run_protocol(protocol_2, (host_" \
+                    + host_names[0] + ".host_id,))\n")
     main_content.write("   t1.join()\n")
     main_content.write("   t2.join()\n")
     main_content.write("   network.stop(True)\n\n")
