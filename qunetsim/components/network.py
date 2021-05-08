@@ -650,3 +650,47 @@ class Network:
             packet.receiver = route[2]
 
         return packet
+
+    def generate_topology(
+            self,
+            topology,
+            host_names=None,
+            size=5,
+            category='both'
+    ) -> None:
+        from qunetsim.components import Host
+
+        if category is not ('both' or 'quantum' or 'classic'):
+            raise ValueError('topology not implemented')
+
+        if host_names is None or len(host_names) < 2:
+            star_term = size - 1
+            term = size
+        else:
+            term = [host_name for host_name in host_names]
+            star_term = term
+
+        if topology == 'star':
+            graph = nx.star_graph(star_term)
+        elif topology == 'complete':
+            graph = nx.complete_graph(term)
+        elif topology == 'linear':
+            graph = nx.path_graph(term)
+        else:
+            raise ValueError('topology not implemented')
+
+        hosts = []
+        for node, adj_list in graph.adjacency():
+            h = Host(str(node))
+            print("{} is {}".format(h.host_id,h))
+            for adj_node in adj_list.keys():
+                if category is 'both':
+                    h.add_connection(str(adj_node))
+                elif category is 'classic':
+                    h.add_c_connection(str(adj_node))
+                else:
+                    h.add_q_connection(str(adj_node))
+            h.start()
+            hosts.append(h)
+
+        self.add_hosts(hosts)
