@@ -651,46 +651,126 @@ class Network:
 
         return packet
 
-    def generate_topology(
-            self,
-            topology,
-            host_names=None,
-            size=5,
-            category='both'
-    ) -> None:
-        from qunetsim.components import Host
+    @staticmethod
+    def _get_star_topology_graph(hosts):
+        return nx.star_graph(hosts)
 
-        if category is not ('both' or 'quantum' or 'classic'):
+    @staticmethod
+    def _get_ring_topology_graph(hosts):
+        graph = nx.path_graph(hosts)
+        graph.add_edge(hosts[0], hosts[len(hosts) - 1])
+        return graph
+
+    @staticmethod
+    def _get_mesh_topology_graph(hosts):
+        return nx.complete_graph(hosts)
+
+    @staticmethod
+    def _get_linear_topology_graph(hosts):
+        return nx.path_graph(hosts)
+
+    @staticmethod
+    def _get_tree_topology_graph(hosts):
+        graph = nx.empty_graph(hosts)
+        for i in range(0, len(hosts)):
+            if 2 * i + 1 < len(hosts):
+                graph.add_edge(hosts[i], hosts[2 * i + 1])
+            if 2 * i + 2 < len(hosts):
+                graph.add_edge(hosts[i], hosts[2 * i + 2])
+        return graph
+
+    _topologies = {
+        'star': lambda x: Network._get_star_topology_graph(x),
+        'ring': lambda x: Network._get_ring_topology_graph(x),
+        'mesh': lambda x: Network._get_mesh_topology_graph(x),
+        'linear': lambda x: Network._get_linear_topology_graph(x),
+        'tree': lambda x: Network._get_tree_topology_graph(x)
+    }
+
+    @staticmethod
+    def _validate_topology_input(host_names, topology):
+        if len(host_names) < 2:
+            raise ValueError('insufficient hosts')
+        if topology not in Network._topologies.keys():
             raise ValueError('topology not implemented')
 
-        if host_names is None or len(host_names) < 2:
-            star_term = size - 1
-            term = size
-        else:
-            term = [host_name for host_name in host_names]
-            star_term = term
+    def generate_topology(self, host_names: list, topology: str = 'mesh') \
+            -> None:
+        """
+        Adjusts a network that already exists by adding both classic and
+        quantum connections that fit the desired network topology. This method
+        either adds new nodes or adds connections to existing hosts within
+        the network.
 
-        if topology == 'star':
-            graph = nx.star_graph(star_term)
-        elif topology == 'complete':
-            graph = nx.complete_graph(term)
-        elif topology == 'linear':
-            graph = nx.path_graph(term)
-        else:
-            raise ValueError('topology not implemented')
+        The supported network topologies are mesh, star, ring, linear, and
+        tree.
 
-        hosts = []
+        Args:
+            host_names (list): The names for the new hosts.
+            topology (str) {'mesh', 'star', 'ring', 'linear', 'tree'}: The
+                network topology that will be created.
+        """
+        self.generate_c_topology(host_names, topology)
+        self.generate_q_topology(host_names, topology)
+
+    def generate_q_topology(self, host_names: list, topology: str = 'mesh') \
+            -> None:
+        """
+        Adjusts a network that already exists by adding  quantum connections
+        that fit the desired network topology. This method either adds new
+        nodes or adds connections to existing hosts within the network.
+
+        The supported network topologies are mesh, star, ring, linear, and
+        tree.
+
+        Args:
+            host_names (list): The names for the new hosts.
+            topology (str) {'mesh', 'star', 'ring', 'linear', 'tree'}: The
+                network topology that will be created.
+        """
+        from qunetsim import Host
+
+        Network._validate_topology_input(host_names, topology)
+
+        graph = Network._topologies[topology](host_names)
+
+        for host_name in host_names:
+            if host_name not in self.ARP.keys():
+                self.add_host(Host(host_name))
+
         for node, adj_list in graph.adjacency():
-            h = Host(str(node))
-            print("{} is {}".format(h.host_id,h))
-            for adj_node in adj_list.keys():
-                if category is 'both':
-                    h.add_connection(str(adj_node))
-                elif category is 'classic':
-                    h.add_c_connection(str(adj_node))
-                else:
-                    h.add_q_connection(str(adj_node))
+            h = self.get_host(node)
+            h.add_q_connections(adj_list.keys())
+            self.add_host(h)
             h.start()
-            hosts.append(h)
 
-        self.add_hosts(hosts)
+    def generate_c_topology(self, host_names: list, topology: str = 'mesh') \
+            -> None:
+        """
+        Adjusts a network that already exists by adding  quantum connections
+        that fit the desired network topology. This method either adds new
+        nodes or adds connections to existing hosts within the network.
+
+        The supported network topologies are mesh, star, ring, linear, and
+        tree.
+
+        Args:
+            host_names (list): The names for the new hosts.
+            topology (str) {'mesh', 'star', 'ring', 'linear', 'tree'}: The
+                network topology that will be created.
+        """
+        from qunetsim import Host
+
+        Network._validate_topology_input(host_names, topology)
+
+        graph = Network._topologies[topology](host_names)
+
+        for host_name in host_names:
+            if host_name not in self.ARP.keys():
+                self.add_host(Host(host_name))
+
+        for node, adj_list in graph.adjacency():
+            h = self.get_host(node)
+            h.add_c_connections(adj_list.keys())
+            self.add_host(h)
+            h.start()
