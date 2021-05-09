@@ -46,11 +46,13 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 
+html_logo = "images/Psirocket_white.png"
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
     'collapse_navigation': False,
-    'prev_next_buttons_location': None
+    'prev_next_buttons_location': None,
+    'logo_only': True
 }
 html_favicon = 'images/favicon.png'
 
