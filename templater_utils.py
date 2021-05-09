@@ -3,6 +3,15 @@ from io import StringIO
 from pathvalidate import ValidationError, validate_filename
 
 
+backends = {
+    1: {'name': 'EQSN', 'file': '.eqsn_backend', 'import': 'EQSNBackend'},
+    2: {'name': 'CQC', 'file': '.cqc_backend', 'import': 'CQCBackend'},
+    3: {'name': 'QuTip', 'file': '.qutip_backend', 'import': 'QuTipBackend'},
+    4: {'name': 'ProjectQ', 'file': '.projectq_backend',
+        'import': 'ProjectQBackend'},
+}
+
+
 def gen_main(host_names: list) -> StringIO:
     main_content = StringIO()
     main_content.write("def main():\n")
@@ -36,11 +45,17 @@ def gen_main(host_names: list) -> StringIO:
     return main_content
 
 
-def gen_imports():
+def gen_import_statements(backend_num: int) -> StringIO:
     imports = StringIO()
+
     imports.write("from qunetsim.components import Host, Network\n")
     imports.write("from qunetsim.objects import Qubit, Logger\n")
-    imports.write("Logger.DISABLED = True\n\n\n")
+    imports.write("from qunetsim.backends import " +
+                  backends[backend_num]['import'] + '\n')
+    imports.write("Logger.DISABLED = True\n\n")
+    imports.write("# create the " + backends[backend_num]['name'] +
+                  "backend obejct\n")
+    imports.write("backend = " + backends[backend_num]['import'] + "()\n\n\n")
     imports.seek(0)
     return imports
 
@@ -66,7 +81,7 @@ def gen_protocols():
     return content
 
 
-def get_valid_num() -> int:
+def prompt_valid_num() -> int:
     valid_number = False
     while not valid_number:
         num_nodes = input("How many hosts (nodes) are in the network?" +
@@ -93,7 +108,7 @@ def get_valid_num() -> int:
     return num_nodes
 
 
-def get_valid_filename() -> str:
+def prompt_valid_filename() -> str:
     valid_filename = False
     while not valid_filename:
         file_name = input("Name for this template (default: template): ")
@@ -112,12 +127,13 @@ def get_valid_filename() -> str:
     return file_name
 
 
-def get_host_names(num_hosts: int) -> list:
+def prompt_host_names(num_hosts: int) -> list:
     default_host_names = list(ascii_uppercase) + list(ascii_lowercase)
     host_names = []
 
     default_check = input("If you would like to customize your host names," +
-                          " please enter any character before pressing enter.")
+                          " please enter any character before pressing " +
+                          " enter... ")
     if default_check == "":
         for i in range(0, num_hosts):
             host_names.append(default_host_names[i])
@@ -146,3 +162,26 @@ def get_host_names(num_hosts: int) -> list:
                 host_names.append(host_name)
 
     return host_names
+
+
+def prompt_backend() -> int:
+    backend_options = {i: backends[i]['name'] for i in range(1, len(backends) + 1)}
+    valid_entry = False
+    while not valid_entry:
+        print("You backend options are {}".format(backend_options))
+        choice = input("Please enter the number of your desired backend " +
+                       "(Default: 1): ")
+        if choice == "":
+            valid_entry = True
+            choice = 1
+        try:
+            if 0 < int(choice) < len(backend_options) + 1:
+                valid_entry = True
+                choice = int(choice)
+            else:
+                raise ValueError
+        except ValueError as e:
+            print("----Please enter a valid number for your choice of " +
+                  "backend.")
+
+    return choice
