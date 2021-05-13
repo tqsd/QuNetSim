@@ -77,25 +77,43 @@ def gen_import_statements(backend_num: int) -> StringIO:
     return imports
 
 
-def gen_protocols():
-    content = StringIO()
-    content.write("def protocol_1(host, receiver):\n")
-    content.write("    # Here we write the protocol code for a host.\n")
-    content.write("    for i in range(5):\n")
-    content.write("        q = Qubit(host)\n")
-    content.write("        q.H()\n")
-    content.write("        print('Sending qubit %d.' % (i+1))\n")
-    content.write("        host.send_qubit(receiver, q, await_ack=True)\n")
-    content.write("        print('Qubit %d was received by %s.' % (i+1, receiver))\n\n\n")
+def gen_protocols(sniffer_host: str) -> StringIO:
+    protocols = StringIO()
+    if sniffer_host != "":
+        protocols.write("def " + sniffer_host + "_sniffing_quantum(" +
+                        "sender, receiver, qubit):\n")
+        protocols.write("    # This is just a sample sniffing protocol\n")
+        protocols.write("    # " + sniffer_host.capitalize() + " applies an " +
+                        "X operation to all qubits routed through it\n")
+        protocols.write("    qubit.X()\n\n")
+        protocols.write("def " + sniffer_host + "_sniffing_classical(" +
+                        "sender, receiver, msg):\n")
+        protocols.write("    # This is just a sample sniffing protocol\n")
+        protocols.write("    # " + sniffer_host.capitalize() + " modifies " +
+                        "the content of all classical messages routed " +
+                        "through it\n")
+        protocols.write("    if isinstance(msg, Message):\n")
+        protocols.write("        msg.content = \"** " +
+                        sniffer_host.capitalize() + " was here :) ** \" " +
+                        "+ msg.content\n\n")
 
-    content.write("def protocol_2(host, sender):\n")
-    content.write("    # Here we write the protocol code for another host.\n")
-    content.write("    for _ in range(5):\n")
-    content.write("        # Wait for a qubit from Alice for 10 seconds.\n")
-    content.write("        q = host.get_data_qubit(sender, wait=10)\n")
-    content.write("        print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))\n\n\n")
-    content.seek(0)
-    return content
+    protocols.write("def protocol_1(host, receiver):\n")
+    protocols.write("    # Here we write the protocol code for a host.\n")
+    protocols.write("    for i in range(5):\n")
+    protocols.write("        q = Qubit(host)\n")
+    protocols.write("        q.H()\n")
+    protocols.write("        print('Sending qubit %d.' % (i+1))\n")
+    protocols.write("        host.send_qubit(receiver, q, await_ack=True)\n")
+    protocols.write("        print('Qubit %d was received by %s.' % (i+1, receiver))\n\n\n")
+
+    protocols.write("def protocol_2(host, sender):\n")
+    protocols.write("    # Here we write the protocol code for another host.\n")
+    protocols.write("    for _ in range(5):\n")
+    protocols.write("        # Wait for a qubit from sender for 10 seconds.\n")
+    protocols.write("        q = host.get_data_qubit(sender, wait=10)\n")
+    protocols.write("        print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))\n\n\n")
+    protocols.seek(0)
+    return protocols
 
 
 def prompt_valid_num() -> int:
@@ -182,7 +200,9 @@ def prompt_host_names(num_hosts: int) -> list:
 
 
 def prompt_backend() -> int:
-    backend_options = {i: backends[i]['name'] for i in range(1, len(backends) + 1)}
+    backend_options = {
+        i: backends[i]['name'] for i in range(1, len(backends) + 1)
+    }
     valid_entry = False
     while not valid_entry:
         print("Your backend options are {}".format(backend_options))
@@ -204,18 +224,88 @@ def prompt_backend() -> int:
     return choice
 
 
+def prompt_eavesdropper(host_names: list) -> str:
+    valid_entry = False
+    decision = False
+    while not valid_entry:
+        choice = input ("Would you like to designate one of your hosts " +
+                        "as an eavesdropper? (Default: no) ")
+        if choice == "":
+            choice = "n"
+        try:
+            if choice.lower() == "y" or choice.lower() == "yes":
+                valid_entry = True
+                decision = True
+            elif choice.lower() == "n" or choice.lower() == "no":
+                valid_entry = True
+            else:
+                raise ValueError
+        except ValueError as e:
+            print("----Please enter a (y)es or (n)o answer.")
+
+    if not decision:
+        return ""
+    else:
+        valid_entry = False
+        host_options = {
+            i + 1: host_names[i] for i in range(0, len(host_names))
+        }
+        while not valid_entry:
+            print("Your hosts are {}".format(host_options))
+            choice = input ("Please choose the number of the host which " +
+                            "should be set as an eavesdropper (Default: 1). ")
+            if choice == "":
+                valid_entry = True
+                choice = 1
+            try:
+                if 0 < int(choice) < len(host_options) + 1:
+                    valid_entry = True
+                    choice = int(choice)
+                else:
+                    raise ValueError
+            except ValueError as e:
+                print("----Please enter a valid number for your choice of " +
+                      "eavesdropper.")
+        return host_names[choice]
+
+
+def gen_eavesdropper(eavesdropping_host_name: str) -> StringIO:
+    sniffer_content = StringIO()
+
+    if eavesdropping_host_name == "":
+        return sniffer_content
+
+    sniffer_host = "host_" + eavesdropping_host_name
+    sniffer_content.write("    " + sniffer_host +
+                          ".quantum_relay_sniffing = True\n")
+    sniffer_content.write("    " + sniffer_host +
+                          ".set_quantum_relay_sniffing_function(" +
+                          eavesdropping_host_name + "_sniffing_quantum)\n\n")
+    sniffer_content.write("    " + sniffer_host +
+                          ".relay_sniffing = True\n")
+    sniffer_content.write("    " + sniffer_host +
+                          ".set_relay_sniffing_function(" +
+                          eavesdropping_host_name + "_sniffing_classical)\n\n")
+    sniffer_content.seek(0)
+    return sniffer_content
+
+
 if __name__ == '__main__':
     file_name = prompt_valid_filename()
     num_nodes = prompt_valid_num()
     host_names = prompt_host_names(num_nodes)
     back_end = prompt_backend()
     topology = prompt_topology()
+    # file_name = "ex.py"
+    # host_names = ['A', 'B', 'C', 'D']
+    eavesdropper = prompt_eavesdropper(host_names)
     file_closing = StringIO()
     file_closing.write("if __name__ == '__main__':\n")
     file_closing.write("   main()\n")
     file_closing.seek(0)
     with open(file_name, 'w') as f:
         copyfileobj(gen_import_statements(back_end), f)
-        copyfileobj(gen_protocols(), f)
+        copyfileobj(gen_protocols(eavesdropper), f)
         copyfileobj(gen_main(topology, host_names), f)
+        copyfileobj(gen_eavesdropper(eavesdropper), f)
         copyfileobj(file_closing, f)
