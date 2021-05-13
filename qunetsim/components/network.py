@@ -790,3 +790,4 @@ class Network:
         def add_classic(x, y):
             return x.add_c_connections(y)
         self._simple_topology_generation(host_names, topology, add_classic)
+        
