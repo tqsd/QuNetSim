@@ -2,6 +2,7 @@ import unittest
 
 from qunetsim.components import Network, Host
 from eqsn import EQSN
+from math import floor
 
 
 # @unittest.skip('')
@@ -17,6 +18,13 @@ class TestNetwork(unittest.TestCase):
 
     def setUp(self):
         Network.reset_network()
+        self.sample_list = [
+            'A',
+            'B',
+            'C',
+            'D',
+            'E'
+        ]
 
     def tearDown(self) -> None:
         pass
@@ -53,34 +61,156 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(network.num_hosts, 0)
         network.stop(True)
 
-    def test_topology_star(self):
+    def test_generate_topology_star(self):
         network = Network.get_instance()
+        non_center_nodes = self.sample_list.copy()
+        non_center_nodes.remove('A')
 
-        network.generate_topology('star', 5)
-        self.assertEqual(network.num_hosts, 5)
-        self.assertEqual(network.classical_network.number_of_edges(), 8)
+        network.generate_topology(self.sample_list, 'star')
+
+        center_node = network.get_host('A')
+        self.assertEqual(
+            list(center_node.quantum_connections.keys()),
+            non_center_nodes
+        )
+        self.assertEqual(
+            list(center_node.classical_connections.keys()),
+            non_center_nodes
+        )
+
+        for spoke in non_center_nodes:
+            node = network.get_host(spoke)
+            self.assertEqual(list(node.quantum_connections.keys()), ['A'])
+            self.assertEqual(list(node.classical_connections.keys()), ['A'])
 
         network.stop(stop_hosts=True)
 
-    def test_topology_linear(self):
+    def test_generate_topology_linear(self):
         network = Network.get_instance()
-        network.generate_topology('linear', 2)
-        self.assertEqual(network.num_hosts, 2)
-        self.assertEqual(network.classical_network.number_of_edges(), 2)
+        network.generate_topology(self.sample_list, 'linear')
+
+        # First Host
+        host = network.get_host(self.sample_list[0])
+        self.assertEqual(
+            list(host.quantum_connections.keys()),
+            [self.sample_list[1]]
+        )
+        self.assertEqual(
+            list(host.classical_connections.keys()),
+            [self.sample_list[1]]
+        )
+        # Last Host
+        last_index = len(self.sample_list) - 1
+        host = network.get_host(self.sample_list[last_index])
+        self.assertEqual(
+            list(host.quantum_connections.keys()),
+            [self.sample_list[last_index - 1]]
+        )
+        self.assertEqual(
+            list(host.classical_connections.keys()),
+            [self.sample_list[last_index - 1]]
+        )
+        # Other Hosts
+        for i in range(1, len(self.sample_list) - 2):
+            host = network.get_host(self.sample_list[i])
+            self.assertEqual(
+                list(host.quantum_connections.keys()),
+                [self.sample_list[i - 1], self.sample_list[i + 1]]
+            )
+            self.assertEqual(
+                list(host.classical_connections.keys()),
+                [self.sample_list[i - 1], self.sample_list[i + 1]]
+            )
 
         network.stop(stop_hosts=True)
 
-    def test_topology_complete(self):
+    def test_generate_topology_ring(self):
         network = Network.get_instance()
-        network.generate_topology('complete', 4)
-        self.assertEqual(network.num_hosts, 4)
-        self.assertEqual(network.classical_network.number_of_edges(), 4*3)
+        network.generate_topology(self.sample_list, 'ring')
+
+        last_index = len(self.sample_list) - 1
+        # First Host
+        host = network.get_host(self.sample_list[0])
+        self.assertEqual(
+            list(host.quantum_connections.keys()),
+            [self.sample_list[1], self.sample_list[last_index]]
+        )
+        self.assertEqual(
+            list(host.classical_connections.keys()),
+            [self.sample_list[1], self.sample_list[last_index]]
+        )
+        # Last Host
+        last_index = len(self.sample_list) - 1
+        host = network.get_host(self.sample_list[last_index])
+        self.assertEqual(
+            list(host.quantum_connections.keys()),
+            [self.sample_list[last_index - 1], self.sample_list[0]]
+        )
+        self.assertEqual(
+            list(host.classical_connections.keys()),
+            [self.sample_list[last_index - 1], self.sample_list[0]]
+        )
+        # Other Hosts
+        for i in range(1, len(self.sample_list) - 2):
+            host = network.get_host(self.sample_list[i])
+            self.assertEqual(
+                list(host.quantum_connections.keys()),
+                [self.sample_list[i - 1], self.sample_list[i + 1]]
+            )
+            self.assertEqual(
+                list(host.classical_connections.keys()),
+                [self.sample_list[i - 1], self.sample_list[i + 1]]
+            )
 
         network.stop(stop_hosts=True)
 
-    def test_topology_not_implemented(self):
+    def test_generate_topology_mesh(self):
+        network = Network.get_instance()
+        network.generate_topology(self.sample_list, 'mesh')
+
+        for host_name in self.sample_list:
+            host = network.get_host(host_name)
+            other_hosts = self.sample_list.copy()
+            other_hosts.remove(host_name)
+            self.assertEqual(
+                list(host.quantum_connections.keys()),
+                other_hosts
+            )
+            self.assertEqual(
+                list(host.classical_connections.keys()),
+                other_hosts
+            )
+
+        network.stop(stop_hosts=True)
+
+    def test_generate_topology_tree(self):
+        network = Network.get_instance()
+        network.generate_topology(self.sample_list, 'tree')
+
+        last_index = len(self.sample_list) - 1
+        for i in range(0, last_index):
+            host = network.get_host(self.sample_list[i])
+            other_hosts = []
+            if i != 0:
+                other_hosts.append(self.sample_list[floor((i - 1) / 2)])
+            if 2 * i + 1 <= last_index:
+                other_hosts.append(self.sample_list[2 * i + 1])
+            if 2 * i + 2 <= last_index:
+                other_hosts.append(self.sample_list[2 * i + 2])
+            self.assertEqual(
+                list(host.quantum_connections.keys()),
+                other_hosts
+            )
+            self.assertEqual(
+                list(host.classical_connections.keys()),
+                other_hosts
+            )
+
+        network.stop(stop_hosts=True)
+
+    def test_generate_topology_not_implemented(self):
         network = Network.get_instance()
         with self.assertRaises(ValueError):
-            network.generate_topology('unknown', 5)
+            network.generate_topology(self.sample_list, 'nonsense')
 
         network.stop(stop_hosts=True)
