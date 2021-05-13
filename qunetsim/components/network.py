@@ -115,13 +115,15 @@ class Network:
             algorithm (function): The routing algorithm of the network. Should take an input and an output
         """
         if not callable(algorithm):
-            raise Exception("The quantum routing algorithm must be a function.")
+            raise Exception(
+                "The quantum routing algorithm must be a function.")
 
         num_algo_params = len(signature(algorithm).parameters)
         if num_algo_params != 3:
-            raise Exception("The quantum routing algorithm function should take three parameters: " +
-                            "the (nx) graph representation of the network, the sender address and the " +
-                            "receiver address.")
+            raise Exception(
+                "The quantum routing algorithm function should take three parameters: " +
+                "the (nx) graph representation of the network, the sender address and the " +
+                "receiver address.")
 
         self._quantum_routing_algo = algorithm
 
@@ -252,7 +254,8 @@ class Network:
         try:
             self.classical_network.remove_node(host.host_id)
         except nx.NetworkXError:
-            Logger.get_instance().error('attempted to remove a non-exiting node from network')
+            Logger.get_instance().error(
+                'attempted to remove a non-exiting node from network')
 
     def _update_network_graph(self, host):
         """
@@ -290,7 +293,8 @@ class Network:
         """
         host_sender = self.get_host(sender)
         host_receiver = self.get_host(receiver)
-        return host_sender.shares_epr(receiver) and host_receiver.shares_epr(sender)
+        return host_sender.shares_epr(receiver) and host_receiver.shares_epr(
+            sender)
 
     def get_host(self, host_id):
         """
@@ -352,9 +356,11 @@ class Network:
         Returns:
             route (list): An ordered list of ID numbers on the shortest path from source to destination.
         """
-        return self.classical_routing_algo(self.classical_network, source, dest)
+        return self.classical_routing_algo(self.classical_network, source,
+                                           dest)
 
-    def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num, blocked):
+    def _entanglement_swap(self, sender, receiver, route, q_id, o_seq_num,
+                           blocked):
         """
         Performs a chain of entanglement swaps with the hosts between sender and receiver to create a shared EPR pair
         between sender and receiver.
@@ -379,7 +385,8 @@ class Network:
         # Create EPR pairs on the route, where all EPR qubits have the id q_id
         threads = []
         for i in range(len(route) - 1):
-            threads.append(DaemonThread(establish_epr, args=(self, route[i], route[i + 1])))
+            threads.append(DaemonThread(establish_epr,
+                                        args=(self, route[i], route[i + 1])))
 
         for t in threads:
             t.join()
@@ -409,13 +416,15 @@ class Network:
                         'o_seq_num': o_seq_num,
                         'type': Constants.EPR}
 
-            host.send_teleport(route[i + 2], None, await_ack=True, payload=data, generate_epr_if_none=False)
+            host.send_teleport(route[i + 2], None, await_ack=True,
+                               payload=data, generate_epr_if_none=False)
 
         # Change in the storage that the EPR qubit is shared with the receiver
         q2 = host_sender.get_epr(route[1], q_id=q_id)
         host_sender.add_epr(receiver, q2, q_id, blocked)
-        Logger.get_instance().log('Entanglement swap was successful for pair with id '
-                                  + q_id + ' between ' + sender + ' and ' + receiver)
+        Logger.get_instance().log(
+            'Entanglement swap was successful for pair with id '
+            + q_id + ' between ' + sender + ' and ' + receiver)
 
     def _establish_epr(self, sender, receiver, q_id, o_seq_num, blocked):
         """
@@ -453,31 +462,38 @@ class Network:
             for q in qubits:
                 # Modify the qubit according to error function of the model
                 qubit_id = q.id
-                q = self.ARP[s].quantum_connections[self.ARP[r].host_id].model.qubit_func(q)
+                q = self.ARP[s].quantum_connections[
+                    self.ARP[r].host_id].model.qubit_func(q)
 
                 if q is None:
                     # Log failure of transmission if qubit is lost
-                    Logger.get_instance().log('transfer qubits - transfer of qubit ' + qubit_id + ' failed')
+                    Logger.get_instance().log(
+                        'transfer qubits - transfer of qubit ' + qubit_id + ' failed')
                     return False
 
                 else:
-                    Logger.get_instance().log('transfer qubits - sending qubit ' + q.id)
+                    Logger.get_instance().log(
+                        'transfer qubits - sending qubit ' + q.id)
 
                     q.send_to(self.ARP[r].host_id)
-                    Logger.get_instance().log('transfer qubits - received ' + q.id)
+                    Logger.get_instance().log(
+                        'transfer qubits - received ' + q.id)
 
                     # Unblock qubits in case they were blocked
                     q.blocked = False
 
                     if self.ARP[r].q_relay_sniffing:
-                        self.ARP[r].q_relay_sniffing_fn(original_sender, receiver, q)
+                        self.ARP[r].q_relay_sniffing_fn(original_sender,
+                                                        receiver, q)
             return True
 
         route = self.get_quantum_route(sender, receiver)
         i = 0
         while i < len(route) - 1:
-            Logger.get_instance().log('sending qubits from ' + route[i] + ' to ' + route[i + 1])
-            if not transfer_qubits(route[i + 1], route[i], original_sender=route[0]):
+            Logger.get_instance().log(
+                'sending qubits from ' + route[i] + ' to ' + route[i + 1])
+            if not transfer_qubits(route[i + 1], route[i],
+                                   original_sender=route[0]):
                 return False
             i += 1
         return True
@@ -511,7 +527,8 @@ class Network:
             sender, receiver = packet.sender, packet.receiver
 
             if packet.payload_type == Constants.QUANTUM:
-                if not self._route_quantum_info(sender, receiver, [packet.payload]):
+                if not self._route_quantum_info(sender, receiver,
+                                                [packet.payload]):
                     continue
 
             try:
@@ -561,9 +578,11 @@ class Network:
                         self.ARP[route[1]].rec_packet(network_packet)
 
             except nx.NodeNotFound:
-                Logger.get_instance().error("route couldn't be calculated, node doesn't exist")
+                Logger.get_instance().error(
+                    "route couldn't be calculated, node doesn't exist")
             except ValueError:
-                Logger.get_instance().error("route couldn't be calculated, value error")
+                Logger.get_instance().error(
+                    "route couldn't be calculated, value error")
             except Exception as e:
                 Logger.get_instance().error('Error in network: ' + str(e))
 
@@ -611,7 +630,8 @@ class Network:
         """
         Draws a plot of the network.
         """
-        nx.draw_networkx(self.classical_network, pos=nx.spring_layout(self.classical_network),
+        nx.draw_networkx(self.classical_network,
+                         pos=nx.spring_layout(self.classical_network),
                          with_labels=True)
         plt.show()
 
@@ -619,7 +639,8 @@ class Network:
         """
         Draws a plot of the network.
         """
-        nx.draw_networkx(self.quantum_network, pos=nx.spring_layout(self.quantum_network),
+        nx.draw_networkx(self.quantum_network,
+                         pos=nx.spring_layout(self.quantum_network),
                          with_labels=True)
         plt.show()
 
@@ -638,7 +659,8 @@ class Network:
             RoutingPacket: Encoded RELAY packet
         """
         if payload.protocol != Constants.RELAY:
-            packet = RoutingPacket(route[1], '', Constants.RELAY, Constants.SIGNAL,
+            packet = RoutingPacket(route[1], '', Constants.RELAY,
+                                   Constants.SIGNAL,
                                    payload, ttl, route)
         else:
             packet = payload
@@ -679,20 +701,38 @@ class Network:
                 graph.add_edge(hosts[i], hosts[2 * i + 2])
         return graph
 
-    _topologies = {
-        'star': lambda x: Network._get_star_topology_graph(x),
-        'ring': lambda x: Network._get_ring_topology_graph(x),
+    topologies = {
         'mesh': lambda x: Network._get_mesh_topology_graph(x),
+        'ring': lambda x: Network._get_ring_topology_graph(x),
+        'star': lambda x: Network._get_star_topology_graph(x),
         'linear': lambda x: Network._get_linear_topology_graph(x),
         'tree': lambda x: Network._get_tree_topology_graph(x)
+        # TODO: add bus topology
     }
 
     @staticmethod
     def _validate_topology_input(host_names, topology):
         if len(host_names) < 2:
             raise ValueError('insufficient hosts')
-        if topology not in Network._topologies.keys():
+        if topology not in Network.topologies.keys():
             raise ValueError('topology not implemented')
+
+    def _simple_topology_generation(self, host_names, topology, function):
+        from qunetsim import Host
+
+        Network._validate_topology_input(host_names, topology)
+
+        graph = Network.topologies[topology](host_names)
+
+        for host_name in host_names:
+            if host_name not in self.ARP.keys():
+                self.add_host(Host(host_name))
+
+        for node, adj_list in graph.adjacency():
+            h = self.get_host(node)
+            function(h, adj_list.keys())
+            self.add_host(h)
+            h.start()
 
     def generate_topology(self, host_names: list, topology: str = 'mesh') \
             -> None:
@@ -728,21 +768,9 @@ class Network:
             topology (str) {'mesh', 'star', 'ring', 'linear', 'tree'}: The
                 network topology that will be created.
         """
-        from qunetsim import Host
-
-        Network._validate_topology_input(host_names, topology)
-
-        graph = Network._topologies[topology](host_names)
-
-        for host_name in host_names:
-            if host_name not in self.ARP.keys():
-                self.add_host(Host(host_name))
-
-        for node, adj_list in graph.adjacency():
-            h = self.get_host(node)
-            h.add_q_connections(adj_list.keys())
-            self.add_host(h)
-            h.start()
+        def add_quantum(x, y):
+            return x.add_q_connections(y)
+        self._simple_topology_generation(host_names, topology, add_quantum)
 
     def generate_c_topology(self, host_names: list, topology: str = 'mesh') \
             -> None:
@@ -759,18 +787,6 @@ class Network:
             topology (str) {'mesh', 'star', 'ring', 'linear', 'tree'}: The
                 network topology that will be created.
         """
-        from qunetsim import Host
-
-        Network._validate_topology_input(host_names, topology)
-
-        graph = Network._topologies[topology](host_names)
-
-        for host_name in host_names:
-            if host_name not in self.ARP.keys():
-                self.add_host(Host(host_name))
-
-        for node, adj_list in graph.adjacency():
-            h = self.get_host(node)
-            h.add_c_connections(adj_list.keys())
-            self.add_host(h)
-            h.start()
+        def add_classic(x, y):
+            return x.add_c_connections(y)
+        self._simple_topology_generation(host_names, topology, add_classic)
