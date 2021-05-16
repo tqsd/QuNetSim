@@ -67,6 +67,12 @@ Writing your own Backend
 Instead of using a provided backend, it is also possible to write an own backend. In this section,
 we describe how the interfacing to a backend works.
 
+.. note::
+    We include ProjectQ as a development package which may not install properly without a C++ compiler. See ProjectQ
+    documentation for how to install ProjectQ with just the Python version. The issue can be resolved in
+    most cases by running :code:`pip install projectq --global-option=--without-cppsimulator` and then installing the
+    dev requirements again, but this will only install the ProjectQ Python simulator, and not the C version.
+
 The interface is described in the file **backends.backend**.
 The interface to the backend is a class. There can be multiple instances of this
 class at once, and it has to be thread safe. This class also has to store all information
