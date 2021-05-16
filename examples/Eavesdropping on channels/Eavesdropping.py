@@ -6,16 +6,16 @@ from qunetsim.objects import Logger
 
 Logger.DISABLED = True
 
-amount_transmit = 5
+AMOUNT_TRANSMIT = 5
 
 
 def alice(host):
-    for _ in range(amount_transmit):
+    for _ in range(AMOUNT_TRANSMIT):
         s = 'Hi Eve.'
         print("Alice sends: %s" % s)
         host.send_classical('Eve', s, await_ack=True)
 
-    for _ in range(amount_transmit):
+    for _ in range(AMOUNT_TRANSMIT):
         print("Alice sends qubit in the |1> state")
         q = Qubit(host)
         q.X()
@@ -34,11 +34,11 @@ def bob_sniffing_classical(sender, receiver, msg):
 
 
 def eve(host):
-    for i in range(amount_transmit):
+    for i in range(AMOUNT_TRANSMIT):
         alice_message = host.get_classical('Alice', wait=5, seq_num=i)
         print("Eve Received classical: %s." % alice_message.content)
 
-    for i in range(amount_transmit):
+    for i in range(AMOUNT_TRANSMIT):
         q = host.get_data_qubit('Alice', wait=10)
         m = q.measure()
         print("Eve measured: %d." % m)
@@ -48,7 +48,6 @@ def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve"]
     network.start(nodes)
-    network.delay = 0.0
 
     host_alice = Host('Alice')
     host_alice.add_connection('Bob')
@@ -61,7 +60,6 @@ def main():
 
     host_eve = Host('Eve')
     host_eve.add_connection('Bob')
-    host_eve.delay = 0.2
     host_eve.start()
 
     network.add_host(host_alice)
