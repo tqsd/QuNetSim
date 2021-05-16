@@ -138,9 +138,30 @@ class BB84:
         unencrypted_string = bits.decode('utf-8', 'surrogatepass')
         return unencrypted_string
 
+    def measur_onequbit(self, bases, encoded_qubits, non_destructive=False):
+        qc = encoded_qubits
+        if bases == "0":
+            measured_bit = qc.measure(non_destructive)  # Z basis
+
+        elif bases == "1":
+            qc.H()
+            measured_bit = qc.measure(non_destructive)  # X basis
+
+        return measured_bit, str(measured_bit)
+
+    def eve_sniffing_quantum(self, host_sender,
+                             host_receiver, intercepted_qubits):
+        eve_bases = str(getrandbits(1))
+        print('Intercepted qubits: ', intercepted_qubits)
+        intercepted_message, intercepted_message_string = self.measur_onequbit(
+                        eve_bases, intercepted_qubits, non_destructive=True)
+        print('Intercepted message string: ', intercepted_message_string)
+
 
 def main():
     # Testing
+    eve_interception = False  # Set it as true to test interception
+    b = BB84()
     # Network initialization
     network = Network.get_instance()
     nodes = ['Alice', 'Bob', 'Eve']
@@ -162,11 +183,14 @@ def main():
     network.add_host(host_bob)
     network.add_host(host_eve)
 
+    # Eve intercepts
+    if(eve_interception):
+        host_eve.q_relay_sniffing = True
+        host_eve.q_relay_sniffing_fn = b.eve_sniffing_quantum
+
     network.draw_quantum_network()
     network.draw_classical_network()
 
-    eve_interception = False  # Set it as true to test interception
-    b = BB84()
     KEY_LENGTH = 500  # the size of the key in bit
     np.random.seed(0)
     secret_key = np.random.randint(2, size=KEY_LENGTH)
@@ -188,20 +212,6 @@ def main():
     # Step 4: Alice sends the qubits
     q_ids = b.send(host_alice, host_bob, encoded_qubits)
     print(q_ids)
-
-    # Eve intercepts
-    if(eve_interception):
-        eve_bases = b.select_measurement(KEY_LENGTH)
-        intercepted_qubits = b.receive(host_bob, host_alice, q_ids)
-        print('Intercepted qubits: ', intercepted_qubits)
-        intercepted_message, intercepted_message_string = b.measurement(
-                                            eve_bases, intercepted_qubits)
-        print('Intercepted message string: ', intercepted_message_string)
-        reencoded = b.encode(host_alice, intercepted_message_string, eve_bases)
-        print('Reencoded: ', reencoded)
-        q_ids = b.send(host_alice, host_bob, reencoded)
-        print(q_ids)
-        print('--------------')
 
     # Step 5: Bob measures the received qubits
     Bob_received_message = b.receive(host_bob, host_alice, q_ids)
