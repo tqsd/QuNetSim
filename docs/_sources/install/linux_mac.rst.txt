@@ -11,16 +11,6 @@
     3) :code:`pip install --upgrade pip`
     4) :code:`pip install -r ./QuNetSim/requirements.txt`
 
-
-.. note::
-    We include ProjectQ as a standard package which may not install properly without a C++ compiler. See ProjectQ
-    documentation for how to install ProjectQ with just the Python version. Alternatively, you can edit the
-    :code:`requirements.txt` file and remove the ProjectQ requirement since it is optional. The issue can be resolved in
-    most cases by running :code:`pip install projectq --global-option=--without-cppsimulator` and then running step 4
-    above again, but this will only install the ProjectQ Python simulator, and not the C version.
-
-
-
 4) To set the correct Python path run:
 
     1) :code:`export PYTHONPATH=$PYTHONPATH:$PWD/QuNetSim/`

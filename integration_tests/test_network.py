@@ -95,30 +95,17 @@ class TestNetwork(unittest.TestCase):
             list(host.quantum_connections.keys()),
             [self.sample_list[1]]
         )
-        self.assertEqual(
-            list(host.classical_connections.keys()),
-            [self.sample_list[1]]
-        )
         # Last Host
-        last_index = len(self.sample_list) - 1
-        host = network.get_host(self.sample_list[last_index])
+        host = network.get_host(self.sample_list[-1])
         self.assertEqual(
             list(host.quantum_connections.keys()),
-            [self.sample_list[last_index - 1]]
-        )
-        self.assertEqual(
-            list(host.classical_connections.keys()),
-            [self.sample_list[last_index - 1]]
+            [self.sample_list[-2]]
         )
         # Other Hosts
         for i in range(1, len(self.sample_list) - 2):
             host = network.get_host(self.sample_list[i])
             self.assertEqual(
                 list(host.quantum_connections.keys()),
-                [self.sample_list[i - 1], self.sample_list[i + 1]]
-            )
-            self.assertEqual(
-                list(host.classical_connections.keys()),
                 [self.sample_list[i - 1], self.sample_list[i + 1]]
             )
 
@@ -128,37 +115,23 @@ class TestNetwork(unittest.TestCase):
         network = Network.get_instance()
         network.generate_topology(self.sample_list, 'ring')
 
-        last_index = len(self.sample_list) - 1
         # First Host
         host = network.get_host(self.sample_list[0])
         self.assertEqual(
             list(host.quantum_connections.keys()),
-            [self.sample_list[1], self.sample_list[last_index]]
-        )
-        self.assertEqual(
-            list(host.classical_connections.keys()),
-            [self.sample_list[1], self.sample_list[last_index]]
+            [self.sample_list[1], self.sample_list[-1]]
         )
         # Last Host
-        last_index = len(self.sample_list) - 1
-        host = network.get_host(self.sample_list[last_index])
+        host = network.get_host(self.sample_list[-1])
         self.assertEqual(
             list(host.quantum_connections.keys()),
-            [self.sample_list[last_index - 1], self.sample_list[0]]
-        )
-        self.assertEqual(
-            list(host.classical_connections.keys()),
-            [self.sample_list[last_index - 1], self.sample_list[0]]
+            [self.sample_list[-2], self.sample_list[0]]
         )
         # Other Hosts
         for i in range(1, len(self.sample_list) - 2):
             host = network.get_host(self.sample_list[i])
             self.assertEqual(
                 list(host.quantum_connections.keys()),
-                [self.sample_list[i - 1], self.sample_list[i + 1]]
-            )
-            self.assertEqual(
-                list(host.classical_connections.keys()),
                 [self.sample_list[i - 1], self.sample_list[i + 1]]
             )
 
@@ -188,7 +161,7 @@ class TestNetwork(unittest.TestCase):
         network.generate_topology(self.sample_list, 'tree')
 
         last_index = len(self.sample_list) - 1
-        for i in range(0, last_index):
+        for i in range(last_index):
             host = network.get_host(self.sample_list[i])
             other_hosts = []
             if i != 0:
