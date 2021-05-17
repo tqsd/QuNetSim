@@ -91,9 +91,6 @@ def b92_protocol():
     thread_1.join()
     thread_2.join()
 
-def main():
-    #run the b92 protocol function
-    b92_protocol()
 
 if __name__ == '__main__':
-    main()
+    b92_protocol()
