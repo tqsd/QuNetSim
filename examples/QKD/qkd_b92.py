@@ -51,18 +51,18 @@ def generate_key(key_length):
     for i in range(key_length):
         generated_key.append(randint(0,1))
 
-def sender_qkd(host, msg_buff, secret_key, receiver):
+def sender_qkd(alice, msg_buff, secret_key, receiver):
     #Alice sends the key to Bob
     #the key is an array of binary numbers
     pass
 
-def receiver_qkd(host, msg_buff, key_size, sender):
+def receiver_qkd(bob, msg_buff, key_size, sender):
     pass
 
-def check_key_sender(host, msg_buff, lenght_of_check, receiver):
+def check_key_sender(alice, msg_buff, lenght_of_check, receiver):
     pass
 
-def check_key_receiver(host, msg_buff, length_of_check,sender):
+def check_key_receiver(bob, msg_buff, length_of_check,sender):
     pass
 
 def eve_sniffing_quantum(sender,receiver,qubit):
@@ -75,10 +75,21 @@ def eve_sniffing_quantum(sender,receiver,qubit):
         #measure the qubit in the rectilinear basis
         qubit.measure()
 
+def alice_func(alice):
+    #everything Alice does will go here
+    pass
+
+def bob_func(bob):
+    #everything Bob does will go here
+    pass
 
 def b92_protocol():
     network, hosts = build_network_b92()
-    thread_1 = hosts[0].run_protocol()
+    thread_1 = hosts[0].run_protocol(alice_func,())
+    thread_2 = hosts[1].run_protocol(bob_func,())
+
+    thread_1.join()
+    thread_2.join()
 
 def main():
     #run the b92 protocol function
