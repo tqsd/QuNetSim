@@ -39,7 +39,7 @@ def prompt_valid_num() -> int:
     valid_number = False
     while not valid_number:
         num_nodes = input("How many hosts (nodes) are in the network?" +
-                          "(Default: 3): ")
+                          " (default: 3): ")
         if num_nodes == "":
             valid_number = True
             num_nodes = 3
@@ -66,9 +66,9 @@ def prompt_host_names(num_hosts: int) -> list:
     default_host_names = list(ascii_uppercase) + list(ascii_lowercase)
     host_names = []
 
-    default_check = input("If you would like to customize your host names," +
-                          " please enter any character before pressing " +
-                          " enter... ")
+    default_check = input("To customize the host names," +
+                          " enter any character before pressing " +
+                          "enter: ")
     if default_check == "":
         for i in range(0, num_hosts):
             host_names.append(default_host_names[i])
@@ -80,7 +80,7 @@ def prompt_host_names(num_hosts: int) -> list:
     for i in range(0, num_hosts):
         valid_entry = False
         while not valid_entry:
-            host_name = input("Please choose a name for host {} (Default: "
+            host_name = input("Please choose a name for host {} (default: "
                               .format(i + 1) + "{}) : "
                               .format(default_host_names[i]))
             if host_name == "":
@@ -107,7 +107,7 @@ def prompt_backend() -> int:
     while not valid_entry:
         print("Your backend options are {}".format(backend_options))
         choice = input("Please enter the number of your desired backend " +
-                       "(Default: 1): ")
+                       "(default: 1): ")
         if choice == "":
             valid_entry = True
             choice = 1
@@ -129,10 +129,10 @@ def prompt_topology() -> int:
     while not valid_entry:
         print("Your topology options are {}".format(topologies))
         choice = input("Please enter the number of your desired topology " +
-                       "(Default: 1): ")
+                       "(default: 3): ")
         if choice == "":
             valid_entry = True
-            choice = 1
+            choice = 3
         try:
             if 0 < int(choice) < len(topologies) + 1:
                 valid_entry = True
@@ -303,9 +303,7 @@ def gen_run(host_names: list) -> StringIO:
                    host_names[-1].lower() + ".host_id,))\n")
     main_run.write("    t2 = host_" + host_names[-1].lower() +
                    ".run_protocol(protocol_2, (host_" +
-                   host_names[0].lower() + ".host_id,))\n")
-    main_run.write("    t1.join()\n")
-    main_run.write("    t2.join()\n")
+                   host_names[0].lower() + ".host_id,), blocking=True)\n")
     main_run.write("    network.stop(True)\n\n\n")
     main_run.seek(0)
     return main_run
