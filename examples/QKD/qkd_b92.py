@@ -70,7 +70,7 @@ def sender_qkd(alice, msg_buff, secret_key, receiver):
             alice.send_qubit(receiver, qubit, await_ack = True)
             #get a message from Bob whether he measured a "1" in rectilinear basis or a "-" in diagonal basis
             message = alice.get_next_classical_message(receiver,msg_buff,sequence_nr)
-            if message == '1:rectilinear' or '1:diagonal':
+            if message == 'qubit successfully acquired':
                 success = True
                 #and we can move on and send the next qubit
             sequence_nr += 1
@@ -95,16 +95,14 @@ def receiver_qkd(bob, msg_buff, key_size, sender):
                 message_to_send = 'failed to acquire a qubit'
             elif bit == 1:
                 if base == 1:
-                    message_to_send = '1:diagonal'
                     resulting_key_bit = 0
                 elif base == 0:
-                    message_to_send = '1:rectilinear'
                     resulting_key_bit = 1
+                message_to_send = 'qubit successfully acquired'
                 key_array.append(resulting_key_bit)  
             bob.send_classical(sender,message_to_send, await_ack = True)  
             sequence_nr += 1 #total counter of transactions
-
-
+    return key_array
 
 def check_key_sender(alice, msg_buff, lenght_of_check, receiver):
     pass
@@ -133,7 +131,7 @@ def alice_func(alice, bob, length_of_check, key_length):
 
 def bob_func(bob, alice, length_of_check, key_length):
     msg_buff = []
-    receiver_qkd(bob, msg_buff, key_length, alice.host_id)
+    secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice.host_id)
     check_key_receiver(bob, msg_buff, length_of_check, alice.host_id)
 
 def b92_protocol(eve_interception, key_length, length_of_check):
