@@ -104,11 +104,22 @@ def receiver_qkd(bob, msg_buff, key_size, sender):
             sequence_nr += 1 #total counter of transactions
     return key_array
 
-def check_key_sender(alice, msg_buff, lenght_of_check, receiver):
-    pass
+def check_key_sender(alice, msg_buff, key_check_alice, receiver):
+    for bit in key_check_alice:
+        #send bit to bob
+        #see which reaction we get. If OK, continue
+        #If not OK, return something that would mean there was eavesdropping
+        pass
 
-def check_key_receiver(bob, msg_buff, length_of_check,sender):
-    pass
+def check_key_receiver(bob, msg_buff, key_check_bob,sender):
+    bit_counter = len(key_check_bob)
+    received_bits_counter = 0
+    while received_bits_counter <= bit_counter:
+        #listen for classical messages
+        #compare current bit with what we have
+        #if OK, send OK
+        #if not OK, send "not OK" and break?
+        pass
 
 def eve_sniffing_quantum(sender,receiver,qubit):
     base = randint(0,1)
