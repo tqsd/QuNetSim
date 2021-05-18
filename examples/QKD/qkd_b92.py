@@ -8,7 +8,7 @@ from random import randint
 
 Logger.DISABLED = True
 
-def build_network_b92():
+def build_network_b92(eve_interception):
     #this function builds the network for the b92 protocol
 
     network = Network.get_instance()
@@ -37,8 +37,10 @@ def build_network_b92():
     network.add_host(host_bob)
     network.add_host(host_eve)
 
-    host_eve.quantum_relay_sniffing = True
-    host_eve.set_quantum_relay_sniffing_function(eve_sniffing_quantum)
+    if eve_interception == True:
+        #if it's true, then Eve is eavesdropping and measuring all the qubits being transferred
+        host_eve.quantum_relay_sniffing = True
+        host_eve.set_quantum_relay_sniffing_function(eve_sniffing_quantum)
     
     hosts = [host_alice,host_bob,host_eve]
 
@@ -83,8 +85,8 @@ def bob_func(bob):
     #everything Bob does will go here
     pass
 
-def b92_protocol():
-    network, hosts = build_network_b92()
+def b92_protocol(eve_interception):
+    network, hosts = build_network_b92(eve_interception)
     thread_1 = hosts[0].run_protocol(alice_func,())
     thread_2 = hosts[1].run_protocol(bob_func,())
 
@@ -93,4 +95,4 @@ def b92_protocol():
 
 
 if __name__ == '__main__':
-    b92_protocol()
+    b92_protocol(eve_interception = True)
