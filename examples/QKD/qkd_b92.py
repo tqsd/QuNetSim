@@ -126,13 +126,15 @@ def alice_func(alice, bob, length_of_check, key_length):
     msg_buff = []
     for item in encryption_key_binary:
         sender_qkd(alice, msg_buff, encryption_key_binary, bob.host_id)
-        check_key_sender(alice, msg_buff, length_of_check,bob.host_id)
+    key_to_test = encryption_key_binary[0:(length_of_check-1)]
+    check_key_sender(alice, msg_buff, key_to_test ,bob.host_id)
         #what do these function return, if at all? 
 
 def bob_func(bob, alice, length_of_check, key_length):
     msg_buff = []
     secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice.host_id)
-    check_key_receiver(bob, msg_buff, length_of_check, alice.host_id)
+    key_to_test = secret_key_bob[0:(length_of_check-1)]
+    check_key_receiver(bob, msg_buff, key_to_test, alice.host_id)
 
 def b92_protocol(eve_interception, key_length, length_of_check):
     network, hosts = build_network_b92(eve_interception)
