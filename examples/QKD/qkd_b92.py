@@ -164,7 +164,10 @@ def bob_func(bob, alice, length_of_check, key_length):
     msg_buff = []
     secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice.host_id)
     key_to_test = secret_key_bob[0:(length_of_check-1)]
-    check_key_receiver(bob, msg_buff, key_to_test, alice.host_id)
+    message = check_key_receiver(bob, msg_buff, key_to_test, alice.host_id)
+    print(message)
+    #the message contains whether we successfully transferred the key
+    #or whether eavesdropping occurred
 
 def b92_protocol(eve_interception, key_length, length_of_check):
     network, hosts = build_network_b92(eve_interception)
