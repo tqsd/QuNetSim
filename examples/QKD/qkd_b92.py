@@ -106,10 +106,23 @@ def receiver_qkd(bob, msg_buff, key_size, sender):
 
 def check_key_sender(alice, msg_buff, key_check_alice, receiver):
     for bit in key_check_alice:
-        #send bit to bob
-        #see which reaction we get. If OK, continue
-        #If not OK, return something that would mean there was eavesdropping
-        pass
+        sequence_nr = 0
+        cntr = 0
+        eavesdropping = False
+        msg_buff = []
+        len_check = len(key_check_alice)
+        while (cntr < len_check) and (eavesdropping == False):
+            alice.send_classical(receiver, key_check_alice[cntr], await_ack = True)
+            message_from_bob = alice.get_next_classical_message(receiver,msg_buff,sequence_nr)
+            if message_from_bob == 'success':
+                cntr += 1
+            elif message_from_bob == 'fail':
+                eavesdropping = True
+            sequence_nr += 1
+        if eavesdropping == False:
+            return 'key successfully checked'
+        else:
+            return 'key was corrupted by Eve'
 
 def check_key_receiver(bob, msg_buff, key_check_bob,sender):
     bit_counter = len(key_check_bob)
