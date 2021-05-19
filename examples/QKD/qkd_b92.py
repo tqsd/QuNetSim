@@ -157,12 +157,14 @@ def alice_func(alice, bob, length_of_check, key_length):
     for item in encryption_key_binary:
         sender_qkd(alice, msg_buff, encryption_key_binary, bob.host_id)
     key_to_test = encryption_key_binary[0:(length_of_check-1)]
+    print(f'Alice\'s key is {key_to_test}')
     check_key_sender(alice, msg_buff, key_to_test ,bob.host_id)
         #what do these function return, if at all? 
 
 def bob_func(bob, alice, length_of_check, key_length):
     msg_buff = []
     secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice.host_id)
+    print(f'Bob\'s key is {secret_key_bob}')
     key_to_test = secret_key_bob[0:(length_of_check-1)]
     message = check_key_receiver(bob, msg_buff, key_to_test, alice.host_id)
     print(message)
