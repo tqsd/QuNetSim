@@ -2,6 +2,7 @@
 
 import numpy as np
 from qunetsim.components import Host, Network
+from qunetsim.objects import Message
 from qunetsim.objects import Qubit, Logger
 from qunetsim.backends import EQSNBackend
 from random import randint
@@ -144,11 +145,7 @@ def eve_sniffing_quantum(sender,receiver,qubit):
     base = randint(0,1)
     if base == 1:
         qubit.H()
-        #measure the qubit in the diagonal basis basis
-        qubit.measure()
-    elif base == 0:
-        #measure the qubit in the rectilinear basis
-        qubit.measure()
+    qubit.measure()
 
 def alice_func(alice, bob, length_of_check, key_length):
     #generate the encrypted key
