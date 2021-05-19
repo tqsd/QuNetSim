@@ -9,6 +9,12 @@ from random import randint
 
 Logger.DISABLED = True
 
+def eve_sniffing_quantum(sender,receiver,qubit):
+    base = randint(0,1)
+    if base == 1:
+        qubit.H()
+    qubit.measure()
+
 def build_network_b92(eve_interception):
     #this function builds the network for the b92 protocol
 
@@ -40,8 +46,9 @@ def build_network_b92(eve_interception):
 
     if eve_interception == True:
         #if it's true, then Eve is eavesdropping and measuring all the qubits being transferred
-        host_eve.quantum_relay_sniffing = True
-        host_eve.set_quantum_relay_sniffing_function(eve_sniffing_quantum)
+        host_eve.q_relay_sniffing = True
+        host_eve.q_relay_sniffing_fn = eve_sniffing_quantum
+        #There is some syntax problem with this - asked on Discord.
     
     hosts = [host_alice,host_bob,host_eve]
 
@@ -140,30 +147,23 @@ def check_key_receiver(bob, msg_buff, key_check_bob,sender):
         sequence_nr += 1
         cntr += 1
 
-
-def eve_sniffing_quantum(sender,receiver,qubit):
-    base = randint(0,1)
-    if base == 1:
-        qubit.H()
-    qubit.measure()
-
-def alice_func(alice, bob, length_of_check, key_length):
+def alice_func(alice, bob_id, length_of_check, key_length):
     #generate the encrypted key
     encryption_key_binary = generate_key(key_length)
     msg_buff = []
     for item in encryption_key_binary:
-        sender_qkd(alice, msg_buff, encryption_key_binary, bob.host_id)
+        sender_qkd(alice, msg_buff, encryption_key_binary, bob_id)
     key_to_test = encryption_key_binary[0:(length_of_check-1)]
     print(f'Alice\'s key is {key_to_test}')
-    check_key_sender(alice, msg_buff, key_to_test ,bob.host_id)
+    check_key_sender(alice, msg_buff, key_to_test ,bob_id)
         #what do these function return, if at all? 
 
-def bob_func(bob, alice, length_of_check, key_length):
+def bob_func(bob, alice_id, length_of_check, key_length):
     msg_buff = []
-    secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice.host_id)
+    secret_key_bob = receiver_qkd(bob, msg_buff, key_length, alice_id)
     print(f'Bob\'s key is {secret_key_bob}')
     key_to_test = secret_key_bob[0:(length_of_check-1)]
-    message = check_key_receiver(bob, msg_buff, key_to_test, alice.host_id)
+    message = check_key_receiver(bob, msg_buff, key_to_test, alice_id)
     print(message)
     #the message contains whether we successfully transferred the key
     #or whether eavesdropping occurred
@@ -172,10 +172,10 @@ def b92_protocol(eve_interception, key_length, length_of_check):
     network, hosts = build_network_b92(eve_interception)
     host_alice = hosts[0]
     host_bob = hosts[1]
-    thread_1 = hosts[0].run_protocol(alice_func,(key_length,length_of_check, host_bob))
+    thread_1 = hosts[0].run_protocol(alice_func,(host_alice,host_bob.host_id, length_of_check, key_length,))
     #the protocol for Alice and for Bob should receive the length of the encrypted key, 
     # and the instance of the second host
-    thread_2 = hosts[1].run_protocol(bob_func,(key_length, length_of_check, host_alice))
+    thread_2 = hosts[1].run_protocol(bob_func,(host_bob, host_alice.host_id, length_of_check, key_length,))
 
     thread_1.join()
     thread_2.join()
