@@ -114,10 +114,9 @@ def check_key_sender(alice, msg_buff, key_check_alice, receiver):
         while (cntr < len_check) and (eavesdropping == False):
             alice.send_classical(receiver, key_check_alice[cntr], await_ack = True)
             message_from_bob = alice.get_next_classical_message(receiver,msg_buff,sequence_nr)
-            if message_from_bob == 'success':
-                cntr += 1
-            elif message_from_bob == 'fail':
+            if message_from_bob == 'fail':
                 eavesdropping = True
+            cntr += 1
             sequence_nr += 1
         if eavesdropping == False:
             return 'key successfully checked'
@@ -125,14 +124,21 @@ def check_key_sender(alice, msg_buff, key_check_alice, receiver):
             return 'key was corrupted by Eve'
 
 def check_key_receiver(bob, msg_buff, key_check_bob,sender):
-    bit_counter = len(key_check_bob)
-    received_bits_counter = 0
-    while received_bits_counter <= bit_counter:
-        #listen for classical messages
-        #compare current bit with what we have
-        #if OK, send OK
-        #if not OK, send "not OK" and break?
-        pass
+    cntr = 0
+    msg_buff = []
+    eavesdropping = False
+    sequence_nr = 0
+    key_check_length = len(key_check_bob)
+    while (cntr < key_check_length) and (eavesdropping == False):
+        bit_from_alice = bob.get_next_classical_message(sender,msg_buff, sequence_nr)
+        if bit_from_alice == key_check_bob[cntr]:
+            bob.send_classical(sender,'success',await_ack = True)
+        else:
+            bob.send_classical(sender,'fail',await_ack = True)
+            eavesdropping = True
+        sequence_nr += 1
+        cntr += 1
+
 
 def eve_sniffing_quantum(sender,receiver,qubit):
     base = randint(0,1)
