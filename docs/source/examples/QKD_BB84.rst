@@ -1,5 +1,5 @@
-Quantum Key Distribution
-------------------------
+Quantum Key Distribution - BB84
+-------------------------------
 
 In this example, we'll see how the Quantum Key Distribution algorithm can be
 implemented using QuNetSim. First, we create a network of three different parties:
