@@ -1,20 +1,25 @@
-#This example implements the B92 QKD protocol in QuNetSim
+#This example implements the B92 QKD protocol using the QuNetSim package
 
-import numpy as np
 from qunetsim.components import Host, Network
-from qunetsim.objects import Message
 from qunetsim.objects import Qubit
 from qunetsim.objects import Logger
-from random import randint
+from random import randint, random
+#from qunetsim.backends import ProjectQBackend
 
 Logger.DISABLED = True
 wait_time = 60
 
 def eve_sniffing_quantum(sender,receiver,qubit):
-    base = randint(0,1)
-    if base == 1:
-        qubit.H()
-    qubit.measure()
+    if sender == 'Alice':
+        r = random()
+        if r > 0.5:
+            base = randint(0,1)
+            if base == 1:
+                qubit.H()
+            if base == 0:
+                qubit.X()
+            #qubit.measure()
+            #print('Eve measured a qubit')
 
 def build_network_b92(eve_interception):
     #this function builds the network for the b92 protocol
@@ -36,6 +41,9 @@ def build_network_b92(eve_interception):
     host_eve.add_connection('Bob')
     host_bob.add_connection('Eve')
 
+    host_alice.delay = 0.3
+    host_bob.delay = 0.3
+
     #starting
     host_alice.start()
     host_bob.start()
@@ -46,11 +54,9 @@ def build_network_b92(eve_interception):
     network.add_host(host_eve)
 
     if eve_interception == True:
-        #if it's true, then Eve is eavesdropping and measuring all the qubits being transferred
         host_eve.q_relay_sniffing = True
         host_eve.q_relay_sniffing_fn = eve_sniffing_quantum
-        #There is some syntax problem with this - asked on Discord.
-    
+
     hosts = [host_alice,host_bob,host_eve]
 
     print('Made a network!')
@@ -78,7 +84,6 @@ def sender_qkd(alice, secret_key, receiver):
             #If we want to send 0, we'll send |0>
             #If we want to send 1, we'll send |+>
             _, ack = alice.send_qubit(receiver, qubit, await_ack = True)
-            #get a message from Bob whether he measured a "1" in rectilinear basis or a "-" in diagonal basis
             message = alice.get_next_classical(receiver, wait = -1)
             if message is not None:
                 if message.content == 'qubit successfully acquired':
@@ -133,7 +138,6 @@ def check_key_receiver(bob, key_check_bob,sender):
     print(f'Bob\'s key to check is {key_check_bob_string}')
     key_from_alice = bob.get_next_classical(sender, wait = -1)
     if key_from_alice is not None:
-        print(f'the partial key received from Alice is {key_from_alice.content}')
         if key_from_alice.content == key_check_bob_string:
             ack_bob = bob.send_classical(sender,'Success',await_ack = True)
         else:
@@ -176,6 +180,6 @@ if __name__ == '__main__':
     key_length = 10
     length_of_check = round(key_length/2)
     #the length of the encrypted key
-    eve_interception = False
+    eve_interception = True
     #whether or not Eve eavesdrops on the quantum channel
     b92_protocol(eve_interception, key_length, length_of_check)
