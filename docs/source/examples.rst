@@ -10,6 +10,6 @@ Examples
     examples/packet_sniffing
     examples/quantum_money
     examples/entanglement_routing
-    examples/QKD
+    examples/QKD_BB84
     examples/quantum_coin_flipping
     examples/anonymous_transfer
