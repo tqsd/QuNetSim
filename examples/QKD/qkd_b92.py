@@ -15,9 +15,7 @@ def eve_sniffing_quantum(sender,receiver,qubit):
             base = randint(0,1)
             if base == 1:
                 qubit.H()
-            if base == 0:
-                qubit.X()
-            #qubit.measure()
+            qubit.measure(non_destructive = True)
             #print('Eve measured a qubit')
 
 def build_network_b92(eve_interception):
@@ -148,13 +146,13 @@ def alice_func(host, bob_id, length_of_check, key_length):
     encryption_key_binary = generate_key(key_length)
     sender_qkd(host, encryption_key_binary, bob_id)
     print('Sent all the qubits sucessfully!')
-    key_to_test = encryption_key_binary[0:(length_of_check-1)]
+    key_to_test = encryption_key_binary[0:length_of_check]
     check_key_sender(host, key_to_test ,bob_id)
 
 
 def bob_func(host, alice_id, length_of_check, key_length):
     secret_key_bob = receiver_qkd(host, key_length, alice_id)
-    key_to_test = secret_key_bob[0:(length_of_check-1)]
+    key_to_test = secret_key_bob[0:length_of_check]
     check_key_receiver(host, key_to_test, alice_id)
 
 
@@ -179,6 +177,6 @@ if __name__ == '__main__':
     key_length = 10
     length_of_check = round(key_length/2)
     #the length of the encrypted key
-    eve_interception = True
+    eve_interception = False
     #whether or not Eve eavesdrops on the quantum channel
     b92_protocol(eve_interception, key_length, length_of_check)
