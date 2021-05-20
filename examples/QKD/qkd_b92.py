@@ -4,7 +4,6 @@ from qunetsim.components import Host, Network
 from qunetsim.objects import Qubit
 from qunetsim.objects import Logger
 from random import randint, random
-#from qunetsim.backends import ProjectQBackend
 
 Logger.DISABLED = True
 wait_time = 60
