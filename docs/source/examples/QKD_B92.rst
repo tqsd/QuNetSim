@@ -16,7 +16,7 @@ Here is also the place to define which function will Eve run if the eavesdroppin
     :linenos:
 
     def build_network_b92(eve_interception):
-    
+
         network = Network.get_instance()
 
         nodes = ['Alice','Bob','Eve']
@@ -64,5 +64,35 @@ Also, a random key of a certain length is generated. The key is a list of binary
             generated_key.append(randint(0,1))
             print(f'Generated the key {generated_key}')
         return generated_key
+
+We now implement the B92 protocol. For each bit in the encrypted key, Alice generates and sends a qubit to Bob.
+If the bit she wants to send is 0, she sends a \|0\>, and if the bit is 1, she sends \|+\>.
+
+Then, after she sends the qubit, she waits for a (classical) message from Bob.
+If Bob tells her he measured the qubit and extracted the information, she prepares and sends the next one. 
+Otherwise, she sends the information concerning this bit again and again, until a confirmation is received. 
+
+..  code-block:: python
+    :linenos:
+
+    def sender_qkd(alice, secret_key, receiver):
+        sent_qubit_counter = 0
+        for bit in secret_key:
+            success = False
+            while success == False:
+                qubit = Qubit(alice)
+                if bit == 1:
+                    qubit.H()
+                #If we want to send 0, we'll send |0>
+                #If we want to send 1, we'll send |+>
+                alice.send_qubit(receiver, qubit, await_ack = True)
+                message = alice.get_next_classical(receiver, wait = -1)
+                if message is not None:
+                    if message.content == 'qubit successfully acquired':
+                        print(f'Alice sent qubit {sent_qubit_counter+1} to Bob')
+                        success = True
+                        sent_qubit_counter += 1
+                    #if, however, message says Bob failed to measure the qubit, Alice will resend it.
+
 
 
