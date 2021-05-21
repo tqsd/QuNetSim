@@ -6,7 +6,7 @@ This protocol is different from the BB84 in the following ways:
 * It uses two possible states of qubits being sent instead of four
 * Alice and Bob do not need to compare bases at any point.
 
-A detailed description of this protocol can be found `here <http://www.rri.res.in/quic/qkdactivities.php>`
+A detailed description of this protocol can be found `here <http://www.rri.res.in/quic/qkdactivities.php>`__
 
 First, we create a network with three hosts, Alice, Bob and Eve. Alice will send her qubits to Bob and Eve will, or will not, eavesdrop and manipulate the qubits she intercepts.
 The network will link Alice to Eve, Eve to Alice and Bob, and Bob to Eve.
