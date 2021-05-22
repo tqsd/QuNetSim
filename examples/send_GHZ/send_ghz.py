@@ -1,36 +1,33 @@
 from qunetsim.components import Host
 from qunetsim.components import Network
 from qunetsim.objects import Logger
-from qunetsim.backends import ProjectQBackend
 
 Logger.DISABLED = False
 
 
 def main():
     network = Network.get_instance()
-    nodes = ["Alice", "Bob", "Eve", "Dean"]
-    back = ProjectQBackend()
-    network.start(nodes, back)
+    network.start()
 
     network.delay = 0.1
 
-    host_alice = Host('Alice', back)
+    host_alice = Host('Alice')
     host_alice.add_connection('Bob')
     host_alice.add_connection('Eve')
     host_alice.start()
 
-    host_bob = Host('Bob', back)
+    host_bob = Host('Bob')
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve', back)
+    host_eve = Host('Eve')
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.add_connection('Alice')
     host_eve.start()
 
-    host_dean = Host('Dean', back)
+    host_dean = Host('Dean')
     host_dean.add_connection('Eve')
     host_dean.start()
 
