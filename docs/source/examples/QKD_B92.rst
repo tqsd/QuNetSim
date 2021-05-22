@@ -164,8 +164,8 @@ Alice classically sends part of the key she has to Bob. He compares it to the pa
 
 
 
-If the eavesdropping is turned on, Eve runs the function eve_sniffing_quantum. She intercepts a qubit that is sent from Alice to Bob. In some cases, she chooses to measure this qubit. The function generates a random number from 0 to 1, and if this number is greater than 0,5, Eve manipulates the qubit, otherwise she leaves it as is.
-If Eve is manipulating the qubit, she randomly chooses in which basis (rectilinear or diagonal) to measure it.
+If the eavesdropping is turned on, Eve runs the function eve_sniffing_quantum. She intercepts a qubit that is sent from Alice to Bob. She measures the qubit with probability 0.5. 
+For the measurement of the qubit, she randomly chooses the basis (rectilinear or diagonal).
 
 ..  code-block:: python
     :linenos:
