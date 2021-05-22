@@ -478,6 +478,64 @@ directly for simulation, if an entanglement swap would have been possible.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="qunetsim.components.network.Network.generate_c_topology">
+<code class="sig-name descname">generate_c_topology</code><span class="sig-paren">(</span><em class="sig-param">host_names: list</em>, <em class="sig-param">topology: str = 'mesh'</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#qunetsim.components.network.Network.generate_c_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjusts a network that already exists by adding  quantum connections
+that fit the desired network topology. This method either adds new
+nodes or adds connections to existing hosts within the network.</p>
+<p>The supported network topologies are mesh, star, ring, linear, and
+tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_names</strong> (<em>list</em>) – The names for the new hosts.</p></li>
+<li><p><strong>topology</strong> (<em>str</em>) – The
+network topology that will be created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.generate_q_topology">
+<code class="sig-name descname">generate_q_topology</code><span class="sig-paren">(</span><em class="sig-param">host_names: list</em>, <em class="sig-param">topology: str = 'mesh'</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#qunetsim.components.network.Network.generate_q_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjusts a network that already exists by adding  quantum connections
+that fit the desired network topology. This method either adds new
+nodes or adds connections to existing hosts within the network.</p>
+<p>The supported network topologies are mesh, star, ring, linear, and
+tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_names</strong> (<em>list</em>) – The names for the new hosts.</p></li>
+<li><p><strong>topology</strong> (<em>str</em>) – The
+network topology that will be created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="qunetsim.components.network.Network.generate_topology">
+<code class="sig-name descname">generate_topology</code><span class="sig-paren">(</span><em class="sig-param">host_names: list</em>, <em class="sig-param">topology: str = 'mesh'</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#qunetsim.components.network.Network.generate_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjusts a network that already exists by adding both classic and
+quantum connections that fit the desired network topology. This method
+either adds new nodes or adds connections to existing hosts within
+the network.</p>
+<p>The supported network topologies are mesh, star, ring, linear, and
+tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_names</strong> (<em>list</em>) – The names for the new hosts.</p></li>
+<li><p><strong>topology</strong> (<em>str</em>) – The
+network topology that will be created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="qunetsim.components.network.Network.get_ARP">
 <code class="sig-name descname">get_ARP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.network.Network.get_ARP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the ARP table.</p>
