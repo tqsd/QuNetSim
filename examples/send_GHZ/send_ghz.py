@@ -9,27 +9,28 @@ Logger.DISABLED = False
 def main():
     network = Network.get_instance()
     nodes = ["Alice", "Bob", "Eve", "Dean"]
-    network.start(nodes)
+    back = ProjectQBackend()
+    network.start(nodes, back)
 
     network.delay = 0.1
 
-    host_alice = Host('Alice')
+    host_alice = Host('Alice', back)
     host_alice.add_connection('Bob')
     host_alice.add_connection('Eve')
     host_alice.start()
 
-    host_bob = Host('Bob')
+    host_bob = Host('Bob', back)
     host_bob.add_connection('Alice')
     host_bob.add_connection('Eve')
     host_bob.start()
 
-    host_eve = Host('Eve')
+    host_eve = Host('Eve', back)
     host_eve.add_connection('Bob')
     host_eve.add_connection('Dean')
     host_eve.add_connection('Alice')
     host_eve.start()
 
-    host_dean = Host('Dean')
+    host_dean = Host('Dean', back)
     host_dean.add_connection('Eve')
     host_dean.start()
 
@@ -38,9 +39,9 @@ def main():
     network.add_host(host_eve)
     network.add_host(host_dean)
 
-    share_list = ["Bob", "Eve", "Dean"]
-    for _ in range(10):
-        q_id1, ack_received = host_alice.send_ghz(share_list, await_ack=True)
+    for i in range(10):
+        share_list = ["Bob", "Eve", "Dean"]
+        q_id1, ack_received = host_alice.send_ghz(share_list, await_ack=False, no_ack=True)
 
         print("Alice received ACK from all? " + str(ack_received))
 

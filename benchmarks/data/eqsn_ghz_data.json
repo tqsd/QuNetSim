@@ -1,0 +1,101 @@
+{
+    "machine_info": {
+        "node": "Stephens-MBP",
+        "processor": "i386",
+        "machine": "x86_64",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.6.4",
+        "python_version": "3.6.4",
+        "python_build": [
+            "v3.6.4:d48ecebad5",
+            "Dec 18 2017 21:07:28"
+        ],
+        "release": "19.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "8fd493694c75e1d62274dfce8821a282c81f9dcd",
+        "time": "2021-03-18T14:31:37+01:00",
+        "author_time": "2021-03-18T14:30:27+01:00",
+        "dirty": true,
+        "project": "QuNetSim",
+        "branch": "master"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_ghz_ten_nodes",
+            "fullname": "benchmark_protocols.py::test_ghz_ten_nodes",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 2.4559082329506055,
+                "max": 3.625551278004423,
+                "mean": 2.765687262197025,
+                "stddev": 0.24495723668653033,
+                "rounds": 30,
+                "median": 2.7891193375107832,
+                "iqr": 0.340837205061689,
+                "q1": 2.54067762196064,
+                "q3": 2.881514827022329,
+                "iqr_outliers": 1,
+                "stddev_outliers": 10,
+                "outliers": "10;1",
+                "ld15iqr": 2.4559082329506055,
+                "hd15iqr": 3.625551278004423,
+                "ops": 0.3615737808350801,
+                "total": 82.97061786591075,
+                "data": [
+                    2.894032707088627,
+                    2.5006315959617496,
+                    2.593702185084112,
+                    3.625551278004423,
+                    2.851849243976176,
+                    2.4916429769946262,
+                    3.1029934079851955,
+                    2.794735708972439,
+                    2.460447895922698,
+                    2.7835029660491273,
+                    2.9934725220082328,
+                    2.8021571460412815,
+                    2.4559082329506055,
+                    2.649987215991132,
+                    3.0803651730529964,
+                    2.700034079956822,
+                    2.510069160023704,
+                    2.8830799580318853,
+                    2.8018551419954747,
+                    2.7046246000099927,
+                    2.8621157129528,
+                    2.5113796669756994,
+                    2.6997264999663457,
+                    2.6804560070158914,
+                    2.881514827022329,
+                    2.517607218003832,
+                    2.8369996689725667,
+                    2.54067762196064,
+                    2.9069169969297945,
+                    2.8525804500095546
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-22T15:27:52.447839",
+    "version": "3.2.3"
+}

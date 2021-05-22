@@ -36,7 +36,7 @@ one item, one simple writes the tuple normally.
 
 By default, this template will generate a protocol that sends 5 qubits from the sender and receives 5 qubits
 at the receiver. Here we leave it to the developers to get creative with their protocols. For a full list
-of commands that are built into hosts, see the [Design Overview section](https://tqsd.github.io/QuNetSim/_build/design.html).
+of commands that are built into hosts, see the [Design Overview section](https://tqsd.github.io/QuNetSim/design.html).
 
 
 ..  code-block:: python

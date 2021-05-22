@@ -53,9 +53,12 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> QuNetSim
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/Psirocket_white.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -138,7 +141,11 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/packet_sniffing.html">Eavesdropping on channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/entanglement_routing.html">Routing with Entanglement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/QKD.html">Quantum Key Distribution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/QKD_BB84.html">Quantum Key Distribution - BB84</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/QKD_B92.html">Quantum Key Distribution - B92</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="examples/quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
 </ul>
@@ -302,6 +309,13 @@ the QuNetSim backend package.</p>
 <h1>Writing your own Backend<a class="headerlink" href="#writing-your-own-backend" title="Permalink to this headline">¶</a></h1>
 <p>Instead of using a provided backend, it is also possible to write an own backend. In this section,
 we describe how the interfacing to a backend works.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We include ProjectQ as a development package which may not install properly without a C++ compiler. See ProjectQ
+documentation for how to install ProjectQ with just the Python version. The issue can be resolved in
+most cases by running <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">projectq</span> <span class="pre">--global-option=--without-cppsimulator</span></code> and then installing the
+dev requirements again, but this will only install the ProjectQ Python simulator, and not the C version.</p>
+</div>
 <p>The interface is described in the file <strong>backends.backend</strong>.
 The interface to the backend is a class. There can be multiple instances of this
 class at once, and it has to be thread safe. This class also has to store all information

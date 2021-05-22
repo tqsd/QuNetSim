@@ -1,0 +1,101 @@
+{
+    "machine_info": {
+        "node": "Stephens-MBP",
+        "processor": "i386",
+        "machine": "x86_64",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.6.4",
+        "python_version": "3.6.4",
+        "python_build": [
+            "v3.6.4:d48ecebad5",
+            "Dec 18 2017 21:07:28"
+        ],
+        "release": "19.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "8fd493694c75e1d62274dfce8821a282c81f9dcd",
+        "time": "2021-03-18T14:31:37+01:00",
+        "author_time": "2021-03-18T14:30:27+01:00",
+        "dirty": true,
+        "project": "QuNetSim",
+        "branch": "master"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_teleport_ten_hops",
+            "fullname": "benchmark_protocols.py::test_teleport_ten_hops",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 3.002825338044204,
+                "max": 3.2980252041015774,
+                "mean": 3.122250796547936,
+                "stddev": 0.07632274880796526,
+                "rounds": 30,
+                "median": 3.0970497305388562,
+                "iqr": 0.0896219500573352,
+                "q1": 3.0737539279507473,
+                "q3": 3.1633758780080825,
+                "iqr_outliers": 1,
+                "stddev_outliers": 8,
+                "outliers": "8;1",
+                "ld15iqr": 3.002825338044204,
+                "hd15iqr": 3.2980252041015774,
+                "ops": 0.32028176631602856,
+                "total": 93.66752389643807,
+                "data": [
+                    3.119239361025393,
+                    3.074254414997995,
+                    3.2980252041015774,
+                    3.090249211061746,
+                    3.174437793903053,
+                    3.2182360920123756,
+                    3.0078139250399545,
+                    3.1271889850031585,
+                    3.101853584055789,
+                    3.184939314960502,
+                    3.072142636985518,
+                    3.1474188179709017,
+                    3.1633758780080825,
+                    3.0910211629234254,
+                    3.0641028829850256,
+                    3.0737539279507473,
+                    3.0779068850679323,
+                    3.002825338044204,
+                    3.0294283439870924,
+                    3.1421916920226067,
+                    3.083346842089668,
+                    3.1566653719637543,
+                    3.0968725350685418,
+                    3.2782799820415676,
+                    3.2162944090086967,
+                    3.272278019110672,
+                    3.059495344059542,
+                    3.0972269260091707,
+                    3.065692763077095,
+                    3.0809662519022822
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-22T15:08:21.521749",
+    "version": "3.2.3"
+}

@@ -4,10 +4,10 @@ from qunetsim.components import Host
 from qunetsim.components import Network
 from qunetsim import Logger
 
-PLAYS = 20
-
-
 # Logger.DISABLED = False
+
+
+PLAYS = 20
 
 
 def alice_classical(alice_host, referee_id):

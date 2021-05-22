@@ -53,9 +53,12 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> QuNetSim
+            <a href="../index.html">
           
 
+          
+            
+            <img src="../_static/Psirocket_white.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -138,7 +141,11 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Eavesdropping on channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantum_money.html">Quantum Money with a Man-in-the-Middle Attack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="entanglement_routing.html">Routing with Entanglement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QKD.html">Quantum Key Distribution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="QKD_BB84.html">Quantum Key Distribution - BB84</a></li>
+<li class="toctree-l3"><a class="reference internal" href="QKD_B92.html">Quantum Key Distribution - B92</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="quantum_coin_flipping.html">Quantum Coin Flipping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="anonymous_transfer.html">GHZ Based Anonymous Entanglement</a></li>
 </ul>
@@ -336,11 +343,11 @@ that he saw that message.</p>
 5
 6
 7
-8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">host_bob</span><span class="o">.</span><span class="n">quantum_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">host_bob</span><span class="o">.</span><span class="n">set_quantum_relay_sniffing_function</span><span class="p">(</span><span class="n">bob_sniffing_quantum</span><span class="p">)</span>
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">host_bob</span><span class="o">.</span><span class="n">q_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">q_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">eve_sniffing_quantum</span>
 
-<span class="n">host_bob</span><span class="o">.</span><span class="n">relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">host_bob</span><span class="o">.</span><span class="n">set_relay_sniffing_function</span><span class="p">(</span><span class="n">bob_sniffing_classical</span><span class="p">)</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">c_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">host_bob</span><span class="o">.</span><span class="n">c_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">bob_sniffing_classical</span>
 
 <span class="n">t1</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
 <span class="n">t2</span> <span class="o">=</span> <span class="n">host_eve</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">eve</span><span class="p">)</span>
@@ -546,11 +553,11 @@ Eve measured: <span class="m">0</span>.
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_bob</span><span class="p">)</span>
     <span class="n">network</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host_eve</span><span class="p">)</span>
 
-    <span class="n">host_bob</span><span class="o">.</span><span class="n">quantum_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">host_bob</span><span class="o">.</span><span class="n">set_quantum_relay_sniffing_function</span><span class="p">(</span><span class="n">bob_sniffing_quantum</span><span class="p">)</span>
+    <span class="n">host_bob</span><span class="o">.</span><span class="n">q_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">host_bob</span><span class="o">.</span><span class="n">q_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">eve_sniffing_quantum</span>
 
-    <span class="n">host_bob</span><span class="o">.</span><span class="n">relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">host_bob</span><span class="o">.</span><span class="n">set_relay_sniffing_function</span><span class="p">(</span><span class="n">bob_sniffing_classical</span><span class="p">)</span>
+    <span class="n">host_bob</span><span class="o">.</span><span class="n">c_relay_sniffing</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">host_bob</span><span class="o">.</span><span class="n">c_relay_sniffing_fn</span> <span class="o">=</span> <span class="n">bob_sniffing_classical</span>
 
     <span class="n">t1</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
     <span class="n">t2</span> <span class="o">=</span> <span class="n">host_eve</span><span class="o">.</span><span class="n">run_protocol</span><span class="p">(</span><span class="n">eve</span><span class="p">)</span>

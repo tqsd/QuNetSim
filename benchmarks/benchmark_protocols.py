@@ -1,73 +1,160 @@
 from qunetsim.components import Host
 from qunetsim.components import Network
 from qunetsim.objects import Qubit
+from qunetsim.backends import CQCBackend, ProjectQBackend, EQSNBackend, QuTipBackend
+import pytest
 
 
-def setup_network():
+def setup_network(num_hosts, backend):
     network = Network.get_instance()
-    network.start()
+    network.start(nodes=[str(i) for i in range(num_hosts)], backend=backend)
     network.delay = 0.0
-    host_A = Host('A')
-    host_A.add_connection('B')
-    host_A.delay = 0
-    host_A.start()
 
-    host_B = Host('B')
-    host_B.add_connection('C')
-    host_B.add_connection('A')
-    host_B.delay = 0
-    host_B.start()
+    hosts = []
+    for i in range(num_hosts):
+        h = Host(str(i), backend=backend)
+        h.delay = 0
+        h.start()
+        if i < num_hosts - 1:
+            h.add_connection(str(i + 1))
+        if i > 0:
+            h.add_connection(str(i - 1))
+        hosts.append(h)
 
-    host_C = Host('C')
-    host_C.add_connection('B')
-    host_C.delay = 0
-    host_C.start()
+    network.add_hosts(hosts)
 
-    network.add_host(host_A)
-    network.add_host(host_B)
-    network.add_host(host_C)
-
-    return network, host_A, host_B, host_C
+    return network, hosts
 
 
-def test_teleport(benchmark):
+def teleport(sender, receiver):
+    for i in range(10):
+        q1 = Qubit(sender)
+        sender.send_teleport(receiver.host_id, q1, await_ack=False, no_ack=True)
+        q2 = receiver.get_data_qubit(sender.host_id, q1.id, wait=-1)
+        _ = q2.measure()
 
-    def teleport(network, host_A, host_B, host_C):
-        q = Qubit(host_A)
-        host_A.send_teleport(host_C.host_id, q, await_ack=True)
-        q_C = host_C.get_data_qubit(host_A.host_id, q.id)
-        _ = q_C.measure()
 
-    network, host_A, host_B, host_C = setup_network()
-    benchmark(teleport, network, host_A, host_B, host_C)
+def superdense(sender, receiver):
+    for i in range(10):
+        sender.send_superdense(receiver.host_id, '11', await_ack=False, no_ack=True)
+        _ = receiver.get_next_classical(sender.host_id, wait=-1)
+
+
+def ghz(sender, receivers):
+    ms = []
+    for i in range(10):
+        q_id = sender.send_ghz([receiver.host_id for receiver in receivers], await_ack=False, no_ack=True)
+        m = []
+        for receiver in receivers:
+            q = receiver.get_ghz(sender.host_id, q_id, wait=20)
+            m.append(q.measure())
+        ms.append(m)
+    return ms
+
+
+@pytest.mark.cqc_super
+def test_super_ten_hops_cqc(benchmark):
+    backend = CQCBackend()
+    network, hosts = setup_network(3, backend)
+    benchmark.pedantic(superdense, args=(hosts[0], hosts[-1]), rounds=1)
     network.stop(True)
 
 
-def test_superdense(benchmark):
-
-    def superdense(network, host_A, host_B, host_C):
-        host_A.send_superdense(host_C.host_id, '11', await_ack=True)
-        msg = host_C.get_next_classical(host_A.host_id)
-        return msg
-
-    network, host_A, host_B, host_C = setup_network()
-    msg = benchmark(superdense, network, host_A, host_B, host_C)
-    assert msg.content == '11'
+@pytest.mark.cqc_tele
+def test_tele_ten_hops_cqc(benchmark):
+    backend = CQCBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(teleport, args=(hosts[0], hosts[-1]), rounds=30)
     network.stop(True)
 
 
-def test_key_distribution(benchmark):
-    key_size = 8
+@pytest.mark.cqc_ghz
+def test_ghz_ten_hops_cqc(benchmark):
+    backend = CQCBackend()
+    nodes = 2
+    network, hosts = setup_network(nodes, backend)
+    ms = benchmark.pedantic(ghz, args=(hosts[0], hosts[1:]), rounds=1)
+    for m in ms:
+        assert (sum(m) == nodes - 1 or sum(m) == 0)
+    network.stop(True)
 
-    def key_distribution(network, host_A, host_B, host_C):
-        host_A.send_key(host_C.host_id, key_size)
-        key1, _ = host_A.get_key(host_C.host_id)
-        key2, _ = host_C.get_key(host_A.host_id)
-        host_A.delete_key(host_C.host_id)
-        host_C.delete_key(host_A.host_id)
-        return key1, key2
 
-    network, host_A, host_B, host_C = setup_network()
-    key1, key2 = benchmark(key_distribution, network, host_A, host_B, host_C)
-    assert key1 == key2
+@pytest.mark.pq_super
+def test_super_ten_hops_pq(benchmark):
+    backend = ProjectQBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(superdense, args=(hosts[0], hosts[-1]), rounds=30)
+    network.stop(True)
+
+
+@pytest.mark.pq_tele
+def test_teleport_ten_hops_pq(benchmark):
+    backend = ProjectQBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(teleport, args=(hosts[0], hosts[-1]), rounds=30)
+    network.stop(True)
+
+
+@pytest.mark.pq_ghz
+def test_ghz_ten_nodes_pq(benchmark):
+    backend = ProjectQBackend()
+    nodes = 5
+    network, hosts = setup_network(nodes, backend)
+    ms = benchmark.pedantic(ghz, args=(hosts[0], hosts[1:]), rounds=1)
+    for m in ms:
+        assert (sum(m) == nodes - 1 or sum(m) == 0)
+    network.stop(True)
+
+
+@pytest.mark.eqsn_ghz
+def test_ghz_ten_nodes(benchmark):
+    backend = EQSNBackend()
+    nodes = 10
+    network, hosts = setup_network(nodes, backend)
+    ms = benchmark.pedantic(ghz, args=(hosts[0], hosts[1:]), rounds=30)
+    for m in ms:
+        assert (sum(m) == nodes - 1 or sum(m) == 0)
+    network.stop(True)
+
+
+@pytest.mark.eqsn_tele
+def test_teleport_ten_hops(benchmark):
+    backend = EQSNBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(teleport, args=(hosts[0], hosts[-1]), rounds=30)
+    network.stop(True)
+
+
+@pytest.mark.eqsn_super
+def test_teleport_ten_hops(benchmark):
+    backend = EQSNBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(superdense, args=(hosts[0], hosts[-1]), rounds=30)
+    network.stop(True)
+
+
+@pytest.mark.qt_ghz
+def test_ghz_ten_nodes_qt(benchmark):
+    backend = QuTipBackend()
+    nodes = 10
+    network, hosts = setup_network(nodes, backend)
+    ms = benchmark.pedantic(ghz, args=(hosts[0], hosts[1:]), rounds=30)
+    for m in ms:
+        assert (sum(m) == nodes - 1 or sum(m) == 0)
+    network.stop(True)
+
+
+@pytest.mark.qt_tele
+def test_teleport_ten_hops_qt(benchmark):
+    backend = QuTipBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(teleport, args=(hosts[0], hosts[-1]), rounds=30)
+    network.stop(True)
+
+
+@pytest.mark.qt_super
+def test_super_ten_hops_qt(benchmark):
+    backend = QuTipBackend()
+    network, hosts = setup_network(11, backend)
+    benchmark.pedantic(superdense, args=(hosts[0], hosts[-1]), rounds=30)
     network.stop(True)
