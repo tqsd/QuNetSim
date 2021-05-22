@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='qunetsim',
-    version='0.1.2post0',
+    version='0.1.2post3',
     scripts=['bin/template'],
     author="Stephen DiAdamo, Janis Nötzel, Benjamin Zanger, Mert Mehmet Bese",
     author_email="stephen.diadamo@gmail.com",
@@ -22,6 +22,7 @@ setuptools.setup(
         'numpy',
         'scipy',
         'matplotlib',
+        'pathvalidate'
     ],
     packages=setuptools.find_packages(),
     classifiers=[
