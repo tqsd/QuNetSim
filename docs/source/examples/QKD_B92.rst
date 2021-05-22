@@ -127,3 +127,37 @@ Bob sends Alice a classical message after the measurement and tells her whether 
                     message_to_send = 'fail'
                 bob.send_classical(sender,message_to_send, await_ack = True) 
         return key_array
+
+After sending all of the bits of the encrypted key, Alice and Bob should check whether Eve eavesdropped on the channel.
+For this purpose, each of them takes for comparison a certain part of the encrypted key they have. 
+Alice classically sends part of the key she has to Bob. He compares it to the part he has. If it's the same information, he sends her a message informing her that the key was transferred without eavesdropping. If, however, the part he receives is different from what he has, it means eavesdropping occurred and he sends a message to inform Alice about it. 
+
+..  code-block:: python
+    :linenos:
+
+    def check_key_sender(alice, key_check_alice, receiver):
+        key_check_string = ''.join([str(x) for x in key_check_alice])
+        print(f'Alice\'s key to check is {key_check_string}')
+        alice.send_classical(receiver,key_check_string,await_ack = True)
+        message_from_bob = alice.get_next_classical(receiver, wait = -1)
+        #Bob tells Alice whether the key part is the same at his end.
+        #If not - it means Eve eavesdropped. 
+        if message_from_bob is not None:
+            if message_from_bob.content == 'Success':
+                print('Key is successfully verified')
+            elif message_from_bob.content == 'Fail':
+                print('Key has been corrupted')
+
+..  code-block:: python
+    :linenos:
+
+    def check_key_receiver(bob, key_check_bob,sender):
+        key_check_bob_string = ''.join([str(x) for x in key_check_bob])
+        print(f'Bob\'s key to check is {key_check_bob_string}')
+        key_from_alice = bob.get_next_classical(sender, wait = -1)
+        if key_from_alice is not None:
+            if key_from_alice.content == key_check_bob_string:
+                bob.send_classical(sender,'Success',await_ack = True)
+            else:
+                bob.send_classical(sender,'Fail',await_ack = True)
+
