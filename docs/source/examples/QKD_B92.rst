@@ -3,8 +3,8 @@ Quantum Key Distribution - B92
 The Quantum Key Distribution B92 protocol was proposed in 1992 by Charles Bennett. It is a modified version of the BB84 protocol.
 This protocol is different from the BB84 in the following ways:
 
-* It uses two possible states of qubits being sent instead of four
-* Alice and Bob do not need to compare bases at any point.
+1. It uses two possible states of qubits being sent instead of four.
+2. Alice and Bob do not need to compare bases at any point.
 
 A detailed description of this protocol can be found `here <http://www.rri.res.in/quic/qkdactivities.php>`__
 
@@ -66,7 +66,7 @@ Also, a random key of a certain length is generated. The key is a list of binary
         return generated_key
 
 We now implement the B92 protocol. For each bit in the encrypted key, Alice generates and sends a qubit to Bob.
-If the bit she wants to send is 0, she sends a \|0\>, and if the bit is 1, she sends \|+\>.
+If the bit she wants to send is 0, she sends a :math:`|0\rangle`, and if the bit is 1, she sends :math:`|+\rangle`.
 
 Then, after she sends the qubit, she waits for a (classical) message from Bob.
 If Bob tells her he measured the qubit and extracted the information, she prepares and sends the next one. 
@@ -95,4 +95,35 @@ Otherwise, she sends the information concerning this bit again and again, until 
                     #if, however, message says Bob failed to measure the qubit, Alice will resend it.
 
 
+Bob receives the qubit Alice sent, and randomly chooses a base (rectilinear or diagonal) for the qubit measurement.
+If he chooses the rectilinear basis, and the measurement yields the state :math:`|1\rangle`, then Bob knows that Eve's qubit was :math:`|+\rangle`, and therefore the bit she sent was 1. 
+Bob sends Alice a classical message after the measurement and tells her whether he succeeded or failed to extract the information.
 
+..  code-block:: python
+    :linenos:
+
+    def receiver_qkd(bob, key_size, sender):
+        key_array = []
+        received_counter = 0
+        #counts the key bits successfully measured by Bob
+        while received_counter < key_size:
+            base = randint(0,1)
+                 #0 means rectilinear basis and 1 means diagonal basis
+            qubit = bob.get_data_qubit(sender,wait = wait_time)
+            if qubit is not None:
+                if base == 1:
+                    qubit.H()
+                bit = qubit.measure()
+                if bit == 1:
+                    if base == 1:
+                        resulting_key_bit = 0
+                    elif base == 0:
+                        resulting_key_bit = 1
+                    message_to_send = 'qubit successfully acquired'
+                    key_array.append(resulting_key_bit) 
+                    received_counter += 1 
+                    print(f'Bob received qubit {received_counter}')
+                else:
+                    message_to_send = 'fail'
+                bob.send_classical(sender,message_to_send, await_ack = True) 
+        return key_array
