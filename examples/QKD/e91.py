@@ -39,14 +39,14 @@ def chsh(result_string_alice, result_string_bob, bases_string_alice, bases_strin
 
     return coefA1B1 - coefA1B3 + coefA3B1 + coefA3B3
 
-def alice(alice, bob, numberOfEntaglementPairs):
+def alice(alice, bob, number_of_entanglement_pairs):
     angles = [0, np.pi/4, np.pi/2]
-    bases_choice = [random.randint(1,3) for i in range(numberOfEntaglementPairs)]
+    bases_choice = [random.randint(1,3) for i in range(number_of_entanglement_pairs)]
     test_results_alice = []
     test_bases_alice = []
     sifted_key_alice = []
 
-    for i in range(numberOfEntaglementPairs):
+    for i in range(number_of_entanglement_pairs):
 
         qubit_a = Qubit(alice)
         qubit_b = Qubit(alice)
@@ -63,7 +63,7 @@ def alice(alice, bob, numberOfEntaglementPairs):
 
             #rotate qubit and measure
             base_a = bases_choice[i]
-            qubit_a.rz(angles[base_a-1])
+            qubit_a.rz(angles[base_a - 1])
             meas_a = qubit_a.measure()
 
             ack_arrived = alice.send_classical(bob, base_a, await_ack=True)
@@ -80,7 +80,7 @@ def alice(alice, bob, numberOfEntaglementPairs):
                     test_bases_alice.append('a'+str(base_a))
                     test_results_alice.append(str(meas_a))
             else:
-                print("Message doesn't arrivided")
+                print("The message did not arrive")
         else:
             print('The EPR pair was not properly established')
 
@@ -88,22 +88,22 @@ def alice(alice, bob, numberOfEntaglementPairs):
     if not ack_arrived:
         print("Send data failed!")
 
-    print("sifted_key_alice: ", sifted_key_alice)
+    print("Sifted_key_alice: ", sifted_key_alice)
 
-def bob(bob, alice, numberOfEntaglementPairs):
+def bob(bob, alice, number_of_entanglement_pairs):
     angles = [np.pi/4, np.pi/2, 3*(np.pi/4)]
-    bob_bases = [random.randint(1,3) for i in range(numberOfEntaglementPairs)]
+    bob_bases = [random.randint(1,3) for i in range(number_of_entanglement_pairs)]
     test_result_bob = []
     test_bases_bob = []
     sifted_key_bob = []
 
-    for i in range(numberOfEntaglementPairs):
+    for i in range(number_of_entanglement_pairs):
         qubit_b = bob.get_data_qubit(alice, wait=5)
         if qubit_b is not None:
             base_b = bob_bases[i]
 
             #rotate qubit and measure
-            qubit_b.rz(angles[base_b-1])
+            qubit_b.rz(angles[base_b - 1])
             meas_b = qubit_b.measure()
 
             message = bob.get_next_classical(alice, wait=2)
@@ -140,7 +140,7 @@ def main():
 
     backend = EQSNBackend()
 
-    numberOfEntaglementPairs = 50
+    number_of_entanglement_pairs = 50
 
     nodes = ['A', 'B']
     network.start(nodes, backend)
@@ -159,8 +159,8 @@ def main():
     network.add_host(host_A)
     network.add_host(host_B)
 
-    t1 = host_A.run_protocol(alice, (host_B.host_id, numberOfEntaglementPairs))
-    t2 = host_B.run_protocol(bob, (host_A.host_id, numberOfEntaglementPairs))
+    t1 = host_A.run_protocol(alice, (host_B.host_id, number_of_entanglement_pairs))
+    t2 = host_B.run_protocol(bob, (host_A.host_id, number_of_entanglement_pairs))
 
     t1.join()
     t2.join()
