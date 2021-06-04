@@ -5,7 +5,6 @@ from qunetsim.components.network import Network
 from qunetsim.objects import Qubit
 
 from qunetsim.backends import EQSNBackend
-from qunetsim.backends import CQCBackend
 from qunetsim.backends import QuTipBackend
 
 

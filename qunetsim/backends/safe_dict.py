@@ -1,4 +1,4 @@
-from qunetsim.backends.rw_lock import RWLock
+from rw_lock import RWLock
 
 
 class SafeDict(object):
