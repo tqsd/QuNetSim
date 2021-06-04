@@ -75,17 +75,16 @@ class TestBackend(unittest.TestCase):
 
             network.stop(True)
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_density_operator_qutip(self):
         backend = QuTipBackend()
         network = Network.get_instance()
-        network.start(["Alice", "Bob"], backend)
+        network.start(backend=backend)
         alice = Host('Alice', backend)
         bob = Host('Bob', backend)
         alice.start()
         bob.start()
-        network.add_host(alice)
-        network.add_host(bob)
+        network.add_hosts([alice, bob])
 
         q1 = backend.create_EPR(alice.host_id, bob.host_id)
         q2 = backend.receive_epr(
@@ -93,6 +92,10 @@ class TestBackend(unittest.TestCase):
 
         density_operator = backend.density_operator(q1)
         expected = np.diag([0.5, 0.5])
+        self.assertTrue(np.allclose(density_operator, expected))
+
+        density_operator = backend.density_operator([q1, q2])
+        expected = np.array([[0.5, 0, 0, 0.5], [0, 0, 0, 0], [0, 0, 0, 0], [0.5, 0, 0, 0.5]])
         self.assertTrue(np.allclose(density_operator, expected))
 
         # remove qubits

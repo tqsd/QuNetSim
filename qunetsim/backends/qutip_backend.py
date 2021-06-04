@@ -34,7 +34,7 @@ class QuTipBackend(object):
             """
             Calculates the tensor product using the implementation
             of QuTip.
-            Modified vesion of qutip tensor function,
+            Modified version of qutip tensor function,
             See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
             """
             self._lock()
@@ -96,9 +96,16 @@ class QuTipBackend(object):
         def give_density_matrix(self, qubit_name):
             ret = None
             self._lock()
-            if qubit_name in self._qubit_names:
-                index = self._qubit_names.index(qubit_name)
-                ret = self.data.ptrace([index])
+            if isinstance(qubit_name, list):
+                indices = []
+                for q_name in qubit_name:
+                    if q_name in self._qubit_names:
+                        indices.append(self._qubit_names.index(qubit_name))
+                ret = self.data.ptrace(indices)
+            else:
+                if qubit_name in self._qubit_names:
+                    index = self._qubit_names.index(qubit_name)
+                    ret = self.data.ptrace([index])
             self._unlock()
             return ret
 
