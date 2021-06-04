@@ -1,5 +1,5 @@
-from safe_dict import SafeDict
-from rw_lock import RWLock
+from .safe_dict import SafeDict
+from .rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from queue import Queue
 import numpy as np
