@@ -30,6 +30,10 @@ class QuTipBackend(object):
             self._qubit_names = [name]
             self.data = qutip.qutip.fock_dm(2, 0)
 
+        @property
+        def qubit_names(self):
+            return self._qubit_names
+
         def add_qubit(self, qubit):
             """
             Calculates the tensor product using the implementation
@@ -454,13 +458,22 @@ class QuTipBackend(object):
         the density operator will be in a mixed state.
 
         Args:
-            qubit (Qubit): Qubit of the density operator.
+            qubit (Qubit or list): Qubit of the density operator.
 
         Returns:
             np.ndarray: The density operator of the qubit.
         """
-        qubit_collection, q_name = qubit.qubit
-        return qubit_collection.give_density_matrix(q_name)
+        if isinstance(qubit, list):
+            qubit_collections = set([q.qubit[0] for q in qubit])
+            density_matrices = []
+            for qubit_collection in qubit_collections:
+                density_matrices.append(qubit_collection.give_density_matrix(qubit_collection.qubit_names))
+            if len(density_matrices) == 1:
+                return density_matrices[0]
+            return density_matrices
+        else:
+            qubit_collection, q_name = qubit.qubit
+            return qubit_collection.give_density_matrix(q_name)
 
     def measure(self, qubit, non_destructive):
         """

@@ -94,6 +94,7 @@ class TestBackend(unittest.TestCase):
         self.assertTrue(np.allclose(density_operator, expected))
 
         density_operator = backend.density_operator([q1, q2])
+        print(density_operator)
         expected = np.array([[0.5, 0, 0, 0.5], [0, 0, 0, 0], [0, 0, 0, 0], [0.5, 0, 0, 0.5]])
         self.assertTrue(np.allclose(density_operator, expected))
 
