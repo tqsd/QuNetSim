@@ -424,6 +424,19 @@ class EQSNBackend(object):
             density_operator = np.trace(density_operator, axis1=1, axis2=3)
         return density_operator
 
+    def statevector(self, qubit):
+        """
+        Returns the statevector of the passed qubit. If the qubit is entangled to others, 
+        the statevector of the whole entangled system is returned
+
+        Args:
+            qubit (Qubit): Qubit of the statevector.
+
+        Returns:
+            np.ndarray: The statevector of the qubit.
+        """
+        return self.eqsn.give_statevector_for(qubit.qubit)
+
     def measure(self, qubit, non_destructive):
         """
         Perform a measurement on a qubit.

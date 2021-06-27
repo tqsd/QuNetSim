@@ -1,5 +1,5 @@
-from qunetsim.backends.safe_dict import SafeDict
-from qunetsim.backends.rw_lock import RWLock
+from .safe_dict import SafeDict
+from .rw_lock import RWLock
 from qunetsim.objects.qubit import Qubit
 from queue import Queue
 import numpy as np
@@ -30,11 +30,15 @@ class QuTipBackend(object):
             self._qubit_names = [name]
             self.data = qutip.qutip.fock_dm(2, 0)
 
+        @property
+        def qubit_names(self):
+            return self._qubit_names
+
         def add_qubit(self, qubit):
             """
             Calculates the tensor product using the implementation
             of QuTip.
-            Modified vesion of qutip tensor function,
+            Modified version of qutip tensor function,
             See http://qutip.org/docs/4.0.2/modules/qutip/tensor.html
             """
             self._lock()
@@ -96,11 +100,18 @@ class QuTipBackend(object):
         def give_density_matrix(self, qubit_name):
             ret = None
             self._lock()
-            if qubit_name in self._qubit_names:
-                index = self._qubit_names.index(qubit_name)
-                ret = self.data.ptrace([index])
+            if isinstance(qubit_name, list):
+                indices = []
+                for q_name in qubit_name:
+                    if q_name in self._qubit_names:
+                        indices.append(self._qubit_names.index(q_name))
+                ret = self.data.ptrace(indices)
+            else:
+                if qubit_name in self._qubit_names:
+                    index = self._qubit_names.index(qubit_name)
+                    ret = self.data.ptrace([index])
             self._unlock()
-            return ret
+            return self.data #ret
 
         def _lock(self):
             self._rwlock.acquire_write()
@@ -447,13 +458,24 @@ class QuTipBackend(object):
         the density operator will be in a mixed state.
 
         Args:
-            qubit (Qubit): Qubit of the density operator.
+            qubit (Qubit or list): Qubit of the density operator.
 
         Returns:
             np.ndarray: The density operator of the qubit.
         """
-        qubit_collection, q_name = qubit.qubit
-        return qubit_collection.give_density_matrix(q_name)
+        if isinstance(qubit, list):
+            names = [q.qubit[1] for q in qubit]
+            qubit_collections = set([q.qubit[0] for q in qubit])
+            density_matrices = []
+            for qubit_collection in qubit_collections:
+                needed_names = [name for name in qubit_collection.qubit_names if name in names]
+                density_matrices.append(qubit_collection.give_density_matrix(needed_names))
+            if len(density_matrices) == 1:
+                return density_matrices[0]
+            return density_matrices
+        else:
+            qubit_collection, q_name = qubit.qubit
+            return qubit_collection.give_density_matrix(q_name)
 
     def measure(self, qubit, non_destructive):
         """
