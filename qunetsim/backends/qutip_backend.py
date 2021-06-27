@@ -100,13 +100,11 @@ class QuTipBackend(object):
         def give_density_matrix(self, qubit_name):
             ret = None
             self._lock()
-            #breakpoint()
             if isinstance(qubit_name, list):
                 indices = []
                 for q_name in qubit_name:
                     if q_name in self._qubit_names:
                         indices.append(self._qubit_names.index(q_name))
-                #print(indices)
                 ret = self.data.ptrace(indices)
             else:
                 if qubit_name in self._qubit_names:
@@ -471,8 +469,6 @@ class QuTipBackend(object):
             density_matrices = []
             for qubit_collection in qubit_collections:
                 needed_names = [name for name in qubit_collection.qubit_names if name in names]
-                #print(needed_names)
-                #density_matrices.append(qubit_collection.give_density_matrix(qubit_collection.qubit_names))
                 density_matrices.append(qubit_collection.give_density_matrix(needed_names))
             if len(density_matrices) == 1:
                 return density_matrices[0]
