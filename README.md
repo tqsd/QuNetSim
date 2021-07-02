@@ -55,7 +55,8 @@ Feel free to contribute by adding Github issues and pull requests. Adding test c
 @article{diadamo2020qunetsim,
   title={QuNetSim: A Software Framework for Quantum Networks},
   author={DiAdamo, Stephen and N{\"o}tzel, Janis and Zanger, Benjamin and Be{\c{s}}e, Mehmet Mert},
-  journal={arXiv preprint arXiv:2003.06397},
-  year={2020}
+  journal={IEEE Transactions on Quantum Engineering},
+  year={2021},
+  doi={10.1109/TQE.2021.3092395}
 }
 ```
