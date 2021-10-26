@@ -3,7 +3,7 @@ anytree==2.8.0
 appnope==0.1.0
 attrs==19.3.0
 Automat==0.8.0
-Babel==2.7.0
+Babel==2.9.1
 backcall==0.1.0
 bitstring==3.1.6
 bleach==3.3.0
