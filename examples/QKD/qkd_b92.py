@@ -92,7 +92,7 @@ def receiver_qkd(bob, key_size, sender):
     while received_counter < key_size:
         base = randint(0, 1)
         # 0 means rectilinear basis and 1 means diagonal basis
-        qubit = bob.get_data_qubit(sender, wait=wait_time)
+        qubit = bob.get_qubit(sender, wait=wait_time)
         if qubit is not None:
             if base == 1:
                 qubit.H()
