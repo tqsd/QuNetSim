@@ -1435,6 +1435,31 @@ class Host(object):
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
 
+    def get_data_qubit(self, host_id, q_id=None, wait=0):
+        """
+        Gets the data qubit received from another host in the network. If qubit ID is specified,
+        qubit with that ID is returned, else, the last qubit received is returned.
+
+        Args:
+            host_id (str): The ID of the host that data qubit to be returned is received from.
+            q_id (str): The qubit ID of the data qubit to get.
+            wait (float): The amount of time to wait for the a qubit to arrive
+        Returns:
+            (Qubit): Qubit received from the host with *host_id* and *q_id*.
+        """
+
+        warnings.warn(
+            "The 'get_data_qubit' function has been renamed to"
+            " 'get_qubit'. The 'get_data_qubit' function will be removed in QuNetStim 1.0.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT, wait)
+
     def get_qubit(self, host_id, q_id=None, wait=0):
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified,
