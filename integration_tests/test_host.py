@@ -43,6 +43,25 @@ class TestHost(unittest.TestCase):
         # Test getting qubits that don't exist
         self.assertIsNone(host.get_qubit_by_id('fake'))
 
+    def test_get_data_qubit(self):
+        with self.assertWarns(DeprecationWarning):
+            host = Host('A')
+            q1 = Qubit(host)
+
+            host.add_data_qubit('A', q1)
+
+            qs = host.get_data_qubit('A')
+            self.assertIsInstance(qs, Qubit)
+
+    def test_get_qubit(self):
+        host = Host('A')
+        q1 = Qubit(host)
+
+        host.add_data_qubit('A', q1)
+
+        qs = host.get_qubit('A')
+        self.assertIsInstance(qs, Qubit)
+
     def test_get_data_qubits(self):
         with self.assertWarns(DeprecationWarning):
             host = Host('A')
