@@ -1,6 +1,7 @@
 import math
 import time
 import uuid
+import warnings
 from queue import Queue, Empty
 
 from .network import Network
@@ -1211,6 +1212,30 @@ class Host(object):
         if host_id is None:
             raise ValueError("Host id has to be specified!")
         return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
+
+    def get_data_qubits(self, host_id, remove_from_storage=False):
+        """
+        Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
+        Optional to remove the qubits from storage like *get_qubit* does with *remove_from_storage* field.
+
+        Args:
+            host_id (str): The host id from which the data qubit have been received.
+            remove_from_storage (bool): Get and remove from storage.
+
+        Returns:
+            (dict): If *host_id* is not set, then return the entire dictionary of data qubits.
+                  Else If *host_id* is set, then return the data qubits for that particular host if there are any.
+                  Return an empty list otherwise.
+        """
+        warnings.warn(
+            "The 'get_data_qubits' function has been renamed to"
+            " 'get_qubits'. The 'get_data_qubits' function will be removed in QuNetStim 1.0.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return self._qubit_storage.get_all_qubits_from_host(host_id,
+                                                            purpose=Qubit.DATA_QUBIT,
+                                                            remove=remove_from_storage)
 
     def get_qubits(self, host_id, remove_from_storage=False):
         """
