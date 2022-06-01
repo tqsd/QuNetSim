@@ -1212,7 +1212,7 @@ class Host(object):
             raise ValueError("Host id has to be specified!")
         return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
 
-    def get_data_qubits(self, host_id, remove_from_storage=False):
+    def get_qubits(self, host_id, remove_from_storage=False):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
         Optional to remove the qubits from storage like *get_qubit* does with *remove_from_storage* field.

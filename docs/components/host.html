@@ -251,7 +251,7 @@ through them. We see an example of that in the examples section.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><code class="code docutils literal notranslate"><span class="pre">get_data_qubits(host_id)</span></code>:</dt><dd><ul>
+<dt><code class="code docutils literal notranslate"><span class="pre">get_qubits(host_id)</span></code>:</dt><dd><ul>
 <li><p>Get all data qubits from sender with host_id <em>host_id</em></p></li>
 </ul>
 </dd>
@@ -785,8 +785,8 @@ qubit with that ID is returned, else, the last qubit received is returned.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="qunetsim.components.host.Host.get_data_qubits">
-<code class="sig-name descname">get_data_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">remove_from_storage=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_data_qubits" title="Permalink to this definition">¶</a></dt>
+<dt id="qunetsim.components.host.Host.get_qubits">
+<code class="sig-name descname">get_qubits</code><span class="sig-paren">(</span><em class="sig-param">host_id</em>, <em class="sig-param">remove_from_storage=False</em><span class="sig-paren">)</span><a class="headerlink" href="#qunetsim.components.host.Host.get_qubits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
 Optional to remove the qubits from storage like <em>get_qubit</em> does with <em>remove_from_storage</em> field.</p>
 <dl class="field-list simple">
