@@ -1,6 +1,7 @@
 import math
 import time
 import uuid
+import warnings
 from queue import Queue, Empty
 
 from .network import Network
@@ -1212,6 +1213,22 @@ class Host(object):
             raise ValueError("Host id has to be specified!")
         return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
 
+    def get_data_qubits(self, host_id, remove_from_storage=False):
+        """
+        Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
+        Optional to remove the qubits from storage like *get_qubit* does with *remove_from_storage* field.
+        
+        """
+        warnings.warn(
+            "The 'get_data_qubits' function has been renamed to"
+            " 'get_qubits'. The 'get_data_qubits' function will be removed in QuNetStim 1.0.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return self._qubit_storage.get_all_qubits_from_host(host_id,
+                                                            purpose=Qubit.DATA_QUBIT,
+                                                            remove=remove_from_storage)
+
     def get_qubits(self, host_id, remove_from_storage=False):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
@@ -1434,6 +1451,25 @@ class Host(object):
             raise Exception('wait parameter should be a number')
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
+
+    def get_data_qubit(self, host_id, q_id=None, wait=0):
+        """
+        Gets the data qubit received from another host in the network. If qubit ID is specified,
+        qubit with that ID is returned, else, the last qubit received is returned.
+
+        """
+
+        warnings.warn(
+            "The 'get_data_qubit' function has been renamed to"
+            " 'get_qubit'. The 'get_data_qubit' function will be removed in QuNetStim 1.0.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.DATA_QUBIT, wait)
 
     def get_qubit(self, host_id, q_id=None, wait=0):
         """
