@@ -44,7 +44,7 @@ def banker_protocol(host, customer):
         serial_to_be_checked = messages[-1].content
 
         for qubit_no in range(QUBITS_PER_MONEY):
-            q = host.get_data_qubit(customer, wait=10)
+            q = host.get_qubit(customer, wait=10)
 
             if bank_basis[serial_to_be_checked][qubit_no] == 1:
                 q.H()
@@ -76,7 +76,7 @@ def customer_protocol(host, banker):
     def receive_money():
         for serial in range(NO_OF_SERIALS):
             for bit_no in range(QUBITS_PER_MONEY):
-                q = host.get_data_qubit(banker, wait=10)
+                q = host.get_qubit(banker, wait=10)
                 money_qubits[serial].append(q)
 
     def verify_money():

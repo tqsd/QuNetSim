@@ -83,7 +83,7 @@ After the bank distributes the money, the customer possesses the money.
         def receive_money():
             for serial in range(NO_OF_SERIALS):
                 for bit_no in range(QUBITS_PER_MONEY):
-                    q = host.get_data_qubit(banker, wait=10)
+                    q = host.get_qubit(banker, wait=10)
                     money_qubits[serial].append(q)
             print('Customer received money')
 
@@ -135,7 +135,7 @@ that there is a cheating attempt. If measurement results are correct, the bank v
         print('Serial received by Bank')
         serial_to_be_checked = message.content
         for qubit_no in range(QUBITS_PER_MONEY):
-            q = host.get_data_qubit(customer, wait=10)
+            q = host.get_qubit(customer, wait=10)
             if bank_basis[serial_to_be_checked][qubit_no] == 1:
                 q.H()
 
@@ -240,7 +240,7 @@ The full example is below:
             print('Serial received by Bank')
             serial_to_be_checked = message.content
             for qubit_no in range(QUBITS_PER_MONEY):
-                q = host.get_data_qubit(customer, wait=10)
+                q = host.get_qubit(customer, wait=10)
                 if bank_basis[serial_to_be_checked][qubit_no] == 1:
                     q.H()
 
@@ -272,7 +272,7 @@ The full example is below:
         def receive_money():
             for serial in range(NO_OF_SERIALS):
                 for bit_no in range(QUBITS_PER_MONEY):
-                    q = host.get_data_qubit(banker, wait=10)
+                    q = host.get_qubit(banker, wait=10)
                     money_qubits[serial].append(q)
             print('Customer received money')
 

@@ -51,9 +51,9 @@ def protocol_bob(bob, alice, key_size, sample_len):
 
         bit = bit_string[rcv_cnt]
 
-        q_bit = bob.get_data_qubit(alice, wait=2)
+        q_bit = bob.get_qubit(alice, wait=2)
         while q_bit is None:
-            q_bit = bob.get_data_qubit(alice, wait=2)
+            q_bit = bob.get_qubit(alice, wait=2)
 
         if bit == 1:
             q_bit.H()

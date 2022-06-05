@@ -1212,10 +1212,10 @@ class Host(object):
             raise ValueError("Host id has to be specified!")
         return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
 
-    def get_data_qubits(self, host_id, remove_from_storage=False):
+    def get_qubits(self, host_id, remove_from_storage=False):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
-        Optional to remove the qubits from storage like *get_data_qubit* does with *remove_from_storage* field.
+        Optional to remove the qubits from storage like *get_qubit* does with *remove_from_storage* field.
 
         Args:
             host_id (str): The host id from which the data qubit have been received.
@@ -1435,7 +1435,7 @@ class Host(object):
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
 
-    def get_data_qubit(self, host_id, q_id=None, wait=0):
+    def get_qubit(self, host_id, q_id=None, wait=0):
         """
         Gets the data qubit received from another host in the network. If qubit ID is specified,
         qubit with that ID is returned, else, the last qubit received is returned.

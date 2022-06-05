@@ -98,7 +98,7 @@ def bob(bob, alice, number_of_entanglement_pairs):
     sifted_key_bob = []
 
     for i in range(number_of_entanglement_pairs):
-        qubit_b = bob.get_data_qubit(alice, wait=5)
+        qubit_b = bob.get_qubit(alice, wait=5)
         if qubit_b is not None:
             base_b = bob_bases[i]
 

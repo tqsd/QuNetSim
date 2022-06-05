@@ -282,10 +282,10 @@ class TestOneHop(unittest.TestCase):
 
         hosts['alice'].send_teleport(hosts['bob'].host_id, q)
 
-        q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+        q2 = hosts['bob'].get_qubit(hosts['alice'].host_id)
         i = 0
         while q2 is None and i < TestOneHop.MAX_WAIT:
-            q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+            q2 = hosts['bob'].get_qubit(hosts['alice'].host_id)
             i += 1
             time.sleep(1)
 
@@ -320,9 +320,9 @@ class TestOneHop(unittest.TestCase):
 
         q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
         i = 0
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+        rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
         while i < TestOneHop.MAX_WAIT and rec_q is None:
-            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
             i += 1
             time.sleep(1)
 
@@ -339,9 +339,9 @@ class TestOneHop(unittest.TestCase):
         q_id = hosts['bob'].send_qubit(hosts['alice'].host_id, q)
 
         i = 0
-        rec_q = hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_id)
+        rec_q = hosts['alice'].get_qubit(hosts['bob'].host_id, q_id)
         while i < TestOneHop.MAX_WAIT and rec_q is None:
-            rec_q = hosts['alice'].get_data_qubit(hosts['bob'].host_id, q_id)
+            rec_q = hosts['alice'].get_qubit(hosts['bob'].host_id, q_id)
             i += 1
             time.sleep(1)
 
@@ -364,10 +364,10 @@ class TestOneHop(unittest.TestCase):
         q.X()
 
         hosts['alice'].send_teleport(hosts['bob'].host_id, q)
-        q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+        q2 = hosts['bob'].get_qubit(hosts['alice'].host_id)
         i = 0
         while q2 is None and i < TestOneHop.MAX_WAIT:
-            q2 = hosts['bob'].get_data_qubit(hosts['alice'].host_id)
+            q2 = hosts['bob'].get_qubit(hosts['alice'].host_id)
             i += 1
             time.sleep(1)
 
@@ -434,26 +434,26 @@ class TestOneHop(unittest.TestCase):
         time.sleep(2)
 
         i = 0
-        while len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) < 1 and i < TestOneHop.MAX_WAIT:
+        while len(hosts['alice'].get_qubits(hosts['bob'].host_id)) < 1 and i < TestOneHop.MAX_WAIT:
             time.sleep(1)
             i += 1
 
         i = 0
-        while len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) < 1 and i < TestOneHop.MAX_WAIT:
+        while len(hosts['bob'].get_qubits(hosts['alice'].host_id)) < 1 and i < TestOneHop.MAX_WAIT:
             time.sleep(1)
             i += 1
 
         self.assertTrue(
-            len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 1)
-        self.assertTrue(hosts['alice'].get_data_qubit(
+            len(hosts['alice'].get_qubits(hosts['bob'].host_id)) == 1)
+        self.assertTrue(hosts['alice'].get_qubit(
             hosts['bob'].host_id, q_bob_id_1).measure() == 0)
-        self.assertIsNone(hosts['alice'].get_data_qubit(
+        self.assertIsNone(hosts['alice'].get_qubit(
             hosts['bob'].host_id, q_bob_id_2))
         self.assertTrue(
-            len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 1)
-        self.assertTrue(hosts['bob'].get_data_qubit(
+            len(hosts['bob'].get_qubits(hosts['alice'].host_id)) == 1)
+        self.assertTrue(hosts['bob'].get_qubit(
             hosts['alice'].host_id, q_alice_id_1).measure() == 0)
-        self.assertIsNone(hosts['bob'].get_data_qubit(
+        self.assertIsNone(hosts['bob'].get_qubit(
             hosts['alice'].host_id, q_alice_id_2))
 
         hosts['alice'].set_data_qubit_memory_limit(2, hosts['bob'].host_id)
@@ -483,31 +483,31 @@ class TestOneHop(unittest.TestCase):
         time.sleep(3)
 
         i = 0
-        while len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
+        while len(hosts['alice'].get_qubits(hosts['bob'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
             time.sleep(1)
             i += 1
 
         i = 0
-        while len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
+        while len(hosts['bob'].get_qubits(hosts['alice'].host_id)) < 2 and i < TestOneHop.MAX_WAIT:
             time.sleep(1)
             i += 1
 
         self.assertTrue(
-            len(hosts['alice'].get_data_qubits(hosts['bob'].host_id)) == 2)
-        self.assertTrue(hosts['alice'].get_data_qubit(
+            len(hosts['alice'].get_qubits(hosts['bob'].host_id)) == 2)
+        self.assertTrue(hosts['alice'].get_qubit(
             hosts['bob'].host_id, q_bob_id_1).measure() == 0)
-        self.assertTrue(hosts['alice'].get_data_qubit(
+        self.assertTrue(hosts['alice'].get_qubit(
             hosts['bob'].host_id, q_bob_id_2).measure() == 0)
-        self.assertIsNone(hosts['alice'].get_data_qubit(
+        self.assertIsNone(hosts['alice'].get_qubit(
             hosts['bob'].host_id, q_bob_id_3))
 
         self.assertTrue(
-            len(hosts['bob'].get_data_qubits(hosts['alice'].host_id)) == 2)
-        self.assertTrue(hosts['bob'].get_data_qubit(
+            len(hosts['bob'].get_qubits(hosts['alice'].host_id)) == 2)
+        self.assertTrue(hosts['bob'].get_qubit(
             hosts['alice'].host_id, q_alice_id_1).measure() == 0)
-        self.assertTrue(hosts['bob'].get_data_qubit(
+        self.assertTrue(hosts['bob'].get_qubit(
             hosts['alice'].host_id, q_alice_id_2).measure() == 0)
-        self.assertIsNone(hosts['bob'].get_data_qubit(
+        self.assertIsNone(hosts['bob'].get_qubit(
             hosts['alice'].host_id, q_alice_id_3))
 
     # @unittest.skip('')
@@ -521,7 +521,7 @@ class TestOneHop(unittest.TestCase):
             _ = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
 
         def bob_do(s):
-            rec_q = hosts['bob'].get_data_qubit(
+            rec_q = hosts['bob'].get_qubit(
                 hosts['alice'].host_id, wait=-1)
             self.assertIsNotNone(rec_q)
             self.assertEqual(rec_q.measure(), 1)

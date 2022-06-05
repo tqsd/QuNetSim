@@ -203,7 +203,7 @@ def bob(host, receiver, bob_basis):
     bob_measured_bits = ""
     # For Qubit and Basis
     for basis in bob_basis:
-        q2 = host.get_data_qubit(receiver, wait=WAIT_TIME)
+        q2 = host.get_qubit(receiver, wait=WAIT_TIME)
         if q2 is not None:
             # Measuring Alice's qubit based on Bob's basis
             if basis == '4':  # pi/4

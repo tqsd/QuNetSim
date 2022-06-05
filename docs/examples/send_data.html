@@ -329,7 +329,7 @@ Dean can safely access the qubit that Alice sent without having to wait.</p>
     <span class="n">q_id</span><span class="p">,</span> <span class="n">ack_arrived</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="c1"># Get the qubit on Dean&#39;s side from Alice</span>
-    <span class="n">q_rec</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">q_rec</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># Ensure the qubit arrived and then measure and print the results.</span>
     <span class="k">if</span> <span class="n">q_rec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -440,7 +440,7 @@ Dean can safely access the qubit that Alice sent without having to wait.</p>
         <span class="n">q_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">host_alice</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="s1">&#39;Dean&#39;</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># Get the qubit on Dean&#39;s side from Alice</span>
-        <span class="n">q_rec</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
+        <span class="n">q_rec</span> <span class="o">=</span> <span class="n">host_dean</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">q_id</span><span class="p">)</span>
 
         <span class="c1"># Ensure the qubit arrived and then measure and print the results.</span>
         <span class="k">if</span> <span class="n">q_rec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
