@@ -433,9 +433,9 @@ the same bit again, until the transmission works.</p>
         <span class="n">measurement_base</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># wait for the qubit</span>
-        <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
+        <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
+            <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
 
         <span class="c1"># measure qubit in right measurement basis</span>
         <span class="k">if</span> <span class="n">measurement_base</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -838,9 +838,9 @@ our key is too small to use a real encryption function, we will define our own o
         <span class="n">measurement_base</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># wait for the qubit</span>
-        <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
+        <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">q_bit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
+            <span class="n">q_bit</span> <span class="o">=</span> <span class="n">eve</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
 
         <span class="c1"># measure qubit in right measurement basis</span>
         <span class="k">if</span> <span class="n">measurement_base</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>

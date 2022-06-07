@@ -330,11 +330,11 @@ received and stored in <em>partner_qubits</em>.</p>
 
         <span class="c1"># send and get q1 from our partner</span>
         <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+        <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
         <span class="c1"># send and get q2 from our partner</span>
         <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+        <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
         <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
         <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q2</span>
@@ -397,7 +397,7 @@ and the host returns the quantum state <span class="math notranslate nohighlight
             <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
         <span class="c1"># The partner should send the qubit Ψ_b_j_bar back.</span>
-        <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <p>After this procedure, the host has m qubits of the state
@@ -801,11 +801,11 @@ agree on is generated. The final random number is <span class="math notranslate 
 
              <span class="c1"># send and get q1 from our partner</span>
              <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-             <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+             <span class="n">partner_q1</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
              <span class="c1"># send and get q2 from our partner</span>
              <span class="n">host</span><span class="o">.</span><span class="n">send_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">await_ack</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-             <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
+             <span class="n">partner_q2</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">)</span>
 
              <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q1</span>
              <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_q2</span>
@@ -834,7 +834,7 @@ agree on is generated. The final random number is <span class="math notranslate 
                  <span class="n">psi_a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner_qubits</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
              <span class="c1"># The partner should send the qubit Ψ_b_j_bar back.</span>
-             <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+             <span class="n">psi_b_bar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">partner_id</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
          <span class="c1"># Send own random bits b_j to partner</span>

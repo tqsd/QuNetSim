@@ -28,7 +28,7 @@ def main():
     host_alice.send_epr('Eve', await_ack=True)
     print('done')
     host_alice.send_teleport('Eve', q, await_ack=True)
-    q_eve = host_eve.get_data_qubit(host_alice.host_id, q.id, wait=5)
+    q_eve = host_eve.get_qubit(host_alice.host_id, q.id, wait=5)
 
     assert q_eve is not None
     print(q.id)

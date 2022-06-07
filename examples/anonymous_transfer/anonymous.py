@@ -53,7 +53,7 @@ def receiver(host, distributor, s, epr_id):
 
     print('established secret EPR')
     host.add_epr(s, q, q_id=epr_id)
-    q = host.get_data_qubit(s, wait=10)
+    q = host.get_qubit(s, wait=10)
     host.empty_classical()
     print('Received qubit %s in the %d state' % (q.id, q.measure()))
 

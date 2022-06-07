@@ -39,7 +39,7 @@ def checksum_receiver(host, q_size, sender_id, checksum_size_per_qubit):
     qubits = []
     checksum_size = int(q_size / checksum_size_per_qubit)
     while len(qubits) < (q_size + checksum_size):
-        q = host.get_data_qubit(sender_id, wait=WAIT_TIME)
+        q = host.get_qubit(sender_id, wait=WAIT_TIME)
         qubits.append(q)
         Logger.get_instance().log(str(host.host_id) + ': received qubit')
 

@@ -50,11 +50,11 @@ def handshake_sender(host, receiver_id):
     syn_seq_num = host.get_sequence_number_receiver(receiver_id)
 
     # Receive the qubits Bob has sent (qubit 2 and qubit 3) for SYN-ACK.
-    qb_2 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
+    qb_2 = host.get_qubit(receiver_id, wait=WAIT_TIME)
     if qb_2 is None:
         return False
 
-    qb_3 = host.get_data_qubit(receiver_id, wait=WAIT_TIME)
+    qb_3 = host.get_qubit(receiver_id, wait=WAIT_TIME)
     if qb_3 is None:
         return False
 
@@ -104,7 +104,7 @@ def handshake_receiver(host, sender_id):
     latest_seq_num = host.get_sequence_number_receiver(sender_id)
 
     # Receive the EPR half of Alice and the SYN message
-    qb_2 = host.get_data_qubit(sender_id, wait=WAIT_TIME)
+    qb_2 = host.get_qubit(sender_id, wait=WAIT_TIME)
     if qb_2 is None:
         print('qb_2 is None')
         return False
@@ -152,7 +152,7 @@ def handshake_receiver(host, sender_id):
         print('ACK was received by Bob')
 
     # Receive the qubit 3.
-    qa_3 = host.get_data_qubit(sender_id, wait=WAIT_TIME)
+    qa_3 = host.get_qubit(sender_id, wait=WAIT_TIME)
     if qa_3 is None:
         return False
 
@@ -252,7 +252,7 @@ def qubit_recv_w_retransmission(host, q_size, sender_id, checksum_size_per_qubit
         while len(qubits) < (q_size + checksum_size):
             need_retransmission = True
             while need_retransmission and number_of_retranmissions < MAX_NUM_OF_TRANSMISSIONS:
-                q = host.get_data_qubit(sender_id, wait=WAIT_TIME)
+                q = host.get_qubit(sender_id, wait=WAIT_TIME)
                 if q is not None:
                     need_retransmission = False
                     qubits.append(q)

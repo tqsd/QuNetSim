@@ -387,7 +387,7 @@ Bob sends Alice a classical message after the measurement and tells her whether 
     <span class="k">while</span> <span class="n">received_counter</span> <span class="o">&lt;</span> <span class="n">key_size</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
              <span class="c1"># 0 means rectilinear basis and 1 means diagonal basis</span>
-        <span class="n">qubit</span> <span class="o">=</span> <span class="n">bob</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span><span class="n">wait</span> <span class="o">=</span> <span class="n">wait_time</span><span class="p">)</span>
+        <span class="n">qubit</span> <span class="o">=</span> <span class="n">bob</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span><span class="n">wait</span> <span class="o">=</span> <span class="n">wait_time</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
@@ -748,7 +748,7 @@ For the measurement of the qubit, she randomly chooses the basis (rectilinear or
     <span class="k">while</span> <span class="n">received_counter</span> <span class="o">&lt;</span> <span class="n">key_size</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># 0 means rectilinear basis and 1 means diagonal basis</span>
-        <span class="n">qubit</span> <span class="o">=</span> <span class="n">bob</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
+        <span class="n">qubit</span> <span class="o">=</span> <span class="n">bob</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait_time</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>

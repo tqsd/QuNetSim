@@ -121,7 +121,7 @@ def bob(host, receiver, bob_basis):
     bob_measured_bits = ""
     # For Qubit and Basis
     for i in range(0, len(bob_basis)):
-        data = host.get_data_qubit(receiver, wait=WAIT_TIME)
+        data = host.get_qubit(receiver, wait=WAIT_TIME)
         if data is not None:
             print("{}'s qubit {} got successfully by {}".format(receiver, i, host.host_id))
         # Measuring Alice's qubit based on Bob's basis
