@@ -51,7 +51,7 @@ nbformat==4.4.0
 networkx==2.4
 nose2==0.9.1
 notebook==6.4.10
-numpy==1.18.1
+numpy==1.21.0
 packaging==19.1
 pandocfilters==1.4.2
 parso==0.5.1
