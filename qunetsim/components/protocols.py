@@ -173,7 +173,7 @@ def _rec_qubit(packet):
     receiver = packet.receiver
     qubit = packet.payload
     receiver = network.get_host(receiver)
-    receiver.add_data_qubit(from_host, qubit)
+    receiver.add_qubit(from_host, qubit)
 
     Logger.get_instance().log(
         packet.receiver + ' received qubit ' + packet.payload.id + ' from ' + packet.sender)
@@ -276,7 +276,7 @@ def _rec_teleport(packet):
         host_receiver.add_epr(epr_host, q)
 
     elif payload['type'] == Constants.DATA:
-        host_receiver.add_data_qubit(epr_host, q, q_id=q_id)
+        host_receiver.add_qubit(epr_host, q, q_id=q_id)
 
     # Always send ACK!
     if 'o_seq_num' in payload and 'ack' in payload:

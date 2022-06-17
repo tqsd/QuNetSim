@@ -1329,7 +1329,7 @@ class Host(object):
         self._qubit_storage.add_qubit_from_host(qubit, Qubit.EPR_QUBIT, host_id)
         return qubit.id
 
-    def add_data_qubit(self, host_id, qubit, q_id=None):
+    def add_qubit(self, host_id, qubit, q_id=None):
         """
         Adds the data qubit to the data qubit store of a host. If the qubit has an ID, adds the qubit with it,
         otherwise generates an ID for the qubit and adds the qubit with that ID.
