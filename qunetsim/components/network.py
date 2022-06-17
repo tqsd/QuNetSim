@@ -38,7 +38,7 @@ class Network:
             self._quantum_routing_algo = nx.shortest_path
             self._classical_routing_algo = nx.shortest_path
             self._use_hop_by_hop = True
-            self._packet_queue = Queue()
+            self._packet_queues = {}
             self._stop_thread = False
             self._use_ent_swap = False
             self._queue_processor_thread = None
@@ -178,6 +178,12 @@ class Network:
     def arp(self):
         return self.ARP
 
+    def add_queue(self, host_id):
+        self._packet_queues[host_id] = Queue()
+
+    def remove_queue(self, host_id):
+        del self._packet_queues[host_id]
+
     @property
     def num_hosts(self):
         return len(self.arp.keys())
@@ -191,6 +197,7 @@ class Network:
         """
 
         Logger.get_instance().debug('host added: ' + host.host_id)
+        self.add_queue(host.host_id)
         self.ARP[host.host_id] = host
         self._update_network_graph(host)
 
@@ -214,6 +221,7 @@ class Network:
 
         if host.host_id in self.ARP:
             del self.ARP[host.host_id]
+            self.remove_queue(host.host_id)
             if self.quantum_network.has_node(host.host_id):
                 self.quantum_network.remove_node(host.host_id)
             if self.classical_network.has_node(host.host_id):
@@ -504,87 +512,88 @@ class Network:
         """
 
         while True:
+            for _, queue in self._packet_queues.items():
+                # If queue is not empty, process it
+                if queue:
+                    for packet in queue:
+                        if not packet:
+                            # Stop the network
+                            self._stop_thread = True
+                            break
 
-            packet = self._packet_queue.get()
+                        # Artificially delay the network
+                        if self.delay > 0:
+                            time.sleep(self.delay)
 
-            if not packet:
-                # Stop the network
-                self._stop_thread = True
-                break
+                        # Simulate packet loss
+                        packet_drop_var = random.random()
+                        if packet_drop_var > (1 - self.packet_drop_rate):
+                            Logger.get_instance().log("PACKET DROPPED")
+                            if packet.payload_type == Constants.QUANTUM:
+                                packet.payload.release()
+                            continue
 
-            # Artificially delay the network
-            if self.delay > 0:
-                time.sleep(self.delay)
+                        sender, receiver = packet.sender, packet.receiver
 
-            # Simulate packet loss
-            packet_drop_var = random.random()
-            if packet_drop_var > (1 - self.packet_drop_rate):
-                Logger.get_instance().log("PACKET DROPPED")
-                if packet.payload_type == Constants.QUANTUM:
-                    packet.payload.release()
-                continue
+                        if packet.payload_type == Constants.QUANTUM:
+                            if not self._route_quantum_info(sender, receiver,
+                                                            [packet.payload]):
+                                continue
 
-            sender, receiver = packet.sender, packet.receiver
+                        try:
+                            if packet.protocol == Constants.RELAY and not self.use_hop_by_hop:
+                                full_route = packet.route
+                                route = full_route[full_route.index(sender):]
+                            else:
+                                if packet.protocol == Constants.REC_EPR:
+                                    route = self.get_classical_route(sender, receiver)
+                                else:
+                                    route = self.get_classical_route(sender, receiver)
 
-            if packet.payload_type == Constants.QUANTUM:
-                if not self._route_quantum_info(sender, receiver,
-                                                [packet.payload]):
-                    continue
+                            if len(route) < 2:
+                                raise Exception('No route exists')
 
-            try:
-                if packet.protocol == Constants.RELAY and not self.use_hop_by_hop:
-                    full_route = packet.route
-                    route = full_route[full_route.index(sender):]
-                else:
-                    if packet.protocol == Constants.REC_EPR:
-                        route = self.get_classical_route(sender, receiver)
-                    else:
-                        route = self.get_classical_route(sender, receiver)
+                            elif len(route) == 2:
+                                if packet.protocol != Constants.RELAY:
+                                    if packet.protocol == Constants.REC_EPR:
+                                        host_sender = self.get_host(sender)
+                                        q = host_sender \
+                                            .backend \
+                                            .create_EPR(host_sender.host_id,
+                                                        receiver,
+                                                        q_id=packet.payload['q_id'],
+                                                        block=packet.payload['blocked'])
+                                        host_sender.add_epr(receiver, q)
+                                    self.ARP[receiver].rec_packet(packet)
+                                else:
+                                    self.ARP[receiver].rec_packet(packet.payload)
+                            else:
+                                if packet.protocol == Constants.REC_EPR:
+                                    q_id = packet.payload['q_id']
+                                    blocked = packet.payload['blocked']
+                                    q_route = self.get_quantum_route(sender, receiver)
 
-                if len(route) < 2:
-                    raise Exception('No route exists')
+                                    if self.use_ent_swap:
+                                        DaemonThread(self._entanglement_swap,
+                                                     args=(sender, receiver, q_route, q_id,
+                                                           packet.seq_num, blocked))
+                                    else:
+                                        DaemonThread(self._establish_epr,
+                                                     args=(sender, receiver, q_id,
+                                                           packet.seq_num, blocked))
 
-                elif len(route) == 2:
-                    if packet.protocol != Constants.RELAY:
-                        if packet.protocol == Constants.REC_EPR:
-                            host_sender = self.get_host(sender)
-                            q = host_sender \
-                                .backend \
-                                .create_EPR(host_sender.host_id,
-                                            receiver,
-                                            q_id=packet.payload['q_id'],
-                                            block=packet.payload['blocked'])
-                            host_sender.add_epr(receiver, q)
-                        self.ARP[receiver].rec_packet(packet)
-                    else:
-                        self.ARP[receiver].rec_packet(packet.payload)
-                else:
-                    if packet.protocol == Constants.REC_EPR:
-                        q_id = packet.payload['q_id']
-                        blocked = packet.payload['blocked']
-                        q_route = self.get_quantum_route(sender, receiver)
+                                else:
+                                    network_packet = self._encode(route, packet)
+                                    self.ARP[route[1]].rec_packet(network_packet)
 
-                        if self.use_ent_swap:
-                            DaemonThread(self._entanglement_swap,
-                                         args=(sender, receiver, q_route, q_id,
-                                               packet.seq_num, blocked))
-                        else:
-                            DaemonThread(self._establish_epr,
-                                         args=(sender, receiver, q_id,
-                                               packet.seq_num, blocked))
-
-                    else:
-                        network_packet = self._encode(route, packet)
-                        self.ARP[route[1]].rec_packet(network_packet)
-
-            except nx.NodeNotFound:
-                Logger.get_instance().error(
-                    "route couldn't be calculated, node doesn't exist")
-            except ValueError:
-                Logger.get_instance().error(
-                    "route couldn't be calculated, value error")
-            except Exception as e:
-                Logger.get_instance().error('Error in network: ' + str(e))
+                        except nx.NodeNotFound:
+                            Logger.get_instance().error(
+                                "route couldn't be calculated, node doesn't exist")
+                        except ValueError:
+                            Logger.get_instance().error(
+                                "route couldn't be calculated, value error")
+                        except Exception as e:
+                            Logger.get_instance().error('Error in network: ' + str(e))
 
     def send(self, packet):
         """
@@ -593,8 +602,7 @@ class Network:
         Args:
             packet (Packet): Packet to be sent
         """
-
-        self._packet_queue.put(packet)
+        self._packet_queues.get(self.get_host(packet.sender)).put(packet)
 
     def stop(self, stop_hosts=False):
         """
