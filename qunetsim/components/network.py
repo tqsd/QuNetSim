@@ -9,6 +9,7 @@ import networkx as nx
 
 from qunetsim.backends import EQSNBackend
 from qunetsim.objects import Qubit, RoutingPacket, Logger, DaemonThread
+from qunetsim.objects.daemon_thread import is_thread_alive
 from qunetsim.utils.constants import Constants
 
 
@@ -595,16 +596,10 @@ class Network:
                 Logger.get_instance().error('Error in network: ' + str(e))
 
         while True:
-            threads = []
-            for queue in self._packet_queues.values():
-                if not queue.empty():
-                    threads.append(Thread(target=process_queue, args=[queue], daemon=False))
-
-            for t in threads:
-                t.start()
-
-            for t in threads:
-                t.join()
+            for host_name, queue in self._packet_queues.items():
+                if not queue.empty() and not is_thread_alive(host_name):
+                    thread = Thread(target=process_queue, args=[queue], daemon=False, name=host_name)
+                    thread.start()
 
     def send(self, packet):
         """
