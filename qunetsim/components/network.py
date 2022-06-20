@@ -513,6 +513,10 @@ class Network:
         """
 
         def process_queue(packet_queue):
+            """
+            A single thread processes the packet in a single queue.
+            Each host has it's own queue and thread for processing the queue.
+            """
             packet = packet_queue.get()
 
             # If None packet is received, then stop thread
@@ -591,8 +595,6 @@ class Network:
                 Logger.get_instance().error(
                     "route couldn't be calculated, value error")
             except Exception as e:
-                import traceback
-                traceback.format_exc()
                 Logger.get_instance().error('Error in network: ' + str(e))
 
         while True:
