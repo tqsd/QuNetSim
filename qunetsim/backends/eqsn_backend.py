@@ -152,9 +152,15 @@ class EQSNBackend(object):
             host_id (str): Id of the host to whom the qubit belongs.
 
         Returns:
+            # TODO: Bug, functions is returning a string object but not the 
+                    generated Qubit.
             Qubit of backend type.
         """
-        id = str(uuid.uuid4())
+        #id = str(uuid.uuid4())
+        #self.eqsn.new_qubit(id)
+        ##return id
+        
+        id = uuid.uuid4()
         self.eqsn.new_qubit(id)
         return id
 
@@ -412,7 +418,8 @@ class EQSNBackend(object):
         """
         qubits, statevector = self.eqsn.give_statevector_for(qubit.qubit)
         index = qubits.index(qubit.qubit)
-        density_operator = np.outer(statevector, statevector)
+        # density_operator = np.outer(statevector, statevector)
+        density_operator = np.outer(statevector, np.conjugate(statevector))
         before = 2**index
         if before > 0:
             other = 2**(len(qubits) - index)
