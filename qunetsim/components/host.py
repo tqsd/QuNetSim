@@ -1214,17 +1214,20 @@ class Host(object):
 
     def get_data_qubits(self, host_id, remove_from_storage=False):
         """
-        Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
-        Optional to remove the qubits from storage like *get_data_qubit* does with *remove_from_storage* field.
+        Return the dictionary of data qubits stored, just for the information 
+        regarding which qubits are stored. Optional to remove the qubits from 
+        storage like *get_data_qubit* does with *remove_from_storage* field.
 
         Args:
-            host_id (str): The host id from which the data qubit have been received.
+            host_id (str): The host id from which the data qubit have been 
+                           received.
             remove_from_storage (bool): Get and remove from storage.
 
         Returns:
-            (dict): If *host_id* is not set, then return the entire dictionary of data qubits.
-                  Else If *host_id* is set, then return the data qubits for that particular host if there are any.
-                  Return an empty list otherwise.
+            (dict): If *host_id* is not set, then return the entire dictionary 
+                    of data qubits. Else If *host_id* is set, then return the 
+                    data qubits for that particular host if there are any. 
+                    Return an empty list otherwise.
         """
         return self._qubit_storage.get_all_qubits_from_host(host_id,
                                                             purpose=Qubit.DATA_QUBIT,
@@ -1287,8 +1290,9 @@ class Host(object):
 
     def add_epr(self, host_id, qubit, q_id=None, blocked=False):
         """
-        Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the EPR with it,
-        otherwise generates an ID for the EPR and adds the qubit with that ID.
+        Adds the EPR to the EPR store of a host. If the EPR has an ID, adds the 
+        EPR with it, otherwise generates an ID for the EPR and adds the qubit 
+        with that ID.
 
         Args:
             host_id (str): The ID of the host to pair the qubit
@@ -1420,8 +1424,9 @@ class Host(object):
 
     def get_epr(self, host_id, q_id=None, wait=0):
         """
-        Gets the EPR that is entangled with another host in the network. If qubit ID is specified,
-        EPR with that ID is returned, else, the last EPR added is returned.
+        Gets the EPR that is entangled with another host in the network. If 
+        qubit ID is specified, EPR with that ID is returned, else, the last EPR
+        added is returned.
 
         Args:
             host_id (str): The ID of the host that returned EPR is entangled to.
@@ -1435,13 +1440,20 @@ class Host(object):
 
         return _get_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT, wait)
 
+    # TODO: this function needs to be updated to qunetsim
+    def drop_epr(self, host_id, q_id=None):
+        _drop_qubit(self._qubit_storage, host_id, q_id, Qubit.EPR_QUBIT)
+
+
     def get_data_qubit(self, host_id, q_id=None, wait=0):
         """
-        Gets the data qubit received from another host in the network. If qubit ID is specified,
-        qubit with that ID is returned, else, the last qubit received is returned.
+        Gets the data qubit received from another host in the network. If qubit 
+        ID is specified, qubit with that ID is returned, else, the last qubit 
+        received is returned.
 
         Args:
-            host_id (str): The ID of the host that data qubit to be returned is received from.
+            host_id (str): The ID of the host that data qubit to be returned is 
+                           received from.
             q_id (str): The qubit ID of the data qubit to get.
             wait (float): The amount of time to wait for the a qubit to arrive
         Returns:
@@ -1571,15 +1583,20 @@ class Host(object):
 
 def _get_qubit(store, host_id, q_id, purpose, wait=0):
     """
-    Gets the data qubit received from another host in the network. If qubit ID is specified,
-    qubit with that ID is returned, else, the last qubit received is returned.
+    Gets the data qubit received from another host in the network. If qubit ID 
+    is specified, qubit with that ID is returned, else, the last qubit received 
+    is returned.
 
     Args:
         store: The qubit storage to retrieve the qubit
-        host_id (str): The ID of the host that data qubit to be returned is received from.
+        host_id (str): The ID of the host that data qubit to be returned is 
+                       received from.
         q_id (str): The qubit ID of the data qubit to get.
         purpose (str): The intended use of the qubit
     Returns:
         (Qubit): Qubit received from the host with *host_id* and *q_id*.
     """
     return store.get_qubit_from_host(host_id, q_id, purpose, wait)
+
+def _drop_qubit(store, host_id, q_id, purpose):
+    store.reset_qubit_from_host(from_host_id=host_id, q_id=q_id, purpose=purpose)
