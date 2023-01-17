@@ -23,7 +23,7 @@ docutils==0.15.2
 entrypoints==0.3
 eqsn==0.0.8
 flake8==3.7.9
-future==0.18.2
+future==0.18.3
 hyperlink==19.0.0
 idna==2.8
 imagesize==1.1.0
