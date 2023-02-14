@@ -34,6 +34,7 @@ class Host(object):
         self._classical_messages = ClassicalStorage()
         self._classical_connections = {}
         self._quantum_connections = {}
+        self._storage = {}
         if backend is None:
             self._backend = EQSNBackend()
         else:
@@ -96,6 +97,34 @@ class Host(object):
              (list): Sorted list of classical messages.
         """
         return sorted(self._classical_messages.get_all(), key=lambda x: x.seq_num, reverse=True)
+    
+    def add_in_storage(self, key, value):
+        """
+        Add a key value pair in the classical storage of the host
+
+        Args:
+            key (string): Description of data being stored
+            value (any): Value of data being stored
+        """
+        self._storage[key] = value
+
+    def retrieve_from_storage(self, key):
+        """
+        Returns the value of the key from the classical storage
+
+        Args:
+            key (string): Description of data to be retrieved
+
+        Raises:
+            Exception: if key is not found in the dictionary
+
+        Returns:
+            any: Returns value of the stored data
+        """
+        if key in self._storage:
+            return self._storage[key]
+        else:
+            raise Exception("Given key not found in the data storage")
 
     def empty_classical(self, reset_seq_nums=False):
         """
@@ -562,16 +591,16 @@ class Host(object):
         """
         self._packet_queue.put(packet)
 
-    def add_c_connection(self, receiver_id):
+    def add_c_connection(self, receiver_id, model=None):
         """
         Adds the classical connection to host with ID *receiver_id*.
 
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
+        self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id, model)
 
-    def add_c_connections(self, receiver_ids):
+    def add_c_connections(self, receiver_ids, model=None):
         """
         Adds the classical connections to host with ID *receiver_id*.
 
@@ -579,18 +608,18 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id)
+            self.classical_connections[receiver_id] = ClassicalConnection(self.host_id, receiver_id, model)
 
-    def add_q_connection(self, receiver_id):
+    def add_q_connection(self, receiver_id, model=None):
         """
         Adds the quantum connection to host with ID *receiver_id*.
 
         Args:
             receiver_id (str): The ID of the host to connect with.
         """
-        self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
+        self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id, model)
 
-    def add_q_connections(self, receiver_ids):
+    def add_q_connections(self, receiver_ids, model=None):
         """
         Adds the quantum connection to host with ID *receiver_id*.
 
@@ -598,7 +627,7 @@ class Host(object):
             receiver_ids (list): The IDs of the hosts to connect with.
         """
         for receiver_id in receiver_ids:
-            self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id)
+            self.quantum_connections[receiver_id] = QuantumConnection(self.host_id, receiver_id, model)
 
     def add_connection(self, receiver_id):
         """
@@ -1167,7 +1196,48 @@ class Host(object):
             self._log_ack('SEND QUBIT', receiver_id, packet.seq_num)
             return q_id, self.await_ack(packet.seq_num, receiver_id)
         return q_id
+    
+    def make_list_n_qubits(self, num_qubits):
+        """
+        Makes a list of length *num_qubits*, all initialized to the zero state
 
+        Args:
+            num_qubits (int): Number of qubits in the list
+
+        Returns:
+            list: List of all qubits initialized to the zero state 
+        """
+        list_qubits = []
+        for _ in range(num_qubits):
+            q = Qubit(self)
+            list_qubits.append(q)
+        return list_qubits
+
+    def send_qubits(self, receiver_id, q_list, await_ack=False, no_ack=False):
+        """
+        Send the list of qubits *q_list* to the receiver with ID *receiver_id*
+
+        Args:
+            receiver_id (str): The receiver ID to send the message to
+            q_list (list): List of qubits to be sent
+            await_ack (bool, optional): If sender should send wait for an ACK for each qubit. Defaults to False.
+            no_ack (bool, optional): If this message should not use any ACK and sequencing. Defaults to False.
+        """
+        if await_ack:
+            list_ack = []
+        q_ids_list = []
+        for q in q_list:
+            if await_ack:
+                q_id, ack_recv = self.send_qubit(receiver_id, q, await_ack, no_ack)
+                q_ids_list.append(q_id)
+                list_ack.append(ack_recv)
+            else:
+                q_id = self.send_qubit(receiver_id, q, await_ack, no_ack)
+                q_ids_list.append(q_id)
+        if await_ack:
+            return q_ids_list, list_ack
+        return q_ids_list
+        
     def shares_epr(self, receiver_id):
         """
         Returns boolean value dependent on if the host shares an EPR pair
@@ -1195,6 +1265,17 @@ class Host(object):
             (str): Old if of the qubit which has been changed.
         """
         return self._qubit_storage.change_qubit_id(host_id, new_id, old_id)
+    
+    def change_epr_host(self, host_id, new_host_id):
+        """
+        Changes the host id of the EPR qubit
+
+        Args:
+            host_id (str): ID of the current EPR host
+            new_host_id (str): ID of the new host for the EPR pair
+        """
+        epr_qubit = self.get_epr(host_id)
+        self.add_epr(new_host_id, epr_qubit)
 
     def get_epr_pairs(self, host_id):
         """
@@ -1523,7 +1604,7 @@ class Host(object):
         """
         self._queue_processor_thread = DaemonThread(target=self._process_queue)
 
-    def run_protocol(self, protocol, arguments=(), blocking=False):
+    def run_protocol(self, protocol, args=None, kwargs=None, blocking=False):
         """
         Run the protocol *protocol*.
 
@@ -1535,11 +1616,15 @@ class Host(object):
         Returns:
             (DaemonThread): The thread the protocol is running on
         """
-        arguments = (self,) + arguments
-        if blocking:
-            DaemonThread(protocol, args=arguments).join()
+        if args is not None:
+            args = (self,) + args
         else:
-            return DaemonThread(protocol, args=arguments)
+            args = (self,)
+
+        if blocking:
+            DaemonThread(protocol, args=args, kwargs=kwargs).join()
+        else:
+            return DaemonThread(protocol, args=args, kwargs=kwargs)
 
     def get_qubit_by_id(self, q_id):
         """

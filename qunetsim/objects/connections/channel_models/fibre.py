@@ -1,12 +1,13 @@
 import random
+from qunetsim.objects.connections.channel_models.channel_model import ChannelModel
 
-
-class Fibre(object):
+class Fibre(ChannelModel):
     """
     The model for a fibre optic connection.
     """
 
     def __init__(self, length=0.0, alpha=0.0):
+        super().__init__(ChannelModel.QUANTUM)
         if not isinstance(length, int) and not isinstance(length, float):
             raise ValueError("Length must be float or int")
         elif length < 0:

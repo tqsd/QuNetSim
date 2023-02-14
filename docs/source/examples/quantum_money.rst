@@ -189,7 +189,6 @@ The full example is below:
     from qunetsim.objects import Logger
     from qunetsim.objects import Qubit
     from random import randint, random
-    from qunetsim.backends import ProjectQBackend
 
     Logger.DISABLED = True
 

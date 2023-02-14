@@ -1,12 +1,13 @@
 import random
+from qunetsim.objects.connections.channel_models.channel_model import ChannelModel
 
-
-class BinaryErasure(object):
+class BinaryErasure(ChannelModel):
     """
     The model for a binary erasure connection.
     """
 
     def __init__(self, probability=0.0):
+        super().__init__(ChannelModel.QUANTUM)
         if not isinstance(probability, int) and not isinstance(probability, float):
             raise ValueError("Erasure probability must be float or int")
         elif probability < 0 or probability > 1:

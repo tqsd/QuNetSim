@@ -1,9 +1,11 @@
 import unittest
+import numpy as np
 
 from qunetsim.objects import Qubit
 from qunetsim.components import Host
 from random import randint
-
+from qunetsim.components.network import Network
+from qunetsim.objects.connections.channel_models import BitFlip, ClassicalModel, PhaseFlip, BinaryErasure, Fibre
 
 # @unittest.skip('')
 class TestHost(unittest.TestCase):
@@ -180,6 +182,24 @@ class TestHost(unittest.TestCase):
         self.assertEqual(len(a.classical_connections), 6)
         self.assertEqual(len(a.quantum_connections), 6)
 
+    def test_connection_models(self):
+        a = Host('A')
+
+        a.add_c_connection('B', ClassicalModel())
+        self.assertEqual(a.classical_connections['B'].model.type, "Classical")
+        with self.assertRaises(Exception):
+            a.add_c_connection('C', BitFlip())
+        self.assertEqual(len(a.classical_connections), 1)
+
+        a.add_q_connection('D', BitFlip(0.5))
+        self.assertEqual(a.quantum_connections['D'].model.type, "Quantum")
+        a.add_q_connection('E', PhaseFlip(0.1))
+        self.assertEqual(a.quantum_connections['E'].model.type, "Quantum")
+        a.add_q_connection('F', BinaryErasure(0.2))
+        self.assertEqual(a.quantum_connections['F'].model.type, "Quantum")
+        a.add_q_connection('G', Fibre(alpha=0.3))
+        self.assertEqual(a.quantum_connections['G'].model.type, "Quantum")
+
     def test_remove_connections(self):
         a = Host('A')
         a.add_connections(['B', 'C'])
@@ -197,3 +217,81 @@ class TestHost(unittest.TestCase):
         a.remove_connection('C')
         self.assertEqual(len(a.classical_connections), 0)
         self.assertEqual(len(a.quantum_connections), 0)
+
+    def test_kwargs_runprotocol(self):
+        def bob_do(host, sender):
+            q = host.get_qubit(sender.host_id, wait=10)
+            self.assertNotEqual(q, None)
+            self.assertAlmostEqual(host.backend.eqsn.give_statevector_for(q.qubit)[1][0], 0.5-0.5j)
+
+        def alice_do(host, receiver, theta, phi):
+            q = Qubit(host)
+            q.ry(theta)
+            q.rz(phi)
+            _, ack = host.send_qubit(receiver.host_id, q, await_ack=True)
+
+        network = Network.get_instance()
+        nodes = ['Alice', 'Bob']
+        network.start(nodes)
+
+        host_alice = Host('Alice')
+        host_alice.add_connection('Bob')
+        host_alice.start()
+
+        host_bob = Host('Bob')
+        host_bob.add_connection('Alice')
+        host_bob.start()
+
+        network.add_host(host_alice)
+        network.add_host(host_bob)
+        network.start()
+
+        t1 = host_alice.run_protocol(alice_do, kwargs={'theta':np.pi/2, 'receiver':host_bob, 'phi':np.pi/2})
+        t2 = host_bob.run_protocol(bob_do, kwargs={'sender':host_alice}, blocking=True)
+        t1.join()
+
+        s1 = host_alice.run_protocol(alice_do, (host_bob, np.pi/2, np.pi/2))
+        s2 = host_bob.run_protocol(bob_do, (host_alice,), blocking=True)
+        s1.join()
+
+    def test_send_n_qubits(self):
+        def sender_do(host, receiver, num_qubits, recv_ack=False):
+            global q_id_list
+            if recv_ack:
+                q_id_list, ack_arr = host.send_qubits(receiver.host_id, host.make_list_n_qubits(num_qubits), await_ack=recv_ack)
+                self.assertEqual(len(ack_arr), num_qubits)
+            else:
+                q_id_list = host.send_qubits(receiver.host_id, host.make_list_n_qubits(num_qubits), await_ack=recv_ack)
+            self.assertEqual(len(q_id_list), num_qubits)
+
+        def receiver_do(host, sender, num_qubits):
+            global q_id_received
+            q_id_received = []
+            while len(q_id_received) < num_qubits:
+                qubit_recv = host.get_qubit(sender.host_id, wait=10)
+                if qubit_recv is not None:
+                    q_id_received.append(qubit_recv.id)
+            self.assertEqual(len(q_id_received), num_qubits)
+
+        network = Network.get_instance()
+        nodes = ['sender', 'receiver']
+        network.start(nodes)
+
+        host_sender = Host('sender')
+        host_sender.add_connection('receiver')
+        host_sender.start()
+
+        host_receiver = Host('receiver')
+        host_receiver.add_connection('sender')
+        host_receiver.start()
+
+        network.add_host(host_sender)
+        network.add_host(host_receiver)
+        network.start()
+
+        host_sender.run_protocol(sender_do, kwargs={'num_qubits':5, 'receiver': host_receiver, 'recv_ack': True}, blocking=True)
+        host_receiver.run_protocol(receiver_do, kwargs={'num_qubits':5, 'sender': host_sender}, blocking=True)
+
+        network.stop(True)
+        self.assertEqual(set(q_id_list), set(q_id_received))
+        

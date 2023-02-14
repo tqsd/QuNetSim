@@ -139,6 +139,7 @@ The full example is below.
     from qunetsim.objects import Logger
     import networkx
     import time
+    import random
 
 
     def generate_entanglement(host):

@@ -25,6 +25,14 @@ class TestBackend(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
+    def test_qubit_initialization(self):
+        backend = EQSNBackend()
+        host_alice = Host('Alice', backend)
+        qubit_initialized = Qubit(host_alice, theta=np.pi/2, phi=np.pi/2)
+
+        self.assertAlmostEqual(host_alice.backend.eqsn.give_statevector_for(qubit_initialized.qubit)[1][0], 0.5-0.5j)
+        self.assertAlmostEqual(host_alice.backend.eqsn.give_statevector_for(qubit_initialized.qubit)[1][1], 0.5+0.5j)
+
     # @unittest.skip('')
     def test_epr_generation(self):
         for b in TestBackend.backends:

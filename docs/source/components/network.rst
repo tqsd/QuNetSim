@@ -28,12 +28,6 @@ The most commonly used methods for Network are:
     * If the network should recalculate the route at each node in the route (set to True) or just once at the beginning (set to False)
 * :code:`(property) delay(float)`
     * the amount of delay the network should have. The network has the ability to throttle packet transmissions which is sometimes neccessary for different types of qubit / network backends.
-* :code:`(property) packet_drop_rate(float)`
-    * The probability that a packet is dropped on transmission in the network
-* :code:`(property) x_error_rate(float)`
-    * The probability that a qubit has an :math:`X` gate applied to in at each host in the route
-* :code:`(property) z_error_rate(float)`
-    * The probability that a qubit has an :math:`Z` gate applied to in at each host in the route
 * :code:`draw_classical_network`
     * Generate a depiction of the classical network 
 * :code:`draw_quantum_network`

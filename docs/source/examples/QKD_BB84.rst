@@ -94,10 +94,10 @@ the same bit again, until the transmission works.
                 if base == 1:
                     q_bit.H()
 
-                # Send Qubit to Bob
+                # Send Qubit to Eve
                 alice.send_qubit(receiver, q_bit, await_ack=True)
 
-                # Get measured basis of Bob
+                # Get measured basis of Eve
                 message = alice.get_next_classical_message(receiver, msg_buff, sequence_nr)
 
                 # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
@@ -130,7 +130,7 @@ the same bit again, until the transmission works.
                 q_bit.H()
             bit = q_bit.measure()
 
-            # Send Alice the base in which Bob has measured
+            # Send Alice the base in which Eve has measured
             eve.send_classical(sender, "%d:%d" % (sequence_nr, measurement_base), await_ack=True)
 
             # get the return message from Alice, to know if the bases have matched
@@ -211,7 +211,7 @@ We can now concatenate the two actions of Alice and Eve and let them each run in
         eve_key = eve_qkd(eve, msg_buff, key_size, host_alice.host_id)
         eve_receive_message(eve, msg_buff, eve_key, host_alice.host_id)
 
-    # Run Bob and Alice
+    # Run Eve and Alice
 
     t1 = host_alice.run_protocol(alice_func, ())
     t2 = host_eve.run_protocol(eve_func, ())
@@ -275,10 +275,10 @@ The full example is below:
                 if base == 1:
                     q_bit.H()
 
-                # Send Qubit to Bob
+                # Send Qubit to Eve
                 alice.send_qubit(receiver, q_bit, await_ack=True)
 
-                # Get measured basis of Bob
+                # Get measured basis of Eve
                 message = alice.get_next_classical_message(receiver, msg_buff, sequence_nr)
 
                 # Compare to send basis, if same, answer with 0 and set ack True and go to next bit,
@@ -312,7 +312,7 @@ The full example is below:
                 q_bit.H()
             bit = q_bit.measure()
 
-            # Send Alice the base in which Bob has measured
+            # Send Alice the base in which Eve has measured
             eve.send_classical(sender, "%d:%d" % (sequence_nr, measurement_base), await_ack=True)
 
             # get the return message from Alice, to know if the bases have matched
@@ -404,7 +404,7 @@ The full example is below:
             eve_key = eve_qkd(eve, msg_buff, key_size, host_alice.host_id)
             eve_receive_message(eve, msg_buff, eve_key, host_alice.host_id)
 
-        # Run Bob and Alice
+        # Run Eve and Alice
 
         t1 = host_alice.run_protocol(alice_func, ())
         t2 = host_eve.run_protocol(eve_func, ())
