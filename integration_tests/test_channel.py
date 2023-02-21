@@ -70,9 +70,9 @@ class TestChannel(unittest.TestCase):
 
         q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
         i = 0
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+        rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
         while i < TestChannel.MAX_WAIT and rec_q is None:
-            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
             i += 1
             time.sleep(1)
 
@@ -89,9 +89,9 @@ class TestChannel(unittest.TestCase):
 
         q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
         i = 0
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+        rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
         while i < TestChannel.MAX_WAIT and rec_q is None:
-            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
             i += 1
             time.sleep(1)
 
@@ -107,9 +107,9 @@ class TestChannel(unittest.TestCase):
 
         q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
         i = 0
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+        rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
         while i < TestChannel.MAX_WAIT and rec_q is None:
-            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
             i += 1
             time.sleep(1)
 
@@ -127,9 +127,9 @@ class TestChannel(unittest.TestCase):
 
         q_id = hosts['alice'].send_qubit(hosts['bob'].host_id, q)
         i = 0
-        rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+        rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
         while i < TestChannel.MAX_WAIT and rec_q is None:
-            rec_q = hosts['bob'].get_data_qubit(hosts['alice'].host_id, q_id)
+            rec_q = hosts['bob'].get_qubit(hosts['alice'].host_id, q_id)
             i += 1
             time.sleep(1)
 

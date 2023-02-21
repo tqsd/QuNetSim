@@ -43,7 +43,50 @@ class TestHost(unittest.TestCase):
         # Test getting qubits that don't exist
         self.assertIsNone(host.get_qubit_by_id('fake'))
 
+    def test_get_data_qubit(self):
+        with self.assertWarns(DeprecationWarning):
+            host = Host('A')
+            q1 = Qubit(host)
+
+            host.add_data_qubit('A', q1)
+
+            qs = host.get_data_qubit('A')
+            self.assertIsInstance(qs, Qubit)
+
+    def test_get_qubit(self):
+        host = Host('A')
+        q1 = Qubit(host)
+
+        host.add_data_qubit('A', q1)
+
+        qs = host.get_qubit('A')
+        self.assertIsInstance(qs, Qubit)
+
     def test_get_data_qubits(self):
+        with self.assertWarns(DeprecationWarning):
+            host = Host('A')
+            q1 = Qubit(host)
+            q2 = Qubit(host)
+            q3 = Qubit(host)
+
+            host.add_data_qubit('B', q1)
+
+            qs = host.get_data_qubits('B')
+            self.assertEqual(len(qs), 1)
+
+            host.add_data_qubit('B', q2)
+            host.add_data_qubit('B', q3)
+
+            qs = host.get_data_qubits('B')
+            self.assertEqual(len(qs), 3)
+
+            qs = host.get_data_qubits('B', remove_from_storage=True)
+            self.assertEqual(len(qs), 3)
+
+            qs = host.get_data_qubits('B', remove_from_storage=True)
+            self.assertEqual(len(qs), 0)
+
+    def test_get_qubits(self):
         host = Host('A')
         q1 = Qubit(host)
         q2 = Qubit(host)
@@ -51,19 +94,19 @@ class TestHost(unittest.TestCase):
 
         host.add_data_qubit('B', q1)
 
-        qs = host.get_data_qubits('B')
+        qs = host.get_qubits('B')
         self.assertEqual(len(qs), 1)
 
         host.add_data_qubit('B', q2)
         host.add_data_qubit('B', q3)
 
-        qs = host.get_data_qubits('B')
+        qs = host.get_qubits('B')
         self.assertEqual(len(qs), 3)
 
-        qs = host.get_data_qubits('B', remove_from_storage=True)
+        qs = host.get_qubits('B', remove_from_storage=True)
         self.assertEqual(len(qs), 3)
 
-        qs = host.get_data_qubits('B', remove_from_storage=True)
+        qs = host.get_qubits('B', remove_from_storage=True)
         self.assertEqual(len(qs), 0)
 
     def test_resetting_qubits(self):
@@ -76,11 +119,11 @@ class TestHost(unittest.TestCase):
         host.add_data_qubit('B', q2)
         host.add_ghz_qubit('B', q3)
 
-        qs = host.get_data_qubits('B')
+        qs = host.get_qubits('B')
         self.assertEqual(len(qs), 1)
 
         host.reset_data_qubits('B')
-        qs = host.get_data_qubits('B')
+        qs = host.get_qubits('B')
         self.assertEqual(len(qs), 0)
 
     # @unittest.skip('')

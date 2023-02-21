@@ -105,7 +105,7 @@ Bob sends Alice a classical message after the measurement and tells her whether 
         while received_counter < key_size:
             base = randint(0,1)
                  # 0 means rectilinear basis and 1 means diagonal basis
-            qubit = bob.get_data_qubit(sender,wait = wait_time)
+            qubit = bob.get_qubit(sender,wait = wait_time)
             if qubit is not None:
                 if base == 1:
                     qubit.H()
@@ -276,7 +276,7 @@ The full example is given below.
         while received_counter < key_size:
             base = randint(0, 1)
             # 0 means rectilinear basis and 1 means diagonal basis
-            qubit = bob.get_data_qubit(sender, wait=wait_time)
+            qubit = bob.get_qubit(sender, wait=wait_time)
             if qubit is not None:
                 if base == 1:
                     qubit.H()

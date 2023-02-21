@@ -69,11 +69,11 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
 
             # send and get q1 from our partner
             host.send_qubit(partner_id, q1, await_ack=True)
-            partner_q1 = host.get_data_qubit(partner_id)
+            partner_q1 = host.get_qubit(partner_id)
 
             # send and get q2 from our partner
             host.send_qubit(partner_id, q2, await_ack=True)
-            partner_q2 = host.get_data_qubit(partner_id)
+            partner_q2 = host.get_qubit(partner_id)
 
             partner_qubits[i, j, 0] = partner_q1
             partner_qubits[i, j, 1] = partner_q2
@@ -102,7 +102,7 @@ def quantum_coin_flipping(host, m, n, partner_id, rot_angle):
                 psi_a[i, j] = partner_qubits[i, j, 1]
 
             # The partner should send the qubit Ψ_b_j_bar back.
-            psi_b_bar[i, j] = host.get_data_qubit(partner_id, wait=10)
+            psi_b_bar[i, j] = host.get_qubit(partner_id, wait=10)
 
     for j in range(m):
         # Send own random bits b_j to partner

@@ -152,7 +152,7 @@ class EQSNBackend(object):
             host_id (str): Id of the host to whom the qubit belongs.
 
         Returns:
-            # TODO: Bug, functions is returning a string object but not the 
+            # TODO: Bug, method is returning a string object but not the
                     generated Qubit.
             Qubit of backend type.
         """
@@ -416,6 +416,7 @@ class EQSNBackend(object):
         Returns:
             np.ndarray: The density operator of the qubit.
         """
+        # TODO: Bug resolved. Incorrect density operator was being calculated.
         qubits, statevector = self.eqsn.give_statevector_for(qubit.qubit)
         index = qubits.index(qubit.qubit)
         # density_operator = np.outer(statevector, statevector)

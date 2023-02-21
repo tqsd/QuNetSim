@@ -17,9 +17,9 @@ The most commonly used methods for Hosts are:
     * Add a classical and quantum connection to the host with id *host_id*
 * :code:`get_classical(host_id, wait=N)`
     * Get a classical message from sender with host_id *host_id* and wait *N* seconds for it
-* :code:`get_data_qubit(host_id, wait=N)`:
+* :code:`get_qubit(host_id, wait=N)`:
     * Get a data qubit from sender with host_id *host_id* and wait *N* seconds for it
-* :code:`get_data_qubits(host_id)`:
+* :code:`get_qubits(host_id)`:
     * Get all data qubits from sender with host_id *host_id*
 * :code:`get_epr(host_id, q_id=q_id)`:
     * Get EPR pair with qubit ID *q_id* from sender with host_id *host_id*. If *q_id=None* then get the first free EPR pair

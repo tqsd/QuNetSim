@@ -120,8 +120,7 @@ class Qubit(object):
         Determines the quantum fidelity between this and the given qubit.
 
         Args:
-            other_qubit (Qubit): The other (apart from this) qubit used to 
-            calculate the quantum fidelity
+            other_qubit (Qubit): The other (apart from this) qubit used to calculate the quantum fidelity
 
         Returns:
             (float) The quantum fidelity between this and the given qubit.
@@ -315,10 +314,11 @@ class Qubit(object):
         Returns:
             np.ndarray: The density operator of the qubit.
         """
+        # Change on method body ensure that the density operator of higher dimensional elements will be correct.
         if np.shape(self.statevector()[1])[0] == 2:
             return self._host.backend.density_operator(self)
         else:
-            ket = np.reshape(self.statevector()[1],(np.shape(self.statevector()[1])[0], 1))
+            ket = np.reshape(self.statevector()[1], (np.shape(self.statevector()[1])[0], 1))
             bra = np.conjugate(ket.T)
             return ket * bra
 
@@ -336,6 +336,9 @@ class Qubit(object):
         return self._host.backend.measure(self, non_destructive)
 
     def statevector(self):
+        """
+        Returns the state vector of a qubit.
+        """
         return self._host.backend.statevector(self)
 
 

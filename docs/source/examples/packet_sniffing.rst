@@ -56,7 +56,7 @@ her messages and measures her qubits.
             print("Eve Received classical: %s." % alice_message.content)
 
         for i in range(amount_to_transmit):
-            q = host.get_data_qubit('Alice', wait=10)
+            q = host.get_qubit('Alice', wait=10)
             m = q.measure()
             print("Eve measured: %d." % m)
 
@@ -166,7 +166,7 @@ The full example is below.
             print("Eve Received classical: %s." % alice_message.content)
 
         for i in range(amount_transmit):
-            q = host.get_data_qubit('Alice', wait=10)
+            q = host.get_qubit('Alice', wait=10)
             m = q.measure()
             print("Eve measured: %d." % m)
 

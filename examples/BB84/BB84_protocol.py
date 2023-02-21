@@ -60,7 +60,7 @@ class BB84:
     def receive(self, receiver_host, sender_host, ids):
         message = []
         for q_id in ids:
-            q_rec = receiver_host.get_data_qubit(sender_host.host_id, q_id)
+            q_rec = receiver_host.get_qubit(sender_host.host_id, q_id)
             message.append(q_rec)
         return message
 

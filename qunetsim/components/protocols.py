@@ -501,9 +501,9 @@ def _rec_key(packet):
         measurement_base = random.randint(0, 1)
 
         # wait for the qubit
-        q_bit = receiver.get_data_qubit(sender.host_id, wait=Constants.WAIT_TIME)
+        q_bit = receiver.get_qubit(sender.host_id, wait=Constants.WAIT_TIME)
         while q_bit is None:
-            q_bit = receiver.get_data_qubit(sender.host_id, wait=Constants.WAIT_TIME)
+            q_bit = receiver.get_qubit(sender.host_id, wait=Constants.WAIT_TIME)
 
         # measure qubit in right measurement basis
         if measurement_base == 1:

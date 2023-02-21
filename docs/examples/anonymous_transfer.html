@@ -328,7 +328,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
 
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
 </pre></div>
@@ -496,7 +496,7 @@ a high-level mathematical syntax into simulation using QuNetSim. The protocol in
 
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;established secret EPR&#39;</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">add_epr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q_id</span><span class="o">=</span><span class="n">epr_id</span><span class="p">)</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">host</span><span class="o">.</span><span class="n">empty_classical</span><span class="p">()</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received qubit </span><span class="si">%s</span><span class="s1"> in the </span><span class="si">%d</span><span class="s1"> state&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
 

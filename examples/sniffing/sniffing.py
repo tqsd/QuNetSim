@@ -42,7 +42,7 @@ def eve(host):
         print("Eve Received classical: %s." % alice_message.content)
 
     for i in range(amount_transmit):
-        q = host.get_data_qubit('Alice', wait=5)
+        q = host.get_qubit('Alice', wait=5)
         m = q.measure()
         print("Eve measured: %d." % m)
 

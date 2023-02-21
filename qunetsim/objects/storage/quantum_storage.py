@@ -101,7 +101,6 @@ class QuantumStorage(object):
         """
         Set a new storage limit for the storage. The implementations depends on
         the storage mode.
-        TODO: It seems as the implementations for the other modes were ignored!
 
         Args:
             new_limit (int): The new max amount of qubit.
@@ -284,7 +283,6 @@ class QuantumStorage(object):
                     self._get_qubit_from_host(from_host_id, purpose=purpose)
         self.lock.release_write()
 
-    # TODO: this function needs to be pushed onto github
     def reset_qubit_from_host(self, from_host_id, q_id, purpose=None):
         """
         Remove qubit *q_id* from the host *from_host_id*.
@@ -342,23 +340,21 @@ class QuantumStorage(object):
 
     def get_qubit_from_host(self, from_host_id, q_id=None, purpose=None, wait=0):
         """
-        Returns next qubit which has been received from a host. If the qubit 
-        has not been received yet, the thread is blocked for a maxiumum of the 
-        wait time, till the qubit arrives (The default is 0). If the id is 
-        given, the exact qubit with the id is returned, or None if it does not 
-        exist.
+        Returns next qubit which has been received from a host. If the qubit has
+        not been received yet, the thread is blocked for a maxiumum of the wait time,
+        till the qubit arrives (The default is 0). If the id is given, the exact qubit with the id
+        is returned, or None if it does not exist.
         The qubit is removed from the quantum storage.
 
         Args:
             from_host_id (str): Host id from who the qubit has been received.
             q_id (str): Optional Id, to return the exact qubit with the Id.
             purpose (str): Optional, purpose of the Qubit.
-            wait (int): Default is 0. The maximum blocking time. -1 if blocking 
-                        forever.
+            wait (int): Default is 0. The maximum blocking time. -1 if blocking forever.
 
         Returns:
-            (bool): If such a qubit exists, it returns the qubit. Otherwise, 
-            None is returned.
+            (bool): If such a qubit exists, it returns the qubit. Otherwise, None
+            is returned.
         """
         # Block forever if wait is -1
         if wait == -1:

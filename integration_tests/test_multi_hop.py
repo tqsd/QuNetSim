@@ -154,7 +154,7 @@ class TestTwoHop(unittest.TestCase):
         q2 = None
         i = 0
         while i < TestTwoHop.MAX_WAIT and q2 is None:
-            q2 = hosts['eve'].get_data_qubit(hosts['alice'].host_id)
+            q2 = hosts['eve'].get_qubit(hosts['alice'].host_id)
             i += 1
             time.sleep(1)
 
@@ -210,7 +210,7 @@ class TestTwoHop(unittest.TestCase):
 
         q2_epr = hosts['eve'].get_epr(hosts['alice'].host_id, q_id, wait=TestTwoHop.MAX_WAIT)
 
-        q_teleport = hosts['eve'].get_data_qubit(hosts['alice'].host_id, wait=TestTwoHop.MAX_WAIT)
+        q_teleport = hosts['eve'].get_qubit(hosts['alice'].host_id, wait=TestTwoHop.MAX_WAIT)
 
         self.assertIsNotNone(q1_epr)
         self.assertIsNotNone(q2_epr)
@@ -221,7 +221,7 @@ class TestTwoHop(unittest.TestCase):
     # @unittest.skip('')
     def test_get_before_send(self):
         def eve_do(eve):
-            q = hosts['eve'].get_data_qubit(hosts['alice'].host_id, wait=10)
+            q = hosts['eve'].get_qubit(hosts['alice'].host_id, wait=10)
             self.assertNotEqual(q, None)
 
         def alice_do(alice):
