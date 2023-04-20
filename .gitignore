@@ -8,6 +8,8 @@ qunetsim/objects/__pycache__/*
 **/__pycache__/
 build_docs.sh
 
+.DS_Store
+
 venv/
 
 venv2/

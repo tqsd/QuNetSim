@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: qunetsim
-Version: 0.1.3
+Version: 0.1.3.post1
 Summary: A Quantum Network Simulation Framework
 Home-page: https://github.com/tqsd/QuNetSim
 Download-URL: https://github.com/tqsd/QuNetSim/releases/tag/0.1.2
