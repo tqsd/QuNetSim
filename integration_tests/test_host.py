@@ -27,10 +27,10 @@ class TestHost(unittest.TestCase):
         q4 = Qubit(host2)
 
         host.add_epr('B', q1)
-        host.add_data_qubit('C', q2)
+        host.add_qubit('C', q2)
         host.add_ghz_qubit('D', q3)
 
-        host2.add_data_qubit('A', q4)
+        host2.add_qubit('A', q4)
 
         # Test all types of qubits
         self.assertEqual(q1, host.get_qubit_by_id(q1.id))
@@ -48,7 +48,7 @@ class TestHost(unittest.TestCase):
             host = Host('A')
             q1 = Qubit(host)
 
-            host.add_data_qubit('A', q1)
+            host.add_qubit('A', q1)
 
             qs = host.get_data_qubit('A')
             self.assertIsInstance(qs, Qubit)
@@ -57,7 +57,7 @@ class TestHost(unittest.TestCase):
         host = Host('A')
         q1 = Qubit(host)
 
-        host.add_data_qubit('A', q1)
+        host.add_qubit('A', q1)
 
         qs = host.get_qubit('A')
         self.assertIsInstance(qs, Qubit)
@@ -69,13 +69,13 @@ class TestHost(unittest.TestCase):
             q2 = Qubit(host)
             q3 = Qubit(host)
 
-            host.add_data_qubit('B', q1)
+            host.add_qubit('B', q1)
 
             qs = host.get_data_qubits('B')
             self.assertEqual(len(qs), 1)
 
-            host.add_data_qubit('B', q2)
-            host.add_data_qubit('B', q3)
+            host.add_qubit('B', q2)
+            host.add_qubit('B', q3)
 
             qs = host.get_data_qubits('B')
             self.assertEqual(len(qs), 3)
@@ -92,13 +92,13 @@ class TestHost(unittest.TestCase):
         q2 = Qubit(host)
         q3 = Qubit(host)
 
-        host.add_data_qubit('B', q1)
+        host.add_qubit('B', q1)
 
         qs = host.get_qubits('B')
         self.assertEqual(len(qs), 1)
 
-        host.add_data_qubit('B', q2)
-        host.add_data_qubit('B', q3)
+        host.add_qubit('B', q2)
+        host.add_qubit('B', q3)
 
         qs = host.get_qubits('B')
         self.assertEqual(len(qs), 3)
@@ -116,7 +116,7 @@ class TestHost(unittest.TestCase):
         q3 = Qubit(host)
 
         host.add_epr('B', q1)
-        host.add_data_qubit('B', q2)
+        host.add_qubit('B', q2)
         host.add_ghz_qubit('B', q3)
 
         qs = host.get_qubits('B')
