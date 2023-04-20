@@ -45,7 +45,7 @@ def retransmission_receiver(host, sender_id, trial_num):
     q_received = False
     trial = 0
     while (not q_received) and trial < trial_num:
-        q = host.get_data_qubit(sender_id, wait=WAIT_TIME)['q']
+        q = host.get_qubit(sender_id, wait=WAIT_TIME)['q']
         if random.random() <= success_prob:
             q_received = True
             m = q.measure()

@@ -44,22 +44,22 @@ def qudp_receiver(host, q_size, sender_id):
 
     wait_start_time = time.time()
 
-    # TODO: Let's modify get_data_qubits so that it can wait t seconds for n qubits
+    # TODO: Let's modify get_qubits so that it can wait t seconds for n qubits
     while time.time() - wait_start_time < wait_time * q_size:
-        if len(host.get_data_qubits(sender_id)) == (q_size + checksum_size):
+        if len(host.get_qubits(sender_id)) == (q_size + checksum_size):
             break
 
-    if len(host.get_data_qubits(sender_id)) != q_size + checksum_size:
+    if len(host.get_qubits(sender_id)) != q_size + checksum_size:
         print('data qubits did not arrive')
         return
     else:
         print('qubits arrived')
 
-    data_qubits = host.get_data_qubits(sender_id)
+    data_qubits = host.get_qubits(sender_id)
 
     checksum_qubits = []
     checksum_cnt = 0
-    for i in range(len(host.get_data_qubits(sender_id))):
+    for i in range(len(host.get_qubits(sender_id))):
         if checksum_cnt < checksum_size:
             checksum_qubits.append(data_qubits[q_size + i].qubit)
             checksum_cnt = checksum_cnt + 1

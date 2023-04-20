@@ -13,7 +13,7 @@ def sender_protocol(host: Host, receiver: str):
 
 
 def receiver_protocol(host: Host, sender: str):
-    q = host.get_data_qubit(sender, wait=10)
+    q = host.get_qubit(sender, wait=10)
     print(f"{host.host_id} received qubit and measured the state {q.measure()}.")
 
 

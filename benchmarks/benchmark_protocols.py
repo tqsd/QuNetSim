@@ -30,7 +30,7 @@ def teleport(sender, receiver):
     for i in range(10):
         q1 = Qubit(sender)
         sender.send_teleport(receiver.host_id, q1, await_ack=False, no_ack=True)
-        q2 = receiver.get_data_qubit(sender.host_id, q1.id, wait=-1)
+        q2 = receiver.get_qubit(sender.host_id, q1.id, wait=-1)
         _ = q2.measure()
 
 

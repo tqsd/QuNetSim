@@ -328,7 +328,7 @@ of commands that are built into hosts, see the [Design Overview section](<a clas
     <span class="c1"># Here we write the protocol code for another host.</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
         <span class="c1"># Wait for a qubit from Alice for 10 seconds.</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_data_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">get_qubit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="c1"># Measure the qubit and print the result.</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> received a qubit in the </span><span class="si">%d</span><span class="s1"> state.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">host_id</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()))</span>
 

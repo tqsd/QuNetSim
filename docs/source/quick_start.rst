@@ -65,7 +65,7 @@ of commands that are built into hosts, see the [Design Overview section](https:/
         # Here we write the protocol code for another host.
         for _ in range(5):
             # Wait for a qubit from Alice for 10 seconds.
-            q = host.get_data_qubit(sender, wait=10)
+            q = host.get_qubit(sender, wait=10)
             # Measure the qubit and print the result.
             print('%s received a qubit in the %d state.' % (host.host_id, q.measure()))
 

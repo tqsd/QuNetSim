@@ -86,9 +86,9 @@ def eve_qkd(eve, msg_buff, key_size, sender):
         measurement_base = random.randint(0, 1)
 
         # wait for the qubit
-        q_bit = eve.get_data_qubit(sender, wait=wait_time)
+        q_bit = eve.get_qubit(sender, wait=wait_time)
         while q_bit is None:
-            q_bit = eve.get_data_qubit(sender, wait=wait_time)
+            q_bit = eve.get_qubit(sender, wait=wait_time)
 
         # measure qubit in right measurement basis
         if measurement_base == 1:

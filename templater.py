@@ -249,7 +249,7 @@ def gen_protocols(sniffer_host: str) -> StringIO:
     protocols.write("        print(\"{} Received classical: {}\"" +
                     ".format(host.host_id, sender_message.content))\n")
     protocols.write("    for i in range(5):\n")
-    protocols.write("        q = host.get_data_qubit(sender, wait=10)\n")
+    protocols.write("        q = host.get_qubit(sender, wait=10)\n")
     protocols.write("        m = q.measure()\n")
     protocols.write("        print(\"{} measured: {}\"" +
                     ".format(host.host_id, m))\n\n\n")
