@@ -1365,7 +1365,6 @@ class Host(object):
         Returns:
             (str): The qubit ID
         """
-        )
         if q_id is not None:
             qubit.id = q_id
 
