@@ -1,56 +1,56 @@
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, execute, Aer
 
-# Generate a random bit and basis string for Alice
+# Step 1: Establish Network Nodes
 np.random.seed(0)
-bits_alice = np.random.randint(2, size=100)
-bases_alice = np.random.randint(2, size=100)
+alice_bases = np.random.randint(2, size=100)
+alice_bits = np.random.randint(2, size=100)
 
-# Generate a random basis string for Bob
-bases_bob = np.random.randint(2, size=100)
+bob_bases = np.random.randint(2, size=100)
 
-# List to store Bob's measurements
-measurements_bob = []
+trusted_node_bases = alice_bases  # Trusted node uses Alice's bases
 
-# Run the protocol for each qubit
+# Step 2: Quantum State Preparation and Transmission
+qubits_transmitted = []
 for i in range(100):
-    # Define the quantum and classical registers
     qr = QuantumRegister(1, name="qr")
     cr = ClassicalRegister(1, name="cr")
-
-    # Define the quantum circuit
     qc = QuantumCircuit(qr, cr)
-
-    # Alice prepares the qubits
-    if bases_alice[i] == 0:  # Prepare in Z basis
-        if bits_alice[i] == 0:
+    
+    if alice_bases[i] == 0:  # Prepare in Z basis
+        if alice_bits[i] == 0:
             qc.initialize([1, 0], 0)  # |0>
         else:
             qc.initialize([0, 1], 0)  # |1>
     else:  # Prepare in X basis
-        if bits_alice[i] == 0:
+        if alice_bits[i] == 0:
             qc.initialize([1, 1]/np.sqrt(2), 0)  # |+>
         else:
             qc.initialize([1, -1]/np.sqrt(2), 0)  # |->
             
-    # Bob measures the qubits in his chosen basis
-    if bases_bob[i] == 0:  # Measure in Z basis
+    qubits_transmitted.append(qc)
+
+
+# Step 3: Qubit Measurement
+measurements_bob = []
+for i in range(100):
+    qc = qubits_transmitted[i]
+    
+    if bob_bases[i] == 0:  # Measure in Z basis
         qc.measure(qr[0], cr[0])
     else:  # Measure in X basis
         qc.h(qr[0])
         qc.measure(qr[0], cr[0])
-
-    # Run the quantum circuit on a simulator backend
+    
     backend = Aer.get_backend('qasm_simulator')
     job = execute(qc, backend, shots=1, memory=True)
     result = job.result()
     measurements_bob.append(int(result.get_memory()[0]))
 
-# Compare Alice and Bob's bases and create the sifted key
+# Step 4: Key Sifting
 sifted_key = ""
 for i in range(100):
-    if bases_alice[i] == bases_bob[i]:
+    if alice_bases[i] == bob_bases[i]:
         sifted_key += str(measurements_bob[i])
 
 print("Sifted key:", sifted_key)
-
