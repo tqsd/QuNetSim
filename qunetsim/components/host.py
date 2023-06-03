@@ -1454,6 +1454,16 @@ class Host(object):
         cla = self._classical_messages.get_all_from_sender(host_id, wait)
         return sorted(cla, key=lambda x: x.seq_num, reverse=True)
 
+    def get_classical_any_host(self, seq_num=None, wait=0):
+        if not isinstance(wait, float) and not isinstance(wait, int):
+            raise Exception('wait parameter should be a number')
+
+        if seq_num is not None:
+            return self._classical_messages.get_with_seq_num_from_any_sender(seq_num,wait)
+        
+        cla = self._classical_messages.get_all_from_any_sender(wait)
+        return sorted(cla, key=lambda x: x.seq_num, reverse=True)
+
     def get_next_classical(self, sender_id, wait=-1):
         """
         Gets the next classical message available from a sender.
