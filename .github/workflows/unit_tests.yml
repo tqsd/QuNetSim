@@ -49,3 +49,7 @@ jobs:
       run: |
         export PYTHONPATH=$PWD
         nose2 -s integration_tests test_host
+    - name: Run host get any message
+      run: |
+        export PYTHONPATH=$PWD
+        nose2 -s integration_tests test_get_classical_any_host
