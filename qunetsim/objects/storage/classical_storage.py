@@ -11,10 +11,13 @@ class ClassicalStorage(object):
     GET_NEXT = 1
     GET_ALL = 2
     GET_WITH_SEQ_NUM = 3
+    GET_ALL_MSGS_ANY_HOST = 4
+    GET_WITH_SEQ_NUM_ANY_HOST = 5
 
     def __init__(self):
         self._host_to_msg_dict = {}
         self._host_to_read_index = {}
+        self.last_msg_added_to_host = None
 
         # read write lock, for threaded access
         self._lock = RWLock()
@@ -43,6 +46,12 @@ class ClassicalStorage(object):
                 ret = self._get_all_from_sender(args[1])
             elif args[2] == ClassicalStorage.GET_WITH_SEQ_NUM:
                 ret = self._get_with_seq_num_from_sender(args[1], args[3])
+            elif args[2] == ClassicalStorage.GET_ALL_MSGS_ANY_HOST:
+                ret = self._get_all_from_sender(self.last_msg_added_to_host) \
+                    if self.last_msg_added_to_host is not None else None
+            elif args[2] == ClassicalStorage.GET_WITH_SEQ_NUM_ANY_HOST:
+                ret = self._get_with_seq_num_from_sender(self.last_msg_added_to_host, args[3]) \
+                    if self.last_msg_added_to_host is not None else None
             else:
                 raise ValueError("Internal Error, this request does not exist!")
 
@@ -84,6 +93,7 @@ class ClassicalStorage(object):
         self._lock.acquire_write()
         self._host_to_msg_dict = {}
         self._host_to_read_index = {}
+        self.last_msg_added_to_host = None
         self._lock.release_write()
 
     def _add_new_host_id(self, host_id):
@@ -129,6 +139,7 @@ class ClassicalStorage(object):
         if sender_id not in list(self._host_to_msg_dict):
             self._add_new_host_id(sender_id)
         self._host_to_msg_dict[sender_id].append(message)
+        self.last_msg_added_to_host = sender_id
         self._check_all_requests()
         self._lock.release_write()
 
@@ -269,6 +280,85 @@ class ClassicalStorage(object):
             return None
         msg = self._host_to_msg_dict[sender_id][seq_num]
         return msg
+    
+    def get_all_from_any_sender(self,wait=0):
+        """
+        Get all stored messages from any sender. If delete option is set,
+        the returned messages are removed from the storage.
+
+        Args:
+            wait (int): Default is 0. The maximum blocking time. -1 to block forever.
+
+        Returns:
+            List of messages of the sender. If there are none, an empty list is
+            returned.
+        """
+
+        # Block forever if wait is -1
+        if wait == -1:
+            wait = None
+
+        self._lock.acquire_write()
+        msg = None
+        if self.last_msg_added_to_host is not None:
+            msg = self.get_all_from_sender(self.last_msg_added_to_host)
+
+        if wait == 0:     
+            self._lock.release_write()
+            return msg if msg is not None else []
+        
+        q = queue.Queue()
+        request = [q, None, ClassicalStorage.GET_ALL_MSGS_ANY_HOST]
+        req_id = self._add_request(request)
+        self._lock.release_write()
+
+        try:
+            msg = q.get(timeout=wait)
+        except queue.Empty:
+            pass
+
+        
+        if msg is None:
+            self._lock.acquire_write()
+            self._remove_request(req_id)
+            self._lock.release_write()
+            return []
+        return msg
+    
+    def get_with_seq_num_from_any_sender(self, seq_num, wait=0):
+        '''
+        Returns:
+            Message object, if such a message exists, or none.
+        '''
+        # Block forever if wait is -1
+        if wait == -1:
+            wait = None
+
+        
+        self._lock.acquire_write()
+        next_msg = None
+        if self.last_msg_added_to_host is not None:
+            next_msg = self.get_with_seq_num_from_sender(self.last_msg_added_to_host,seq_num)
+
+        if wait == 0:           
+            self._lock.release_write()
+            return next_msg
+
+        q = queue.Queue()
+        request = [q, None, ClassicalStorage.GET_WITH_SEQ_NUM_ANY_HOST, seq_num]
+        req_id = self._add_request(request)
+        self._lock.release_write()
+
+        try:
+            next_msg = q.get(timeout=wait)
+        except queue.Empty:
+            pass
+
+        if next_msg is None:
+            self._lock.acquire_write()
+            self._remove_request(req_id)
+            self._lock.release_write()
+        return next_msg
 
     def get_all(self):
         """
