@@ -1196,13 +1196,14 @@ class Host(object):
         """
         return self._qubit_storage.change_qubit_id(host_id, new_id, old_id)
 
-    def get_epr_pairs(self, host_id):
+    def get_epr_pairs(self, host_id, remove_from_storage=False):
         """
         Return the dictionary of EPR pairs stored, just for the information regarding which qubits are stored.
         Does not remove the qubits from storage like *get_epr_pair* does.
 
         Args:
             host_id (str): Get the EPR pairs established with host with *host_id*
+            remove_from_storage (bool): Get and remove from storage.
 
         Returns:
             (dict): If *host_id* is not set, then return the entire dictionary of EPR pairs.
@@ -1211,9 +1212,11 @@ class Host(object):
         """
         if host_id is None:
             raise ValueError("Host id has to be specified!")
-        return self._qubit_storage.get_all_qubits_from_host(host_id, Qubit.EPR_QUBIT)
+        return self._qubit_storage.get_all_qubits_from_host(host_id,
+                                                            purpose=Qubit.EPR_QUBIT,
+                                                            remove=remove_from_storage)
 
-    def get_data_qubits(self, host_id, remove_from_storage=False):
+    def get_data_qubits(self, host_id, n=-1, wait=0, remove_from_storage=False):
         """
         Return the dictionary of data qubits stored, just for the information regarding which qubits are stored.
         Optional to remove the qubits from storage like *get_qubit* does with *remove_from_storage* field.
@@ -1245,15 +1248,19 @@ class Host(object):
         Args:
             host_id (str): The host id from which the data qubit have been received.
             remove_from_storage (bool): Get and remove from storage.
-
+            n (int):
+            wait (int):
         Returns:
             (dict): If *host_id* is not set, then return the entire dictionary of data qubits.
                   Else If *host_id* is set, then return the data qubits for that particular host if there are any.
                   Return an empty list otherwise.
         """
-        return self._qubit_storage.get_all_qubits_from_host(host_id,
-                                                            purpose=Qubit.DATA_QUBIT,
-                                                            remove=remove_from_storage)
+        if n == -1:
+            return self._qubit_storage.get_all_qubits_from_host(host_id,
+                                                                purpose=Qubit.DATA_QUBIT,
+                                                                remove=remove_from_storage)
+        else:
+            return self._qubit_storage.get_qubits_from_host(host_id, n, purpose=Qubit.DATA_QUBIT, wait=wait)
 
     def reset_data_qubits(self, host_id=None):
         """
