@@ -20,7 +20,7 @@ class RoutingPacket(object):
             ttl(int): Time-to-Live parameter
             route (List): Route the packet takes to its target host.
         """
-        if not isinstance(payload, Packet):
+        if not isinstance(payload, Packet) and payload is not None:
             raise ValueError("For the routing packet the payload has to be a packet.")
 
         self._ttl = ttl
