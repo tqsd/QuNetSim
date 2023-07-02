@@ -14,7 +14,7 @@ class Qubit(object):
     GHZ_QUBIT = "GHZ"
     W_QUBIT = "W"
 
-    def __init__(self, host, qubit=None, q_id=None, blocked=False):
+    def __init__(self, host, qubit=None, q_id=None, blocked=False, theta=None, phi=None):
         self._blocked = blocked
         self._host = host
         if q_id is not None:
@@ -25,6 +25,8 @@ class Qubit(object):
             self._qubit = qubit
         else:
             self._qubit = self._host.backend.create_qubit(self._host.host_id)
+        if theta is not None and phi is not None:
+            self.initialize_qubit(theta, phi)
 
     @property
     def host(self):
@@ -105,6 +107,18 @@ class Qubit(object):
             state (bool): True for blocked, False if not.
         """
         self._blocked = state
+    
+    def initialize_qubit(self, theta, phi):
+        """
+        Initializes the qubit according to the angles
+
+        Args:
+            theta (float): Rotation in radians around Y axis
+            phi (float): Rotation in radians around Z axis
+        """
+        self._host.backend.ry(self, theta)
+        self._host.backend.rz(self, phi)
+
 
     def send_to(self, receiver_id):
         """

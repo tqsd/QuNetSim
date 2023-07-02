@@ -1,7 +1,7 @@
 Send EPR Pairs
 --------------
 
-In this example, we'll see how to generate a network with 4 nodes as in the figure below.
+In this example, we'll see how to generate a network with 3 nodes connected in a linear fashion.
 We'll then send an EPR pair from one end of the link to the other. The example shows
 how to build a network and a simple application.
 

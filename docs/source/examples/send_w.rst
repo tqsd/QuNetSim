@@ -87,7 +87,7 @@ then the system density matrix is printed and a measurement on each participant 
     q4 = host_dean.get_w('Alice', q_id1, wait=10)
 
     print("System density matrix:")
-    print(q1._qubit[0].data)
+    print(q1.density_operator())
 
     m1 = q1.measure()
     m2 = q2.measure()
@@ -154,7 +154,7 @@ The full example is below:
         q4 = host_dean.get_w('Alice', q_id1, wait=10)
 
         print("System density matrix:")
-        print(q1._qubit[0].data)
+        print(q1.density_operator())
 
         m1 = q1.measure()
         m2 = q2.measure()

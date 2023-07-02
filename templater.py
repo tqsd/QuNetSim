@@ -195,12 +195,14 @@ def gen_import_statements(backend_num: int) -> StringIO:
 
     imports.write("from qunetsim.components import Host, Network\n")
     imports.write("from qunetsim.objects import Message, Qubit, Logger\n")
-    imports.write("from qunetsim.backends import " +
-                  backends[backend_num]['import'] + '\n')
+    if backend_num != 1:
+        imports.write("from qunetsim.backends import " +
+                      backends[backend_num]['import'] + '\n')
     imports.write("Logger.DISABLED = True\n\n")
-    imports.write("# create the " + backends[backend_num]['name'] +
-                  " backend object\n")
-    imports.write("backend = " + backends[backend_num]['import'] + "()\n\n\n")
+    if backend_num != 1:
+        imports.write("# create the " + backends[backend_num]['name'] +
+                        " backend object\n")
+        imports.write("backend = " + backends[backend_num]['import'] + "()\n\n\n")
     imports.seek(0)
     return imports
 

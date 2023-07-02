@@ -1,9 +1,12 @@
-class ClassicalModel(object):
+from qunetsim.objects.connections.channel_models.channel_model import ChannelModel
+
+class ClassicalModel(ChannelModel):
     """
     The model for a classical erasure channel.
     """
 
     def __init__(self):
+        super().__init__(ChannelModel.CLASSICAL)
         self._length = 0
         self._transmission_p = 1.0
 

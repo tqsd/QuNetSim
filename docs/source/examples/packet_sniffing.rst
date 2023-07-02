@@ -85,7 +85,7 @@ We set these protocols to the hosts via the following code:
     :linenos:
 
     host_bob.q_relay_sniffing = True
-    host_bob.q_relay_sniffing_fn = eve_sniffing_quantum
+    host_bob.q_relay_sniffing_fn = bob_sniffing_quantum
 
     host_bob.c_relay_sniffing = True
     host_bob.c_relay_sniffing_fn = bob_sniffing_classical
@@ -196,7 +196,7 @@ The full example is below.
         network.add_host(host_eve)
 
         host_bob.q_relay_sniffing = True
-        host_bob.q_relay_sniffing_fn = eve_sniffing_quantum
+        host_bob.q_relay_sniffing_fn = bob_sniffing_quantum
 
         host_bob.c_relay_sniffing = True
         host_bob.c_relay_sniffing_fn = bob_sniffing_classical
